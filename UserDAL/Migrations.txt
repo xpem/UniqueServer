@@ -1,0 +1,8 @@
+﻿
+//migrations
+//no console do gerenciador de pacotes selecione o dal referente:
+//Add-Migration "Init"
+//update-database
+
+//to remove last migration snapshot
+//Remove-Migration
