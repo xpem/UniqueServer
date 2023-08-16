@@ -7,8 +7,6 @@ namespace BookshelfModels
     {
         public required int UserId { get; set; }
 
-        public required User User { get; set; }
-
         [MaxLength(100)]
         public required string Title { get; set; }
 

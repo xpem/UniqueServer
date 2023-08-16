@@ -1,5 +1,5 @@
 using BaseModels;
-using DALDbContext;
+using UserManagementDAL;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -19,7 +19,8 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IUserBLL, UserBLL.UserBLL>();
 
-builder.Services.AddDbContext<AppDbContext>();
+builder.Services.AddDbContext<UserManagementDbContext>();
+builder.Services.AddDbContext<BookshelfDbContextDAL.BookshelfDbContext>();
 
 #endregion
 

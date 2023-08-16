@@ -13,17 +13,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Inventory", "Inventory", "{
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaseModels", "BaseModels\BaseModels.csproj", "{277B8036-919B-4FDA-8169-2AABC879FDB7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserBLL", "UserBLL\UserBLL.csproj", "{A5804468-29B7-47ED-8E67-67AC6A773E0F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserManagementBLL", "UserBLL\UserManagementBLL.csproj", "{A5804468-29B7-47ED-8E67-67AC6A773E0F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserModels", "UserModels\UserModels.csproj", "{03DE09AF-1831-4600-BAF7-BBF62772F4EA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserManagementModels", "UserModels\UserManagementModels.csproj", "{03DE09AF-1831-4600-BAF7-BBF62772F4EA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaseBLL", "BaseBLL\BaseBLL.csproj", "{4C799F48-F8C8-4B7C-B5C1-661FA4EA293B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaseBLLTests", "BaseBLLTests\BaseBLLTests.csproj", "{D4FD6876-321B-47A6-B179-7133FCCC8650}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbContextDAL", "UserDAL\DbContextDAL.csproj", "{E4152702-1537-43A4-8F9C-EF084AA5F559}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserManagementDAL", "UserDAL\UserManagementDAL.csproj", "{E4152702-1537-43A4-8F9C-EF084AA5F559}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookshelfModels", "BookshelfModels\BookshelfModels.csproj", "{63185F5D-3F83-41E6-A10F-89623B0F3EB2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookshelfModels", "BookshelfModels\BookshelfModels.csproj", "{63185F5D-3F83-41E6-A10F-89623B0F3EB2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookshelfDbContextDAL", "BookshelfDbContextDAL\BookshelfDbContextDAL.csproj", "{C264B489-479C-4444-86E1-A04BFF67BCBA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{63185F5D-3F83-41E6-A10F-89623B0F3EB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{63185F5D-3F83-41E6-A10F-89623B0F3EB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{63185F5D-3F83-41E6-A10F-89623B0F3EB2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C264B489-479C-4444-86E1-A04BFF67BCBA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C264B489-479C-4444-86E1-A04BFF67BCBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C264B489-479C-4444-86E1-A04BFF67BCBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C264B489-479C-4444-86E1-A04BFF67BCBA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -70,7 +76,9 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{A5804468-29B7-47ED-8E67-67AC6A773E0F} = {BEC0C7D5-054A-4433-9EE0-75B080E367E1}
 		{03DE09AF-1831-4600-BAF7-BBF62772F4EA} = {BEC0C7D5-054A-4433-9EE0-75B080E367E1}
+		{E4152702-1537-43A4-8F9C-EF084AA5F559} = {BEC0C7D5-054A-4433-9EE0-75B080E367E1}
 		{63185F5D-3F83-41E6-A10F-89623B0F3EB2} = {AD3D8A22-6B1C-45B3-A72F-632AEDFFC57E}
+		{C264B489-479C-4444-86E1-A04BFF67BCBA} = {AD3D8A22-6B1C-45B3-A72F-632AEDFFC57E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FBC14AD8-ED02-4BEC-93C9-2E416322F0BA}

@@ -1,6 +1,6 @@
 ﻿using BaseBLL.Functions;
 using BaseModels;
-using DALDbContext;
+using UserManagementDAL;
 using Microsoft.EntityFrameworkCore;
 using UserBLL.Functions;
 using UserDAL;
@@ -12,9 +12,9 @@ namespace UserBLL
 {
     public class UserBLL : IUserBLL
     {
-        readonly AppDbContext AppDbContext;
+        readonly UserManagementDbContext AppDbContext;
 
-        public UserBLL(AppDbContext appdbContext) { AppDbContext = appdbContext; }
+        public UserBLL(UserManagementDbContext appdbContext) { AppDbContext = appdbContext; }
 
         public async Task<BLLResponse> CreateUser(ReqUser reqUser)
         {
@@ -83,9 +83,9 @@ namespace UserBLL
 
             if (userResp is null) return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = "User/Password incorrect" } };
 
-            string userJwt = JwtFunctions.GenerateToken(userResp.Id, userResp.Email, DateTime.UtcNow.AddDays(5)); ;
+            string userJwt = JwtFunctions.GenerateToken(userResp.Id, userResp.Email, DateTime.UtcNow.AddDays(5));
 
-            UserHistoric userHistoric = new() { HistoricTypeId = (int)UserHistoricTypeValues.SignIn, CreatedAt = DateTime.UtcNow, UserId = userResp.Id, User = userResp };
+            UserHistoric userHistoric = new() { UserHistoricTypeId = (int)UserHistoricTypeValues.SignIn, CreatedAt = DateTime.UtcNow, UserId = userResp.Id, User = userResp };
 
             AppDbContext.UserHistoric.Add(userHistoric);
 
@@ -111,7 +111,7 @@ namespace UserBLL
 
                 AppDbContext.User.Update(user);
 
-                UserHistoric userHistoric = new() { HistoricTypeId = (int)UserHistoricTypeValues.PasswordChanged, CreatedAt = DateTime.UtcNow, UserId = user.Id, User = user };
+                UserHistoric userHistoric = new() { UserHistoricTypeId = (int)UserHistoricTypeValues.PasswordChanged, CreatedAt = DateTime.UtcNow, UserId = user.Id, User = user };
 
                 AppDbContext.UserHistoric.Add(userHistoric);
 

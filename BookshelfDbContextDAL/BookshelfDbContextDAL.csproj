@@ -20,7 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\UserModels\UserModels.csproj" />
+    <ProjectReference Include="..\BaseModels\BaseModels.csproj" />
+    <ProjectReference Include="..\BookshelfModels\BookshelfModels.csproj" />
   </ItemGroup>
 
 </Project>

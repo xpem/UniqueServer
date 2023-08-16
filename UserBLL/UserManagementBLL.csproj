@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
@@ -9,8 +9,8 @@
   <ItemGroup>
     <ProjectReference Include="..\BaseBLL\BaseBLL.csproj" />
     <ProjectReference Include="..\BaseModels\BaseModels.csproj" />
-    <ProjectReference Include="..\UserDAL\DbContextDAL.csproj" />
-    <ProjectReference Include="..\UserModels\UserModels.csproj" />
+    <ProjectReference Include="..\UserDAL\UserManagementDAL.csproj" />
+    <ProjectReference Include="..\UserModels\UserManagementModels.csproj" />
   </ItemGroup>
 
 </Project>

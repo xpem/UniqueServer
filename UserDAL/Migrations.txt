@@ -1,8 +1,8 @@
 ﻿
 //migrations
 //no console do gerenciador de pacotes selecione o dal referente:
-//Add-Migration "Init"
-//update-database
+//Add-Migration "Init" -Context <DbContext>
+//update-database -Context <DbContext>
 
 //to remove last migration snapshot
-//Remove-Migration
+//Remove-Migration -Context <DbContext> 
