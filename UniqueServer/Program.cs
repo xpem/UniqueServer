@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using UserBLL;
+using BookshelfBLL;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -15,9 +16,15 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-#region UserManagement DI
+#region DI Blls
 
 builder.Services.AddScoped<IUserBLL, UserBLL.UserBLL>();
+builder.Services.AddScoped<IBookBLL, BookBLL>();
+builder.Services.AddScoped<IBookHistoricBLL, BookHistoricBLL>();
+
+#endregion
+
+#region AppContexts
 
 builder.Services.AddDbContext<UserManagementDbContext>();
 builder.Services.AddDbContext<BookshelfDbContextDAL.BookshelfDbContext>();
@@ -75,8 +82,8 @@ WebApplication app = builder.Build();
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
 //{
-    app.UseSwagger();
-    app.UseSwaggerUI();
+app.UseSwagger();
+app.UseSwaggerUI();
 //}
 
 app.UseAuthentication();

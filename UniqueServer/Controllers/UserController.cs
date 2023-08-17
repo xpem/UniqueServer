@@ -35,7 +35,7 @@ namespace UniqueServer.Controllers
         [HttpPost]
         public async Task<IActionResult> SingUp(ReqUser reqUser) => BuildResponse(await userBLL.CreateUser(reqUser));
 
-        [Route("session")]
+        [Route("Session")]
         [HttpPost]
         public async Task<IActionResult> SingIn(ReqUserSession reqUserSession) => BuildResponse(await userBLL.GenerateUserToken(reqUserSession));
 

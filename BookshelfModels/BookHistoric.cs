@@ -2,6 +2,8 @@
 {
     public class BookHistoric : BaseModels.BaseModel
     {
+        public required int UserId { get; set; }
+
         public required int BookId { get; set; }
 
         public Book? Book { get; set; }

@@ -1,9 +1,7 @@
 ﻿using BaseBLL.Functions;
 using BaseModels;
-using UserManagementDAL;
 using Microsoft.EntityFrameworkCore;
-using UserBLL.Functions;
-using UserDAL;
+using UserManagementDAL;
 using UserModels;
 using UserModels.Request.User;
 using UserModels.Response;
@@ -18,7 +16,7 @@ namespace UserBLL
 
         public async Task<BLLResponse> CreateUser(ReqUser reqUser)
         {
-            string? validateError = reqUser.ValidateUser();
+            string? validateError = reqUser.ValidateBook();
 
             if (!string.IsNullOrEmpty(validateError)) return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = validateError } }; ;
 
@@ -31,7 +29,7 @@ namespace UserBLL
                 user.Password = Encryption.Encrypt(user.Password);
             else throw new NullReferenceException("Password do usuario nulo");
 
-            AppDbContext.User.Add(user);
+            await AppDbContext.User.AddAsync(user);
 
             await AppDbContext.SaveChangesAsync();
 
@@ -56,7 +54,7 @@ namespace UserBLL
 
         public async Task<BLLResponse> SendRecoverPasswordEmail(ReqUserEmail reqUserEmail)
         {
-            string? validateError = reqUserEmail.ValidateUser();
+            string? validateError = reqUserEmail.ValidateBook();
 
             if (!string.IsNullOrEmpty(validateError)) return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = validateError } };
 
@@ -75,7 +73,7 @@ namespace UserBLL
 
         public async Task<BLLResponse> GenerateUserToken(ReqUserSession reqUserSession)
         {
-            string? validateError = reqUserSession.ValidateUser();
+            string? validateError = reqUserSession.ValidateBook();
 
             if (!string.IsNullOrEmpty(validateError)) return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = validateError } };
 
@@ -87,7 +85,7 @@ namespace UserBLL
 
             UserHistoric userHistoric = new() { UserHistoricTypeId = (int)UserHistoricTypeValues.SignIn, CreatedAt = DateTime.UtcNow, UserId = userResp.Id, User = userResp };
 
-            AppDbContext.UserHistoric.Add(userHistoric);
+            await AppDbContext.UserHistoric.AddAsync(userHistoric);
 
             await AppDbContext.SaveChangesAsync();
 
@@ -96,7 +94,7 @@ namespace UserBLL
 
         public async Task<BLLResponse> UpdatePassword(ReqRecoverPassword reqRecoverPassword, int uid)
         {
-            string? validateError = reqRecoverPassword.ValidateUser();
+            string? validateError = reqRecoverPassword.ValidateBook();
 
             if (string.IsNullOrEmpty(validateError) && reqRecoverPassword.Password != reqRecoverPassword.PasswordConfirmation)
                 validateError = "Invalid password Confirmation";
@@ -113,7 +111,7 @@ namespace UserBLL
 
                 UserHistoric userHistoric = new() { UserHistoricTypeId = (int)UserHistoricTypeValues.PasswordChanged, CreatedAt = DateTime.UtcNow, UserId = user.Id, User = user };
 
-                AppDbContext.UserHistoric.Add(userHistoric);
+                await AppDbContext.UserHistoric.AddAsync(userHistoric);
 
                 await AppDbContext.SaveChangesAsync();
 
