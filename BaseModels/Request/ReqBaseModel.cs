@@ -4,7 +4,7 @@ namespace BaseModels.Request
 {
     public record ReqBaseModel
     {
-        public string? ValidateBook()
+        public string? Validate()
         {
             var validationResult = new List<ValidationResult>();
 

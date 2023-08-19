@@ -10,7 +10,8 @@
         {
             BookshelfDbContext.Database.EnsureCreated();
 
-            if (BookshelfDbContext.BookHistoricType != null) { return; }
+            if (BookshelfDbContext.BookHistoricType.Count() is not 0) { return; }
+
 
             var bookHistoricType = new BookshelfModels.BookHistoricType[]
             {
@@ -20,12 +21,12 @@
                 new BookshelfModels.BookHistoricType(){Name = "Inactivate"},
             };
 
-            foreach (var _bookHistoricType in bookHistoricType)
-            {
-                BookshelfDbContext.BookHistoricType?.Add(_bookHistoricType);
-            }
+            //foreach (var _bookHistoricType in bookHistoricType)
+            //{
+                BookshelfDbContext.BookHistoricType?.AddRange(bookHistoricType);
+            //}
 
-            if (BookshelfDbContext.BookHistoricItemField != null) { return; }
+            if (BookshelfDbContext.BookHistoricItemField.Count() is not 0) { return; }
 
             var bookHistoricItemField = new BookshelfModels.BookHistoricItemField[]
             {
@@ -43,10 +44,10 @@
                 new BookshelfModels.BookHistoricItemField(){Name = "Inativo"}
             };
 
-            foreach (var _bookHistoricItemField in bookHistoricItemField)
-            {
-                BookshelfDbContext.BookHistoricItemField?.Add(_bookHistoricItemField);
-            }
+            //foreach (var _bookHistoricItemField in bookHistoricItemField)
+            //{
+                BookshelfDbContext.BookHistoricItemField?.AddRangeAsync(bookHistoricItemField);
+            //}
 
             BookshelfDbContext.SaveChanges();
         }

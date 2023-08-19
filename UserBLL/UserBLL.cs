@@ -16,7 +16,7 @@ namespace UserBLL
 
         public async Task<BLLResponse> CreateUser(ReqUser reqUser)
         {
-            string? validateError = reqUser.ValidateBook();
+            string? validateError = reqUser.Validate();
 
             if (!string.IsNullOrEmpty(validateError)) return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = validateError } }; ;
 
@@ -54,7 +54,7 @@ namespace UserBLL
 
         public async Task<BLLResponse> SendRecoverPasswordEmail(ReqUserEmail reqUserEmail)
         {
-            string? validateError = reqUserEmail.ValidateBook();
+            string? validateError = reqUserEmail.Validate();
 
             if (!string.IsNullOrEmpty(validateError)) return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = validateError } };
 
@@ -73,7 +73,7 @@ namespace UserBLL
 
         public async Task<BLLResponse> GenerateUserToken(ReqUserSession reqUserSession)
         {
-            string? validateError = reqUserSession.ValidateBook();
+            string? validateError = reqUserSession.Validate();
 
             if (!string.IsNullOrEmpty(validateError)) return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = validateError } };
 
@@ -94,7 +94,7 @@ namespace UserBLL
 
         public async Task<BLLResponse> UpdatePassword(ReqRecoverPassword reqRecoverPassword, int uid)
         {
-            string? validateError = reqRecoverPassword.ValidateBook();
+            string? validateError = reqRecoverPassword.Validate();
 
             if (string.IsNullOrEmpty(validateError) && reqRecoverPassword.Password != reqRecoverPassword.PasswordConfirmation)
                 validateError = "Invalid password Confirmation";

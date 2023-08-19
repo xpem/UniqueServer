@@ -8,27 +8,15 @@ using UserModels.Request.User;
 
 namespace UniqueServer.Controllers
 {
-    [Route("[controller]")]
+    [Route("[Controller]")]
     [ApiController]
-    public class UserController : Controller
+    public class UserController : BaseController
     {
         readonly IUserBLL userBLL;
-
+ 
         public UserController(IUserBLL userBLL)
         {
             this.userBLL = userBLL;
-        }
-
-        private IActionResult BuildResponse(BLLResponse bllResp) => ((!string.IsNullOrEmpty(bllResp.Error?.Error)) ? BadRequest(bllResp.Error) : Ok(bllResp.Content));
-
-        private int? RecoverUidSession()
-        {
-            string? uid = null;
-
-            if (HttpContext.User.Identity is ClaimsIdentity identity)
-                uid = identity.Claims.FirstOrDefault(x => x.Type == "uid")?.Value;
-
-            return uid != null ? Convert.ToInt32(uid) : null;
         }
 
         [Route("")]
@@ -51,7 +39,6 @@ namespace UniqueServer.Controllers
         [Route("RecoverPassword")]
         [HttpPost]
         public async Task<IActionResult> SendRecoverPasswordEmail(ReqUserEmail reqUserEmail) => BuildResponse(await userBLL.SendRecoverPasswordEmail(reqUserEmail));
-
 
         [ApiExplorerSettings(IgnoreApi = true)]
         [Route("RecoverPassword/{token}")]

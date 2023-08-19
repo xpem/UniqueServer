@@ -1,9 +1,12 @@
-﻿using BookshelfModels;
+﻿using BaseModels;
+using BookshelfModels;
 
 namespace BookshelfBLL
 {
     public interface IBookHistoricBLL
     {
-        Task BuildAndCreateBookUpdateHistoric(Book oldBook, Book book);
+        Task<BookHistoric> BuildAndCreateBookUpdateHistoric(Book oldBook, Book book);
+
+        BLLResponse GetByCreatedAt(DateTime createdAt, int uid);
     }
 }

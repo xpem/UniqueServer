@@ -11,5 +11,7 @@
         public required int BookHistoricTypeId { get; set; }
 
         public BookHistoricType? BookHistoricType { get; set; }
+
+        public List<BookHistoricItem>? BookHistoricItems { get; set; }
     }
 }
