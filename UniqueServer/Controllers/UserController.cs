@@ -1,8 +1,5 @@
-﻿using BaseModels;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using UserBLL;
 using UserModels.Request.User;
 
@@ -13,7 +10,7 @@ namespace UniqueServer.Controllers
     public class UserController : BaseController
     {
         readonly IUserBLL userBLL;
- 
+
         public UserController(IUserBLL userBLL)
         {
             this.userBLL = userBLL;
@@ -57,7 +54,7 @@ namespace UniqueServer.Controllers
         [HttpPost]
         public IActionResult RecoverPassword(string token, [FromForm] ReqRecoverPassword reqRecoverPassword)
         {
-            int? uid = BaseBLL.Functions.JwtFunctions.GetUidFromToken(token);
+            int? uid = UserManagementBLL.Functions.JwtFunctions.GetUidFromToken(token);
 
             if (uid == null) { NoContent(); }
 

@@ -3,7 +3,6 @@ using BookshelfDbContextDAL;
 using BookshelfModels;
 using BookshelfModels.Request;
 using BookshelfModels.Response;
-using Microsoft.EntityFrameworkCore;
 
 namespace BookshelfBLL
 {
@@ -23,8 +22,6 @@ namespace BookshelfBLL
 
         public async Task<BLLResponse> CreateBook(ReqBook reqBook, int uid)
         {
-
-     
 
             string? validateError = reqBook.Validate();
 

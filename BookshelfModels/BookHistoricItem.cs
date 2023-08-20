@@ -1,15 +1,9 @@
 ﻿using BaseModels;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BookshelfModels
 {
-    public class BookHistoricItem: BaseModel
+    public class BookHistoricItem : BaseModel
     {
         public required int BookHistoricItemFieldId { get; set; }
 

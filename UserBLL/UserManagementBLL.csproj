@@ -7,7 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BaseBLL\BaseBLL.csproj" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.15.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\BaseModels\BaseModels.csproj" />
     <ProjectReference Include="..\UserDAL\UserManagementDAL.csproj" />
     <ProjectReference Include="..\UserModels\UserManagementModels.csproj" />

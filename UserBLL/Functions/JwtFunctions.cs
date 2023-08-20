@@ -4,11 +4,11 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace BaseBLL.Functions
+namespace UserManagementBLL.Functions
 {
     public static class JwtFunctions
     {
-        public static string GenerateToken(int uid, string email,DateTime expireDt)
+        public static string GenerateToken(int uid, string email, DateTime expireDt)
         {
             JwtSecurityTokenHandler tokenHandler = new();
             byte[] key = Encoding.ASCII.GetBytes(PrivateKeys.JwtKey);
@@ -55,5 +55,4 @@ namespace BaseBLL.Functions
             }
         }
     }
-
 }

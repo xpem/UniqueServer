@@ -1,6 +1,7 @@
 ﻿using BookshelfBLL;
 using BookshelfModels.Request;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace UniqueServer.Controllers
@@ -40,11 +41,15 @@ namespace UniqueServer.Controllers
         [Route("byupdatedat/{UpdatedAt}")]
         [HttpGet]
         [Authorize]
-        public IActionResult GetBookByUpdatedAt(DateTime updatedAt)
+        public IActionResult GetBookByUpdatedAt(string updatedAt)
         {
+            //format 2023-06-10T21:53:28.331Z
+
+            DateTime dtUpdatedAt = DateTime.Parse(updatedAt);
+
             int? uid = RecoverUidSession();
 
-            return uid != null ? BuildResponse(bookBLL.GetByUpdatedAt(updatedAt, Convert.ToInt32(uid))) : NoContent();
+            return uid != null ? BuildResponse(bookBLL.GetByUpdatedAt(dtUpdatedAt, Convert.ToInt32(uid))) : NoContent();
         }
     }
 }

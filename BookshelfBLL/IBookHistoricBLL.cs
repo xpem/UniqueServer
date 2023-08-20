@@ -7,6 +7,6 @@ namespace BookshelfBLL
     {
         Task<BookHistoric> BuildAndCreateBookUpdateHistoric(Book oldBook, Book book);
 
-        BLLResponse GetByCreatedAt(DateTime createdAt, int uid);
+        BLLResponse GetByBookIdOrCreatedAt(int? BookId, DateTime? createdAt, int uid);
     }
 }

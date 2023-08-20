@@ -1,6 +1,6 @@
-﻿using BaseBLL.Functions;
-using BaseModels;
+﻿using BaseModels;
 using Microsoft.EntityFrameworkCore;
+using UserManagementBLL.Functions;
 using UserManagementDAL;
 using UserModels;
 using UserModels.Request.User;
@@ -101,7 +101,7 @@ namespace UserBLL
 
             if (!string.IsNullOrEmpty(validateError)) return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = validateError } };
 
-            var user = await AppDbContext.User.FirstOrDefaultAsync(x => x.Id == uid);
+            User? user = await AppDbContext.User.FirstOrDefaultAsync(x => x.Id == uid);
 
             if (user != null)
             {

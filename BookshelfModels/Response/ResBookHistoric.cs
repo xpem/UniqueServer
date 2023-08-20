@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BookshelfModels.Response
+﻿namespace BookshelfModels.Response
 {
     public record ResBookHistoric
     {
@@ -12,9 +6,9 @@ namespace BookshelfModels.Response
 
         public DateTime CreatedAt { get; init; }
 
-        public int TypeId { get; init; }
+        public int? TypeId { get; init; }
 
-        public string? TypeName { get;init; }
+        public string? TypeName { get; init; }
 
         public int BookId { get; init; }
 

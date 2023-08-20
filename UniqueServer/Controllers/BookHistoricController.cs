@@ -26,7 +26,17 @@ namespace UniqueServer.Controllers
 
             int? uid = RecoverUidSession();
 
-            return uid != null ? BuildResponse(bookHistoricBLL.GetByCreatedAt(dtCreatedAt, Convert.ToInt32(uid))) : NoContent();
+            return uid != null ? BuildResponse(bookHistoricBLL.GetByBookIdOrCreatedAt(null, dtCreatedAt, Convert.ToInt32(uid))) : NoContent();
+        }
+
+        [Route("bybookid/{bookId}")]
+        [HttpGet]
+        [Authorize]
+        public IActionResult GetBookHistoricByUpdatedAt(int bookId)
+        {
+            int? uid = RecoverUidSession();
+
+            return uid != null ? BuildResponse(bookHistoricBLL.GetByBookIdOrCreatedAt(bookId, null, Convert.ToInt32(uid))) : NoContent();
         }
     }
 }

@@ -3,11 +3,6 @@ using BookshelfDbContextDAL;
 using BookshelfModels;
 using BookshelfModels.Response;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BookshelfBLL
 {
@@ -22,7 +17,7 @@ namespace BookshelfBLL
 
         public async Task<BookHistoric> BuildAndCreateBookUpdateHistoric(Book oldBook, Book book)
         {
-            var bookHistoricItemList = new List<BookshelfModels.BookHistoricItem>();
+            List<BookHistoricItem> bookHistoricItemList = new();
 
             BookHistoric bookHistoric = new()
             {
@@ -146,42 +141,66 @@ namespace BookshelfBLL
             return bookHistoric;
         }
 
-        /// <summary>
-        /// todo, otimizar isto
-        /// </summary>
-        public BLLResponse GetByCreatedAt(DateTime createdAt, int uid)
+
+        private List<BookHistoric> QueryByCreatedAt(DateTime createdAt, int uid)
         {
-            //se isso funcionar no banco real, adaptar o teste para se comportar igual
-            var bookHistorics = bookshelfDbContext.BookHistoric.Where(x => x.UserId == uid && x.CreatedAt > createdAt)
+            return bookshelfDbContext.BookHistoric.Where(x => x.UserId == uid && x.CreatedAt > createdAt)
                 .Include(x => x.BookHistoricItems)
                 .ThenInclude(bhi => bhi.BookHistoricItemField)
                 .Include(x => x.BookHistoricType)
                 .OrderByDescending(x => x.CreatedAt).ToList();
+        }
 
+        private List<BookHistoric> QueryByBookId(int Bookid, int uid)
+        {
+            return bookshelfDbContext.BookHistoric.Where(x => x.UserId == uid && x.BookId == Bookid)
+                .Include(x => x.BookHistoricItems)
+                .ThenInclude(bhi => bhi.BookHistoricItemField)
+                .Include(x => x.BookHistoricType)
+                .OrderByDescending(x => x.CreatedAt).ToList();
+        }
+
+
+        /// <summary>
+        /// todo, otimizar isto
+        /// </summary>
+        public BLLResponse GetByBookIdOrCreatedAt(int? BookId, DateTime? createdAt, int uid)
+        {
+            List<BookHistoric> bookHistorics;
+
+            if (BookId is not null)
+                bookHistorics = QueryByBookId(BookId.Value, uid);
+            else
+            {
+                if (createdAt.HasValue)
+                    bookHistorics = QueryByCreatedAt(createdAt.Value, uid);
+                else throw new NotImplementedException("Get sem parametro válido de busca");
+            }
             List<ResBookHistoric> resBookHistorics = new();
 
-            foreach( var _bookHistoric in bookHistorics)
+            foreach (BookHistoric? _bookHistoric in bookHistorics)
             {
                 List<ResBookHistoricItem> resBookHistoricItems = new();
 
-                foreach (var _bookHistoricItem in _bookHistoric.BookHistoricItems)
-                {
-                    resBookHistoricItems.Add(new ResBookHistoricItem()
+                if (_bookHistoric.BookHistoricItems != null)
+                    foreach (BookHistoricItem _bookHistoricItem in _bookHistoric.BookHistoricItems)
                     {
-                        Id = _bookHistoricItem.Id,
-                        BookFieldId = _bookHistoricItem.BookHistoricItemFieldId,
-                        BookFieldName = _bookHistoricItem.BookHistoricItemField?.Name,
-                        CreatedAt = _bookHistoricItem.CreatedAt,
-                        UpdatedFrom = _bookHistoricItem.UpdatedFrom,
-                        UpdatedTo = _bookHistoricItem.UpdatedTo,
-                    });
-                }
+                        resBookHistoricItems.Add(new ResBookHistoricItem()
+                        {
+                            Id = _bookHistoricItem.Id,
+                            BookFieldId = _bookHistoricItem.BookHistoricItemFieldId,
+                            BookFieldName = _bookHistoricItem.BookHistoricItemField?.Name,
+                            CreatedAt = _bookHistoricItem.CreatedAt,
+                            UpdatedFrom = _bookHistoricItem.UpdatedFrom,
+                            UpdatedTo = _bookHistoricItem.UpdatedTo,
+                        });
+                    }
 
                 resBookHistorics.Add(new ResBookHistoric()
                 {
                     Id = _bookHistoric.Id,
-                    TypeId = _bookHistoric.BookHistoricType.Id,
-                    TypeName = _bookHistoric.BookHistoricType.Name,
+                    TypeId = _bookHistoric.BookHistoricType?.Id,
+                    TypeName = _bookHistoric.BookHistoricType?.Name,
                     CreatedAt = _bookHistoric.CreatedAt,
                     BookId = _bookHistoric.BookId,
                     BookHistoricItems = resBookHistoricItems

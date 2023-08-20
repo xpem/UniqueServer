@@ -1,11 +1,8 @@
-﻿using BookshelfBLL;
-using BookshelfModels;
-using BookshelfModels.Request;
+﻿using BookshelfModels;
 using BookshelfModels.Response;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System.Collections.Generic;
 
 namespace BookshelfBLL.Tests
 {
@@ -16,9 +13,9 @@ namespace BookshelfBLL.Tests
         [TestMethod()]
         public void CreateBookTest()
         {
-            var mockSetBook = new Mock<DbSet<BookshelfModels.Book>>();
+            Mock<DbSet<Book>> mockSetBook = new();
 
-            var data = new List<BookshelfModels.Book>() {
+            IQueryable<Book> data = new List<BookshelfModels.Book>() {
                 new Book() {
                     Title = "Teste de Título 2",
                     Authors = "Emanuel Teste",
@@ -34,9 +31,9 @@ namespace BookshelfBLL.Tests
             mockSetBook.As<IQueryable<Book>>().Setup(m => m.ElementType).Returns(data.ElementType);
             mockSetBook.As<IQueryable<Book>>().Setup(m => m.GetEnumerator()).Returns(() => data.GetEnumerator());
 
-            var mockSetBookHistoric = new Mock<DbSet<BookshelfModels.BookHistoric>>();
+            Mock<DbSet<BookHistoric>> mockSetBookHistoric = new();
 
-            var mockContext = new Mock<BookshelfDbContextDAL.BookshelfDbContext>();
+            Mock<BookshelfDbContextDAL.BookshelfDbContext> mockContext = new();
 
             mockContext.Setup(m => m.Book).Returns(mockSetBook.Object);
 
@@ -53,7 +50,7 @@ namespace BookshelfBLL.Tests
                 Status = Convert.ToInt32(1)
             };
 
-            var response = bookBLL.CreateBook(reqBook, 1).Result;
+            BaseModels.BLLResponse response = bookBLL.CreateBook(reqBook, 1).Result;
 
             if (response.Content is not null)
                 Assert.AreEqual(((ResBook)response.Content).Title, "Teste de Título");
@@ -63,9 +60,9 @@ namespace BookshelfBLL.Tests
         [TestMethod()]
         public void UpdateBookTest()
         {
-            var mockSetBook = new Mock<DbSet<BookshelfModels.Book>>();
+            Mock<DbSet<Book>> mockSetBook = new();
 
-            var data = new List<BookshelfModels.Book>() {
+            IQueryable<Book> data = new List<BookshelfModels.Book>() {
                 new Book() {
                     Title = "Teste de Título",
                     Authors = "Emanuel Teste",
@@ -81,11 +78,11 @@ namespace BookshelfBLL.Tests
             mockSetBook.As<IQueryable<Book>>().Setup(m => m.ElementType).Returns(data.ElementType);
             mockSetBook.As<IQueryable<Book>>().Setup(m => m.GetEnumerator()).Returns(() => data.GetEnumerator());
 
-            var mockSetBookHistoric = new Mock<DbSet<BookshelfModels.BookHistoric>>();
+            Mock<DbSet<BookHistoric>> mockSetBookHistoric = new();
 
-            var mockSetBookHistoricItem = new Mock<DbSet<BookshelfModels.BookHistoricItem>>();
+            Mock<DbSet<BookHistoricItem>> mockSetBookHistoricItem = new();
 
-            var mockContext = new Mock<BookshelfDbContextDAL.BookshelfDbContext>();
+            Mock<BookshelfDbContextDAL.BookshelfDbContext> mockContext = new();
 
             mockContext.Setup(m => m.Book).Returns(mockSetBook.Object);
 
@@ -105,7 +102,7 @@ namespace BookshelfBLL.Tests
                 Pages = 300
             };
 
-            var response = bookBLL.UpdateBook(reqBook, 1, 1).Result;
+            BaseModels.BLLResponse response = bookBLL.UpdateBook(reqBook, 1, 1).Result;
 
             if (response.Content is not null)
                 Assert.AreEqual(((ResBook)response.Content).Title, "Teste de Título alterado");
@@ -115,9 +112,9 @@ namespace BookshelfBLL.Tests
         [TestMethod()]
         public void GetByUpdatedAtTest()
         {
-            var mockSetBook = new Mock<DbSet<BookshelfModels.Book>>();
+            Mock<DbSet<Book>> mockSetBook = new();
 
-            var data = new List<BookshelfModels.Book>() {
+            IQueryable<Book> data = new List<BookshelfModels.Book>() {
                 new Book() {
                     Title = "Teste de Título",
                     Authors = "Emanuel Teste",
@@ -170,14 +167,14 @@ namespace BookshelfBLL.Tests
             mockSetBook.As<IQueryable<Book>>().Setup(m => m.ElementType).Returns(data.ElementType);
             mockSetBook.As<IQueryable<Book>>().Setup(m => m.GetEnumerator()).Returns(() => data.GetEnumerator());
 
-            var mockContext = new Mock<BookshelfDbContextDAL.BookshelfDbContext>();
+            Mock<BookshelfDbContextDAL.BookshelfDbContext> mockContext = new();
             mockContext.Setup(m => m.Book).Returns(mockSetBook.Object);
 
             IBookHistoricBLL bookHistoricBLL = new BookHistoricBLL(mockContext.Object);
 
             IBookBLL bookBLL = new BookBLL(mockContext.Object, bookHistoricBLL);
 
-            var response = bookBLL.GetByUpdatedAt(DateTime.Now.AddDays(-1), 1);
+            BaseModels.BLLResponse response = bookBLL.GetByUpdatedAt(DateTime.Now.AddDays(-1), 1);
 
             List<ResBook>? resBook = new();
 
