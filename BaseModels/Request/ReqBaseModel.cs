@@ -4,9 +4,9 @@ namespace BaseModels.Request
 {
     public record ReqBaseModel
     {
-        public string? ValidateUser()
+        public string? Validate()
         {
-            var validationResult = new List<ValidationResult>();
+            List<ValidationResult> validationResult = new();
 
             Validator.TryValidateObject(this, new ValidationContext(this), validationResult, true);
 

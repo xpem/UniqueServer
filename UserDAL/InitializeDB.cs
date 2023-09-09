@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BaseBLL
+﻿namespace BaseBLL
 {
     public class InitializeDB
     {
+        //readonly AppDbContext AppDbContext;
+
+        //public UserBLL(AppDbContext appdbContext) { AppDbContext = appdbContext; }
+
         //public async Task CreateInitialValues()
         //{
         //    AppDbContext.Database.EnsureCreated();
@@ -22,7 +20,7 @@ namespace BaseBLL
 
         //    foreach (var userHistoricTypeItem in UserHistoricType)
         //    {
-        //       AppDbContext.UserHistorycType?.Add(userHistoricTypeItem);
+        //        AppDbContext.UserHistorycType?.Add(userHistoricTypeItem);
         //    }
 
         //    AppDbContext.SaveChanges();

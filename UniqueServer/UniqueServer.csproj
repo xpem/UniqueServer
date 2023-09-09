@@ -35,7 +35,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BaseModels\BaseModels.csproj" />
-    <ProjectReference Include="..\UserBLL\UserBLL.csproj" />
+    <ProjectReference Include="..\BookshelfBLL\BookshelfBLL.csproj" />
+    <ProjectReference Include="..\BookshelfDbContextDAL\BookshelfDbContextDAL.csproj" />
+    <ProjectReference Include="..\UserBLL\UserManagementBLL.csproj" />
+    <ProjectReference Include="..\UserDAL\UserManagementDAL.csproj" />
   </ItemGroup>
 
   <ItemGroup>

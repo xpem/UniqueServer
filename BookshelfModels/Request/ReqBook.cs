@@ -1,31 +1,38 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace BookshelfModels
+namespace BookshelfModels.Request
 {
-    public class Book : BaseModels.BaseModel
+    public record ReqBook : BaseModels.Request.ReqBaseModel
     {
-        public required int UserId { get; set; }
+        [StringLength(2000)]
+        [DataType(DataType.Url)]
+        public string? Cover { get; init; }
 
-        [MaxLength(100)]
-        public required string Title { get; set; }
+        [StringLength(100)]
+        public required string Title { get; init; }
 
-        [MaxLength(100)]
+        [StringLength(100)]
         public string? Subtitle { get; set; } = null;
 
-        [MaxLength(150)]
+        [StringLength(150)]
         public required string Authors { get; set; }
 
-        [MaxLength(3)]
+        [Range(0, 99)]
         public int? Volume { get; set; } = null;
 
-        [MaxLength(3)]
         public int? Pages { get; set; } = null;
 
-        [MaxLength(4)]
+        [Range(0, 9999)]
         public int? Year { get; set; } = null;
 
-        [MaxLength(2)]
+        [Range(0, 4)]
         public required int Status { get; set; }
+
+        [Range(0, 5)]
+        public int? Score { get; set; } = null;
+
+        [MaxLength(350)]
+        public string? Comment { get; set; } = null;
 
         [MaxLength(50)]
         public string? Genre { get; set; } = null;
@@ -33,21 +40,11 @@ namespace BookshelfModels
         [MaxLength(100)]
         public string? Isbn { get; set; } = null;
 
-        [MaxLength(2000)]
-        public string? Cover { get; set; } = null;
-
         [MaxLength(200)]
         public string? GoogleId { get; set; } = null;
 
-        [MaxLength(1)]
-        public int? Score { get; set; } = null;
-
-        [MaxLength(350)]
-        public string? Comment { get; set; } = null;
-
-        public required DateTime UpdatedAt { get; set; } = DateTime.Now;
-
         public bool Inactive { get; set; } = false;
+
 
     }
 }

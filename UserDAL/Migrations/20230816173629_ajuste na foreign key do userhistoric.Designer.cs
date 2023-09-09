@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace UserDAL.Migrations
 {
     [DbContext(typeof(UserManagementDbContext))]
-    [Migration("20230814205858_Criação das tabelas de historico de usuario")]
-    partial class Criaçãodastabelasdehistoricodeusuario
+    [Migration("20230816173629_ajuste na foreign key do userhistoric")]
+    partial class Ajustenaforeignkeydouserhistoric
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -60,10 +60,17 @@ namespace UserDAL.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("HistoricTypeId")
+                    b.Property<int>("UserHistoricTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserHistoricTypeId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("UserHistoric");
                 });
@@ -82,6 +89,25 @@ namespace UserDAL.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("UserHistoricType");
+                });
+
+            modelBuilder.Entity("UserModels.UserHistoric", b =>
+                {
+                    b.HasOne("UserModels.UserHistoricType", "UserHistoricType")
+                        .WithMany()
+                        .HasForeignKey("UserHistoricTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("UserModels.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+
+                    b.Navigation("UserHistoricType");
                 });
 #pragma warning restore 612, 618
         }

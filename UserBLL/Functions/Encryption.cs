@@ -2,7 +2,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace BaseBLL.Functions
+namespace UserManagementBLL.Functions
 {
     public static class Encryption
     {

@@ -2,9 +2,9 @@
 using Microsoft.EntityFrameworkCore;
 using UserModels;
 
-namespace DALDbContext
+namespace UserManagementDAL
 {
-    public class AppDbContext : DbContext
+    public class UserManagementDbContext : DbContext
     {
         public DbSet<User> User { get; set; }
 
@@ -14,7 +14,7 @@ namespace DALDbContext
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseMySql(PrivateKeys.UserConn, ServerVersion.AutoDetect(PrivateKeys.UserConn));
+            optionsBuilder.UseMySql(PrivateKeys.UserManagementConn, ServerVersion.AutoDetect(PrivateKeys.UserManagementConn));
             // b => b.MigrationsAssembly("UserManagementServer")
         }
     }

@@ -1,10 +1,11 @@
 using BaseModels;
-using DALDbContext;
+using BookshelfBLL;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using UserBLL;
+using UserManagementDAL;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -15,11 +16,18 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-#region UserManagement DI
+#region DI Blls
 
 builder.Services.AddScoped<IUserBLL, UserBLL.UserBLL>();
+builder.Services.AddScoped<IBookBLL, BookBLL>();
+builder.Services.AddScoped<IBookHistoricBLL, BookHistoricBLL>();
 
-builder.Services.AddDbContext<AppDbContext>();
+#endregion
+
+#region AppContexts
+
+builder.Services.AddDbContext<UserManagementDbContext>();
+builder.Services.AddDbContext<BookshelfDbContextDAL.BookshelfDbContext>();
 
 #endregion
 
@@ -74,8 +82,8 @@ WebApplication app = builder.Build();
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
 //{
-    app.UseSwagger();
-    app.UseSwaggerUI();
+app.UseSwagger();
+app.UseSwaggerUI();
 //}
 
 app.UseAuthentication();

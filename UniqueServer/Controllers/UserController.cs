@@ -1,16 +1,13 @@
-﻿using BaseModels;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using UserBLL;
 using UserModels.Request.User;
 
 namespace UniqueServer.Controllers
 {
-    [Route("[controller]")]
+    [Route("[Controller]")]
     [ApiController]
-    public class UserController : Controller
+    public class UserController : BaseController
     {
         readonly IUserBLL userBLL;
 
@@ -19,23 +16,11 @@ namespace UniqueServer.Controllers
             this.userBLL = userBLL;
         }
 
-        private IActionResult BuildResponse(BLLResponse bllResp) => ((!string.IsNullOrEmpty(bllResp.Error?.Error)) ? BadRequest(bllResp.Error) : Ok(bllResp.Content));
-
-        private int? RecoverUidSession()
-        {
-            string? uid = null;
-
-            if (HttpContext.User.Identity is ClaimsIdentity identity)
-                uid = identity.Claims.FirstOrDefault(x => x.Type == "uid")?.Value;
-
-            return uid != null ? Convert.ToInt32(uid) : null;
-        }
-
         [Route("")]
         [HttpPost]
         public async Task<IActionResult> SingUp(ReqUser reqUser) => BuildResponse(await userBLL.CreateUser(reqUser));
 
-        [Route("session")]
+        [Route("Session")]
         [HttpPost]
         public async Task<IActionResult> SingIn(ReqUserSession reqUserSession) => BuildResponse(await userBLL.GenerateUserToken(reqUserSession));
 
@@ -51,7 +36,6 @@ namespace UniqueServer.Controllers
         [Route("RecoverPassword")]
         [HttpPost]
         public async Task<IActionResult> SendRecoverPasswordEmail(ReqUserEmail reqUserEmail) => BuildResponse(await userBLL.SendRecoverPasswordEmail(reqUserEmail));
-
 
         [ApiExplorerSettings(IgnoreApi = true)]
         [Route("RecoverPassword/{token}")]
@@ -70,7 +54,7 @@ namespace UniqueServer.Controllers
         [HttpPost]
         public IActionResult RecoverPassword(string token, [FromForm] ReqRecoverPassword reqRecoverPassword)
         {
-            int? uid = BaseBLL.Functions.JwtFunctions.GetUidFromToken(token);
+            int? uid = UserManagementBLL.Functions.JwtFunctions.GetUidFromToken(token);
 
             if (uid == null) { NoContent(); }
 
