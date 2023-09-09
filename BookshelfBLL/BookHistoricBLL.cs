@@ -141,7 +141,6 @@ namespace BookshelfBLL
             return bookHistoric;
         }
 
-
         private List<BookHistoric> QueryByCreatedAt(DateTime createdAt, int uid)
         {
             return bookshelfDbContext.BookHistoric.Where(x => x.UserId == uid && x.CreatedAt > createdAt)
@@ -159,7 +158,6 @@ namespace BookshelfBLL
                 .Include(x => x.BookHistoricType)
                 .OrderByDescending(x => x.CreatedAt).ToList();
         }
-
 
         /// <summary>
         /// todo, otimizar isto
