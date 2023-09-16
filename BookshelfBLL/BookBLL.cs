@@ -134,25 +134,29 @@ namespace BookshelfBLL
                 Comment = reqBook.Comment,
                 Inactive = reqBook.Inactive,
                 CreatedAt = oldBook.CreatedAt,
-                UpdatedAt = oldBook.UpdatedAt,
                 UserId = oldBook.UserId,
+                UpdatedAt = oldBook.UpdatedAt,
                 Id = oldBook.Id
             };
 
-            bookshelfDbContext.ChangeTracker?.Clear();
+            if (NewBookHasChanges(oldBook,newBook))
+            {
+                newBook.UpdatedAt = DateTime.Now;
 
-            bookshelfDbContext.Book.Update(newBook);
+                bookshelfDbContext.ChangeTracker?.Clear();
 
-            await bookshelfDbContext.SaveChangesAsync();
+                bookshelfDbContext.Book.Update(newBook);
 
-            //alternativa
-            //await bookshelfDbContext.Book.Where(a => a.Id == bookId).ExecuteUpdateAsync(
-            //     b => b.SetProperty(c => c.Title, reqBook.Title)
-            //     .SetProperty(c => c.Subtitle, reqBook.Subtitle)
-            //     );
+                await bookshelfDbContext.SaveChangesAsync();
 
-            await bookHistoricBLL.BuildAndCreateBookUpdateHistoric(oldBook, newBook);
+                //alternativa
+                //await bookshelfDbContext.Book.Where(a => a.Id == bookId).ExecuteUpdateAsync(
+                //     b => b.SetProperty(c => c.Title, reqBook.Title)
+                //     .SetProperty(c => c.Subtitle, reqBook.Subtitle)
+                //     );
 
+                await bookHistoricBLL.BuildAndCreateBookUpdateHistoric(oldBook, newBook);
+            }
 
             BookshelfModels.Response.ResBook resBook = new()
             {
@@ -226,5 +230,39 @@ namespace BookshelfBLL
             return null;
         }
 
+        protected static bool NewBookHasChanges(Book oldBook, Book newBook)
+        {
+            if (oldBook.Title != newBook.Title)
+                return true;
+
+            if (oldBook.Subtitle != newBook.Subtitle)
+                return true;
+
+            if (oldBook.Authors != newBook.Authors)
+                return true;
+
+            if (oldBook.Volume != newBook.Volume)
+                return true;
+
+            if (oldBook.Pages != newBook.Pages)
+                return true;
+
+            if (oldBook.Year != newBook.Year)
+                return true;
+
+            if (oldBook.Status != newBook.Status)
+                return true;
+
+            if (oldBook.Score != newBook.Score)
+                return true;
+
+            if (oldBook.Genre != newBook.Genre)
+                return true;
+
+            if (oldBook.Isbn != newBook.Isbn)
+                return true;
+
+            return false;
+        }
     }
 }

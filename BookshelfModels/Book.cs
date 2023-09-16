@@ -45,7 +45,7 @@ namespace BookshelfModels
         [MaxLength(350)]
         public string? Comment { get; set; } = null;
 
-        public required DateTime UpdatedAt { get; set; } = DateTime.Now;
+        public required DateTime UpdatedAt { get; set; }
 
         public bool Inactive { get; set; } = false;
 

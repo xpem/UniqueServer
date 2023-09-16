@@ -9,6 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Functions\**" />
+    <Content Remove="Functions\**" />
+    <EmbeddedResource Remove="Functions\**" />
+    <None Remove="Functions\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="StaticFiles\RecoverPassword\Index.html" />
     <None Remove="StaticFiles\RecoverPassword\PasswordUpdated.html" />
   </ItemGroup>
@@ -39,10 +46,6 @@
     <ProjectReference Include="..\BookshelfDbContextDAL\BookshelfDbContextDAL.csproj" />
     <ProjectReference Include="..\UserBLL\UserManagementBLL.csproj" />
     <ProjectReference Include="..\UserDAL\UserManagementDAL.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Functions\" />
   </ItemGroup>
 
 </Project>

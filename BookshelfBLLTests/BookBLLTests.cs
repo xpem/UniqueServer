@@ -110,6 +110,61 @@ namespace BookshelfBLL.Tests
         }
 
         [TestMethod()]
+        public void UpdateBook_Try_Update_Without_Changes_Test()
+        {
+            Mock<DbSet<Book>> mockSetBook = new();
+
+            DateTime oldUpdatedAt = new DateTime(2023,01,01,01,01,01);
+
+            IQueryable<Book> data = new List<BookshelfModels.Book>() {
+                new Book() {
+                    Title = "Teste de Título",
+                    Authors = "Emanuel Teste",
+                    Status = Convert.ToInt32(1),
+                    Pages = 300,
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = oldUpdatedAt,
+                    UserId = 1,
+                    Id = 1
+                } }.AsQueryable();
+
+            mockSetBook.As<IQueryable<Book>>().Setup(m => m.Provider).Returns(data.Provider);
+            mockSetBook.As<IQueryable<Book>>().Setup(m => m.Expression).Returns(data.Expression);
+            mockSetBook.As<IQueryable<Book>>().Setup(m => m.ElementType).Returns(data.ElementType);
+            mockSetBook.As<IQueryable<Book>>().Setup(m => m.GetEnumerator()).Returns(() => data.GetEnumerator());
+
+            Mock<DbSet<BookHistoric>> mockSetBookHistoric = new();
+
+            Mock<DbSet<BookHistoricItem>> mockSetBookHistoricItem = new();
+
+            Mock<BookshelfDbContextDAL.BookshelfDbContext> mockContext = new();
+
+            mockContext.Setup(m => m.Book).Returns(mockSetBook.Object);
+
+            mockContext.Setup(m => m.BookHistoric).Returns(mockSetBookHistoric.Object);
+
+            mockContext.Setup(m => m.BookHistoricItem).Returns(mockSetBookHistoricItem.Object);
+
+            IBookHistoricBLL bookHistoricBLL = new BookHistoricBLL(mockContext.Object);
+
+            IBookBLL bookBLL = new BookBLL(mockContext.Object, bookHistoricBLL);
+
+            BookshelfModels.Request.ReqBook reqBook = new()
+            {
+                Title = "Teste de Título",
+                Authors = "Emanuel Teste",
+                Status = Convert.ToInt32(1),
+                Pages = 300
+            };
+
+            BaseModels.BLLResponse response = bookBLL.UpdateBook(reqBook, 1, 1).Result;
+
+            if (response.Content is not null)
+                Assert.AreEqual(((ResBook)response.Content).UpdatedAt, oldUpdatedAt);
+            else Assert.Fail();
+        }
+
+        [TestMethod()]
         public void GetByUpdatedAtTest()
         {
             Mock<DbSet<Book>> mockSetBook = new();
