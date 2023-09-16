@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace UniqueServer.Controllers
 {
-
     [Route("[Controller]")]
     [ApiController]
     public class BookController : BaseController
