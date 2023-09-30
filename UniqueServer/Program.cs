@@ -1,5 +1,7 @@
 using BaseModels;
 using BookshelfBLL;
+using BookshelfDAL;
+using BookshelfDbContextDAL;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -16,13 +18,21 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-#region DI Blls
+#region DI BLL
 
 builder.Services.AddScoped<IUserBLL, UserBLL.UserBLL>();
 builder.Services.AddScoped<IBookBLL, BookBLL>();
 builder.Services.AddScoped<IBookHistoricBLL, BookHistoricBLL>();
 
 #endregion
+
+#region DI DAL
+
+builder.Services.AddScoped<IBookDAL, BookDAL>();
+builder.Services.AddScoped<IBookHistoricDAL, BookHistoricDAL>();
+
+#endregion
+
 
 #region AppContexts
 

@@ -1,4 +1,5 @@
 ﻿using BaseModels;
+using BookshelfDAL;
 using BookshelfDbContextDAL;
 using BookshelfModels;
 using BookshelfModels.Response;
@@ -6,16 +7,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BookshelfBLL
 {
+
     public class BookHistoricBLL : IBookHistoricBLL
     {
         private readonly BookshelfDbContext bookshelfDbContext;
+        private readonly IBookHistoricDAL bookHistoricDAL;
 
-        public BookHistoricBLL(BookshelfDbContext bookshelfDbContext)
+        public BookHistoricBLL(BookshelfDbContext bookshelfDbContext, IBookHistoricDAL bookHistoricDAL)
         {
             this.bookshelfDbContext = bookshelfDbContext;
+            this.bookHistoricDAL = bookHistoricDAL;
         }
 
-        public async Task<BookHistoric> BuildAndCreateBookUpdateHistoric(Book oldBook, Book book)
+        public async Task<BookHistoric> BuildAndCreateBookUpdateHistoricAsync(Book oldBook, Book book)
         {
             List<BookHistoricItem> bookHistoricItemList = new();
 
@@ -27,9 +31,7 @@ namespace BookshelfBLL
                 CreatedAt = DateTime.Now
             };
 
-            await bookshelfDbContext.BookHistoric.AddAsync(bookHistoric);
-
-            await bookshelfDbContext.SaveChangesAsync();
+            await AddBookHistoricAsync(bookHistoric);
 
             if (oldBook.Title != book.Title)
                 bookHistoricItemList.Add(new BookHistoricItem()
@@ -132,9 +134,7 @@ namespace BookshelfBLL
                     CreatedAt = DateTime.Now
                 });
 
-            await bookshelfDbContext.BookHistoricItem.AddRangeAsync(bookHistoricItemList);
-
-            await bookshelfDbContext.SaveChangesAsync();
+            await bookHistoricDAL.ExecuteAddRangeBookHistoricItemListAsync(bookHistoricItemList);
 
             bookHistoric.BookHistoricItems = bookHistoricItemList;
 
@@ -208,5 +208,7 @@ namespace BookshelfBLL
 
             return new BLLResponse() { Content = resBookHistorics };
         }
+
+        public Task<int> AddBookHistoricAsync(BookHistoric bookHistoric) => bookHistoricDAL.ExecuteAddBookHistoricAsync(bookHistoric);
     }
 }

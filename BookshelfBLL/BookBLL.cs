@@ -3,18 +3,21 @@ using BookshelfDbContextDAL;
 using BookshelfModels;
 using BookshelfModels.Request;
 using BookshelfModels.Response;
+using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace BookshelfBLL
 {
     public class BookBLL : IBookBLL
     {
-        private readonly BookshelfDbContext bookshelfDbContext;
         private readonly IBookHistoricBLL bookHistoricBLL;
 
-        public BookBLL(BookshelfDbContext bookshelfDbContext, IBookHistoricBLL bookHistoricBLL)
+        public IBookDAL BookDAL { get; }
+
+        public BookBLL(IBookHistoricBLL bookHistoricBLL, IBookDAL bookDAL)
         {
-            this.bookshelfDbContext = bookshelfDbContext;
             this.bookHistoricBLL = bookHistoricBLL;
+            BookDAL = bookDAL;
 
             //BookshelfDbContextDAL.BookshelfInitializeDB ini = new BookshelfInitializeDB(bookshelfDbContext);
             //ini.CreateInitialValues();
@@ -42,13 +45,13 @@ namespace BookshelfBLL
                 Genre = reqBook.Genre,
                 Isbn = reqBook.Isbn,
                 GoogleId = reqBook.GoogleId,
-                Inactive = reqBook.Inactive,
+                Inactive = false,
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now,
                 UserId = uid,
             };
 
-            string? existingBookMessage = ValidateExistingBook(book);
+            string? existingBookMessage = await ValidateExistingBookAsync(book);
 
             if (existingBookMessage != null)
             {
@@ -59,9 +62,7 @@ namespace BookshelfBLL
                 };
             }
 
-            await bookshelfDbContext.Book.AddAsync(book);
-
-            await bookshelfDbContext.SaveChangesAsync();
+            await BookDAL.ExecuteAddBookAsync(book);
 
             BookHistoric bookHistoric = new()
             {
@@ -71,9 +72,7 @@ namespace BookshelfBLL
                 CreatedAt = DateTime.Now
             };
 
-            await bookshelfDbContext.BookHistoric.AddAsync(bookHistoric);
-
-            await bookshelfDbContext.SaveChangesAsync();
+            await bookHistoricBLL.AddBookHistoricAsync(bookHistoric);
 
             BookshelfModels.Response.ResBook resBook = new()
             {
@@ -109,10 +108,10 @@ namespace BookshelfBLL
             if (!string.IsNullOrEmpty(validateError))
                 return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = validateError } };
 
-            if (bookshelfDbContext.Book.FirstOrDefault(x => x.Title == reqBook.Title && x.UserId == uid && x.Inactive == false && x.Id != bookId) != null)
+            if ((await BookDAL.GetBookByTitleWithNotEqualIdAsync(reqBook.Title, uid, bookId) != null))
                 return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = "Already exist a book with this title" } };
 
-            Book? oldBook = bookshelfDbContext.Book.FirstOrDefault(x => x.Id == bookId && x.UserId == uid);
+            Book? oldBook = await BookDAL.GetBookByIdAsync(bookId, uid);
 
             if (oldBook == null)
                 return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = "Invalid Book id" } };
@@ -132,22 +131,18 @@ namespace BookshelfBLL
                 GoogleId = reqBook.GoogleId,
                 Score = reqBook.Score,
                 Comment = reqBook.Comment,
-                Inactive = reqBook.Inactive,
+                Inactive = oldBook.Inactive,
                 CreatedAt = oldBook.CreatedAt,
                 UserId = oldBook.UserId,
                 UpdatedAt = oldBook.UpdatedAt,
                 Id = oldBook.Id
             };
 
-            if (NewBookHasChanges(oldBook,newBook))
+            if (NewBookHasChanges(oldBook, newBook))
             {
                 newBook.UpdatedAt = DateTime.Now;
 
-                bookshelfDbContext.ChangeTracker?.Clear();
-
-                bookshelfDbContext.Book.Update(newBook);
-
-                await bookshelfDbContext.SaveChangesAsync();
+                await BookDAL.ExecuteUpdateBookAsync(newBook);
 
                 //alternativa
                 //await bookshelfDbContext.Book.Where(a => a.Id == bookId).ExecuteUpdateAsync(
@@ -155,7 +150,7 @@ namespace BookshelfBLL
                 //     .SetProperty(c => c.Subtitle, reqBook.Subtitle)
                 //     );
 
-                await bookHistoricBLL.BuildAndCreateBookUpdateHistoric(oldBook, newBook);
+                await bookHistoricBLL.BuildAndCreateBookUpdateHistoricAsync(oldBook, newBook);
             }
 
             BookshelfModels.Response.ResBook resBook = new()
@@ -182,6 +177,34 @@ namespace BookshelfBLL
             return new BLLResponse { Content = resBook, Error = null };
         }
 
+        public async Task<BLLResponse> InactivateBook(int bookId, int uid)
+        {
+            if (bookId < 0)
+                return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = "Invalid Book id" } };
+
+            Book? oldBook = await BookDAL.GetBookByIdAsync(bookId, uid);
+
+            if (oldBook == null)
+                return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = "Invalid Book id" } };
+
+            if (oldBook.Inactive == false)
+            {
+                await BookDAL.ExecuteInactivateBookAsync(bookId, uid);
+
+                BookHistoric bookHistoric = new()
+                {
+                    BookId = oldBook.Id,
+                    BookHistoricTypeId = 4,
+                    UserId = oldBook.UserId,
+                    CreatedAt = DateTime.Now
+                };
+
+                await bookHistoricBLL.AddBookHistoricAsync(bookHistoric);
+            }
+
+            return new BLLResponse { Content = true, Error = null };
+        }
+
         public BLLResponse GetByUpdatedAt(DateTime updatedAt, int uid)
         {
             //string? validateError = req.Validate();
@@ -189,7 +212,7 @@ namespace BookshelfBLL
             //if (!string.IsNullOrEmpty(validateError))
             //    return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = validateError } };
 
-            IQueryable<Book> books = bookshelfDbContext.Book.Where(x => x.UpdatedAt > updatedAt && x.UserId == uid);
+            IQueryable<Book> books = BookDAL.GetBooksAfterUpdatedAt(updatedAt, uid);
 
             List<ResBook> resBooks = new();
 
@@ -220,9 +243,9 @@ namespace BookshelfBLL
             return new BLLResponse() { Content = resBooks, Error = null };
         }
 
-        protected string? ValidateExistingBook(BookshelfModels.Book book)
+        protected async Task<string?> ValidateExistingBookAsync(Book book)
         {
-            Book? bookResp = bookshelfDbContext.Book.FirstOrDefault(x => x.Title.Equals(book.Title) && x.UserId.Equals(book.UserId) && x.Inactive.Equals(false));
+            Book? bookResp = await BookDAL.GetBookByTitleAsync(book.Title, book.UserId);
 
             if (bookResp != null)
                 return "A book with this title has already been added";
@@ -264,5 +287,6 @@ namespace BookshelfBLL
 
             return false;
         }
+
     }
 }

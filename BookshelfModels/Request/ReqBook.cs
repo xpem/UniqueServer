@@ -43,7 +43,7 @@ namespace BookshelfModels.Request
         [MaxLength(200)]
         public string? GoogleId { get; set; } = null;
 
-        public bool Inactive { get; set; } = false;
+        //public bool Inactive { get; set; } = false;
 
 
     }

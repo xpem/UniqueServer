@@ -1,4 +1,7 @@
-﻿using BookshelfModels;
+﻿using BookshelfBLL;
+using BookshelfDAL;
+using BookshelfDbContextDAL;
+using BookshelfModels;
 using BookshelfModels.Response;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -15,7 +18,7 @@ namespace BookshelfBLL.Tests
         {
             Mock<DbSet<Book>> mockSetBook = new();
 
-            IQueryable<Book> data = new List<BookshelfModels.Book>() {
+            var listBook = new List<BookshelfModels.Book>() {
                 new Book() {
                     Title = "Teste de Título 2",
                     Authors = "Emanuel Teste",
@@ -26,29 +29,29 @@ namespace BookshelfBLL.Tests
                     Id = 1
                 } }.AsQueryable();
 
-            mockSetBook.As<IQueryable<Book>>().Setup(m => m.Provider).Returns(data.Provider);
-            mockSetBook.As<IQueryable<Book>>().Setup(m => m.Expression).Returns(data.Expression);
-            mockSetBook.As<IQueryable<Book>>().Setup(m => m.ElementType).Returns(data.ElementType);
-            mockSetBook.As<IQueryable<Book>>().Setup(m => m.GetEnumerator()).Returns(() => data.GetEnumerator());
-
-            Mock<DbSet<BookHistoric>> mockSetBookHistoric = new();
-
-            Mock<BookshelfDbContextDAL.BookshelfDbContext> mockContext = new();
-
-            mockContext.Setup(m => m.Book).Returns(mockSetBook.Object);
-
-            mockContext.Setup(m => m.BookHistoric).Returns(mockSetBookHistoric.Object);
-
-            IBookHistoricBLL bookHistoricBLL = new BookHistoricBLL(mockContext.Object);
-
-            IBookBLL bookBLL = new BookBLL(mockContext.Object, bookHistoricBLL);
-
             BookshelfModels.Request.ReqBook reqBook = new()
             {
                 Title = "Teste de Título",
                 Authors = "Emanuel Teste",
                 Status = Convert.ToInt32(1)
             };
+
+            Book? bookByTitleAsync = null;
+
+            Mock<BookshelfDbContextDAL.BookshelfDbContext> mockContext = new();
+
+            Mock<IBookHistoricDAL> mockBookHistoricDAL = new();
+            Mock<IBookDAL> mockBookDAL = new();
+
+            mockBookDAL.Setup(x => x.ExecuteAddBookAsync(It.IsAny<Book>())).ReturnsAsync(1);
+            mockBookDAL.Setup(x => x.GetBookByTitleAsync(reqBook.Title, 1)).ReturnsAsync(bookByTitleAsync);
+
+            mockBookHistoricDAL.Setup(x => x.ExecuteAddBookHistoricAsync(It.IsAny<BookHistoric>())).ReturnsAsync(1);
+
+            IBookHistoricBLL bookHistoricBLL = new BookHistoricBLL(mockContext.Object, mockBookHistoricDAL.Object);
+
+            IBookBLL bookBLL = new BookBLL(bookHistoricBLL, mockBookDAL.Object);
+                   
 
             BaseModels.BLLResponse response = bookBLL.CreateBook(reqBook, 1).Result;
 
@@ -62,21 +65,17 @@ namespace BookshelfBLL.Tests
         {
             Mock<DbSet<Book>> mockSetBook = new();
 
-            IQueryable<Book> data = new List<BookshelfModels.Book>() {
-                new Book() {
-                    Title = "Teste de Título",
-                    Authors = "Emanuel Teste",
-                    Status = Convert.ToInt32(1),
-                    CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now,
-                    UserId = 1,
-                    Id = 1
-                } }.AsQueryable();
-
-            mockSetBook.As<IQueryable<Book>>().Setup(m => m.Provider).Returns(data.Provider);
-            mockSetBook.As<IQueryable<Book>>().Setup(m => m.Expression).Returns(data.Expression);
-            mockSetBook.As<IQueryable<Book>>().Setup(m => m.ElementType).Returns(data.ElementType);
-            mockSetBook.As<IQueryable<Book>>().Setup(m => m.GetEnumerator()).Returns(() => data.GetEnumerator());
+            Book OriBook = new()
+            {
+                Title = "Teste de Título",
+                Authors = "Emanuel Teste",
+                Status = Convert.ToInt32(1),
+                Pages = 300,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
+                UserId = 1,
+                Id = 1
+            };
 
             Mock<DbSet<BookHistoric>> mockSetBookHistoric = new();
 
@@ -84,15 +83,16 @@ namespace BookshelfBLL.Tests
 
             Mock<BookshelfDbContextDAL.BookshelfDbContext> mockContext = new();
 
-            mockContext.Setup(m => m.Book).Returns(mockSetBook.Object);
+            Mock<IBookDAL> mockBookDAL = new();
+            Mock<IBookHistoricDAL> mockBookHistoricDAL = new();
 
-            mockContext.Setup(m => m.BookHistoric).Returns(mockSetBookHistoric.Object);
+            mockBookHistoricDAL.Setup(x => x.ExecuteAddBookHistoricAsync(It.IsAny<BookHistoric>())).ReturnsAsync(1);
 
-            mockContext.Setup(m => m.BookHistoricItem).Returns(mockSetBookHistoricItem.Object);
+            mockBookHistoricDAL.Setup(x => x.ExecuteAddRangeBookHistoricItemListAsync(It.IsAny<List<BookHistoricItem>>())).ReturnsAsync(1);
 
-            IBookHistoricBLL bookHistoricBLL = new BookHistoricBLL(mockContext.Object);
+            IBookHistoricBLL bookHistoricBLL = new BookHistoricBLL(mockContext.Object, mockBookHistoricDAL.Object);
 
-            IBookBLL bookBLL = new BookBLL(mockContext.Object, bookHistoricBLL);
+            Book? bookByTitleWithNotEqualId = null;
 
             BookshelfModels.Request.ReqBook reqBook = new()
             {
@@ -101,6 +101,14 @@ namespace BookshelfBLL.Tests
                 Status = Convert.ToInt32(1),
                 Pages = 300
             };
+
+            mockBookDAL.Setup(x => x.GetBookByTitleWithNotEqualIdAsync(reqBook.Title, 1, 1)).ReturnsAsync(bookByTitleWithNotEqualId);
+
+            mockBookDAL.Setup(x => x.GetBookByIdAsync(1, 1)).ReturnsAsync(OriBook);
+
+            mockBookDAL.Setup(x => x.ExecuteUpdateBookAsync(It.IsAny<Book>())).ReturnsAsync(1);
+
+            IBookBLL bookBLL = new BookBLL(bookHistoricBLL, mockBookDAL.Object);
 
             BaseModels.BLLResponse response = bookBLL.UpdateBook(reqBook, 1, 1).Result;
 
@@ -114,24 +122,19 @@ namespace BookshelfBLL.Tests
         {
             Mock<DbSet<Book>> mockSetBook = new();
 
-            DateTime oldUpdatedAt = new DateTime(2023,01,01,01,01,01);
+            DateTime oldUpdatedAt = new(2023, 01, 01, 01, 01, 01);
 
-            IQueryable<Book> data = new List<BookshelfModels.Book>() {
-                new Book() {
-                    Title = "Teste de Título",
-                    Authors = "Emanuel Teste",
-                    Status = Convert.ToInt32(1),
-                    Pages = 300,
-                    CreatedAt = DateTime.Now,
-                    UpdatedAt = oldUpdatedAt,
-                    UserId = 1,
-                    Id = 1
-                } }.AsQueryable();
-
-            mockSetBook.As<IQueryable<Book>>().Setup(m => m.Provider).Returns(data.Provider);
-            mockSetBook.As<IQueryable<Book>>().Setup(m => m.Expression).Returns(data.Expression);
-            mockSetBook.As<IQueryable<Book>>().Setup(m => m.ElementType).Returns(data.ElementType);
-            mockSetBook.As<IQueryable<Book>>().Setup(m => m.GetEnumerator()).Returns(() => data.GetEnumerator());
+            Book OriBook = new Book()
+            {
+                Title = "Teste de Título",
+                Authors = "Emanuel Teste",
+                Status = Convert.ToInt32(1),
+                Pages = 300,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = oldUpdatedAt,
+                UserId = 1,
+                Id = 1
+            };
 
             Mock<DbSet<BookHistoric>> mockSetBookHistoric = new();
 
@@ -145,9 +148,14 @@ namespace BookshelfBLL.Tests
 
             mockContext.Setup(m => m.BookHistoricItem).Returns(mockSetBookHistoricItem.Object);
 
-            IBookHistoricBLL bookHistoricBLL = new BookHistoricBLL(mockContext.Object);
+            Mock<IBookDAL> mockBookDAL = new();
+            Mock<IBookHistoricDAL> mockBookHistoricDAL = new();
 
-            IBookBLL bookBLL = new BookBLL(mockContext.Object, bookHistoricBLL);
+            mockBookHistoricDAL.Setup(x => x.ExecuteAddBookHistoricAsync(It.IsAny<BookHistoric>())).ReturnsAsync(1);
+
+            mockBookHistoricDAL.Setup(x => x.ExecuteAddRangeBookHistoricItemListAsync(It.IsAny<List<BookHistoricItem>>())).ReturnsAsync(1);
+
+            IBookHistoricBLL bookHistoricBLL = new BookHistoricBLL(mockContext.Object, mockBookHistoricDAL.Object);
 
             BookshelfModels.Request.ReqBook reqBook = new()
             {
@@ -156,6 +164,16 @@ namespace BookshelfBLL.Tests
                 Status = Convert.ToInt32(1),
                 Pages = 300
             };
+
+            Book? bookByTitleWithNotEqualId = null;
+
+            mockBookDAL.Setup(x => x.GetBookByTitleWithNotEqualIdAsync(reqBook.Title, 1, 1)).ReturnsAsync(bookByTitleWithNotEqualId);
+
+            mockBookDAL.Setup(x => x.GetBookByIdAsync(1, 1)).ReturnsAsync(OriBook);
+
+            mockBookDAL.Setup(x => x.ExecuteUpdateBookAsync(It.IsAny<Book>())).ReturnsAsync(1);
+
+            IBookBLL bookBLL = new BookBLL(bookHistoricBLL, mockBookDAL.Object);
 
             BaseModels.BLLResponse response = bookBLL.UpdateBook(reqBook, 1, 1).Result;
 
@@ -169,7 +187,7 @@ namespace BookshelfBLL.Tests
         {
             Mock<DbSet<Book>> mockSetBook = new();
 
-            IQueryable<Book> data = new List<BookshelfModels.Book>() {
+            var list = new List<BookshelfModels.Book>() {
                 new Book() {
                     Title = "Teste de Título",
                     Authors = "Emanuel Teste",
@@ -187,7 +205,9 @@ namespace BookshelfBLL.Tests
                     UpdatedAt = DateTime.Now.AddDays(-3),
                     UserId = 1,
                     Id = 2
-                },
+                } };
+
+            var listResult = new List<BookshelfModels.Book>() {
                      new Book() {
                     Title = "Teste de Título 3",
                     Authors = "Emanuel Teste",
@@ -214,8 +234,13 @@ namespace BookshelfBLL.Tests
                     UpdatedAt = DateTime.Now,
                     UserId = 1,
                     Id = 5
-                },
-            }.AsQueryable();
+                } };
+
+            list.AddRange(listResult);
+
+            IQueryable<Book> data = list.AsQueryable();
+
+            IQueryable<Book> dataResult = listResult.AsQueryable();
 
             mockSetBook.As<IQueryable<Book>>().Setup(m => m.Provider).Returns(data.Provider);
             mockSetBook.As<IQueryable<Book>>().Setup(m => m.Expression).Returns(data.Expression);
@@ -225,11 +250,18 @@ namespace BookshelfBLL.Tests
             Mock<BookshelfDbContextDAL.BookshelfDbContext> mockContext = new();
             mockContext.Setup(m => m.Book).Returns(mockSetBook.Object);
 
-            IBookHistoricBLL bookHistoricBLL = new BookHistoricBLL(mockContext.Object);
+            Mock<IBookHistoricDAL> mockBookHistoricDAL = new();
+            Mock<IBookDAL> mockBookDAL = new();
 
-            IBookBLL bookBLL = new BookBLL(mockContext.Object, bookHistoricBLL);
+            IBookHistoricBLL bookHistoricBLL = new BookHistoricBLL(mockContext.Object, mockBookHistoricDAL.Object);
 
-            BaseModels.BLLResponse response = bookBLL.GetByUpdatedAt(DateTime.Now.AddDays(-1), 1);
+            DateTime updatedAt = DateTime.Now.AddDays(-1);
+
+            mockBookDAL.Setup(x => x.GetBooksAfterUpdatedAt(updatedAt, 1)).Returns(dataResult);
+
+            IBookBLL bookBLL = new BookBLL(bookHistoricBLL, mockBookDAL.Object);
+
+            BaseModels.BLLResponse response = bookBLL.GetByUpdatedAt(updatedAt, 1);
 
             List<ResBook>? resBook = new();
 
@@ -240,6 +272,52 @@ namespace BookshelfBLL.Tests
                 Assert.IsTrue(true);
             else
                 Assert.Fail();
+        }
+
+        [TestMethod()]
+        public void InactivateBookTest()
+        {
+            Mock<DbSet<Book>> mockSetBook = new();
+
+            DateTime oldUpdatedAt = new DateTime(2023, 01, 01, 01, 01, 01);
+
+            Mock<DbSet<BookHistoric>> mockSetBookHistoric = new();
+
+            Mock<DbSet<BookHistoricItem>> mockSetBookHistoricItem = new();
+
+            Mock<BookshelfDbContextDAL.BookshelfDbContext> mockContext = new();
+
+            Mock<IBookHistoricDAL> mockBookHistoricDAL = new();
+
+            mockBookHistoricDAL.Setup(x => x.ExecuteAddBookHistoricAsync(It.IsAny<BookHistoric>())).ReturnsAsync(1);
+
+            IBookHistoricBLL bookHistoricBLL = new BookHistoricBLL(mockContext.Object, mockBookHistoricDAL.Object);
+
+            Mock<IBookDAL> mockBookDAL = new();
+
+            Book OriBook = new Book()
+            {
+                Title = "Teste de Título",
+                Authors = "Emanuel Teste",
+                Status = Convert.ToInt32(1),
+                Pages = 300,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = oldUpdatedAt,
+                UserId = 1,
+                Id = 1
+            };
+
+            mockBookDAL.Setup(x => x.GetBookByIdAsync(1, 1)).ReturnsAsync(OriBook);
+
+            mockBookDAL.Setup(x => x.ExecuteInactivateBookAsync(1, 1)).ReturnsAsync(1);
+
+            IBookBLL bookBLL = new BookBLL(bookHistoricBLL, mockBookDAL.Object);
+
+            BaseModels.BLLResponse response = bookBLL.InactivateBook(1, 1).Result;
+
+            if (response.Content is not null)
+                Assert.IsTrue(Convert.ToBoolean(response.Content));
+            else Assert.Fail();
         }
     }
 }

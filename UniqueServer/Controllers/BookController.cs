@@ -50,6 +50,16 @@ namespace UniqueServer.Controllers
 
             return uid != null ? BuildResponse(bookBLL.GetByUpdatedAt(dtUpdatedAt, Convert.ToInt32(uid))) : NoContent();
         }
+
+        [Route("inactivate/{id}")]
+        [HttpDelete]
+        [Authorize]
+        public async Task<IActionResult> InactivateBook(int id)
+        {
+            int? uid = RecoverUidSession();
+
+            return uid != null ? BuildResponse(await bookBLL.InactivateBook(id, Convert.ToInt32(uid))) : NoContent();
+        }
     }
 }
 
