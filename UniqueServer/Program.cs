@@ -18,6 +18,15 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+#region DI DAL
+
+builder.Services.AddScoped<IBookDAL, BookDAL>();
+builder.Services.AddScoped<IBookHistoricDAL, BookHistoricDAL>();
+
+builder.Services.AddScoped<IUserDAL, UserManagementDAL.UserDAL>();
+builder.Services.AddScoped<IUserHistoricDAL, UserHistoricDAL>();
+
+
 #region DI BLL
 
 builder.Services.AddScoped<IUserBLL, UserBLL.UserBLL>();
@@ -26,10 +35,6 @@ builder.Services.AddScoped<IBookHistoricBLL, BookHistoricBLL>();
 
 #endregion
 
-#region DI DAL
-
-builder.Services.AddScoped<IBookDAL, BookDAL>();
-builder.Services.AddScoped<IBookHistoricDAL, BookHistoricDAL>();
 
 #endregion
 

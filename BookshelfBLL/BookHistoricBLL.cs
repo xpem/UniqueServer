@@ -10,12 +10,10 @@ namespace BookshelfBLL
 
     public class BookHistoricBLL : IBookHistoricBLL
     {
-        private readonly BookshelfDbContext bookshelfDbContext;
         private readonly IBookHistoricDAL bookHistoricDAL;
 
-        public BookHistoricBLL(BookshelfDbContext bookshelfDbContext, IBookHistoricDAL bookHistoricDAL)
+        public BookHistoricBLL(IBookHistoricDAL bookHistoricDAL)
         {
-            this.bookshelfDbContext = bookshelfDbContext;
             this.bookHistoricDAL = bookHistoricDAL;
         }
 
@@ -141,24 +139,6 @@ namespace BookshelfBLL
             return bookHistoric;
         }
 
-        private List<BookHistoric> QueryByCreatedAt(DateTime createdAt, int uid)
-        {
-            return bookshelfDbContext.BookHistoric.Where(x => x.UserId == uid && x.CreatedAt > createdAt)
-                .Include(x => x.BookHistoricItems)
-                .ThenInclude(bhi => bhi.BookHistoricItemField)
-                .Include(x => x.BookHistoricType)
-                .OrderByDescending(x => x.CreatedAt).ToList();
-        }
-
-        private List<BookHistoric> QueryByBookId(int Bookid, int uid)
-        {
-            return bookshelfDbContext.BookHistoric.Where(x => x.UserId == uid && x.BookId == Bookid)
-                .Include(x => x.BookHistoricItems)
-                .ThenInclude(bhi => bhi.BookHistoricItemField)
-                .Include(x => x.BookHistoricType)
-                .OrderByDescending(x => x.CreatedAt).ToList();
-        }
-
         /// <summary>
         /// todo, otimizar isto
         /// </summary>
@@ -167,11 +147,11 @@ namespace BookshelfBLL
             List<BookHistoric> bookHistorics;
 
             if (BookId is not null)
-                bookHistorics = QueryByBookId(BookId.Value, uid);
+                bookHistorics = bookHistoricDAL.ExecuteQueryByBookId(BookId.Value, uid);
             else
             {
                 if (createdAt.HasValue)
-                    bookHistorics = QueryByCreatedAt(createdAt.Value, uid);
+                    bookHistorics = bookHistoricDAL.ExecuteQueryByCreatedAt(createdAt.Value, uid);
                 else throw new NotImplementedException("Get sem parametro válido de busca");
             }
             List<ResBookHistoric> resBookHistorics = new();

@@ -45,7 +45,7 @@
     <ProjectReference Include="..\BookshelfBLL\BookshelfBLL.csproj" />
     <ProjectReference Include="..\BookshelfDbContextDAL\BookshelfDAL.csproj" />
     <ProjectReference Include="..\UserBLL\UserManagementBLL.csproj" />
-    <ProjectReference Include="..\UserDAL\UserManagementDAL.csproj" />
+    <ProjectReference Include="..\UserManagementDAL\UserManagementDAL.csproj" />
   </ItemGroup>
 
 </Project>

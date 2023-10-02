@@ -3,8 +3,6 @@ using BookshelfDbContextDAL;
 using BookshelfModels;
 using BookshelfModels.Request;
 using BookshelfModels.Response;
-using Microsoft.EntityFrameworkCore;
-using System.Net;
 
 namespace BookshelfBLL
 {

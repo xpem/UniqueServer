@@ -48,10 +48,10 @@ namespace BookshelfBLL.Tests
 
             mockBookHistoricDAL.Setup(x => x.ExecuteAddBookHistoricAsync(It.IsAny<BookHistoric>())).ReturnsAsync(1);
 
-            IBookHistoricBLL bookHistoricBLL = new BookHistoricBLL(mockContext.Object, mockBookHistoricDAL.Object);
+            IBookHistoricBLL bookHistoricBLL = new BookHistoricBLL(mockBookHistoricDAL.Object);
 
             IBookBLL bookBLL = new BookBLL(bookHistoricBLL, mockBookDAL.Object);
-                   
+
 
             BaseModels.BLLResponse response = bookBLL.CreateBook(reqBook, 1).Result;
 
@@ -90,7 +90,7 @@ namespace BookshelfBLL.Tests
 
             mockBookHistoricDAL.Setup(x => x.ExecuteAddRangeBookHistoricItemListAsync(It.IsAny<List<BookHistoricItem>>())).ReturnsAsync(1);
 
-            IBookHistoricBLL bookHistoricBLL = new BookHistoricBLL(mockContext.Object, mockBookHistoricDAL.Object);
+            IBookHistoricBLL bookHistoricBLL = new BookHistoricBLL(mockBookHistoricDAL.Object);
 
             Book? bookByTitleWithNotEqualId = null;
 
@@ -155,7 +155,7 @@ namespace BookshelfBLL.Tests
 
             mockBookHistoricDAL.Setup(x => x.ExecuteAddRangeBookHistoricItemListAsync(It.IsAny<List<BookHistoricItem>>())).ReturnsAsync(1);
 
-            IBookHistoricBLL bookHistoricBLL = new BookHistoricBLL(mockContext.Object, mockBookHistoricDAL.Object);
+            IBookHistoricBLL bookHistoricBLL = new BookHistoricBLL(mockBookHistoricDAL.Object);
 
             BookshelfModels.Request.ReqBook reqBook = new()
             {
@@ -253,7 +253,7 @@ namespace BookshelfBLL.Tests
             Mock<IBookHistoricDAL> mockBookHistoricDAL = new();
             Mock<IBookDAL> mockBookDAL = new();
 
-            IBookHistoricBLL bookHistoricBLL = new BookHistoricBLL(mockContext.Object, mockBookHistoricDAL.Object);
+            IBookHistoricBLL bookHistoricBLL = new BookHistoricBLL(mockBookHistoricDAL.Object);
 
             DateTime updatedAt = DateTime.Now.AddDays(-1);
 
@@ -291,7 +291,7 @@ namespace BookshelfBLL.Tests
 
             mockBookHistoricDAL.Setup(x => x.ExecuteAddBookHistoricAsync(It.IsAny<BookHistoric>())).ReturnsAsync(1);
 
-            IBookHistoricBLL bookHistoricBLL = new BookHistoricBLL(mockContext.Object, mockBookHistoricDAL.Object);
+            IBookHistoricBLL bookHistoricBLL = new BookHistoricBLL(mockBookHistoricDAL.Object);
 
             Mock<IBookDAL> mockBookDAL = new();
 

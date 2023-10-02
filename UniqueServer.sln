@@ -17,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserManagementBLL", "UserBL
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserManagementModels", "UserModels\UserManagementModels.csproj", "{03DE09AF-1831-4600-BAF7-BBF62772F4EA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserManagementDAL", "UserDAL\UserManagementDAL.csproj", "{E4152702-1537-43A4-8F9C-EF084AA5F559}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserManagementDAL", "UserManagementDAL\UserManagementDAL.csproj", "{E4152702-1537-43A4-8F9C-EF084AA5F559}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookshelfModels", "BookshelfModels\BookshelfModels.csproj", "{63185F5D-3F83-41E6-A10F-89623B0F3EB2}"
 EndProject

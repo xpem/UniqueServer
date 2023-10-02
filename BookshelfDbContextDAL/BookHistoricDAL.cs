@@ -1,5 +1,6 @@
 ﻿using BookshelfDbContextDAL;
 using BookshelfModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace BookshelfDAL
 {
@@ -24,6 +25,24 @@ namespace BookshelfDAL
             await bookshelfDbContext.BookHistoricItem.AddRangeAsync(bookHistoricItemList);
 
             return await bookshelfDbContext.SaveChangesAsync();
+        }
+
+        public List<BookHistoric> ExecuteQueryByCreatedAt(DateTime createdAt, int uid)
+        {
+            return bookshelfDbContext.BookHistoric.Where(x => x.UserId == uid && x.CreatedAt > createdAt)
+                .Include(x => x.BookHistoricItems)
+                .ThenInclude(bhi => bhi.BookHistoricItemField)
+                .Include(x => x.BookHistoricType)
+                .OrderByDescending(x => x.CreatedAt).ToList();
+        }
+
+        public List<BookHistoric> ExecuteQueryByBookId(int Bookid, int uid)
+        {
+            return bookshelfDbContext.BookHistoric.Where(x => x.UserId == uid && x.BookId == Bookid)
+                .Include(x => x.BookHistoricItems)
+                .ThenInclude(bhi => bhi.BookHistoricItemField)
+                .Include(x => x.BookHistoricType)
+                .OrderByDescending(x => x.CreatedAt).ToList();
         }
     }
 }

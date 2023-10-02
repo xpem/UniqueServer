@@ -7,5 +7,9 @@ namespace BookshelfDAL
         Task<int> ExecuteAddBookHistoricAsync(BookHistoric bookHistoric);
 
         Task<int> ExecuteAddRangeBookHistoricItemListAsync(List<BookHistoricItem> bookHistoricItemList);
+
+        List<BookHistoric> ExecuteQueryByCreatedAt(DateTime createdAt, int uid);
+
+        List<BookHistoric> ExecuteQueryByBookId(int Bookid, int uid);
     }
 }

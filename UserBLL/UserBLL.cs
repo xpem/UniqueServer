@@ -10,9 +10,14 @@ namespace UserBLL
 {
     public class UserBLL : IUserBLL
     {
-        readonly UserManagementDbContext UserManagementDbContext;
+        private readonly UserManagementDAL.IUserDAL userDAL;
+        private readonly IUserHistoricDAL userHistoricDAL;
 
-        public UserBLL(UserManagementDbContext userManagementDbContext) { UserManagementDbContext = userManagementDbContext; }
+        public UserBLL(UserManagementDAL.IUserDAL userDAL, UserManagementDAL.IUserHistoricDAL userHistoricDAL)
+        {
+            this.userDAL = userDAL;
+            this.userHistoricDAL = userHistoricDAL;
+        }
 
         public async Task<BLLResponse> CreateUser(ReqUser reqUser)
         {
@@ -29,9 +34,7 @@ namespace UserBLL
                 user.Password = Encryption.Encrypt(user.Password);
             else throw new NullReferenceException("Password do usuario nulo");
 
-            await UserManagementDbContext.User.AddAsync(user);
-
-            await UserManagementDbContext.SaveChangesAsync();
+            await userDAL.ExecuteCreateUserAsync(user);
 
             ResUser? resUser;
 
@@ -45,7 +48,7 @@ namespace UserBLL
         public async Task<BLLResponse> GetUserById(int uid)
         {
             //todo - utilizar tmbm o email?
-            User? userResp = await UserManagementDbContext.User.FirstOrDefaultAsync(x => x.Id.Equals(uid));
+            User? userResp = await userDAL.GetUserByIdAsync(uid);
             if (userResp == null)
                 return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = "User not found" } };
 
@@ -58,7 +61,7 @@ namespace UserBLL
 
             if (!string.IsNullOrEmpty(validateError)) return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = validateError } };
 
-            User? userResp = await UserManagementDbContext.User.FirstOrDefaultAsync(x => x.Email.Equals(reqUserEmail.Email));
+            User? userResp = await userDAL.GetUserByEmailAsync(reqUserEmail.Email);
 
             if (userResp != null)
             {
@@ -77,7 +80,7 @@ namespace UserBLL
 
             if (!string.IsNullOrEmpty(validateError)) return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = validateError } };
 
-            User? userResp = await UserManagementDbContext.User.FirstOrDefaultAsync(x => x.Email == reqUserSession.Email && x.Password == Encryption.Encrypt(reqUserSession.Password));
+            User? userResp = await userDAL.GetUserByEmailAndPassword(reqUserSession.Email, Encryption.Encrypt(reqUserSession.Password));
 
             if (userResp is null) return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = "User/Password incorrect" } };
 
@@ -85,9 +88,7 @@ namespace UserBLL
 
             UserHistoric userHistoric = new() { UserHistoricTypeId = (int)UserHistoricTypeValues.SignIn, CreatedAt = DateTime.UtcNow, UserId = userResp.Id, User = userResp };
 
-            await UserManagementDbContext.UserHistoric.AddAsync(userHistoric);
-
-            await UserManagementDbContext.SaveChangesAsync();
+            await userHistoricDAL.ExecuteAddUserHistoric(userHistoric);
 
             return new BLLResponse() { Content = new { Token = userJwt }, Error = null };
         }
@@ -101,19 +102,17 @@ namespace UserBLL
 
             if (!string.IsNullOrEmpty(validateError)) return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = validateError } };
 
-            User? user = await UserManagementDbContext.User.FirstOrDefaultAsync(x => x.Id == uid);
+            User? user = await userDAL.GetUserByIdAsync(uid);
 
             if (user != null)
             {
                 user.Password = Encryption.Encrypt(reqRecoverPassword.Password);
 
-                UserManagementDbContext.User.Update(user);
+                await userDAL.ExecuteUpdateUserAsync(user);
 
                 UserHistoric userHistoric = new() { UserHistoricTypeId = (int)UserHistoricTypeValues.PasswordChanged, CreatedAt = DateTime.UtcNow, UserId = user.Id, User = user };
 
-                await UserManagementDbContext.UserHistoric.AddAsync(userHistoric);
-
-                await UserManagementDbContext.SaveChangesAsync();
+                await userHistoricDAL.ExecuteAddUserHistoric(userHistoric);
 
                 return new BLLResponse() { Content = "Password Updated.", Error = new ErrorMessage() { Error = null } };
             }
@@ -122,7 +121,7 @@ namespace UserBLL
 
         protected async Task<string?> ValidateExistingUser(User user)
         {
-            User? userResp = await UserManagementDbContext.User.FirstOrDefaultAsync(x => x.Name.Equals(user.Name) || x.Email.Equals(user.Email));
+            User? userResp = await userDAL.GetUserByNameOrEmailAsync(user.Name, user.Email);
 
             if (userResp != null)
             {

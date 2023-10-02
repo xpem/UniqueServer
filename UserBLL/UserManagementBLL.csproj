@@ -12,7 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BaseModels\BaseModels.csproj" />
-    <ProjectReference Include="..\UserDAL\UserManagementDAL.csproj" />
+    <ProjectReference Include="..\UserManagementDAL\UserManagementDAL.csproj" />
     <ProjectReference Include="..\UserModels\UserManagementModels.csproj" />
   </ItemGroup>
 
