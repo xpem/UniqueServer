@@ -61,7 +61,6 @@ namespace BookshelfBLL
                     CreatedAt = DateTime.Now
                 });
 
-
             if (oldBook.Volume != book.Volume)
                 bookHistoricItemList.Add(new BookHistoricItem()
                 {

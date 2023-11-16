@@ -2,6 +2,7 @@
 using BookshelfDAL;
 using BookshelfDbContextDAL;
 using BookshelfModels;
+using BookshelfModels.Request;
 using BookshelfModels.Response;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -19,7 +20,7 @@ namespace BookshelfBLL.Tests
             Mock<DbSet<Book>> mockSetBook = new();
 
             var listBook = new List<BookshelfModels.Book>() {
-                new Book() {
+                new() {
                     Title = "Teste de Título 2",
                     Authors = "Emanuel Teste",
                     Status = Convert.ToInt32(1),
@@ -50,8 +51,7 @@ namespace BookshelfBLL.Tests
 
             IBookHistoricBLL bookHistoricBLL = new BookHistoricBLL(mockBookHistoricDAL.Object);
 
-            IBookBLL bookBLL = new BookBLL(bookHistoricBLL, mockBookDAL.Object);
-
+            BookBLL bookBLL = new(bookHistoricBLL, mockBookDAL.Object);
 
             BaseModels.BLLResponse response = bookBLL.CreateBook(reqBook, 1).Result;
 
@@ -76,12 +76,6 @@ namespace BookshelfBLL.Tests
                 UserId = 1,
                 Id = 1
             };
-
-            Mock<DbSet<BookHistoric>> mockSetBookHistoric = new();
-
-            Mock<DbSet<BookHistoricItem>> mockSetBookHistoricItem = new();
-
-            Mock<BookshelfDbContextDAL.BookshelfDbContext> mockContext = new();
 
             Mock<IBookDAL> mockBookDAL = new();
             Mock<IBookHistoricDAL> mockBookHistoricDAL = new();
@@ -108,12 +102,62 @@ namespace BookshelfBLL.Tests
 
             mockBookDAL.Setup(x => x.ExecuteUpdateBookAsync(It.IsAny<Book>())).ReturnsAsync(1);
 
-            IBookBLL bookBLL = new BookBLL(bookHistoricBLL, mockBookDAL.Object);
+            BookBLL bookBLL = new(bookHistoricBLL, mockBookDAL.Object);
 
             BaseModels.BLLResponse response = bookBLL.UpdateBook(reqBook, 1, 1).Result;
 
             if (response.Content is not null)
                 Assert.AreEqual(((ResBook)response.Content).Title, "Teste de Título alterado");
+            else Assert.Fail();
+        }
+
+
+        [TestMethod()]
+        public void UpdateBookStatusTest()
+        {
+            Mock<DbSet<Book>> mockSetBook = new();
+
+            Book OriBook = new()
+            {
+                Title = "Teste de Título",
+                Authors = "Emanuel Teste",
+                Status = Convert.ToInt32(1),
+                Pages = 300,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
+                UserId = 1,
+                Id = 1
+            };
+
+            Mock<IBookDAL> mockBookDAL = new();
+            Mock<IBookHistoricDAL> mockBookHistoricDAL = new();
+
+            mockBookHistoricDAL.Setup(x => x.ExecuteAddBookHistoricAsync(It.IsAny<BookHistoric>())).ReturnsAsync(1);
+
+            mockBookHistoricDAL.Setup(x => x.ExecuteAddRangeBookHistoricItemListAsync(It.IsAny<List<BookHistoricItem>>())).ReturnsAsync(1);
+
+            IBookHistoricBLL bookHistoricBLL = new BookHistoricBLL(mockBookHistoricDAL.Object);
+
+            ReqBookStatus reqBookStatus = new() { Status = 2, Score = 3, Comment = "teste" };
+
+            mockBookDAL.Setup(x => x.GetBookByIdAsync(1, 1)).ReturnsAsync(OriBook);
+
+            mockBookDAL.Setup(x => x.ExecuteUpdateBookStatusAsync(1,1,2,3,"teste")).ReturnsAsync(1);
+
+            var newBook = OriBook;
+
+            newBook.Status = reqBookStatus.Status;
+            newBook.Score = reqBookStatus.Score;
+            newBook.Comment = reqBookStatus.Comment;
+
+            mockBookHistoricDAL.Setup(x => x.ExecuteAddRangeBookHistoricItemListAsync(It.IsAny<List<BookHistoricItem>>())).ReturnsAsync(1);
+
+            BookBLL bookBLL = new(bookHistoricBLL, mockBookDAL.Object);
+
+            BaseModels.BLLResponse response = bookBLL.UpdateBookStatusAsync(reqBookStatus, 1, 1).Result;
+
+            if (response.Content is not null)
+                Assert.AreEqual(response.Content, true);
             else Assert.Fail();
         }
 
@@ -124,7 +168,7 @@ namespace BookshelfBLL.Tests
 
             DateTime oldUpdatedAt = new(2023, 01, 01, 01, 01, 01);
 
-            Book OriBook = new Book()
+            Book OriBook = new()
             {
                 Title = "Teste de Título",
                 Authors = "Emanuel Teste",
