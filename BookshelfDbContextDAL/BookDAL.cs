@@ -2,6 +2,7 @@
 using BookshelfModels.Request;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
+using UserModels;
 
 namespace BookshelfDbContextDAL
 {
@@ -28,6 +29,19 @@ namespace BookshelfDbContextDAL
 
             bookshelfDbContext.Book.Where(x => x.UserId == userId && x.Id == bookId).ExecuteUpdate(
                 y => y.SetProperty(z => z.Inactive, true)
+                .SetProperty(z => z.UpdatedAt, DateTime.Now));
+
+            return await bookshelfDbContext.SaveChangesAsync();
+        }
+
+        public async Task<int> ExecuteUpdateBookStatusAsync(int bookId, int uid, int status, int? score, string? comment)
+        {
+            bookshelfDbContext.ChangeTracker?.Clear();
+
+            bookshelfDbContext.Book.Where(x => x.UserId == uid && x.Id == bookId).ExecuteUpdate(
+                y => y.SetProperty(z => z.Status, status)
+                .SetProperty(z => z.Score, score)
+                .SetProperty(z => z.Comment, comment)
                 .SetProperty(z => z.UpdatedAt, DateTime.Now));
 
             return await bookshelfDbContext.SaveChangesAsync();
