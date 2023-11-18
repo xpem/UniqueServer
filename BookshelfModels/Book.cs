@@ -48,6 +48,5 @@ namespace BookshelfModels
         public required DateTime UpdatedAt { get; set; }
 
         public bool Inactive { get; set; } = false;
-
     }
 }

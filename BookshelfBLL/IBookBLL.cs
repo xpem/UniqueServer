@@ -11,8 +11,6 @@ namespace BookshelfBLL
 
         BLLResponse GetByUpdatedAt(DateTime updatedAt, int uid);
 
-        Task<BLLResponse> UpdateBookStatusAsync(ReqBookStatus reqBookStatus, int bookId, int uid);
-
         Task<BLLResponse> InactivateBook(int bookId, int uid);
     }
 }

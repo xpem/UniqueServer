@@ -204,32 +204,6 @@ namespace BookshelfBLL
             return new BLLResponse { Content = true, Error = null };
         }
 
-        public async Task<BLLResponse> UpdateBookStatusAsync(ReqBookStatus reqBookStatus, int bookId, int uid)
-        {
-            if (bookId < 0)
-                return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = "Invalid Book id" } };
-
-            Book? oldBook = await BookDAL.GetBookByIdAsync(bookId, uid);
-
-            if (oldBook == null)
-                return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = "Invalid Book id" } };
-
-            var newBook = oldBook;
-
-            newBook.Status = reqBookStatus.Status;
-            newBook.Score = reqBookStatus.Score;
-            newBook.Comment = reqBookStatus.Comment;
-
-            if (NewBookHasChanges(oldBook, newBook))
-            {
-                await BookDAL.ExecuteUpdateBookStatusAsync(bookId, uid, reqBookStatus.Status, reqBookStatus.Score, reqBookStatus.Comment);
-
-                await bookHistoricBLL.BuildAndCreateBookUpdateHistoricAsync(oldBook, newBook);
-            }
-
-            return new BLLResponse { Content = true, Error = null };
-        }
-
         public BLLResponse GetByUpdatedAt(DateTime updatedAt, int uid)
         {
             //string? validateError = req.Validate();
@@ -314,6 +288,6 @@ namespace BookshelfBLL
                 return true;
 
             return false;
-        }
+        }  
     }
 }

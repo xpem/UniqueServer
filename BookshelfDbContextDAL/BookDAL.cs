@@ -34,19 +34,6 @@ namespace BookshelfDbContextDAL
             return await bookshelfDbContext.SaveChangesAsync();
         }
 
-        public async Task<int> ExecuteUpdateBookStatusAsync(int bookId, int uid, int status, int? score, string? comment)
-        {
-            bookshelfDbContext.ChangeTracker?.Clear();
-
-            bookshelfDbContext.Book.Where(x => x.UserId == uid && x.Id == bookId).ExecuteUpdate(
-                y => y.SetProperty(z => z.Status, status)
-                .SetProperty(z => z.Score, score)
-                .SetProperty(z => z.Comment, comment)
-                .SetProperty(z => z.UpdatedAt, DateTime.Now));
-
-            return await bookshelfDbContext.SaveChangesAsync();
-        }
-
         public async Task<int> ExecuteUpdateBookAsync(Book book)
         {
             bookshelfDbContext.ChangeTracker?.Clear();

@@ -138,26 +138,32 @@ namespace BookshelfBLL.Tests
 
             IBookHistoricBLL bookHistoricBLL = new BookHistoricBLL(mockBookHistoricDAL.Object);
 
-            ReqBookStatus reqBookStatus = new() { Status = 2, Score = 3, Comment = "teste" };
+            Book? bookByTitleWithNotEqualId = null;
+
+            BookshelfModels.Request.ReqBook reqBook = new()
+            {
+                Title = OriBook.Title,
+                Authors = OriBook.Authors,
+
+                Status = Convert.ToInt32(2),
+                Score = Convert.ToInt32(3),
+                Comment = "Teste de comentário",
+
+                Pages = OriBook.Pages
+            };
+
+            mockBookDAL.Setup(x => x.GetBookByTitleWithNotEqualIdAsync(reqBook.Title, 1, 1)).ReturnsAsync(bookByTitleWithNotEqualId);
 
             mockBookDAL.Setup(x => x.GetBookByIdAsync(1, 1)).ReturnsAsync(OriBook);
 
-            mockBookDAL.Setup(x => x.ExecuteUpdateBookStatusAsync(1,1,2,3,"teste")).ReturnsAsync(1);
-
-            var newBook = OriBook;
-
-            newBook.Status = reqBookStatus.Status;
-            newBook.Score = reqBookStatus.Score;
-            newBook.Comment = reqBookStatus.Comment;
-
-            mockBookHistoricDAL.Setup(x => x.ExecuteAddRangeBookHistoricItemListAsync(It.IsAny<List<BookHistoricItem>>())).ReturnsAsync(1);
+            mockBookDAL.Setup(x => x.ExecuteUpdateBookAsync(It.IsAny<Book>())).ReturnsAsync(1);
 
             BookBLL bookBLL = new(bookHistoricBLL, mockBookDAL.Object);
 
-            BaseModels.BLLResponse response = bookBLL.UpdateBookStatusAsync(reqBookStatus, 1, 1).Result;
+            BaseModels.BLLResponse response = bookBLL.UpdateBook(reqBook, 1, 1).Result;
 
             if (response.Content is not null)
-                Assert.AreEqual(response.Content, true);
+                Assert.AreEqual(((ResBook)response.Content).Status, 2);
             else Assert.Fail();
         }
 
