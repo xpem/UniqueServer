@@ -8,15 +8,8 @@ namespace UniqueServer.Controllers
 {
     [Route("[Controller]")]
     [ApiController]
-    public class BookController : BaseController
+    public class BookController(IBookBLL bookBLL) : BaseController
     {
-        private readonly IBookBLL bookBLL;
-
-        public BookController(IBookBLL bookBLL)
-        {
-            this.bookBLL = bookBLL;
-        }
-
         [Route("")]
         [HttpPost]
         [Authorize]

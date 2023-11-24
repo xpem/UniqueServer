@@ -5,17 +5,13 @@ using InventoryModels.Req;
 
 namespace InventoryBLL
 {
-    public class CategoryBLL : ICategoryBLL
+    public class CategoryBLL(InventoryDbContext inventoryDbContext) : ICategoryBLL
     {
-        private readonly InventoryDbContext inventoryDbContext;
-
-        public CategoryBLL(InventoryDbContext inventoryDbContext)
-        {
-            this.inventoryDbContext = inventoryDbContext;
-        }
-
         public Task<BLLResponse> CreateCategory(ReqCategory reqCategory)
         {
+            InventoryDbContextDAL.InventoryInitializeDB ini = new(inventoryDbContext);
+            ini.CreateInitiaValues();
+
             throw new NotImplementedException();
         }
 

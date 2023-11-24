@@ -1,55 +1,51 @@
 ﻿namespace BookshelfDbContextDAL
 {
-    public class BookshelfInitializeDB
+    public class BookshelfInitializeDB(BookshelfDbContext bookshelfDbContext)
     {
-        readonly BookshelfDbContext BookshelfDbContext;
-
-        public BookshelfInitializeDB(BookshelfDbContext bookshelfDbContext) { BookshelfDbContext = bookshelfDbContext; }
-
         public void CreateInitialValues()
         {
-            BookshelfDbContext.Database.EnsureCreated();
+            bookshelfDbContext.Database.EnsureCreated();
 
-            if (BookshelfDbContext.BookHistoricType.Count() is not 0) { return; }
+            if (bookshelfDbContext.BookHistoricType.Count() is not 0) { return; }
 
 
-            BookshelfModels.BookHistoricType[] bookHistoricType = new BookshelfModels.BookHistoricType[]
-            {
-                new BookshelfModels.BookHistoricType(){Name = "Insert"},
-                new BookshelfModels.BookHistoricType(){Name = "Update"},
-                new BookshelfModels.BookHistoricType(){Name = "Delete"},
-                new BookshelfModels.BookHistoricType(){Name = "Inactivate"},
-            };
+            BookshelfModels.BookHistoricType[] bookHistoricType =
+            [
+                new(){Name = "Insert"},
+                new(){Name = "Update"},
+                new(){Name = "Delete"},
+                new(){Name = "Inactivate"},
+            ];
 
             //foreach (var _bookHistoricType in bookHistoricType)
             //{
-            BookshelfDbContext.BookHistoricType?.AddRange(bookHistoricType);
+            bookshelfDbContext.BookHistoricType?.AddRange(bookHistoricType);
             //}
 
-            if (BookshelfDbContext.BookHistoricItemField.Count() is not 0) { return; }
+            if (bookshelfDbContext.BookHistoricItemField.Count() is not 0) { return; }
 
-            BookshelfModels.BookHistoricItemField[] bookHistoricItemField = new BookshelfModels.BookHistoricItemField[]
-            {
-                new BookshelfModels.BookHistoricItemField(){Name = "SubTítulo" },
-                new BookshelfModels.BookHistoricItemField(){Name = "Título" },
-                new BookshelfModels.BookHistoricItemField(){Name = "Capa" },
-                new BookshelfModels.BookHistoricItemField(){Name = "Autores" },
-                new BookshelfModels.BookHistoricItemField(){Name = "Volume"},
-                new BookshelfModels.BookHistoricItemField(){Name = "Páginas"},
-                new BookshelfModels.BookHistoricItemField(){Name = "Ano"},
-                new BookshelfModels.BookHistoricItemField(){Name = "Status"},
-                new BookshelfModels.BookHistoricItemField(){Name = "Avaliação"},
-                new BookshelfModels.BookHistoricItemField(){Name = "Gênero"},
-                new BookshelfModels.BookHistoricItemField(){Name = "Isbn"},
-                new BookshelfModels.BookHistoricItemField(){Name = "Inativo"}
-            };
+            BookshelfModels.BookHistoricItemField[] bookHistoricItemField =
+            [
+                new(){Name = "SubTítulo" },
+                new(){Name = "Título" },
+                new(){Name = "Capa" },
+                new(){Name = "Autores" },
+                new(){Name = "Volume"},
+                new(){Name = "Páginas"},
+                new(){Name = "Ano"},
+                new(){Name = "Status"},
+                new(){Name = "Avaliação"},
+                new(){Name = "Gênero"},
+                new(){Name = "Isbn"},
+                new(){Name = "Inativo"}
+            ];
 
             //foreach (var _bookHistoricItemField in bookHistoricItemField)
             //{
-            BookshelfDbContext.BookHistoricItemField?.AddRangeAsync(bookHistoricItemField);
+            bookshelfDbContext.BookHistoricItemField?.AddRangeAsync(bookHistoricItemField);
             //}
 
-            BookshelfDbContext.SaveChanges();
+            bookshelfDbContext.SaveChanges();
         }
     }
 }

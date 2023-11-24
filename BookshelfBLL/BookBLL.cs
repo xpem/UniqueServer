@@ -7,23 +7,14 @@ using System.Net;
 
 namespace BookshelfBLL
 {
-    public class BookBLL : IBookBLL
+    public class BookBLL(IBookHistoricBLL bookHistoricBLL, IBookDAL bookDAL) : IBookBLL
     {
-        private readonly IBookHistoricBLL bookHistoricBLL;
-
-        public IBookDAL BookDAL { get; }
-
-        public BookBLL(IBookHistoricBLL bookHistoricBLL, IBookDAL bookDAL)
-        {
-            this.bookHistoricBLL = bookHistoricBLL;
-            BookDAL = bookDAL;
-
-            //BookshelfDbContextDAL.BookshelfInitializeDB ini = new BookshelfInitializeDB(bookshelfDbContext);
-            //ini.CreateInitialValues();
-        }
+        public IBookDAL BookDAL { get; } = bookDAL;
 
         public async Task<BLLResponse> CreateBook(ReqBook reqBook, int uid)
         {
+            //BookshelfDbContextDAL.BookshelfInitializeDB ini = new BookshelfInitializeDB(bookshelfDbContext);
+            //ini.CreateInitialValues();
 
             string? validateError = reqBook.Validate();
 

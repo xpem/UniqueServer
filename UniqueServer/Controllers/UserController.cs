@@ -7,14 +7,8 @@ namespace UniqueServer.Controllers
 {
     [Route("[Controller]")]
     [ApiController]
-    public class UserController : BaseController
+    public class UserController(IUserBLL userBLL) : BaseController
     {
-        readonly IUserBLL userBLL;
-
-        public UserController(IUserBLL userBLL)
-        {
-            this.userBLL = userBLL;
-        }
 
         [Route("")]
         [HttpPost]
