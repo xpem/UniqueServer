@@ -6,7 +6,7 @@ namespace BaseModels.Request
     {
         public string? Validate()
         {
-            List<ValidationResult> validationResult = new();
+            List<ValidationResult> validationResult = [];
 
             Validator.TryValidateObject(this, new ValidationContext(this), validationResult, true);
 

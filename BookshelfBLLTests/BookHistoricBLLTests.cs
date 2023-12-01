@@ -1,8 +1,6 @@
-﻿using BookshelfBLL;
-using BookshelfDAL;
+﻿using BookshelfDAL;
 using BookshelfModels;
 using BookshelfModels.Response;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -20,7 +18,7 @@ namespace BookshelfBLL.Tests
 
             mockBookHistoricDAL.Setup(x => x.ExecuteAddRangeBookHistoricItemListAsync(It.IsAny<List<BookHistoricItem>>())).ReturnsAsync(1);
 
-            IBookHistoricBLL bookHistoricBLL = new BookHistoricBLL(mockBookHistoricDAL.Object);
+            BookHistoricBLL bookHistoricBLL = new(mockBookHistoricDAL.Object);
 
             Book oldBook = new()
             {
@@ -57,45 +55,45 @@ namespace BookshelfBLL.Tests
         {
             Mock<BookshelfDbContextDAL.BookshelfDbContext> mockContext = new();
 
-            List<BookshelfModels.BookHistoric> dataBH = new List<BookshelfModels.BookHistoric>() {
+            List<BookshelfModels.BookHistoric> dataBH = [
                 new BookHistoric()
                 {
                     Id = 6,
-                    CreatedAt= DateTime.Now.AddDays(-1),
+                    CreatedAt = DateTime.Now.AddDays(-1),
                     BookHistoricTypeId = 2,
                     BookId = 209,
-                    UserId= 1,
-                    BookHistoricItems =  new List<BookshelfModels.BookHistoricItem>() {
-                        new BookHistoricItem()
+                    UserId = 1,
+                    BookHistoricItems = [
+                        new()
                         {
                             BookHistoricId = 6,
                             BookHistoricItemFieldId = 6,
-                            BookHistoricItemField =  new BookHistoricItemField()
-            {
-                Id = 6,
-                Name = "Páginas",
-            },
+                            BookHistoricItemField = new BookHistoricItemField()
+                            {
+                                Id = 6,
+                                Name = "Páginas",
+                            },
                             CreatedAt = DateTime.Now.AddDays(-1),
                             UpdatedFrom = "3",
                             UpdatedTo = "4",
                             Id = 11,
                         },
-                        new BookHistoricItem()
+                        new()
                         {
                             BookHistoricId = 6,
                             BookHistoricItemFieldId = 6,
-                            BookHistoricItemField =  new BookHistoricItemField()
-            {
-                Id = 4,
-                Name = "Autores",
-            },
+                            BookHistoricItemField = new BookHistoricItemField()
+                            {
+                                Id = 4,
+                                Name = "Autores",
+                            },
                             CreatedAt = DateTime.Now.AddDays(-1),
                             UpdatedFrom = "teste 3 alteracao 2",
                             UpdatedTo = "teste 3 alteracao autor 3",
                         }
-                    }
+                    ]
                 },
-            };
+            ];
 
             Mock<IBookHistoricDAL> mockBookHistoricDAL = new();
 
@@ -103,7 +101,7 @@ namespace BookshelfBLL.Tests
 
             mockBookHistoricDAL.Setup(x => x.ExecuteQueryByCreatedAt(dataBusca, 1)).Returns(dataBH);
 
-            IBookHistoricBLL bookHistoricBLL = new BookHistoricBLL(mockBookHistoricDAL.Object);
+            BookHistoricBLL bookHistoricBLL = new BookHistoricBLL(mockBookHistoricDAL.Object);
 
             BaseModels.BLLResponse response = bookHistoricBLL.GetByBookIdOrCreatedAt(null, dataBusca, 1);
 
@@ -124,45 +122,45 @@ namespace BookshelfBLL.Tests
         {
             Mock<IBookHistoricDAL> mockBookHistoricDAL = new();
 
-            List<BookshelfModels.BookHistoric> dataBH = new List<BookshelfModels.BookHistoric>() {
+            List<BookshelfModels.BookHistoric> dataBH = [
                 new BookHistoric()
                 {
                     Id = 6,
-                    CreatedAt= DateTime.Now.AddDays(-1),
+                    CreatedAt = DateTime.Now.AddDays(-1),
                     BookHistoricTypeId = 2,
                     BookId = 210,
-                    UserId= 1,
-                    BookHistoricItems =  new List<BookshelfModels.BookHistoricItem>() {
-                        new BookHistoricItem()
+                    UserId = 1,
+                    BookHistoricItems = [
+                        new()
                         {
                             BookHistoricId = 6,
                             BookHistoricItemFieldId = 6,
-                            BookHistoricItemField =  new BookHistoricItemField()
-            {
-                Id = 6,
-                Name = "Páginas",
-            },
+                            BookHistoricItemField = new BookHistoricItemField()
+                            {
+                                Id = 6,
+                                Name = "Páginas",
+                            },
                             CreatedAt = DateTime.Now.AddDays(-1),
                             UpdatedFrom = "3",
                             UpdatedTo = "4",
                             Id = 11,
                         },
-                        new BookHistoricItem()
+                        new()
                         {
                             BookHistoricId = 6,
                             BookHistoricItemFieldId = 6,
-                            BookHistoricItemField =  new BookHistoricItemField()
-            {
-                Id = 4,
-                Name = "Autores",
-            },
+                            BookHistoricItemField = new BookHistoricItemField()
+                            {
+                                Id = 4,
+                                Name = "Autores",
+                            },
                             CreatedAt = DateTime.Now.AddDays(-1),
                             UpdatedFrom = "teste 3 alteracao 2",
                             UpdatedTo = "teste 3 alteracao autor 3",
                         }
-                    }
+                    ]
                 },
-            };
+            ];
 
             mockBookHistoricDAL.Setup(x => x.ExecuteQueryByBookId(210, 1)).Returns(dataBH);
 

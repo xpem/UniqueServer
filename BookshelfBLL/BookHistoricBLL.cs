@@ -8,18 +8,11 @@ using Microsoft.EntityFrameworkCore;
 namespace BookshelfBLL
 {
 
-    public class BookHistoricBLL : IBookHistoricBLL
+    public class BookHistoricBLL(IBookHistoricDAL bookHistoricDAL) : IBookHistoricBLL
     {
-        private readonly IBookHistoricDAL bookHistoricDAL;
-
-        public BookHistoricBLL(IBookHistoricDAL bookHistoricDAL)
-        {
-            this.bookHistoricDAL = bookHistoricDAL;
-        }
-
         public async Task<BookHistoric> BuildAndCreateBookUpdateHistoricAsync(Book oldBook, Book book)
         {
-            List<BookHistoricItem> bookHistoricItemList = new();
+            List<BookHistoricItem> bookHistoricItemList = [];
 
             BookHistoric bookHistoric = new()
             {
@@ -153,11 +146,11 @@ namespace BookshelfBLL
                     bookHistorics = bookHistoricDAL.ExecuteQueryByCreatedAt(createdAt.Value, uid);
                 else throw new NotImplementedException("Get sem parametro válido de busca");
             }
-            List<ResBookHistoric> resBookHistorics = new();
+            List<ResBookHistoric> resBookHistorics = [];
 
             foreach (BookHistoric? _bookHistoric in bookHistorics)
             {
-                List<ResBookHistoricItem> resBookHistoricItems = new();
+                List<ResBookHistoricItem> resBookHistoricItems = [];
 
                 if (_bookHistoric.BookHistoricItems != null)
                     foreach (BookHistoricItem _bookHistoricItem in _bookHistoric.BookHistoricItems)

@@ -2,6 +2,9 @@ using BaseModels;
 using BookshelfBLL;
 using BookshelfDAL;
 using BookshelfDbContextDAL;
+using InventoryBLL;
+using InventoryDAL;
+using InventoryDbContextDAL;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -26,23 +29,27 @@ builder.Services.AddScoped<IBookHistoricDAL, BookHistoricDAL>();
 builder.Services.AddScoped<IUserDAL, UserManagementDAL.UserDAL>();
 builder.Services.AddScoped<IUserHistoricDAL, UserHistoricDAL>();
 
+builder.Services.AddScoped<ISubCategoryDAL, SubCategoryDAL>();
 
 #region DI BLL
 
 builder.Services.AddScoped<IUserBLL, UserBLL.UserBLL>();
+
 builder.Services.AddScoped<IBookBLL, BookBLL>();
 builder.Services.AddScoped<IBookHistoricBLL, BookHistoricBLL>();
 
+builder.Services.AddScoped<ICategoryBLL, CategoryBLL>();
+builder.Services.AddScoped<ISubCategoryBLL, SubCategoryBLL>();
+
 #endregion
 
-
 #endregion
-
 
 #region AppContexts
 
 builder.Services.AddDbContext<UserManagementDbContext>();
-builder.Services.AddDbContext<BookshelfDbContextDAL.BookshelfDbContext>();
+builder.Services.AddDbContext<BookshelfDbContext>();
+builder.Services.AddDbContext<InventoryDbContext>();
 
 #endregion
 

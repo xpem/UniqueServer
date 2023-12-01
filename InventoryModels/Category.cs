@@ -5,7 +5,7 @@ namespace InventoryModels
 {
     public class Category : BaseModel
     {
-        public required int UserId { get; set; }
+        public int? UserId { get; set; }
 
         [MaxLength(50)]
         public required string Name { get; set; }
@@ -17,7 +17,7 @@ namespace InventoryModels
 
         public List<SubCategory>? SubCategories { get; set; }
 
-        public required DateTime UpdatedAt { get; set; } = DateTime.Now;
+        public DateTime? UpdatedAt { get; set; }
 
     }
 }

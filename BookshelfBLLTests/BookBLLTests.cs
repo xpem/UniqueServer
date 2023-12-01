@@ -1,8 +1,6 @@
-﻿using BookshelfBLL;
-using BookshelfDAL;
+﻿using BookshelfDAL;
 using BookshelfDbContextDAL;
 using BookshelfModels;
-using BookshelfModels.Request;
 using BookshelfModels.Response;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -19,7 +17,7 @@ namespace BookshelfBLL.Tests
         {
             Mock<DbSet<Book>> mockSetBook = new();
 
-            var listBook = new List<BookshelfModels.Book>() {
+            IQueryable<Book> listBook = new List<BookshelfModels.Book>() {
                 new() {
                     Title = "Teste de Título 2",
                     Authors = "Emanuel Teste",
@@ -110,7 +108,6 @@ namespace BookshelfBLL.Tests
                 Assert.AreEqual(((ResBook)response.Content).Title, "Teste de Título alterado");
             else Assert.Fail();
         }
-
 
         [TestMethod()]
         public void UpdateBookStatusTest()
@@ -237,8 +234,9 @@ namespace BookshelfBLL.Tests
         {
             Mock<DbSet<Book>> mockSetBook = new();
 
-            var list = new List<BookshelfModels.Book>() {
-                new Book() {
+            List<Book> list = [
+                new Book()
+                {
                     Title = "Teste de Título",
                     Authors = "Emanuel Teste",
                     Status = Convert.ToInt32(1),
@@ -247,7 +245,8 @@ namespace BookshelfBLL.Tests
                     UserId = 1,
                     Id = 1
                 },
-                new Book() {
+                new Book()
+                {
                     Title = "Teste de Título 2",
                     Authors = "Emanuel Teste",
                     Status = Convert.ToInt32(1),
@@ -255,9 +254,9 @@ namespace BookshelfBLL.Tests
                     UpdatedAt = DateTime.Now.AddDays(-3),
                     UserId = 1,
                     Id = 2
-                } };
+                }];
 
-            var listResult = new List<BookshelfModels.Book>() {
+            List<Book> listResult = [
                      new Book() {
                     Title = "Teste de Título 3",
                     Authors = "Emanuel Teste",
@@ -284,7 +283,7 @@ namespace BookshelfBLL.Tests
                     UpdatedAt = DateTime.Now,
                     UserId = 1,
                     Id = 5
-                } };
+                } ];
 
             list.AddRange(listResult);
 
@@ -313,7 +312,7 @@ namespace BookshelfBLL.Tests
 
             BaseModels.BLLResponse response = bookBLL.GetByUpdatedAt(updatedAt, 1);
 
-            List<ResBook>? resBook = new();
+            List<ResBook>? resBook = [];
 
             if (response.Content != null)
                 resBook = response.Content as List<ResBook>;
@@ -329,7 +328,7 @@ namespace BookshelfBLL.Tests
         {
             Mock<DbSet<Book>> mockSetBook = new();
 
-            DateTime oldUpdatedAt = new DateTime(2023, 01, 01, 01, 01, 01);
+            DateTime oldUpdatedAt = new(2023, 01, 01, 01, 01, 01);
 
             Mock<DbSet<BookHistoric>> mockSetBookHistoric = new();
 
@@ -345,7 +344,7 @@ namespace BookshelfBLL.Tests
 
             Mock<IBookDAL> mockBookDAL = new();
 
-            Book OriBook = new Book()
+            Book OriBook = new()
             {
                 Title = "Teste de Título",
                 Authors = "Emanuel Teste",
