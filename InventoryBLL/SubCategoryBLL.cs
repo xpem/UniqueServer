@@ -1,4 +1,5 @@
 ﻿using BaseModels;
+using InventoryBLL.Interfaces;
 using InventoryDAL;
 using InventoryModels;
 using InventoryModels.Req;
@@ -8,12 +9,54 @@ namespace InventoryBLL
 {
     public class SubCategoryBLL(ISubCategoryDAL subCategoryDAL) : ISubCategoryBLL
     {
-        public BLLResponse CreateSubCategory(ReqSubCategory reqSubCategory, int uid)
+        public async Task<BLLResponse> CreateSubCategory(ReqSubCategory reqSubCategory, int uid)
+        {
+            try
+            {
+                string? validateError = reqSubCategory.Validate();
+                if (!string.IsNullOrEmpty(validateError)) return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = validateError } };
+
+                SubCategory subCategory = new()
+                {
+                    Name = reqSubCategory.Name,
+                    IconName = reqSubCategory.IconName,
+                    UserId = uid,
+                    CategoryId = reqSubCategory.CategoryId,
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now,
+                    SystemDefault = false,
+                };
+
+                string? existingItemMsg = ValidateExistingSubCategory(subCategory);
+
+                if (existingItemMsg != null)
+                {
+                    return new BLLResponse()
+                    {
+                        Content = null,
+                        Error = new ErrorMessage() { Error = existingItemMsg }
+                    };
+                }
+
+                var respExec = await subCategoryDAL.ExecuteCreateSubCategoryAsync(subCategory);
+
+                if (respExec == 1)
+                {
+                    ResSubCategory resSubCategory = new() { Id = subCategory.Id, Name = subCategory.Name, IconName = subCategory.IconName, CategoryId = subCategory.CategoryId, SystemDefault = subCategory.SystemDefault };
+                    return new BLLResponse { Content = resSubCategory, Error = null };
+                }
+                else
+                    return new BLLResponse { Content = null, Error = new ErrorMessage() { Error = "Não foi possivel adicionar." } };
+            }
+            catch { throw; }
+        }
+
+        public BLLResponse DeleteSubCategory(int uid, int subCategoryId)
         {
             throw new NotImplementedException();
         }
 
-        public BLLResponse DeleteSubCategory(int uid, int subCategoryId)
+        public BLLResponse UpdateSubCategory(ReqSubCategory reqSubCategory, int uid, int id)
         {
             throw new NotImplementedException();
         }
@@ -56,14 +99,16 @@ namespace InventoryBLL
             return new BLLResponse() { Content = resSubCategory };
         }
 
-        public Task<BLLResponse> UpdateSubCategory(ReqSubCategory reqSubCategory, int uid, int id)
+
+        protected string? ValidateExistingSubCategory(SubCategory subCategory)
         {
-            throw new NotImplementedException();
+            SubCategory? respSubCategory = subCategoryDAL.GetByCategoryIdAndName(subCategory.UserId.Value, subCategory.CategoryId, subCategory.Name);
+
+            if (respSubCategory is not null)
+                return "A Sub Category with this Name has already been added to this Category";
+
+            return null;
         }
 
-        BLLResponse ISubCategoryBLL.UpdateSubCategory(ReqSubCategory reqSubCategory, int uid, int id)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

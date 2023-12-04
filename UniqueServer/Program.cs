@@ -3,6 +3,7 @@ using BookshelfBLL;
 using BookshelfDAL;
 using BookshelfDbContextDAL;
 using InventoryBLL;
+using InventoryBLL.Interfaces;
 using InventoryDAL;
 using InventoryDbContextDAL;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

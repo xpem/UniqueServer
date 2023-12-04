@@ -1,19 +1,13 @@
 ﻿using BaseModels;
+using InventoryBLL.Interfaces;
 using InventoryDbContextDAL;
 using InventoryModels;
 using InventoryModels.Req;
 
 namespace InventoryBLL
 {
-    public class CategoryBLL : ICategoryBLL
+    public class CategoryBLL(InventoryDbContext inventoryDbContext) : ICategoryBLL
     {
-        private readonly InventoryDbContext inventoryDbContext;
-
-        public CategoryBLL(InventoryDbContext inventoryDbContext)
-        {
-            this.inventoryDbContext = inventoryDbContext;
-        }
-
         public Task<BLLResponse> CreateCategory(ReqCategory reqCategory)
         {
             throw new NotImplementedException();

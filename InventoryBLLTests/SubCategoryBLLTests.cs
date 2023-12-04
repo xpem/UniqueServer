@@ -1,17 +1,12 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using InventoryBLL;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using InventoryModels;
-using Moq;
-using InventoryDbContextDAL;
+﻿using BaseModels;
 using InventoryDAL;
-using BaseModels;
+using InventoryDbContextDAL;
+using InventoryModels;
+using InventoryModels.Req;
 using InventoryModels.Res;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace InventoryBLL.Tests
 {
@@ -148,6 +143,40 @@ namespace InventoryBLL.Tests
 
                 Assert.IsTrue(resSubCategory?.Count == 3);
             }
+        }
+
+        [TestMethod()]
+        public void CreateSubCategoryTest()
+        {
+            Mock<InventoryDbContext> mockContext = BuildMockInventoryContext();
+
+            Mock<ISubCategoryDAL> mockSubCategoryDAL = new();
+
+            SubCategoryBLL subCategoryBLL = new(mockSubCategoryDAL.Object);
+
+            ReqSubCategory reqSubCategory = new()
+            {
+                CategoryId = 2,
+                Name = "Teste de título inserir",
+                IconName = "Plate"
+            };
+
+            SubCategory? nullSubCategory = null;
+
+            mockSubCategoryDAL.Setup(x => x.ExecuteCreateSubCategoryAsync(It.IsAny<SubCategory>())).ReturnsAsync(1);
+            mockSubCategoryDAL.Setup(x => x.GetByCategoryIdAndName(1, reqSubCategory.CategoryId, reqSubCategory.Name)).Returns(nullSubCategory);
+
+            BLLResponse bLLResponse = subCategoryBLL.CreateSubCategory(reqSubCategory, 1).Result;
+
+            if (bLLResponse?.Content is not null)
+            {
+                ResSubCategory? resSubCategory = bLLResponse?.Content as ResSubCategory;
+
+                if (resSubCategory != null)
+                    Assert.AreEqual(resSubCategory.Name, reqSubCategory.Name);
+                else Assert.Fail();
+            }
+            else Assert.Fail();
         }
     }
 }

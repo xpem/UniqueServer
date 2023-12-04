@@ -15,8 +15,6 @@ namespace BookshelfBLL.Tests
         [TestMethod()]
         public void CreateBookTest()
         {
-            Mock<DbSet<Book>> mockSetBook = new();
-
             IQueryable<Book> listBook = new List<BookshelfModels.Book>() {
                 new() {
                     Title = "Teste de Título 2",
@@ -42,7 +40,7 @@ namespace BookshelfBLL.Tests
             Mock<IBookHistoricDAL> mockBookHistoricDAL = new();
             Mock<IBookDAL> mockBookDAL = new();
 
-            mockBookDAL.Setup(x => x.ExecuteAddBookAsync(It.IsAny<Book>())).ReturnsAsync(1);
+            mockBookDAL.Setup(x => x.ExecuteCreateBookAsync(It.IsAny<Book>())).ReturnsAsync(1);
             mockBookDAL.Setup(x => x.GetBookByTitleAsync(reqBook.Title, 1)).ReturnsAsync(bookByTitleAsync);
 
             mockBookHistoricDAL.Setup(x => x.ExecuteAddBookHistoricAsync(It.IsAny<BookHistoric>())).ReturnsAsync(1);

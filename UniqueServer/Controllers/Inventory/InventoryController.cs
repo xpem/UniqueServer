@@ -1,7 +1,4 @@
-﻿using BookshelfBLL;
-using BookshelfDbContextDAL;
-using BookshelfModels.Request;
-using InventoryBLL;
+﻿using InventoryBLL.Interfaces;
 using InventoryModels.Req;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -37,5 +34,14 @@ namespace UniqueServer.Controllers.Inventory
             return uid != null ? BuildResponse(subCategoryBLL.GetById(Convert.ToInt32(uid), id)) : NoContent();
         }
 
+        [Route("subcategory/category/{categoryId}")]
+        [HttpGet]
+        [Authorize]
+        public IActionResult GetSubCategoriesByCategoryId(int categoryId)
+        {
+            int? uid = RecoverUidSession();
+
+            return uid != null ? BuildResponse(subCategoryBLL.GetByCategoryId(Convert.ToInt32(categoryId), categoryId)) : NoContent();
+        }
     }
 }

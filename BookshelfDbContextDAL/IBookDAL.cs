@@ -10,7 +10,7 @@ namespace BookshelfDbContextDAL
 
         Task<int> ExecuteUpdateBookAsync(Book book);
 
-        Task<int> ExecuteAddBookAsync(Book book);
+        Task<int> ExecuteCreateBookAsync(Book book);
 
         Task<Book?> GetBookByTitleWithNotEqualIdAsync(string title, int uid, int bookId);
 

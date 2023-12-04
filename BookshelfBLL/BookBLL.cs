@@ -50,7 +50,7 @@ namespace BookshelfBLL
                 };
             }
 
-            await bookDAL.ExecuteAddBookAsync(book);
+            await bookDAL.ExecuteCreateBookAsync(book);
 
             BookHistoric bookHistoric = new()
             {

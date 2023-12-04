@@ -1,7 +1,7 @@
 ﻿using BaseModels;
 using InventoryModels.Req;
 
-namespace InventoryBLL
+namespace InventoryBLL.Interfaces
 {
     public interface ISubCategoryBLL
     {
@@ -9,7 +9,7 @@ namespace InventoryBLL
 
         BLLResponse GetByCategoryId(int uid, int categoryId);
 
-        BLLResponse CreateSubCategory(ReqSubCategory reqSubCategory, int uid);
+        Task<BLLResponse> CreateSubCategory(ReqSubCategory reqSubCategory, int uid);
 
         BLLResponse UpdateSubCategory(ReqSubCategory reqSubCategory, int uid, int id);
 

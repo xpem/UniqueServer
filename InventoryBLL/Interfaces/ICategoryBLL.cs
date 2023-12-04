@@ -2,7 +2,7 @@
 using InventoryModels;
 using InventoryModels.Req;
 
-namespace InventoryBLL
+namespace InventoryBLL.Interfaces
 {
     public interface ICategoryBLL
     {
