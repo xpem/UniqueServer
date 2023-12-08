@@ -43,7 +43,7 @@ namespace BookshelfDbContextDAL
             return await bookshelfDbContext.SaveChangesAsync();
         }
 
-        public async Task<int> ExecuteAddBookAsync(Book book)
+        public async Task<int> ExecuteCreateBookAsync(Book book)
         {
             await bookshelfDbContext.Book.AddAsync(book);
 

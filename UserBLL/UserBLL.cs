@@ -1,24 +1,13 @@
 ﻿using BaseModels;
-using Microsoft.EntityFrameworkCore;
 using UserManagementBLL.Functions;
-using UserManagementDAL;
 using UserModels;
 using UserModels.Request.User;
 using UserModels.Response;
 
 namespace UserBLL
 {
-    public class UserBLL : IUserBLL
+    public class UserBLL(UserManagementDAL.IUserDAL userDAL, UserManagementDAL.IUserHistoricDAL userHistoricDAL) : IUserBLL
     {
-        private readonly UserManagementDAL.IUserDAL userDAL;
-        private readonly IUserHistoricDAL userHistoricDAL;
-
-        public UserBLL(UserManagementDAL.IUserDAL userDAL, UserManagementDAL.IUserHistoricDAL userHistoricDAL)
-        {
-            this.userDAL = userDAL;
-            this.userHistoricDAL = userHistoricDAL;
-        }
-
         public async Task<BLLResponse> CreateUser(ReqUser reqUser)
         {
             string? validateError = reqUser.Validate();
