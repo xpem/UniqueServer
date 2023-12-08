@@ -18,7 +18,7 @@ namespace BookshelfBLL
 
             if (!string.IsNullOrEmpty(validateError)) return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = validateError } };
 
-            BookshelfModels.Book book = new()
+            Book book = new()
             {
                 Cover = reqBook.Cover,
                 Title = reqBook.Title,
@@ -88,9 +88,6 @@ namespace BookshelfBLL
 
         public async Task<BLLResponse> UpdateBook(ReqBook reqBook, int bookId, int uid)
         {
-            if (bookId < 0)
-                return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = "Invalid Book id" } };
-
             string? validateError = reqBook.Validate();
 
             if (!string.IsNullOrEmpty(validateError))

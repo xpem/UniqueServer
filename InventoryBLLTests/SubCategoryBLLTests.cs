@@ -1,4 +1,5 @@
-﻿using BaseModels;
+﻿using InventoryBLL;
+using BaseModels;
 using InventoryDAL;
 using InventoryDbContextDAL;
 using InventoryModels;
@@ -85,6 +86,7 @@ namespace InventoryBLL.Tests
 
             Mock<InventoryDbContext> mockContext = new();
             mockContext.Setup(m => m.SubCategory).Returns(mockSetSubCategory.Object);
+            mockContext.Setup(m => m.SaveChanges()).Returns(1);
             return mockContext;
         }
 
@@ -148,7 +150,7 @@ namespace InventoryBLL.Tests
         [TestMethod()]
         public void CreateSubCategoryTest()
         {
-            Mock<InventoryDbContext> mockContext = BuildMockInventoryContext();
+            //Mock<InventoryDbContext> mockContext = BuildMockInventoryContext();
 
             Mock<ISubCategoryDAL> mockSubCategoryDAL = new();
 
@@ -163,7 +165,7 @@ namespace InventoryBLL.Tests
 
             SubCategory? nullSubCategory = null;
 
-            mockSubCategoryDAL.Setup(x => x.ExecuteCreateSubCategoryAsync(It.IsAny<SubCategory>())).ReturnsAsync(1);
+            mockSubCategoryDAL.Setup(x => x.CreateSubCategoryAsync(It.IsAny<SubCategory>())).ReturnsAsync(1);
             mockSubCategoryDAL.Setup(x => x.GetByCategoryIdAndName(1, reqSubCategory.CategoryId, reqSubCategory.Name)).Returns(nullSubCategory);
 
             BLLResponse bLLResponse = subCategoryBLL.CreateSubCategory(reqSubCategory, 1).Result;
@@ -174,6 +176,103 @@ namespace InventoryBLL.Tests
 
                 if (resSubCategory != null)
                     Assert.AreEqual(resSubCategory.Name, reqSubCategory.Name);
+                else Assert.Fail();
+            }
+            else Assert.Fail();
+        }
+
+        [TestMethod()]
+        public void UpdateSubCategoryTest()
+        {
+            Mock<InventoryDbContext> mockContext = BuildMockInventoryContext();
+
+            Mock<SubCategoryDAL> mockSubCategoryDAL = new(mockContext.Object);
+
+            SubCategoryBLL subCategoryBLL = new(mockSubCategoryDAL.Object);
+
+            ReqSubCategory reqSubCategory = new()
+            {
+                CategoryId = 2,
+                Name = "Teste de título alterado",
+                IconName = "Plate"
+            };
+
+            //SubCategory? nullSubCategory = null;
+            // mockSubCategoryDAL.Setup(x => x.UpdateSubCategory(It.IsAny<SubCategory>())).Returns(1);
+            // mockSubCategoryDAL.Setup(x => x.GetByCategoryIdAndName(1, reqSubCategory.CategoryId, reqSubCategory.Name)).Returns(nullSubCategory);
+
+            BLLResponse bLLResponse = subCategoryBLL.UpdateSubCategory(reqSubCategory, 2, 6);
+
+            if (bLLResponse?.Content is not null)
+            {
+                ResSubCategory? resSubCategory = bLLResponse?.Content as ResSubCategory;
+
+                if (resSubCategory != null)
+                    Assert.AreEqual("Teste de título alterado", reqSubCategory.Name);
+                else Assert.Fail();
+            }
+            else Assert.Fail();
+        }
+
+        [TestMethod()]
+        public void Try_UpdateSubCategory_With_Same_Name_Test()
+        {
+            Mock<InventoryDbContext> mockContext = BuildMockInventoryContext();
+
+            Mock<SubCategoryDAL> mockSubCategoryDAL = new(mockContext.Object);
+
+            SubCategoryBLL subCategoryBLL = new(mockSubCategoryDAL.Object);
+
+            ReqSubCategory reqSubCategory = new()
+            {
+                CategoryId = 2,
+                Name = "Teste de título 4",
+            };
+
+            //SubCategory? nullSubCategory = null;
+            // mockSubCategoryDAL.Setup(x => x.UpdateSubCategory(It.IsAny<SubCategory>())).Returns(1);
+            // mockSubCategoryDAL.Setup(x => x.GetByCategoryIdAndName(1, reqSubCategory.CategoryId, reqSubCategory.Name)).Returns(nullSubCategory);
+
+            BLLResponse bLLResponse = subCategoryBLL.UpdateSubCategory(reqSubCategory, 2, 6);
+
+            if (bLLResponse?.Error is not null)
+            {
+                ErrorMessage? errorMessage = bLLResponse?.Error as ErrorMessage;
+
+                if (errorMessage?.Error != null)
+                    Assert.AreEqual("A Sub Category with this Name has already been added to this Category", errorMessage.Error);
+                else Assert.Fail();
+            }
+            else Assert.Fail();
+        }
+
+        [TestMethod()]
+        public void Try_Update_A_SystemDefault_SubCategory__Test()
+        {
+            Mock<InventoryDbContext> mockContext = BuildMockInventoryContext();
+
+            Mock<SubCategoryDAL> mockSubCategoryDAL = new(mockContext.Object);
+
+            SubCategoryBLL subCategoryBLL = new(mockSubCategoryDAL.Object);
+
+            ReqSubCategory reqSubCategory = new()
+            {
+                CategoryId = 2,
+                Name = "Teste de título 4",
+            };
+
+            //SubCategory? nullSubCategory = null;
+            // mockSubCategoryDAL.Setup(x => x.UpdateSubCategory(It.IsAny<SubCategory>())).Returns(1);
+            // mockSubCategoryDAL.Setup(x => x.GetByCategoryIdAndName(1, reqSubCategory.CategoryId, reqSubCategory.Name)).Returns(nullSubCategory);
+
+            BLLResponse bLLResponse = subCategoryBLL.UpdateSubCategory(reqSubCategory, 2, 5);
+
+            if (bLLResponse?.Error is not null)
+            {
+                ErrorMessage? errorMessage = bLLResponse?.Error as ErrorMessage;
+
+                if (errorMessage?.Error != null)
+                    Assert.AreEqual("It's not possible edit a system default Sub Category", errorMessage.Error);
                 else Assert.Fail();
             }
             else Assert.Fail();

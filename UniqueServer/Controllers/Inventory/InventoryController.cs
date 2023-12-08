@@ -7,41 +7,39 @@ namespace UniqueServer.Controllers.Inventory
 {
     [Route("[Controller]")]
     [ApiController]
-    public class InventoryController(ICategoryBLL categoryBLL, ISubCategoryBLL subCategoryBLL) : BaseController
+    [Authorize]
+    public class InventoryController(ISubCategoryBLL subCategoryBLL) : BaseController
     {
-        [Route("")]
-        [HttpGet]
-        //[Authorize]
-        public async Task<IActionResult> CreateCategory()
-        {
-            ReqCategory reqCategory = new() { Name = string.Empty, Color = string.Empty };
 
-            await categoryBLL.CreateCategory(reqCategory);
-            //int? uid = RecoverUidSession();
+        //[Route("")]
+        //[HttpGet]
+        ////[Authorize]
+        //public async Task<IActionResult> CreateCategory()
+        //{
+        //    ReqCategory reqCategory = new() { Name = string.Empty, Color = string.Empty };
 
-            //return uid != null ? BuildResponse(await bookBLL.CreateBook(book, Convert.ToInt32(uid))) : NoContent();
+        //    await categoryBLL.CreateCategory(reqCategory);
+        //    //int? uid = RecoverUidSession();
 
-            return NoContent();
-        }
+        //    //return uid != null ? BuildResponse(await bookBLL.CreateBook(book, Convert.ToInt32(uid))) : NoContent();
+
+        //    return NoContent();
+        //}
+
+        [Route("subcategory")]
+        [HttpPost]
+        public async Task<IActionResult> CreateSubCategory(ReqSubCategory reqSubCategory) => BuildResponse(await subCategoryBLL.CreateSubCategory(reqSubCategory, Uid));
+
+        [Route("subcategory/{id}")]
+        [HttpPut]
+        public IActionResult UpdateSubCategory(ReqSubCategory reqSubCategory, int id) => BuildResponse(subCategoryBLL.UpdateSubCategory(reqSubCategory, Uid, id));
 
         [Route("subcategory/{id}")]
         [HttpGet]
-        [Authorize]
-        public IActionResult GetSubCategoryById(int id)
-        {
-            int? uid = RecoverUidSession();
-
-            return uid != null ? BuildResponse(subCategoryBLL.GetById(Convert.ToInt32(uid), id)) : NoContent();
-        }
+        public IActionResult GetSubCategoryById(int id) => BuildResponse(subCategoryBLL.GetById(Uid, id));
 
         [Route("subcategory/category/{categoryId}")]
         [HttpGet]
-        [Authorize]
-        public IActionResult GetSubCategoriesByCategoryId(int categoryId)
-        {
-            int? uid = RecoverUidSession();
-
-            return uid != null ? BuildResponse(subCategoryBLL.GetByCategoryId(Convert.ToInt32(categoryId), categoryId)) : NoContent();
-        }
+        public IActionResult GetSubCategoriesByCategoryId(int categoryId) => BuildResponse(subCategoryBLL.GetByCategoryId(Uid, categoryId));
     }
 }

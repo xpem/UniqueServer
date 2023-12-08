@@ -1,11 +1,14 @@
 ﻿using BaseModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using System.Security.Claims;
 
 namespace UniqueServer.Controllers
 {
     public class BaseController : Controller
     {
+        protected int Uid { get; set; }
+
         protected IActionResult BuildResponse(BLLResponse bllResp) => ((!string.IsNullOrEmpty(bllResp.Error?.Error)) ? BadRequest(bllResp.Error) : Ok(bllResp.Content));
 
         protected int? RecoverUidSession()
@@ -16,6 +19,25 @@ namespace UniqueServer.Controllers
                 uid = identity.Claims.FirstOrDefault(x => x.Type == "uid")?.Value;
 
             return uid != null ? Convert.ToInt32(uid) : null;
+        }
+
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            var auth = context.HttpContext.Request.Headers.Authorization;
+            if (!string.IsNullOrEmpty(auth))
+            {
+                int? uid = RecoverUidSession();
+
+                if (uid is null)
+                {
+                    context.Result = new UnauthorizedObjectResult("user is unauthorized");
+                    return;
+                }
+
+                Uid = uid.Value;
+            }
+
+            base.OnActionExecuting(context);
         }
     }
 }

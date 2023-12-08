@@ -8,7 +8,7 @@ namespace InventoryModels.Req
         public required string Name { get; init; }
 
         [StringLength(100)]
-        public required string IconName { get; init; }
+        public string? IconName { get; init; } = null;
 
         public required int CategoryId { get; init; }
     }

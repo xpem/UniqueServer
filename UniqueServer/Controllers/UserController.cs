@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using UserBLL;
 using UserModels.Request.User;
 
@@ -7,15 +8,8 @@ namespace UniqueServer.Controllers
 {
     [Route("[Controller]")]
     [ApiController]
-    public class UserController : BaseController
+    public class UserController(IUserBLL userBLL) : BaseController
     {
-        readonly IUserBLL userBLL;
-
-        public UserController(IUserBLL userBLL)
-        {
-            this.userBLL = userBLL;
-        }
-
         [Route("")]
         [HttpPost]
         public async Task<IActionResult> SingUp(ReqUser reqUser) => BuildResponse(await userBLL.CreateUser(reqUser));
@@ -27,11 +21,7 @@ namespace UniqueServer.Controllers
         [Route("")]
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetUser()
-        {
-            int? uid = RecoverUidSession();
-            return uid != null ? BuildResponse(await userBLL.GetUserById(Convert.ToInt32(uid))) : NoContent();
-        }
+        public async Task<IActionResult> GetUser() => BuildResponse(await userBLL.GetUserById(Uid));
 
         [Route("RecoverPassword")]
         [HttpPost]
