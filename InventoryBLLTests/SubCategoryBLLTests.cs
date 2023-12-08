@@ -144,7 +144,10 @@ namespace InventoryBLL.Tests
                 List<ResSubCategory>? resSubCategory = bLLResponse.Content as List<ResSubCategory>;
 
                 Assert.IsTrue(resSubCategory?.Count == 3);
+                return;
             }
+
+            Assert.Fail();
         }
 
         [TestMethod()]
@@ -165,7 +168,7 @@ namespace InventoryBLL.Tests
 
             SubCategory? nullSubCategory = null;
 
-            mockSubCategoryDAL.Setup(x => x.CreateSubCategoryAsync(It.IsAny<SubCategory>())).ReturnsAsync(1);
+            mockSubCategoryDAL.Setup(x => x.Create(It.IsAny<SubCategory>())).Returns(1);
             mockSubCategoryDAL.Setup(x => x.GetByCategoryIdAndName(1, reqSubCategory.CategoryId, reqSubCategory.Name)).Returns(nullSubCategory);
 
             BLLResponse bLLResponse = subCategoryBLL.CreateSubCategory(reqSubCategory, 1).Result;
@@ -277,5 +280,54 @@ namespace InventoryBLL.Tests
             }
             else Assert.Fail();
         }
+
+        [TestMethod()]
+        public void DeleteSubCategoryTest()
+        {
+            Mock<InventoryDbContext> mockContext = BuildMockInventoryContext();
+
+            Mock<SubCategoryDAL> mockSubCategoryDAL = new(mockContext.Object);
+
+            SubCategoryBLL subCategoryBLL = new(mockSubCategoryDAL.Object);
+
+            //SubCategory? nullSubCategory = null;
+            // mockSubCategoryDAL.Setup(x => x.UpdateSubCategory(It.IsAny<SubCategory>())).Returns(1);
+            // mockSubCategoryDAL.Setup(x => x.GetByCategoryIdAndName(1, reqSubCategory.CategoryId, reqSubCategory.Name)).Returns(nullSubCategory);
+
+            BLLResponse bLLResponse = subCategoryBLL.DeleteSubCategory(2, 6);
+
+            if (bLLResponse?.Error is null && bLLResponse?.Content is null)
+                Assert.IsTrue(true);
+            else Assert.Fail();
+        }
+
+        [TestMethod()]
+        public void Try_Delete_SystemDefault_SubCategoryTest()
+        {
+            Mock<InventoryDbContext> mockContext = BuildMockInventoryContext();
+
+            Mock<SubCategoryDAL> mockSubCategoryDAL = new(mockContext.Object);
+
+            SubCategoryBLL subCategoryBLL = new(mockSubCategoryDAL.Object);
+
+            //SubCategory? nullSubCategory = null;
+            // mockSubCategoryDAL.Setup(x => x.UpdateSubCategory(It.IsAny<SubCategory>())).Returns(1);
+            // mockSubCategoryDAL.Setup(x => x.GetByCategoryIdAndName(1, reqSubCategory.CategoryId, reqSubCategory.Name)).Returns(nullSubCategory);
+
+            BLLResponse bLLResponse = subCategoryBLL.DeleteSubCategory(2, 5);
+
+            if (bLLResponse?.Error is not null && bLLResponse?.Content is null)
+            {
+                ErrorMessage? errorMessage = bLLResponse?.Error as ErrorMessage;
+
+                if (errorMessage?.Error != null)
+                {
+                    Assert.AreEqual("It's not possible delete a system default Sub Category", errorMessage.Error);
+                    return;
+                }
+            }
+            else Assert.Fail();
+        }
+
     }
 }

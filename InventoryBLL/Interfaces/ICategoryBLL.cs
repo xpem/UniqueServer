@@ -6,12 +6,16 @@ namespace InventoryBLL.Interfaces
 {
     public interface ICategoryBLL
     {
-        Task<BLLResponse> Get(int uid);
+        BLLResponse Get(int uid);
 
-        Task<BLLResponse> GetById(int uid, int id);
+        BLLResponse GetById(int uid, int id);
 
-        Task<BLLResponse> GetWithSubCategories();
+        BLLResponse GetWithSubCategories();
 
-        Task<BLLResponse> CreateCategory(ReqCategory reqCategory);
+        BLLResponse CreateCategory(ReqCategory reqCategory, int uid);
+
+        BLLResponse UpdateCategory(ReqCategory reqCategory, int uid, int id);
+
+        BLLResponse DeleteCategory(int uid, int id);
     }
 }

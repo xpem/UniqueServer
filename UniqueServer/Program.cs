@@ -31,6 +31,7 @@ builder.Services.AddScoped<IUserDAL, UserManagementDAL.UserDAL>();
 builder.Services.AddScoped<IUserHistoricDAL, UserHistoricDAL>();
 
 builder.Services.AddScoped<ISubCategoryDAL, SubCategoryDAL>();
+builder.Services.AddScoped<ICategoryDAL, CategoryDAL>();
 
 #region DI BLL
 

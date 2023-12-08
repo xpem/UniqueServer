@@ -43,7 +43,7 @@ namespace InventoryBLL
                     };
                 }
 
-                var respExec = await subCategoryDAL.CreateSubCategoryAsync(subCategory);
+                var respExec = subCategoryDAL.Create(subCategory);
 
                 if (respExec == 1)
                 {
@@ -56,9 +56,26 @@ namespace InventoryBLL
             catch { throw; }
         }
 
-        public BLLResponse DeleteSubCategory(int uid, int subCategoryId)
+        public BLLResponse DeleteSubCategory(int uid, int id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                SubCategory? subCategory = subCategoryDAL.GetById(uid, id);
+
+                if (subCategory == null)
+                    return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = "Invalid id" } };
+
+                if (subCategory.SystemDefault)
+                    return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = "It's not possible delete a system default Sub Category" } };
+
+                var respExec = subCategoryDAL.Delete(subCategory);
+
+                if (respExec == 1)
+                    return new BLLResponse { };
+                else
+                    return new BLLResponse { Content = null, Error = new ErrorMessage() { Error = "Não foi possivel atualizar." } };
+            }
+            catch { throw; }
         }
 
         public BLLResponse UpdateSubCategory(ReqSubCategory reqSubCategory, int uid, int id)
@@ -104,7 +121,7 @@ namespace InventoryBLL
                     };
                 }
 
-                var respExec = subCategoryDAL.UpdateSubCategory(subCategory);
+                var respExec = subCategoryDAL.Update(subCategory);
 
                 if (respExec == 1)
                 {
@@ -154,7 +171,6 @@ namespace InventoryBLL
 
             return new BLLResponse() { Content = resSubCategory };
         }
-
 
         protected string? ValidateExistingSubCategory(SubCategory subCategory, int? id = null)
         {

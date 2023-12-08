@@ -8,7 +8,7 @@ namespace UniqueServer.Controllers.Inventory
     [Route("[Controller]")]
     [ApiController]
     [Authorize]
-    public class InventoryController(ISubCategoryBLL subCategoryBLL) : BaseController
+    public class InventoryController(ISubCategoryBLL subCategoryBLL,ICategoryBLL categoryBLL) : BaseController
     {
 
         //[Route("")]
@@ -35,11 +35,20 @@ namespace UniqueServer.Controllers.Inventory
         public IActionResult UpdateSubCategory(ReqSubCategory reqSubCategory, int id) => BuildResponse(subCategoryBLL.UpdateSubCategory(reqSubCategory, Uid, id));
 
         [Route("subcategory/{id}")]
+        [HttpDelete]
+        public IActionResult DeleteSubCategory(int id) => BuildResponse(subCategoryBLL.DeleteSubCategory(Uid, id));
+
+        [Route("subcategory/{id}")]
         [HttpGet]
         public IActionResult GetSubCategoryById(int id) => BuildResponse(subCategoryBLL.GetById(Uid, id));
 
         [Route("subcategory/category/{categoryId}")]
         [HttpGet]
         public IActionResult GetSubCategoriesByCategoryId(int categoryId) => BuildResponse(subCategoryBLL.GetByCategoryId(Uid, categoryId));
+
+        [Route("category")]
+        [HttpGet]
+        public IActionResult GetCategories() => BuildResponse(categoryBLL.Get(Uid));
+
     }
 }

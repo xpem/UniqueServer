@@ -10,8 +10,10 @@ namespace InventoryDAL
 
         SubCategory? GetByCategoryIdAndName(int uid, int categoryId, string name);
 
-        Task<int> CreateSubCategoryAsync(SubCategory subCategory);
+        int Create(SubCategory subCategory);
 
-        int UpdateSubCategory(SubCategory subCategory);
+        int Update(SubCategory subCategory);
+
+        int Delete(SubCategory subCategory);
     }
 }

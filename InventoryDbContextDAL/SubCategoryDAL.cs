@@ -1,6 +1,5 @@
 ﻿using InventoryDbContextDAL;
 using InventoryModels;
-using Microsoft.EntityFrameworkCore;
 
 namespace InventoryDAL
 {
@@ -12,18 +11,27 @@ namespace InventoryDAL
 
         public SubCategory? GetByCategoryIdAndName(int uid, int categoryId, string name) => dbContext.SubCategory.Where(x => (x.UserId == uid || (x.UserId == null && x.SystemDefault)) && x.CategoryId == categoryId && x.Name == name).FirstOrDefault();
 
-        public async Task<int> CreateSubCategoryAsync(SubCategory subCategory)
+        public int Create(SubCategory subCategory)
         {
-            await dbContext.SubCategory.AddAsync(subCategory);
+            dbContext.SubCategory.AddAsync(subCategory);
 
-            return await dbContext.SaveChangesAsync();
+            return dbContext.SaveChanges();
         }
 
-        public int UpdateSubCategory(SubCategory subCategory)
+        public int Update(SubCategory subCategory)
         {
             dbContext.ChangeTracker?.Clear();
 
             dbContext.SubCategory.Update(subCategory);
+
+            return dbContext.SaveChanges();
+        }
+
+        public int Delete(SubCategory subCategory)
+        {
+            dbContext.ChangeTracker?.Clear();
+
+            dbContext.SubCategory.Remove(subCategory);
 
             return dbContext.SaveChanges();
         }
