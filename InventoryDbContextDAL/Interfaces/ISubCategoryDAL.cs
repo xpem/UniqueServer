@@ -1,6 +1,6 @@
 ﻿using InventoryModels;
 
-namespace InventoryDAL
+namespace InventoryDAL.Interfaces
 {
     public interface ISubCategoryDAL
     {

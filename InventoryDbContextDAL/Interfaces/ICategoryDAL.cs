@@ -1,11 +1,11 @@
 ﻿using InventoryModels;
 
-namespace InventoryDAL
+namespace InventoryDAL.Interfaces
 {
     public interface ICategoryDAL
     {
         int Create(Category category);
-        int Delete(int uid, int id);
+        int Delete(Category category);
         List<Category>? Get(int uid);
         Category? GetById(int uid, int id);
         Category? GetByName(int uid, string name);

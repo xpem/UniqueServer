@@ -5,6 +5,7 @@ using BookshelfDbContextDAL;
 using InventoryBLL;
 using InventoryBLL.Interfaces;
 using InventoryDAL;
+using InventoryDAL.Interfaces;
 using InventoryDbContextDAL;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;

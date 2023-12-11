@@ -9,7 +9,7 @@ namespace InventoryBLL.Interfaces
 
         BLLResponse GetByCategoryId(int uid, int categoryId);
 
-        Task<BLLResponse> CreateSubCategory(ReqSubCategory reqSubCategory, int uid);
+        BLLResponse CreateSubCategory(ReqSubCategory reqSubCategory, int uid);
 
         BLLResponse UpdateSubCategory(ReqSubCategory reqSubCategory, int uid, int id);
 

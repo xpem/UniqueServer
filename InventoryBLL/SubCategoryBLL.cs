@@ -1,6 +1,6 @@
 ﻿using BaseModels;
 using InventoryBLL.Interfaces;
-using InventoryDAL;
+using InventoryDAL.Interfaces;
 using InventoryModels;
 using InventoryModels.Req;
 using InventoryModels.Res;
@@ -9,7 +9,7 @@ namespace InventoryBLL
 {
     public class SubCategoryBLL(ISubCategoryDAL subCategoryDAL) : ISubCategoryBLL
     {
-        public async Task<BLLResponse> CreateSubCategory(ReqSubCategory reqSubCategory, int uid)
+        public BLLResponse CreateSubCategory(ReqSubCategory reqSubCategory, int uid)
         {
             try
             {
