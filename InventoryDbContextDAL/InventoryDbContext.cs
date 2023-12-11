@@ -10,6 +10,10 @@ namespace InventoryDbContextDAL
 
         public virtual DbSet<SubCategory> SubCategory { get; set; }
 
+        public virtual DbSet<ItemSituation> ItemSituation { get; set; }
+
+        public virtual DbSet<AcquisitionType> AcquisitionType { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseMySql(PrivateKeys.InventoryConn, ServerVersion.AutoDetect(PrivateKeys.InventoryConn));

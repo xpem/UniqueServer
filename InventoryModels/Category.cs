@@ -3,21 +3,13 @@ using System.ComponentModel.DataAnnotations;
 
 namespace InventoryModels
 {
-    public class Category : BaseModel
+    public class Category : InventoryBaseModel
     {
-        public int? UserId { get; set; }
-
-        [MaxLength(50)]
-        public required string Name { get; set; }
-
         [MaxLength(8)]
         public required string Color { get; set; }
-               
-        public bool SystemDefault { get; set; }
 
         public List<SubCategory>? SubCategories { get; set; }
 
-        public DateTime? UpdatedAt { get; set; }
 
     }
 }

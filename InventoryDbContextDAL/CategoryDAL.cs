@@ -1,6 +1,7 @@
-﻿using BaseModels;
+﻿using InventoryDAL.Interfaces;
 using InventoryDbContextDAL;
 using InventoryModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace InventoryDAL
 {
@@ -8,12 +9,17 @@ namespace InventoryDAL
     {
         public int Create(Category category)
         {
-            throw new NotImplementedException();
+            dbContext.Category.AddAsync(category);
+            return dbContext.SaveChanges();
         }
 
-        public int Delete(int uid, int id)
+        public int Delete(Category category)
         {
-            throw new NotImplementedException();
+            dbContext.ChangeTracker?.Clear();
+
+            dbContext.Category.Remove(category);
+
+            return dbContext.SaveChanges();
         }
 
         public List<Category>? Get(int uid) => dbContext.Category.Where(x => x.UserId == uid || (x.UserId == null && x.SystemDefault)).ToList();
@@ -23,13 +29,16 @@ namespace InventoryDAL
         public Category? GetByName(int uid, string name) => dbContext.Category.Where(x => (x.UserId == uid || (x.UserId == null && x.SystemDefault)) && x.Name == name).FirstOrDefault();
 
         public List<Category>? GetWithSubCategories(int uid)
-        {
-            throw new NotImplementedException();
-        }
+            => dbContext.Category.Where(x => x.UserId == uid || (x.UserId == null && x.SystemDefault)).Include(x => x.SubCategories).OrderBy(x => x.Id).ToList();
+
 
         public int Update(Category category)
         {
-            throw new NotImplementedException();
+            dbContext.ChangeTracker?.Clear();
+
+            dbContext.Category.Update(category);
+
+            return dbContext.SaveChanges();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using InventoryDbContextDAL;
+﻿using InventoryDAL.Interfaces;
+using InventoryDbContextDAL;
 using InventoryModels;
 
 namespace InventoryDAL

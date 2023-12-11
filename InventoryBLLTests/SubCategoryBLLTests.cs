@@ -8,13 +8,14 @@ using InventoryModels.Res;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using InventoryDAL.Interfaces;
 
 namespace InventoryBLL.Tests
 {
     [TestClass()]
     public class SubCategoryBLLTests
     {
-        private Mock<InventoryDbContext> BuildMockInventoryContext()
+        public static Mock<InventoryDbContext> BuildMockInventoryContext()
         {
             Mock<DbSet<SubCategory>> mockSetSubCategory = new();
 
@@ -171,7 +172,7 @@ namespace InventoryBLL.Tests
             mockSubCategoryDAL.Setup(x => x.Create(It.IsAny<SubCategory>())).Returns(1);
             mockSubCategoryDAL.Setup(x => x.GetByCategoryIdAndName(1, reqSubCategory.CategoryId, reqSubCategory.Name)).Returns(nullSubCategory);
 
-            BLLResponse bLLResponse = subCategoryBLL.CreateSubCategory(reqSubCategory, 1).Result;
+            BLLResponse bLLResponse = subCategoryBLL.CreateSubCategory(reqSubCategory, 1);
 
             if (bLLResponse?.Content is not null)
             {

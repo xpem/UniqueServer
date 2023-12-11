@@ -1,5 +1,4 @@
 ﻿using BaseModels;
-using InventoryModels;
 using InventoryModels.Req;
 
 namespace InventoryBLL.Interfaces
@@ -10,7 +9,7 @@ namespace InventoryBLL.Interfaces
 
         BLLResponse GetById(int uid, int id);
 
-        BLLResponse GetWithSubCategories();
+        BLLResponse GetWithSubCategories(int uid);
 
         BLLResponse CreateCategory(ReqCategory reqCategory, int uid);
 

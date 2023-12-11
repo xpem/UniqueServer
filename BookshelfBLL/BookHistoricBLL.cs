@@ -1,9 +1,7 @@
 ﻿using BaseModels;
 using BookshelfDAL;
-using BookshelfDbContextDAL;
 using BookshelfModels;
 using BookshelfModels.Response;
-using Microsoft.EntityFrameworkCore;
 
 namespace BookshelfBLL
 {

@@ -8,6 +8,6 @@ namespace InventoryModels.Req
         public required string Name { get; init; }
 
         [StringLength(8)]
-        public required string Color { get; init; }
+        public string Color { get; init; } = "3C3C3C";
     }
 }

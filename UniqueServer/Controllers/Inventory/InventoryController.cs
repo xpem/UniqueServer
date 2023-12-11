@@ -8,7 +8,7 @@ namespace UniqueServer.Controllers.Inventory
     [Route("[Controller]")]
     [ApiController]
     [Authorize]
-    public class InventoryController(ISubCategoryBLL subCategoryBLL,ICategoryBLL categoryBLL) : BaseController
+    public class InventoryController(ISubCategoryBLL subCategoryBLL, ICategoryBLL categoryBLL) : BaseController
     {
 
         //[Route("")]
@@ -28,7 +28,7 @@ namespace UniqueServer.Controllers.Inventory
 
         [Route("subcategory")]
         [HttpPost]
-        public async Task<IActionResult> CreateSubCategory(ReqSubCategory reqSubCategory) => BuildResponse(await subCategoryBLL.CreateSubCategory(reqSubCategory, Uid));
+        public IActionResult CreateSubCategory(ReqSubCategory reqSubCategory) => BuildResponse(subCategoryBLL.CreateSubCategory(reqSubCategory, Uid));
 
         [Route("subcategory/{id}")]
         [HttpPut]
@@ -49,6 +49,10 @@ namespace UniqueServer.Controllers.Inventory
         [Route("category")]
         [HttpGet]
         public IActionResult GetCategories() => BuildResponse(categoryBLL.Get(Uid));
+
+        [Route("category/subcategory")]
+        [HttpGet]
+        public IActionResult GetCategoryById() => BuildResponse(categoryBLL.GetWithSubCategories(Uid));
 
     }
 }

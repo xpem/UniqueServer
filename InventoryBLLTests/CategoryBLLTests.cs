@@ -12,13 +12,15 @@ using InventoryModels;
 using InventoryDAL;
 using BaseModels;
 using InventoryModels.Res;
+using InventoryModels.Req;
+using InventoryBLL.Interfaces;
 
 namespace InventoryBLL.Tests
 {
     [TestClass()]
     public class CategoryBLLTests
     {
-        private Mock<InventoryDbContext> BuildMockInventoryContext()
+        private static Mock<InventoryDbContext> BuildMockInventoryContext()
         {
             Mock<DbSet<Category>> mockSetCategory = new();
 
@@ -158,14 +160,20 @@ namespace InventoryBLL.Tests
             return mockContext;
         }
 
+        public static CategoryBLL BuildCategoryBLL()
+        {
+            Mock<InventoryDbContext> mockContext = BuildMockInventoryContext();
+            Mock<InventoryDbContext> mockSubCategoryContext = SubCategoryBLLTests.BuildMockInventoryContext();
+
+            CategoryDAL categoryDAL = new(mockContext.Object);
+            SubCategoryDAL subCategoryDAL = new(mockSubCategoryContext.Object);
+            return new(categoryDAL, subCategoryDAL);
+        }
+
         [TestMethod()]
         public void GetTest()
         {
-            Mock<InventoryDbContext> mockContext = BuildMockInventoryContext();
-
-            CategoryDAL categoryDAL = new(mockContext.Object);
-
-            CategoryBLL categoryBLL = new(categoryDAL);
+            CategoryBLL categoryBLL = BuildCategoryBLL();
 
             BLLResponse bLLResponse = categoryBLL.Get(1);
 
@@ -177,6 +185,59 @@ namespace InventoryBLL.Tests
                 return;
             }
 
+            Assert.Fail();
+        }
+
+        [TestMethod()]
+        public void UpdateCategoryTest()
+        {
+            CategoryBLL categoryBLL = BuildCategoryBLL();
+
+            ReqCategory reqCategory = new() { Name = "Teste de título alterado" };
+
+            BLLResponse bLLResponse = categoryBLL.UpdateCategory(reqCategory, 1, 3);
+
+            if (bLLResponse?.Content is not null)
+            {
+                ResCategoryWithSubCategories? resCategory = bLLResponse?.Content as ResCategoryWithSubCategories;
+
+                if (resCategory != null)
+                {
+                    Assert.AreEqual("Teste de título alterado", resCategory.Name);
+                    return;
+                }
+                else Assert.Fail();
+            }
+            else Assert.Fail();
+        }
+
+        [TestMethod()]
+        public void Try_UpdateCategory_With_Same_Name_Test()
+        {
+            CategoryBLL categoryBLL = BuildCategoryBLL();
+
+            ReqCategory reqCategory = new() { Name = "Vestimenta" };
+
+            //SubCategory? nullSubCategory = null;
+            // mockSubCategoryDAL.Setup(x => x.UpdateSubCategory(It.IsAny<SubCategory>())).Returns(1);
+            // mockSubCategoryDAL.Setup(x => x.GetByCategoryIdAndName(1, reqSubCategory.CategoryId, reqSubCategory.Name)).Returns(nullSubCategory);
+
+            BLLResponse bLLResponse = categoryBLL.UpdateCategory(reqCategory, 1, 3);
+
+            if (bLLResponse?.Error is not null)
+            {
+                ErrorMessage? errorMessage = bLLResponse?.Error as ErrorMessage;
+
+                if (errorMessage?.Error != null)
+                    Assert.AreEqual("A Category with this Name has already been added.", errorMessage.Error);
+                else Assert.Fail();
+            }
+            else Assert.Fail();
+        }
+
+        [TestMethod()]
+        public void DeleteCategoryTest()
+        {
             Assert.Fail();
         }
     }
