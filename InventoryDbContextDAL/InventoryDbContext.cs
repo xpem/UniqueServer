@@ -18,5 +18,13 @@ namespace InventoryDbContextDAL
         {
             optionsBuilder.UseMySql(PrivateKeys.InventoryConn, ServerVersion.AutoDetect(PrivateKeys.InventoryConn));
         }
+
+        //migrations
+        //no console do gerenciador de pacotes selecione o dal referente:
+        //Add-Migration "Init" -Context InventoryDbContext
+        //update-database -Context InventoryDbContext
+
+        //to remove last migration snapshot
+        //Remove-Migration -Context InventoryDbContext 
     }
 }

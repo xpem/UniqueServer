@@ -7,7 +7,7 @@ namespace InventoryModels
     {
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
-        public required bool SystemDefault { get; set; } = false;
+        public bool SystemDefault { get; set; } = false;
 
         public int? UserId { get; set; }
 

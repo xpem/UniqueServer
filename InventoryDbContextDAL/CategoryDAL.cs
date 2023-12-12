@@ -9,7 +9,7 @@ namespace InventoryDAL
     {
         public int Create(Category category)
         {
-            dbContext.Category.AddAsync(category);
+            dbContext.Category.Add(category);
             return dbContext.SaveChanges();
         }
 
