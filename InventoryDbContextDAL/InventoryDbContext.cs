@@ -14,6 +14,8 @@ namespace InventoryDbContextDAL
 
         public virtual DbSet<AcquisitionType> AcquisitionType { get; set; }
 
+        public virtual DbSet<Item> Item { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseMySql(PrivateKeys.InventoryConn, ServerVersion.AutoDetect(PrivateKeys.InventoryConn));
