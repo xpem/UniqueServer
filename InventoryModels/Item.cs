@@ -50,6 +50,6 @@ namespace InventoryModels
 
         public required DateTime UpdatedAt { get; set; }
 
-        public DateOnly WithdrawalDate { get; set; }
+        public DateOnly? WithdrawalDate { get; set; }
     }
 }

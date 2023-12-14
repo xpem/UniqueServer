@@ -32,7 +32,7 @@ namespace InventoryModels.Req
 
         public required int AcquisitionType { get; init; }
 
-        public DateOnly WithdrawalDate { get; init; }
+        public DateOnly? WithdrawalDate { get; init; }
 
     }
     public record ReqItemCategory

@@ -59,7 +59,7 @@ namespace InventoryBLL
             catch (Exception ex) { throw; }
         }
 
-        public string? ValidateIndexes(ReqItem reqItem, int uid)
+        private string? ValidateIndexes(ReqItem reqItem, int uid)
         {
             if (itemSituationDAL.GetById(uid, reqItem.Situation) == null)
                 return "Situation with this id don't exist";

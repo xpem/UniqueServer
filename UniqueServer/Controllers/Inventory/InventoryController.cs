@@ -1,5 +1,6 @@
 ﻿using InventoryBLL;
 using InventoryBLL.Interfaces;
+using InventoryDAL;
 using InventoryModels.Req;
 using InventoryModels.Res;
 using Microsoft.AspNetCore.Authorization;
@@ -12,7 +13,7 @@ namespace UniqueServer.Controllers.Inventory
     [Route("[Controller]")]
     [ApiController]
     [Authorize]
-    public class InventoryController(ISubCategoryBLL subCategoryBLL, ICategoryBLL categoryBLL) : BaseController
+    public class InventoryController(ISubCategoryBLL subCategoryBLL, ICategoryBLL categoryBLL, IItemSituationBLL itemSituationBLL, IAcquisitionTypeBLL acquisitionTypeBLL) : BaseController
     {
         #region subcategory
 
@@ -64,5 +65,49 @@ namespace UniqueServer.Controllers.Inventory
         [HttpGet]
         public IActionResult GetCategoryById() => BuildResponse(categoryBLL.GetWithSubCategories(Uid));
 
+        #endregion
+
+        [Route("acquisitiontype")]
+        [HttpGet]
+        public IActionResult GetAcquisitionTypes() => BuildResponse(acquisitionTypeBLL.Get(Uid));
+
+        [Route("itemsituation")]
+        [HttpGet]
+        public IActionResult GetItemSituations() => BuildResponse(itemSituationBLL.Get(Uid));
+
+
+        //https://stackoverflow.com/questions/32178012/want-to-save-a-image-to-a-folder-and-saving-the-url-in-database
+        /*
+          private readonly IHostEnvironment _hostingEnvironment;
+    private readonly string _path = "";
+
+    Constructor(IHostEnvironment hostingEnvironment){
+        _hostingEnvironment = hostingEnvironment;
+        _path = Path.Combine(_hostingEnvironment.ContentRootPath, "wwwroot", "Images");    
+    }
+
+    //your method that receives the image {
+        string fileName = null;
+        if (image != null) //type of image is IFormFile
+        {
+            Guid guid = Guid.NewGuid();
+            fileName = $"{guid}.{image.FileName.Split('.').Last()}";
+            await SaveInLocalFolder(image, fileName);
+        }
+    //}
+
+    private async Task<bool> SaveInLocalFolder(IFormFile file, string fileName)
+    {
+        if (!Directory.Exists(_path))
+        {
+            Directory.CreateDirectory(_path);
+        }
+        using (var fileStream = new FileStream(Path.Combine(_path, fileName), FileMode.Create))
+        {
+            await file.CopyToAsync(fileStream);
+        }
+        return true;
+    }
+         */
     }
 }
