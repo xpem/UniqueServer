@@ -25,14 +25,20 @@ builder.Services.AddSwaggerGen();
 
 #region DI DAL
 
+//bookshelf
 builder.Services.AddScoped<IBookDAL, BookDAL>();
 builder.Services.AddScoped<IBookHistoricDAL, BookHistoricDAL>();
 
+//usermanagement
 builder.Services.AddScoped<IUserDAL, UserManagementDAL.UserDAL>();
 builder.Services.AddScoped<IUserHistoricDAL, UserHistoricDAL>();
 
+//inventory
 builder.Services.AddScoped<ISubCategoryDAL, SubCategoryDAL>();
 builder.Services.AddScoped<ICategoryDAL, CategoryDAL>();
+builder.Services.AddScoped<IAcquisitionTypeDAL, AcquisitionTypeDAL>();
+builder.Services.AddScoped<IItemSituationDAL, ItemSituationDAL>();
+
 
 #region DI BLL
 
@@ -43,6 +49,8 @@ builder.Services.AddScoped<IBookHistoricBLL, BookHistoricBLL>();
 
 builder.Services.AddScoped<ICategoryBLL, CategoryBLL>();
 builder.Services.AddScoped<ISubCategoryBLL, SubCategoryBLL>();
+builder.Services.AddScoped<IAcquisitionTypeBLL, AcquisitionTypeBLL>();
+builder.Services.AddScoped<IItemSituationBLL, ItemSituationBLL>();
 
 #endregion
 

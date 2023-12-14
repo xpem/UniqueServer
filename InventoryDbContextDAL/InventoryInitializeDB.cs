@@ -2,19 +2,22 @@
 
 namespace InventoryDbContextDAL
 {
-    public class InventoryInitializeDB(InventoryDbContext inventoryDbContext)
+    public class InventoryInitializeDB()
     {
-        public void CreateInitiaValues()
+        public static void CreateInitiaValues()
         {
+            using InventoryDbContext inventoryDbContext = new();
             inventoryDbContext.Database.EnsureCreated();
 
-            CreateBaseCategories();
-            CreateBaseSubCategories();
+            CreateBaseCategories(inventoryDbContext);
+            CreateBaseSubCategories(inventoryDbContext);
+            CreateBaseItemSituation(inventoryDbContext);
+            CreateBaseAcquisitionType(inventoryDbContext);
 
             inventoryDbContext.SaveChanges();
         }
 
-        public void CreateBaseCategories()
+        public static void CreateBaseCategories(InventoryDbContext inventoryDbContext)
         {
             if (inventoryDbContext.Category.Count() is not 0) return;
 
@@ -27,7 +30,7 @@ namespace InventoryDbContextDAL
             inventoryDbContext.Category.AddRange(categories);
         }
 
-        public void CreateBaseSubCategories()
+        public static void CreateBaseSubCategories(InventoryDbContext inventoryDbContext)
         {
             if (inventoryDbContext.SubCategory.Count() is not 0) return;
 
@@ -44,6 +47,38 @@ namespace InventoryDbContextDAL
             ];
 
             inventoryDbContext.SubCategory.AddRange(subCategories);
+        }
+
+        public static void CreateBaseItemSituation(InventoryDbContext inventoryDbContext)
+        {
+            if (inventoryDbContext.ItemSituation.Count() is not 0) return;
+
+            ItemSituation[] itemSituations = [
+                new ItemSituation() { Name = "Em uso", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 1 },
+                new ItemSituation() { Name = "Guardado", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 2 },
+                new ItemSituation() { Name = "Dispensado", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 5 },
+                new ItemSituation() { Name = "Defeito", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 3 },
+                new ItemSituation() { Name = "Revendido", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 4 },
+                new ItemSituation() { Name = "Emprestado", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 6 },
+                new ItemSituation() { Name = "Doado", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 7 },
+            ];
+
+            inventoryDbContext.ItemSituation.AddRange(itemSituations);
+        }
+
+        public static void CreateBaseAcquisitionType(InventoryDbContext inventoryDbContext)
+        {
+            if (inventoryDbContext.AcquisitionType.Count() is not 0) return;
+
+            AcquisitionType[] acquisitionTypes = [
+                new AcquisitionType() { Name = "Compra", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 1 },
+                new AcquisitionType() { Name = "Emprestimo", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 2 },
+                new AcquisitionType() { Name = "Doação", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 3 },
+                new AcquisitionType() { Name = "Presente", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 4 },
+                new AcquisitionType() { Name = "Troca", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 5 },
+            ];
+
+            inventoryDbContext.AcquisitionType.AddRange(acquisitionTypes);
         }
     }
 }

@@ -8,7 +8,7 @@ namespace UniqueServer.Controllers.Inventory
     [Route("[Controller]")]
     [ApiController]
     [Authorize]
-    public class InventoryController(ISubCategoryBLL subCategoryBLL, ICategoryBLL categoryBLL) : BaseController
+    public class InventoryController(ISubCategoryBLL subCategoryBLL, ICategoryBLL categoryBLL,IItemSituationBLL itemSituationBLL,IAcquisitionTypeBLL acquisitionTypeBLL) : BaseController
     {
 
         //[Route("")]
@@ -53,6 +53,14 @@ namespace UniqueServer.Controllers.Inventory
         [Route("category/subcategory")]
         [HttpGet]
         public IActionResult GetCategoryById() => BuildResponse(categoryBLL.GetWithSubCategories(Uid));
+
+        [Route("acquisitiontype")]
+        [HttpGet]
+        public IActionResult GetAcquisitionTypes() => BuildResponse(acquisitionTypeBLL.Get(Uid));
+
+        [Route("itemsituation")]
+        [HttpGet]
+        public IActionResult GetItemSituations() => BuildResponse(itemSituationBLL.Get(Uid));
 
     }
 }

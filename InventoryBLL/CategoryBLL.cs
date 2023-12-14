@@ -22,7 +22,6 @@ namespace InventoryBLL
                     Name = reqCategory.Name,
                     Color = reqCategory.Color,
                     CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now,
                     SystemDefault = false,
                     UserId = uid
                 };
@@ -73,7 +72,7 @@ namespace InventoryBLL
 
                 List<SubCategory>? subCategories = subCategoryDAL.GetByCategoryId(uid, category.Id);
 
-                if(subCategories != null && subCategories.Count > 0)
+                if (subCategories != null && subCategories.Count > 0)
                     return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = "It's not possible delete a Category with Sub Categories" } };
 
                 var respExec = categoryDAL.Delete(category);
@@ -88,6 +87,8 @@ namespace InventoryBLL
 
         public BLLResponse Get(int uid)
         {
+           // InventoryDbContextDAL.InventoryInitializeDB.CreateInitiaValues();
+
             List<Category>? categories = categoryDAL.Get(uid);
             List<ResCategory> resCategories = [];
 
