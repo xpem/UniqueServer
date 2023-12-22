@@ -33,7 +33,7 @@
 
     public record ResItemCategory
     {
-        public int Id { get; init; }
+        public int? Id { get; init; }
         public string? Name { get; init; }
 
         public string? Color { get; init; }
@@ -43,14 +43,14 @@
 
     public record ResItemSubCategory
     {
-        public int Id { get; init; }
+        public int? Id { get; init; }
         public string? Name { get; init; }
         public string? IconName { get; init; }
     }
 
     public record ResItemItemSituation
     {
-        public int Id { get; init; }
+        public int? Id { get; init; }
         public string? Name { get; init; }
     }
 }

@@ -14,7 +14,7 @@ namespace InventoryModels
         [MaxLength(350)]
         public string? TechnicalDescription { get; set; }
 
-        public required DateOnly? AcquisitionDate { get; set; }
+        public required DateOnly AcquisitionDate { get; set; }
 
         [Column(TypeName = "decimal(10, 2)")]
         public decimal? PurchaseValue { get; set; }

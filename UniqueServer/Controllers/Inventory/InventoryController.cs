@@ -1,5 +1,4 @@
-﻿using InventoryBLL;
-using InventoryBLL.Interfaces;
+﻿using InventoryBLL.Interfaces;
 using InventoryDAL;
 using InventoryModels.Req;
 using InventoryModels.Res;
@@ -13,7 +12,7 @@ namespace UniqueServer.Controllers.Inventory
     [Route("[Controller]")]
     [ApiController]
     [Authorize]
-    public class InventoryController(ISubCategoryBLL subCategoryBLL, ICategoryBLL categoryBLL, IItemSituationBLL itemSituationBLL, IAcquisitionTypeBLL acquisitionTypeBLL) : BaseController
+    public class InventoryController(ISubCategoryBLL subCategoryBLL, ICategoryBLL categoryBLL, IItemSituationBLL itemSituationBLL, IAcquisitionTypeBLL acquisitionTypeBLL,IItemBLL itemBLL) : BaseController
     {
         #region subcategory
 
@@ -63,7 +62,7 @@ namespace UniqueServer.Controllers.Inventory
 
         [Route("category/subcategory")]
         [HttpGet]
-        public IActionResult GetCategoryById() => BuildResponse(categoryBLL.GetWithSubCategories(Uid));
+        public IActionResult GetCategoriesWithSubCategories() => BuildResponse(categoryBLL.GetWithSubCategories(Uid));
 
         #endregion
 
@@ -75,7 +74,17 @@ namespace UniqueServer.Controllers.Inventory
         [HttpGet]
         public IActionResult GetItemSituations() => BuildResponse(itemSituationBLL.Get(Uid));
 
+        #region item
+        [Route("item")]
+        [HttpPost]
+        public IActionResult CreateItem(ReqItem reqItem) => BuildResponse(itemBLL.CreateItem(reqItem, Uid));
 
+        [Route("item/{id}")]
+        [HttpGet]
+        public IActionResult GetItemById(int id) => BuildResponse(itemBLL.GetById(Uid, id));
+
+
+        #endregion
         //https://stackoverflow.com/questions/32178012/want-to-save-a-image-to-a-folder-and-saving-the-url-in-database
         /*
           private readonly IHostEnvironment _hostingEnvironment;

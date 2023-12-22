@@ -38,19 +38,23 @@ builder.Services.AddScoped<ISubCategoryDAL, SubCategoryDAL>();
 builder.Services.AddScoped<ICategoryDAL, CategoryDAL>();
 builder.Services.AddScoped<IAcquisitionTypeDAL, AcquisitionTypeDAL>();
 builder.Services.AddScoped<IItemSituationDAL, ItemSituationDAL>();
-
+builder.Services.AddScoped<IItemDAL, ItemDAL>();
 
 #region DI BLL
 
+//usermanagement
 builder.Services.AddScoped<IUserBLL, UserBLL.UserBLL>();
 
+//bookshelf
 builder.Services.AddScoped<IBookBLL, BookBLL>();
 builder.Services.AddScoped<IBookHistoricBLL, BookHistoricBLL>();
 
+//inventory
 builder.Services.AddScoped<ICategoryBLL, CategoryBLL>();
 builder.Services.AddScoped<ISubCategoryBLL, SubCategoryBLL>();
 builder.Services.AddScoped<IAcquisitionTypeBLL, AcquisitionTypeBLL>();
 builder.Services.AddScoped<IItemSituationBLL, ItemSituationBLL>();
+builder.Services.AddScoped<IItemBLL, ItemBLL>();
 
 #endregion
 

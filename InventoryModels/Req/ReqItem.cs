@@ -37,7 +37,7 @@ namespace InventoryModels.Req
     }
     public record ReqItemCategory
     {
-        public required int Category { get; init; }
+        public required int CategoryId { get; init; }
 
         public int? SubCategory { get; init; }
     }
