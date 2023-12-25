@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Hosting.Internal;
 using UserBLL;
 using UserModels.Request.User;
 
@@ -8,7 +9,7 @@ namespace UniqueServer.Controllers
 {
     [Route("[Controller]")]
     [ApiController]
-    public class UserController(IUserBLL userBLL) : BaseController
+    public class UserController(IUserBLL userBLL, IHostEnvironment hostingEnvironment) : BaseController
     {
         [Route("")]
         [HttpPost]
@@ -32,7 +33,7 @@ namespace UniqueServer.Controllers
         [HttpGet]
         public IActionResult RecoverPasswordBody(string token)
         {
-            string html = System.IO.File.ReadAllText("StaticFiles/RecoverPassword/Index.html");
+            string html = System.IO.File.ReadAllText(Path.Combine(hostingEnvironment.ContentRootPath, "StaticFiles", "RecoverPassword", "Index.html"));
 
             html = html.Replace("{{token}}", token);
 
@@ -50,7 +51,7 @@ namespace UniqueServer.Controllers
 
             _ = userBLL.UpdatePassword(reqRecoverPassword, Convert.ToInt32(uid));
 
-            string html = System.IO.File.ReadAllText("StaticFiles/RecoverPassword/PasswordUpdated.html");
+            string html = System.IO.File.ReadAllText(Path.Combine(hostingEnvironment.ContentRootPath, "StaticFiles", "RecoverPassword", "PasswordUpdated.html"));
 
             html = html.Replace("{{token}}", token);
 

@@ -3,6 +3,7 @@ using InventoryBLL.Interfaces;
 using InventoryModels.Req;
 using InventoryModels.Res;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Mvc;
 
 namespace UniqueServer.Controllers.Inventory
@@ -141,26 +142,25 @@ namespace UniqueServer.Controllers.Inventory
 
         [Route("item/{id}/image/{imageIndex}")]
         [HttpGet]
-        public async Task<IActionResult> GetItemImagesByFileName(int id, int imageIndex)
+        public async Task<IActionResult> GetItemImagesByIndex(int id, int imageIndex)
         {
             BLLResponse bLLResponse = itemBLL.GetById(Uid, id);
             var resItem = (bLLResponse.Content as ResItem);
 
             if (resItem == null)
-                return BadRequest();
+                return BadRequest("Invalid Id");
 
             string? fileName;
             if (imageIndex is 1) fileName = resItem.Image1;
             else if (imageIndex is 2) fileName = resItem.Image2;
-            else return BadRequest();
+            else return BadRequest("Invalid Index");
 
-            if (string.IsNullOrEmpty(fileName)) return BadRequest();
+            if (string.IsNullOrEmpty(fileName)) return BadRequest("File with this index don't exist");
 
             var path = ReturnPath();
+            var fullPath = Path.Combine(path, fileName);
 
-            var fullPath = path + @"\" + fileName;
-
-            if (!System.IO.File.Exists(fullPath)) return BadRequest();
+            if (!System.IO.File.Exists(fullPath)) return BadRequest("This file don't exist");
 
             var memory = new MemoryStream();
             using (var stream = new FileStream(fullPath, FileMode.Open))
@@ -170,11 +170,12 @@ namespace UniqueServer.Controllers.Inventory
             memory.Position = 0;
             var ext = Path.GetExtension(fullPath).ToLowerInvariant();
             return File(memory, GetMimeTypes()[ext], Path.GetFileName(fullPath));
+
         }
 
         private string ReturnPath()
         {
-            var path = Path.Combine(hostingEnvironment.ContentRootPath, "wwwroot", "Images");
+            var path = Path.Combine(hostingEnvironment.ContentRootPath, "StaticFiles", "ItemsImages");
 
             if (!Directory.Exists(path)) Directory.CreateDirectory(path);
 
