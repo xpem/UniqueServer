@@ -75,22 +75,15 @@ namespace InventoryBLL
             if (item.Image1 != null) fileName1 = item.Image1;
             if (item.Image2 != null) fileName2 = item.Image2;
 
-
             var respExec = itemDAL.Delete(item);
 
             if (respExec == 1)
             {
                 if (fileName1 != null)
-                {
-                    var fullPath = filePath + @"\" + fileName1;
-                    System.IO.File.Delete(fullPath);
-                }
+                    System.IO.File.Delete(Path.Combine(filePath, fileName1));
 
                 if (fileName2 != null)
-                {
-                    var fullPath = filePath + @"\" + fileName2;
-                    System.IO.File.Delete(fullPath);
-                }
+                    System.IO.File.Delete(Path.Combine(filePath, fileName2));
 
                 return new BLLResponse { };
             }
