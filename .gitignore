@@ -362,3 +362,5 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /BaseModels/PrivateKeys.cs
+/UniqueServer/ItemImages
+/UniqueServer/wwwroot/Images
