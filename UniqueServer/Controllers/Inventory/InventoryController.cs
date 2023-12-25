@@ -1,18 +1,18 @@
-﻿using InventoryBLL.Interfaces;
-using InventoryDAL;
+﻿using BaseModels;
+using InventoryBLL.Interfaces;
 using InventoryModels.Req;
 using InventoryModels.Res;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Mvc;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace UniqueServer.Controllers.Inventory
 {
     [Route("[Controller]")]
     [ApiController]
     [Authorize]
-    public class InventoryController(ISubCategoryBLL subCategoryBLL, ICategoryBLL categoryBLL, IItemSituationBLL itemSituationBLL, IAcquisitionTypeBLL acquisitionTypeBLL,IItemBLL itemBLL) : BaseController
+    public class InventoryController(ISubCategoryBLL subCategoryBLL, ICategoryBLL categoryBLL,
+        IItemSituationBLL itemSituationBLL, IAcquisitionTypeBLL acquisitionTypeBLL, IItemBLL itemBLL,
+        IHostEnvironment hostingEnvironment) : BaseController
     {
         #region subcategory
 
@@ -75,48 +75,141 @@ namespace UniqueServer.Controllers.Inventory
         public IActionResult GetItemSituations() => BuildResponse(itemSituationBLL.Get(Uid));
 
         #region item
+
         [Route("item")]
         [HttpPost]
         public IActionResult CreateItem(ReqItem reqItem) => BuildResponse(itemBLL.CreateItem(reqItem, Uid));
 
         [Route("item/{id}")]
+        [HttpPut]
+        public IActionResult UpdateItem(ReqItem reqItem, int id) => BuildResponse(itemBLL.UpdateItem(reqItem, Uid, id));
+
+        [Route("item/{id}")]
         [HttpGet]
         public IActionResult GetItemById(int id) => BuildResponse(itemBLL.GetById(Uid, id));
 
+        [Route("item")]
+        [HttpGet]
+        public IActionResult GetItems() => BuildResponse(itemBLL.Get(Uid));
+
+        [Route("item/{id}")]
+        [HttpDelete]
+        public IActionResult DeleteItem(int id) => BuildResponse(itemBLL.DeleteItem(Uid, id, ReturnPath()));
+
+        [Route("item/{id}/image")]
+        [HttpPut]
+        public IActionResult UploadItemImages(int id, IFormFile file1, IFormFile? file2)
+        {
+            BLLResponse bLLResponse = itemBLL.GetById(Uid, id);
+
+            var resItem = (bLLResponse.Content as ResItem);
+
+            if (bLLResponse == null)
+                return BadRequest();
+
+            if (bLLResponse.Content != null)
+            {
+                string? fileName1;
+                if (file1 != null)
+                {
+                    if (!ValidateFileExtension(file1)) return BadRequest("Image in invalid format");
+
+                    if (resItem?.Image1 != null) fileName1 = resItem.Image1;
+                    else fileName1 = Guid.NewGuid() + Path.GetExtension(file1.FileName).ToLower();
+
+                    _ = SaveInLocalFolder(file1, fileName1);
+                }
+                else return BadRequest("Image 1 in invalid format");
+
+                string? fileName2;
+                if (file2 != null)
+                {
+                    if (!ValidateFileExtension(file2)) return BadRequest("Image in invalid format");
+
+                    if (resItem?.Image2 != null) fileName2 = resItem.Image2;
+                    else fileName2 = Guid.NewGuid() + Path.GetExtension(file1.FileName).ToLower();
+
+                    _ = SaveInLocalFolder(file2, fileName2);
+                }
+                else
+                    fileName2 = resItem?.Image2;
+
+                return BuildResponse(itemBLL.UpdateItemFileNames(Uid, id, fileName1, fileName2));
+            }
+            else return BuildResponse(bLLResponse);
+        }
+
+        [Route("item/{id}/image/{imageIndex}")]
+        [HttpGet]
+        public async Task<IActionResult> GetItemImagesByFileName(int id, int imageIndex)
+        {
+            BLLResponse bLLResponse = itemBLL.GetById(Uid, id);
+            var resItem = (bLLResponse.Content as ResItem);
+
+            if (resItem == null)
+                return BadRequest();
+
+            string? fileName;
+            if (imageIndex is 1) fileName = resItem.Image1;
+            else if (imageIndex is 2) fileName = resItem.Image2;
+            else return BadRequest();
+
+            if (string.IsNullOrEmpty(fileName)) return BadRequest();
+
+            var path = ReturnPath();
+
+            var fullPath = path + @"\" + fileName;
+
+            if (!System.IO.File.Exists(fullPath)) return BadRequest();
+
+            var memory = new MemoryStream();
+            using (var stream = new FileStream(fullPath, FileMode.Open))
+            {
+                await stream.CopyToAsync(memory);
+            }
+            memory.Position = 0;
+            var ext = Path.GetExtension(fullPath).ToLowerInvariant();
+            return File(memory, GetMimeTypes()[ext], Path.GetFileName(fullPath));
+        }
+
+        private string ReturnPath()
+        {
+            var path = Path.Combine(hostingEnvironment.ContentRootPath, "wwwroot", "Images");
+
+            if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+
+            return path;
+        }
+
+        private async Task<bool> SaveInLocalFolder(IFormFile file, string fileName)
+        {
+            var path = ReturnPath();
+
+            using var fileStream = new FileStream(Path.Combine(path, fileName), FileMode.Create, FileAccess.ReadWrite);
+            await file.CopyToAsync(fileStream);
+            return true;
+        }
+
+        private static Dictionary<string, string> GetMimeTypes()
+            => new()
+            {
+                {".png", "image/png"},
+                {".jpg", "image/jpeg"},
+                {".gif", "image/gif"}
+            };
+
+        private bool ValidateFileExtension(IFormFile file)
+        {
+            string[] validContentTypes = ["image/jpg", "image/jpeg", "image/pjpeg", "image/png"];
+            string[] validExtensions = [".jpg", ".png", ".jpeg"];
+
+            if (!validContentTypes.Contains(file.ContentType)) return false;
+
+            if (!validExtensions.Contains(Path.GetExtension(file.FileName).ToLower())) return false;
+
+            return true;
+        }
 
         #endregion
-        //https://stackoverflow.com/questions/32178012/want-to-save-a-image-to-a-folder-and-saving-the-url-in-database
-        /*
-          private readonly IHostEnvironment _hostingEnvironment;
-    private readonly string _path = "";
-
-    Constructor(IHostEnvironment hostingEnvironment){
-        _hostingEnvironment = hostingEnvironment;
-        _path = Path.Combine(_hostingEnvironment.ContentRootPath, "wwwroot", "Images");    
-    }
-
-    //your method that receives the image {
-        string fileName = null;
-        if (image != null) //type of image is IFormFile
-        {
-            Guid guid = Guid.NewGuid();
-            fileName = $"{guid}.{image.FileName.Split('.').Last()}";
-            await SaveInLocalFolder(image, fileName);
-        }
-    //}
-
-    private async Task<bool> SaveInLocalFolder(IFormFile file, string fileName)
-    {
-        if (!Directory.Exists(_path))
-        {
-            Directory.CreateDirectory(_path);
-        }
-        using (var fileStream = new FileStream(Path.Combine(_path, fileName), FileMode.Create))
-        {
-            await file.CopyToAsync(fileStream);
-        }
-        return true;
-    }
-         */
     }
 }

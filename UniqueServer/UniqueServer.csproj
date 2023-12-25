@@ -50,8 +50,4 @@
     <ProjectReference Include="..\UserManagementDAL\UserManagementDAL.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="ItemImages\" />
-  </ItemGroup>
-
 </Project>

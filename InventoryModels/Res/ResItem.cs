@@ -22,6 +22,10 @@
 
         public string? Comment { get; init; }
 
+        public string? Image1 { get; init; }
+
+        public string? Image2 { get; init; }
+
         public DateTime CreatedAt { get; init; }
 
         public DateTime UpdatedAt { get; init; }

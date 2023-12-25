@@ -11,6 +11,10 @@ namespace InventoryDAL.Interfaces
 
         int Update(Item item);
 
-        Item? GetById(int uid,int id);
+        Item? GetById(int uid, int id);
+
+        int UpdateFileNames(int uid, int id, string? fileName1, string? fileName2);
+
+        List<Item>? Get(int uid);
     }
 }
