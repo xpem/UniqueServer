@@ -37,7 +37,7 @@ namespace InventoryBLL
                     PurchaseStore = reqItem.PurchaseStore,
                     PurchaseValue = reqItem.PurchaseValue,
                     ResaleValue = reqItem.ResaleValue,
-                    SubCategoryId = reqItem.Category.SubCategory,
+                    SubCategoryId = reqItem.Category.SubCategoryId,
                     TechnicalDescription = reqItem.TechnicalDescription,
                     WithdrawalDate = reqItem.WithdrawalDate,
                 };
@@ -188,7 +188,7 @@ namespace InventoryBLL
                 PurchaseStore = reqItem.PurchaseStore,
                 PurchaseValue = reqItem.PurchaseValue,
                 ResaleValue = reqItem.ResaleValue,
-                SubCategoryId = reqItem.Category.SubCategory,
+                SubCategoryId = reqItem.Category.SubCategoryId,
                 TechnicalDescription = reqItem.TechnicalDescription,
                 WithdrawalDate = reqItem.WithdrawalDate,
             };
@@ -229,7 +229,7 @@ namespace InventoryBLL
             if (categoryDAL.GetById(uid, reqItem.Category.CategoryId) == null)
                 return "Category with this id don't exist";
 
-            if ((reqItem.Category.SubCategory is not null) && (subCategoryDAL.GetById(uid, reqItem.Category.SubCategory.Value) == null))
+            if ((reqItem.Category.SubCategoryId is not null) && (subCategoryDAL.GetById(uid, reqItem.Category.SubCategoryId.Value) == null))
                 return "SubCategory with this id don't exist";
 
             if (acquisitionTypeDAL.GetById(uid, reqItem.AcquisitionType) == null)
