@@ -3,7 +3,7 @@ using BookshelfModels.Request;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace UniqueServer.Controllers.BookShelf
+namespace UniqueServer.Controllers.Bookshelf
 {
     [Route("[Controller]")]
     [ApiController]

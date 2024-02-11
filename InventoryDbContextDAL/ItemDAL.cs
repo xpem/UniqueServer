@@ -35,7 +35,9 @@ namespace InventoryDAL
 
             return dbContext.Item.Where(x => x.UserId == uid && x.Id == id).ExecuteUpdate(y => y
                .SetProperty(z => z.Image1, fileName1)
-               .SetProperty(z => z.Image2, fileName2));
+               .SetProperty(z => z.Image2, fileName2)
+               .SetProperty(z => z.UpdatedAt, DateTime.Now)
+               );
         }
 
         public int Delete(Item item)
