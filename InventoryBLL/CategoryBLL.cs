@@ -87,7 +87,7 @@ namespace InventoryBLL
 
         public BLLResponse Get(int uid)
         {
-           // InventoryDbContextDAL.InventoryInitializeDB.CreateInitiaValues();
+            // InventoryDbContextDAL.InventoryInitializeDB.CreateInitiaValues();
 
             List<Category>? categories = categoryDAL.Get(uid);
             List<ResCategory> resCategories = [];
