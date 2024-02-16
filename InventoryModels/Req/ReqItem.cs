@@ -23,7 +23,7 @@ namespace InventoryModels.Req
         [Column(TypeName = "decimal(10, 2)")]
         public decimal? ResaleValue { get; init; }
 
-        public required int Situation { get; init; }
+        public required int SituationId { get; init; }
 
         public required ReqItemCategory Category { get; init; }
 
@@ -35,6 +35,7 @@ namespace InventoryModels.Req
         public DateOnly? WithdrawalDate { get; init; }
 
     }
+
     public record ReqItemCategory
     {
         public required int CategoryId { get; init; }
