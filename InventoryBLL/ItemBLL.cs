@@ -29,7 +29,7 @@ namespace InventoryBLL
                     AcquisitionTypeId = reqItem.AcquisitionType,
                     CategoryId = reqItem.Category.CategoryId,
                     CreatedAt = DateTime.Now,
-                    ItemSituationId = reqItem.Situation,
+                    ItemSituationId = reqItem.SituationId,
                     Name = reqItem.Name,
                     UpdatedAt = DateTime.Now,
                     UserId = uid,
@@ -125,6 +125,7 @@ namespace InventoryBLL
             ResItem? resItem = null;
 
             if (item != null)
+            {
                 resItem = new()
                 {
                     Id = item.Id,
@@ -133,12 +134,12 @@ namespace InventoryBLL
                         Id = item.Category?.Id,
                         Name = item.Category?.Name,
                         Color = item.Category?.Color,
-                        SubCategory = new ResItemSubCategory()
+                        SubCategory = (item.SubCategory is not null) ? new ResItemSubCategory()
                         {
                             Id = item.SubCategory?.Id,
                             Name = item.SubCategory?.Name,
                             IconName = item.SubCategory?.IconName,
-                        }
+                        } : null,
                     },
                     Name = item.Name,
                     AcquisitionDate = item.AcquisitionDate,
@@ -155,6 +156,7 @@ namespace InventoryBLL
                     UpdatedAt = item.UpdatedAt,
                     WithdrawalDate = item.WithdrawalDate,
                 };
+            }
 
             return resItem;
         }
@@ -180,7 +182,7 @@ namespace InventoryBLL
                 AcquisitionTypeId = reqItem.AcquisitionType,
                 CategoryId = reqItem.Category.CategoryId,
                 CreatedAt = oldItem.CreatedAt,
-                ItemSituationId = reqItem.Situation,
+                ItemSituationId = reqItem.SituationId,
                 Name = reqItem.Name,
                 UpdatedAt = DateTime.Now,
                 UserId = oldItem.UserId,
@@ -223,7 +225,7 @@ namespace InventoryBLL
 
         private string? ValidateIndexes(ReqItem reqItem, int uid)
         {
-            if (itemSituationDAL.GetById(uid, reqItem.Situation) == null)
+            if (itemSituationDAL.GetById(uid, reqItem.SituationId) == null)
                 return "Situation with this id don't exist";
 
             if (categoryDAL.GetById(uid, reqItem.Category.CategoryId) == null)
