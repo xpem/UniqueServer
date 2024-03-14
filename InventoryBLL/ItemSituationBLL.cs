@@ -29,6 +29,7 @@ namespace InventoryBLL
                             Name = itemSituation.Name,
                             Sequence = itemSituation.Sequence,
                             SystemDefault = itemSituation.SystemDefault,
+                            Type = itemSituation.Type,
                         });
 
             return new BLLResponse() { Content = resItemSituations };

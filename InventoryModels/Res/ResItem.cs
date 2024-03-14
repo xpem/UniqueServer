@@ -30,7 +30,7 @@
 
         public DateTime UpdatedAt { get; init; }
 
-        public int AcquisitionType { get; init; }
+        public ResItemAcquisitionType? AcquisitionType { get; init; }
 
         public DateOnly? WithdrawalDate { get; init; }
     }
@@ -51,6 +51,13 @@
         public string? Name { get; init; }
         public string? IconName { get; init; }
     }
+
+    public record ResItemAcquisitionType
+    {
+        public int? Id { get; init; }
+        public string? Name { get; init; }
+    }
+
 
     public record ResItemItemSituation
     {

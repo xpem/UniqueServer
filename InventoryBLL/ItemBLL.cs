@@ -13,6 +13,8 @@ namespace InventoryBLL
         ISubCategoryDAL subCategoryDAL, IAcquisitionTypeDAL acquisitionTypeDAL,
         IItemDAL itemDAL) : IItemBLL
     {
+        readonly int pageSize = 10;
+
         public BLLResponse CreateItem(ReqItem reqItem, int uid)
         {
             try
@@ -91,9 +93,12 @@ namespace InventoryBLL
                 return new BLLResponse { Content = null, Error = new ErrorMessage() { Error = "Não foi possivel excluir." } };
         }
 
-        public BLLResponse Get(int uid)
+        public async Task<BLLResponse> GetAsync(int uid, int page)
         {
-            List<Item>? items = itemDAL.Get(uid);
+            if (page <= 0)
+                return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = "Invalid page" } };
+
+            List<Item>? items = await itemDAL.GetAsync(uid, page, pageSize);
             List<ResItem> resItems = [];
 
             if (items != null && items.Count > 0)
@@ -104,8 +109,22 @@ namespace InventoryBLL
                     if (bildedResItem != null)
                         resItems.Add(bildedResItem);
                 }
+            return new BLLResponse { Content = resItems };
+        }
 
-            return new BLLResponse { Content = resItems, Error = null };
+        public async Task<BLLResponse> GetTotalItemsPagesAsync(int uid)
+        {
+            int totalItems = await itemDAL.GetTotalAsync(uid);
+
+            double fractionalTotalPages = (double)totalItems / (double)pageSize;
+
+            if (!(fractionalTotalPages % 1 == 0)) fractionalTotalPages += 1;
+
+            int totalPage = Convert.ToInt32(Math.Round(fractionalTotalPages, 0, MidpointRounding.ToZero));
+
+            ResTotalItems resTotalItems = new ResTotalItems() { TotalItems = totalItems, TotalPages = totalPage };
+
+            return new BLLResponse { Content = resTotalItems };
         }
 
         public BLLResponse GetById(int uid, int id)
@@ -117,7 +136,7 @@ namespace InventoryBLL
 
             ResItem? resItem = BuildResItem(item);
 
-            return new BLLResponse { Content = resItem, Error = null };
+            return new BLLResponse { Content = resItem };
         }
 
         protected static ResItem? BuildResItem(Item? item)
@@ -143,7 +162,11 @@ namespace InventoryBLL
                     },
                     Name = item.Name,
                     AcquisitionDate = item.AcquisitionDate,
-                    AcquisitionType = item.AcquisitionTypeId,
+                    AcquisitionType = (item.SubCategory is not null) ? new ResItemAcquisitionType()
+                    {
+                        Id = item.SubCategory?.Id,
+                        Name = item.SubCategory?.Name,
+                    } : null,
                     Comment = item.Comment,
                     Image1 = item.Image1,
                     Image2 = item.Image2,

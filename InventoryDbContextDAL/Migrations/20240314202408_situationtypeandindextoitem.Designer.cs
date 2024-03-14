@@ -4,6 +4,7 @@ using InventoryDbContextDAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace InventoryDbContextDAL.Migrations
 {
     [DbContext(typeof(InventoryDbContext))]
-    partial class InventoryDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240314202408_situationtypeandindextoitem")]
+    partial class situationtypeandindextoitem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -52,7 +55,7 @@ namespace InventoryDbContextDAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AcquisitionType", (string)null);
+                    b.ToTable("AcquisitionType");
                 });
 
             modelBuilder.Entity("InventoryModels.Category", b =>
@@ -87,7 +90,7 @@ namespace InventoryDbContextDAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Category", (string)null);
+                    b.ToTable("Category");
                 });
 
             modelBuilder.Entity("InventoryModels.Item", b =>
@@ -164,7 +167,7 @@ namespace InventoryDbContextDAL.Migrations
 
                     b.HasIndex("SubCategoryId");
 
-                    b.ToTable("Item", (string)null);
+                    b.ToTable("Item");
                 });
 
             modelBuilder.Entity("InventoryModels.ItemSituation", b =>
@@ -200,7 +203,7 @@ namespace InventoryDbContextDAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ItemSituation", (string)null);
+                    b.ToTable("ItemSituation");
                 });
 
             modelBuilder.Entity("InventoryModels.SubCategory", b =>
@@ -239,7 +242,7 @@ namespace InventoryDbContextDAL.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("SubCategory", (string)null);
+                    b.ToTable("SubCategory");
                 });
 
             modelBuilder.Entity("InventoryModels.Item", b =>

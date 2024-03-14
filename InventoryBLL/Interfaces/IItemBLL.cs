@@ -13,8 +13,10 @@ namespace InventoryBLL.Interfaces
 
         BLLResponse GetById(int uid, int id);
 
-        BLLResponse Get(int uid);
+        Task<BLLResponse> GetAsync(int uid, int page);
 
         BLLResponse UpdateItemFileNames(int uid, int id, string? fileName1, string? fileName2);
+
+        Task<BLLResponse> GetTotalItemsPagesAsync(int uid);
     }
 }

@@ -2,5 +2,8 @@
 
 namespace InventoryModels.Res
 {
-    public record ResItemSituation : ResTextTypeBase { }
+    public record ResItemSituation : ResTextTypeBase
+    {
+        public required SituationType Type { get; set; }
+    }
 }

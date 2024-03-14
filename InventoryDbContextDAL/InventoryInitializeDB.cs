@@ -54,13 +54,13 @@ namespace InventoryDbContextDAL
             if (inventoryDbContext.ItemSituation.Count() is not 0) return;
 
             ItemSituation[] itemSituations = [
-                new ItemSituation() { Name = "Em uso", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 1 },
-                new ItemSituation() { Name = "Guardado", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 2 },
-                new ItemSituation() { Name = "Dispensado", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 5 },
-                new ItemSituation() { Name = "Defeito", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 3 },
-                new ItemSituation() { Name = "Revendido", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 4 },
-                new ItemSituation() { Name = "Emprestado", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 6 },
-                new ItemSituation() { Name = "Doado", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 7 },
+                new ItemSituation() { Name = "Em uso", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 1,Type = SituationType.In },
+                new ItemSituation() { Name = "Guardado", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 2,Type = SituationType.In },
+                new ItemSituation() { Name = "Dispensado", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 5,Type=SituationType.Out },
+                new ItemSituation() { Name = "Defeito", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 3,Type=SituationType.Out },
+                new ItemSituation() { Name = "Revendido", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 4 ,Type = SituationType.Out},
+                new ItemSituation() { Name = "Emprestado", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 6,Type = SituationType.In },
+                new ItemSituation() { Name = "Doado", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 7,Type = SituationType.Out },
             ];
 
             inventoryDbContext.ItemSituation.AddRange(itemSituations);
