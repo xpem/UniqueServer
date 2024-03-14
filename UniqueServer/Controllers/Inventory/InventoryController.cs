@@ -81,17 +81,21 @@ namespace UniqueServer.Controllers.Inventory
         [HttpPost]
         public IActionResult CreateItem(ReqItem reqItem) => BuildResponse(itemBLL.CreateItem(reqItem, Uid));
 
-        [Route("item/{id}")]
+        [Route("item/{id:int:min(1)}")]
         [HttpPut]
         public IActionResult UpdateItem(ReqItem reqItem, int id) => BuildResponse(itemBLL.UpdateItem(reqItem, Uid, id));
 
-        [Route("item/{id}")]
+        [Route("item/{id:int:min(1)}")]
         [HttpGet]
         public IActionResult GetItemById(int id) => BuildResponse(itemBLL.GetById(Uid, id));
 
         [Route("item")]
         [HttpGet]
-        public IActionResult GetItems() => BuildResponse(itemBLL.Get(Uid));
+        public IActionResult GetItems(int page) => BuildResponse(itemBLL.GetAsync(Uid, page).Result);
+
+        [Route("item/totals")]
+        [HttpGet]
+        public IActionResult GetItems() => BuildResponse(itemBLL.GetTotalItemsPagesAsync(Uid).Result);
 
         [Route("item/{id}")]
         [HttpDelete]

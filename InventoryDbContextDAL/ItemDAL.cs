@@ -18,6 +18,7 @@ namespace InventoryDAL
 
         public int Create(Item item)
         {
+            dbContext.ChangeTracker?.Clear();
             dbContext.Item.Add(item);
             return dbContext.SaveChanges();
         }
@@ -47,12 +48,16 @@ namespace InventoryDAL
             return dbContext.SaveChanges();
         }
 
-        public List<Item>? Get(int uid)
-            => dbContext.Item.Where(x => x.UserId == uid)
+        public async Task<int> GetTotalAsync(int uid) => await dbContext.Item.CountAsync(x => x.UserId == uid);
+
+        public async Task<List<Item>?> GetAsync(int uid, int page, int pageSize)
+            => await dbContext.Item.Where(x => x.UserId == uid)
             .Include(x => x.Category)
             .Include(x => x.SubCategory)
             .Include(x => x.ItemSituation)
             .Include(x => x.AcquisitionType)
-            .ToList();
+            .Skip((page - 1) * pageSize).Take(pageSize)
+            .ToListAsync();
+
     }
 }

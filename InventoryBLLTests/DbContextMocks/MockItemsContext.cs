@@ -17,7 +17,8 @@ namespace InventoryBLLTests.DbContextMocks
                 Id = 1,
                 SystemDefault = true,
                 UpdatedAt = DateTime.Now,
-                UserId = 1
+                UserId = 1,Type = SituationType.In
+                
             };
 
             ItemSituation itemSituation2 = new ItemSituation()
@@ -28,7 +29,7 @@ namespace InventoryBLLTests.DbContextMocks
                 Id = 2,
                 SystemDefault = true,
                 UpdatedAt = DateTime.Now,
-                UserId = 1
+                UserId = 1,Type= SituationType.Out
             };
 
             AcquisitionType acquisitionType = new AcquisitionType()

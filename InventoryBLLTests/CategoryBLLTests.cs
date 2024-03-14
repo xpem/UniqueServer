@@ -234,11 +234,5 @@ namespace InventoryBLL.Tests
             }
             else Assert.Fail();
         }
-
-        [TestMethod()]
-        public void DeleteCategoryTest()
-        {
-            Assert.Fail();
-        }
     }
 }
