@@ -241,10 +241,10 @@ namespace InventoryBLL.Tests
 
             if (bLLResponse?.Error is not null)
             {
-                ErrorMessage? errorMessage = bLLResponse?.Error as ErrorMessage;
+                Error? errorMessage = bLLResponse?.Error as Error;
 
-                if (errorMessage?.Error != null)
-                    Assert.AreEqual("A Sub Category with this Name has already been added to this Category", errorMessage.Error);
+                if (errorMessage?.Message != null)
+                    Assert.AreEqual("A Sub Category with this Name has already been added to this Category", errorMessage.Message);
                 else Assert.Fail();
             }
             else Assert.Fail();
@@ -273,10 +273,10 @@ namespace InventoryBLL.Tests
 
             if (bLLResponse?.Error is not null)
             {
-                ErrorMessage? errorMessage = bLLResponse?.Error as ErrorMessage;
+                Error? errorMessage = bLLResponse?.Error as Error;
 
-                if (errorMessage?.Error != null)
-                    Assert.AreEqual("It's not possible edit a system default Sub Category", errorMessage.Error);
+                if (errorMessage?.Message != null)
+                    Assert.AreEqual("It's not possible edit a system default Sub Category", errorMessage.Message);
                 else Assert.Fail();
             }
             else Assert.Fail();
@@ -319,11 +319,11 @@ namespace InventoryBLL.Tests
 
             if (bLLResponse?.Error is not null && bLLResponse?.Content is null)
             {
-                ErrorMessage? errorMessage = bLLResponse?.Error as ErrorMessage;
+                Error? errorMessage = bLLResponse?.Error as Error;
 
-                if (errorMessage?.Error != null)
+                if (errorMessage?.Message != null)
                 {
-                    Assert.AreEqual("It's not possible delete a system default Sub Category", errorMessage.Error);
+                    Assert.AreEqual("It's not possible delete a system default Sub Category", errorMessage.Message);
                     return;
                 }
             }

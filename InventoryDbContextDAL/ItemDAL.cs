@@ -56,8 +56,8 @@ namespace InventoryDAL
             .Include(x => x.SubCategory)
             .Include(x => x.ItemSituation)
             .Include(x => x.AcquisitionType)
+            .OrderByDescending(x => x.CreatedAt)
             .Skip((page - 1) * pageSize).Take(pageSize)
             .ToListAsync();
-
     }
 }

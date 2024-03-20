@@ -14,7 +14,7 @@ namespace InventoryBLL
             List<ResAcquisitionType> resAcquisitionTypes = [];
 
             if (acquisitionTypes != null && acquisitionTypes.Count > 0)
-                foreach (var acquisitionType in acquisitionTypes)
+                foreach (AcquisitionType acquisitionType in acquisitionTypes)
                     resAcquisitionTypes.Add(
                         new()
                         {
@@ -24,7 +24,7 @@ namespace InventoryBLL
                             SystemDefault = acquisitionType.SystemDefault,
                         });
 
-            return new BLLResponse() { Content = resAcquisitionTypes };
+            return new BLLResponse(resAcquisitionTypes);
         }
     }
 }

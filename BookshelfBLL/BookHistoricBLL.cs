@@ -176,7 +176,7 @@ namespace BookshelfBLL
             }
 
 
-            return new BLLResponse() { Content = resBookHistorics };
+            return new BLLResponse(resBookHistorics);
         }
 
         public Task<int> AddBookHistoricAsync(BookHistoric bookHistoric) => bookHistoricDAL.ExecuteAddBookHistoricAsync(bookHistoric);

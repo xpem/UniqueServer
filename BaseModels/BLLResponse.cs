@@ -2,13 +2,28 @@
 {
     public record BLLResponse
     {
+        public bool Success { get; set; } = true;
+
         public object? Content { get; init; }
 
-        public ErrorMessage? Error { get; init; } = null;
+        public Error? Error { get; init; } = null;
+
+        public BLLResponse(object? content, string? errorMessage = null)
+        {
+            if (!string.IsNullOrEmpty(errorMessage))
+            {
+                Success = false;
+                Content = null;
+
+                if (!string.IsNullOrEmpty(errorMessage))
+                    Error = new Error { Message = errorMessage };
+            }
+            else Content = content;
+        }
     }
 
-    public record ErrorMessage
+    public record Error
     {
-        public string? Error { get; init; }
+        public required string Message { get; init; }
     }
 }

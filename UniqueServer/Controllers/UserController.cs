@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using BaseModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Hosting.Internal;
+using Microsoft.IdentityModel.Tokens;
 using UserBLL;
 using UserModels.Request.User;
 
@@ -43,17 +45,31 @@ namespace UniqueServer.Controllers
         [ApiExplorerSettings(IgnoreApi = true)]
         [Route("RecoverPassword/{token}")]
         [HttpPost]
-        public IActionResult RecoverPassword(string token, [FromForm] ReqRecoverPassword reqRecoverPassword)
+        public async Task<IActionResult> RecoverPassword(string token, [FromForm] ReqRecoverPassword reqRecoverPassword)
         {
-            int? uid = UserManagementBLL.Functions.JwtFunctions.GetUidFromToken(token);
-
-            if (uid == null) { NoContent(); }
-
-            _ = userBLL.UpdatePassword(reqRecoverPassword, Convert.ToInt32(uid));
-
             string html = System.IO.File.ReadAllText(Path.Combine(hostingEnvironment.ContentRootPath, "StaticFiles", "RecoverPassword", "PasswordUpdated.html"));
 
-            html = html.Replace("{{token}}", token);
+            try
+            {
+                int? uid = UserManagementBLL.Functions.JwtFunctions.GetUidFromToken(token);
+
+                html = html.Replace("{{token}}", token);
+
+                if (uid == null)
+                    html = html.Replace("{{ReturnMessage}}", "User Not Found");
+                else
+                {
+                    var bLLResponse = await userBLL.UpdatePassword(reqRecoverPassword, Convert.ToInt32(uid));
+
+                    if (bLLResponse.Success)
+                        html = html.Replace("{{ReturnMessage}}", bLLResponse.Content?.ToString());
+                    else html = html.Replace("{{ReturnMessage}}", bLLResponse.Error?.Message?.ToString());
+                }
+            }
+            catch (SecurityTokenExpiredException)
+            {
+                html = html.Replace("{{ReturnMessage}}", "Email link expired.");
+            }
 
             return base.Content(html, "text/html");
         }

@@ -1,15 +1,8 @@
 ﻿using BaseModels;
-using InventoryDAL;
-using InventoryModels.Res;
-using InventoryModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using InventoryDbContextDAL;
-using InventoryDAL.Interfaces;
 using InventoryBLL.Interfaces;
+using InventoryDAL.Interfaces;
+using InventoryModels;
+using InventoryModels.Res;
 
 namespace InventoryBLL
 {
@@ -21,7 +14,7 @@ namespace InventoryBLL
             List<ResItemSituation> resItemSituations = [];
 
             if (itemSituations != null && itemSituations.Count > 0)
-                foreach (var itemSituation in itemSituations)
+                foreach (ItemSituation itemSituation in itemSituations)
                     resItemSituations.Add(
                         new()
                         {
@@ -32,7 +25,7 @@ namespace InventoryBLL
                             Type = itemSituation.Type,
                         });
 
-            return new BLLResponse() { Content = resItemSituations };
+            return new BLLResponse(resItemSituations);
         }
     }
 }
