@@ -1,7 +1,6 @@
 ﻿using BaseModels;
 using InventoryBLL.Interfaces;
 using InventoryDAL.Interfaces;
-using InventoryDbContextDAL.Migrations;
 using InventoryModels;
 using InventoryModels.Req;
 using InventoryModels.Res;
@@ -15,7 +14,7 @@ namespace InventoryBLL
             try
             {
                 string? validateError = reqCategory.Validate();
-                if (!string.IsNullOrEmpty(validateError)) return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = validateError } };
+                if (!string.IsNullOrEmpty(validateError)) return new BLLResponse(null, validateError);
 
                 Category category = new()
                 {
@@ -29,15 +28,9 @@ namespace InventoryBLL
                 string? existingItemMsg = ValidateExistingCategory(category);
 
                 if (existingItemMsg != null)
-                {
-                    return new BLLResponse()
-                    {
-                        Content = null,
-                        Error = new ErrorMessage() { Error = existingItemMsg }
-                    };
-                }
+                    return new BLLResponse(null, existingItemMsg);
 
-                var respExec = categoryDAL.Create(category);
+                int respExec = categoryDAL.Create(category);
 
                 if (respExec == 1)
                 {
@@ -48,12 +41,10 @@ namespace InventoryBLL
                         SystemDefault = category.SystemDefault,
                         Id = category.Id
                     };
-                    return new BLLResponse { Content = resCategory, Error = null };
+                    return new BLLResponse(resCategory);
                 }
                 else
-                    return new BLLResponse { Content = null, Error = new ErrorMessage() { Error = "Não foi possivel adicionar." } };
-
-
+                    return new BLLResponse(null, "Não foi possivel adicionar.");
             }
             catch { throw; }
         }
@@ -65,22 +56,22 @@ namespace InventoryBLL
                 Category? category = categoryDAL.GetById(uid, id);
 
                 if (category == null)
-                    return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = "Invalid id" } };
+                    return new BLLResponse(null, "Invalid id");
 
                 if (category.SystemDefault)
-                    return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = "It's not possible delete a system default Sub Category" } };
+                    return new BLLResponse(null, "It's not possible delete a system default Sub Category");
 
                 List<SubCategory>? subCategories = subCategoryDAL.GetByCategoryId(uid, category.Id);
 
                 if (subCategories != null && subCategories.Count > 0)
-                    return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = "It's not possible delete a Category with Sub Categories" } };
+                    return new BLLResponse(null, "It's not possible delete a Category with Sub Categories");
 
-                var respExec = categoryDAL.Delete(category);
+                int respExec = categoryDAL.Delete(category);
 
                 if (respExec == 1)
-                    return new BLLResponse { };
+                    return new BLLResponse(1);
                 else
-                    return new BLLResponse { Content = null, Error = new ErrorMessage() { Error = "Não foi possivel atualizar." } };
+                    return new BLLResponse(null, "Não foi possivel atualizar.");
             }
             catch { throw; }
         }
@@ -93,7 +84,7 @@ namespace InventoryBLL
             List<ResCategory> resCategories = [];
 
             if (categories != null && categories.Count > 0)
-                foreach (var category in categories)
+                foreach (Category category in categories)
                     resCategories.Add(
                         new()
                         {
@@ -103,7 +94,7 @@ namespace InventoryBLL
                             SystemDefault = category.SystemDefault
                         });
 
-            return new BLLResponse() { Content = resCategories };
+            return new BLLResponse(resCategories);
         }
 
         public BLLResponse GetById(int uid, int id)
@@ -120,7 +111,7 @@ namespace InventoryBLL
                     SystemDefault = category.SystemDefault
                 };
 
-            return new BLLResponse() { Content = resCategories };
+            return new BLLResponse(resCategories);
         }
 
         public BLLResponse GetWithSubCategories(int uid)
@@ -129,12 +120,12 @@ namespace InventoryBLL
             List<ResCategoryWithSubCategories> resCategoriesWithSubCategories = [];
 
             if (categoriesWithSubCategories != null && categoriesWithSubCategories.Count > 0)
-                foreach (var categoryWithSubCategories in categoriesWithSubCategories)
+                foreach (Category categoryWithSubCategories in categoriesWithSubCategories)
                 {
                     List<ResSubCategory> resSubCategories = [];
 
                     if (categoryWithSubCategories.SubCategories is not null)
-                        foreach (var subCategory in categoryWithSubCategories.SubCategories)
+                        foreach (SubCategory subCategory in categoryWithSubCategories.SubCategories)
                             resSubCategories.Add(new ResSubCategory()
                             {
                                 Id = subCategory.Id,
@@ -155,7 +146,7 @@ namespace InventoryBLL
                         });
                 }
 
-            return new BLLResponse() { Content = resCategoriesWithSubCategories };
+            return new BLLResponse(resCategoriesWithSubCategories);
         }
 
         public BLLResponse UpdateCategory(ReqCategory reqCategory, int uid, int id)
@@ -163,15 +154,15 @@ namespace InventoryBLL
             try
             {
                 string? validateError = reqCategory.Validate();
-                if (!string.IsNullOrEmpty(validateError)) return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = validateError } };
+                if (!string.IsNullOrEmpty(validateError)) return new BLLResponse(null, validateError);
 
                 Category? oldCategory = categoryDAL.GetById(uid, id);
 
                 if (oldCategory == null)
-                    return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = "Invalid id" } };
+                    return new BLLResponse(null, "Invalid id");
 
                 if (oldCategory.SystemDefault)
-                    return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = "It's not possible edit a system default Category" } };
+                    return new BLLResponse(null, "It's not possible edit a system default Category");
 
                 Category category = new()
                 {
@@ -188,14 +179,10 @@ namespace InventoryBLL
 
                 if (existingItemMsg != null)
                 {
-                    return new BLLResponse()
-                    {
-                        Content = null,
-                        Error = new ErrorMessage() { Error = existingItemMsg }
-                    };
+                    return new BLLResponse(null, existingItemMsg);
                 }
 
-                var respExec = categoryDAL.Update(category);
+                int respExec = categoryDAL.Update(category);
 
                 if (respExec == 1)
                 {
@@ -203,7 +190,7 @@ namespace InventoryBLL
                     List<ResSubCategory>? resSubCategories = [];
 
                     if (subCategories is not null)
-                        foreach (var subCategory in subCategories)
+                        foreach (SubCategory subCategory in subCategories)
                             resSubCategories.Add(new ResSubCategory()
                             {
                                 Id = subCategory.Id,
@@ -222,10 +209,10 @@ namespace InventoryBLL
                         SubCategories = resSubCategories
 
                     };
-                    return new BLLResponse { Content = resCategoryWithSubCategories, Error = null };
+                    return new BLLResponse(resCategoryWithSubCategories);
                 }
                 else
-                    return new BLLResponse { Content = null, Error = new ErrorMessage() { Error = "Não foi possivel atualizar." } };
+                    return new BLLResponse("Não foi possivel atualizar.");
             }
             catch { throw; }
         }

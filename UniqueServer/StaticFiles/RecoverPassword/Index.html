@@ -16,6 +16,16 @@
             background-color: var(--background-color);
         }
     </style>
+    <script>
+        function ShowPassword(InputId) {
+            var x = document.getElementById(InputId);
+            if (x.type === "password") {
+                x.type = "text";
+            } else {
+                x.type = "password";
+            }
+        }
+    </script>
 </head>
 <body style="background: #362624 ">
     <div class="container containerCenter">
@@ -25,7 +35,7 @@
                     <div class="card-body">
                         <h5 class="card-title">Bookshelf</h5>
                         <h6 class="card-subtitle mb-2 text-body-secondary">Alteração de Senha</h6>
-                        <form method="POST" action="/User/UpdatePassword/{{token}}">
+                        <form method="POST" action="/User/RecoverPassword/{{token}}">
                             <p class="card-text">
                                 <div class="mb-12">
                                     <label for="Password" class="form-label">Senha</label>
@@ -33,11 +43,13 @@
                                     <div id="passwordHelpBlock" class="form-text">
                                         Your password must be 4-20 characters long.
                                     </div>
+                                    <input type="checkbox" onclick="ShowPassword('Password')"> Show Password
                                 </div>
                                 <br />
                                 <div class="mb-12">
                                     <label for="PasswordConfirmation" class="form-label">Confirmação de Senha</label>
                                     <input type="password" name="PasswordConfirmation" id="PasswordConfirmation" class="form-control">
+                                    <input type="checkbox" onclick="ShowPassword('PasswordConfirmation')"> Show Password
                                 </div>
                             </p>
                             <input  type="submit" class="btn btn-success" value="Alterar Senha" />

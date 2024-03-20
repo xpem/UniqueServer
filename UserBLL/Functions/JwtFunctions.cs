@@ -50,8 +50,7 @@ namespace UserManagementBLL.Functions
             }
             catch
             {
-                // return null if validation fails
-                return null;
+                throw;
             }
         }
     }

@@ -14,7 +14,7 @@ namespace InventoryBLL
             try
             {
                 string? validateError = reqSubCategory.Validate();
-                if (!string.IsNullOrEmpty(validateError)) return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = validateError } };
+                if (!string.IsNullOrEmpty(validateError)) return new BLLResponse(null, validateError);
 
                 string iconName = "Tag";
 
@@ -36,22 +36,18 @@ namespace InventoryBLL
 
                 if (existingItemMsg != null)
                 {
-                    return new BLLResponse()
-                    {
-                        Content = null,
-                        Error = new ErrorMessage() { Error = existingItemMsg }
-                    };
+                    return new BLLResponse(null, existingItemMsg);
                 }
 
-                var respExec = subCategoryDAL.Create(subCategory);
+                int respExec = subCategoryDAL.Create(subCategory);
 
                 if (respExec == 1)
                 {
                     ResSubCategory resSubCategory = new() { Id = subCategory.Id, Name = subCategory.Name, IconName = subCategory.IconName, CategoryId = subCategory.CategoryId, SystemDefault = subCategory.SystemDefault };
-                    return new BLLResponse { Content = resSubCategory, Error = null };
+                    return new BLLResponse(resSubCategory);
                 }
                 else
-                    return new BLLResponse { Content = null, Error = new ErrorMessage() { Error = "Não foi possivel adicionar." } };
+                    return new BLLResponse(null, "Não foi possivel adicionar.");
             }
             catch { throw; }
         }
@@ -63,17 +59,17 @@ namespace InventoryBLL
                 SubCategory? subCategory = subCategoryDAL.GetById(uid, id);
 
                 if (subCategory == null)
-                    return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = "Invalid id" } };
+                    return new BLLResponse(null, "Invalid id");
 
                 if (subCategory.SystemDefault)
-                    return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = "It's not possible delete a system default Sub Category" } };
+                    return new BLLResponse(null, "It's not possible delete a system default Sub Category");
 
-                var respExec = subCategoryDAL.Delete(subCategory);
+                int respExec = subCategoryDAL.Delete(subCategory);
 
                 if (respExec == 1)
-                    return new BLLResponse { };
+                    return new BLLResponse(1);
                 else
-                    return new BLLResponse { Content = null, Error = new ErrorMessage() { Error = "Não foi possivel atualizar." } };
+                    return new BLLResponse(null, "Não foi possivel atualizar.");
             }
             catch { throw; }
         }
@@ -83,15 +79,15 @@ namespace InventoryBLL
             try
             {
                 string? validateError = reqSubCategory.Validate();
-                if (!string.IsNullOrEmpty(validateError)) return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = validateError } };
+                if (!string.IsNullOrEmpty(validateError)) return new BLLResponse(null, validateError);
 
                 SubCategory? oldSubCategory = subCategoryDAL.GetById(uid, id);
 
                 if (oldSubCategory == null)
-                    return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = "Invalid id" } };
+                    return new BLLResponse(null, "Invalid id");
 
                 if (oldSubCategory.SystemDefault)
-                    return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = "It's not possible edit a system default Sub Category" } };
+                    return new BLLResponse(null, "It's not possible edit a system default Sub Category");
 
                 string iconName = "Tag";
 
@@ -114,22 +110,18 @@ namespace InventoryBLL
 
                 if (existingItemMsg != null)
                 {
-                    return new BLLResponse()
-                    {
-                        Content = null,
-                        Error = new ErrorMessage() { Error = existingItemMsg }
-                    };
+                    return new BLLResponse(null, existingItemMsg);
                 }
 
-                var respExec = subCategoryDAL.Update(subCategory);
+                int respExec = subCategoryDAL.Update(subCategory);
 
                 if (respExec == 1)
                 {
                     ResSubCategory resSubCategory = new() { Id = subCategory.Id, Name = subCategory.Name, IconName = subCategory.IconName, CategoryId = subCategory.CategoryId, SystemDefault = subCategory.SystemDefault };
-                    return new BLLResponse { Content = resSubCategory, Error = null };
+                    return new BLLResponse(resSubCategory);
                 }
                 else
-                    return new BLLResponse { Content = null, Error = new ErrorMessage() { Error = "Não foi possivel atualizar." } };
+                    return new BLLResponse(null, "Não foi possivel atualizar.");
             }
             catch { throw; }
         }
@@ -151,7 +143,7 @@ namespace InventoryBLL
                             SystemDefault = subCategory.SystemDefault,
                         });
 
-            return new BLLResponse() { Content = resSubCategories };
+            return new BLLResponse(resSubCategories);
         }
 
         public BLLResponse GetById(int uid, int id)
@@ -169,7 +161,7 @@ namespace InventoryBLL
                     SystemDefault = subCategory.SystemDefault,
                 };
 
-            return new BLLResponse() { Content = resSubCategory };
+            return new BLLResponse(resSubCategory);
         }
 
         protected string? ValidateExistingSubCategory(SubCategory subCategory, int? id = null)

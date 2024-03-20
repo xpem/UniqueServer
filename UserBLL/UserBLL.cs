@@ -12,12 +12,12 @@ namespace UserBLL
         {
             string? validateError = reqUser.Validate();
 
-            if (!string.IsNullOrEmpty(validateError)) return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = validateError } }; ;
+            if (!string.IsNullOrEmpty(validateError)) return new BLLResponse(null, validateError);
 
             User user = new() { Name = reqUser.Name, Email = reqUser.Email, Password = reqUser.Password, CreatedAt = DateTime.Now };
 
             string? existingUserMessage = await ValidateExistingUser(user);
-            if (existingUserMessage != null) { return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = existingUserMessage } }; }
+            if (existingUserMessage != null) { return new BLLResponse(null, existingUserMessage); }
 
             if (user.Password != null)
                 user.Password = Encryption.Encrypt(user.Password);
@@ -31,7 +31,7 @@ namespace UserBLL
                 resUser = new() { Id = user.Id, Name = user.Name, Email = user.Email, CreatedAt = user.CreatedAt };
             else throw new NullReferenceException("Id do usuário nulo");
 
-            return new BLLResponse() { Content = resUser, Error = null };
+            return new BLLResponse(resUser);
         }
 
         public async Task<BLLResponse> GetUserById(int uid)
@@ -39,16 +39,16 @@ namespace UserBLL
             //todo - utilizar tmbm o email?
             User? userResp = await userDAL.GetUserByIdAsync(uid);
             if (userResp == null)
-                return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = "User not found" } };
+                return new BLLResponse(null, "User not found");
 
-            return new BLLResponse() { Content = new ResUser() { Id = userResp.Id, Name = userResp.Name, Email = userResp.Email, CreatedAt = userResp.CreatedAt }, Error = null };
+            return new BLLResponse(new ResUser() { Id = userResp.Id, Name = userResp.Name, Email = userResp.Email, CreatedAt = userResp.CreatedAt });
         }
 
         public async Task<BLLResponse> SendRecoverPasswordEmail(ReqUserEmail reqUserEmail)
         {
             string? validateError = reqUserEmail.Validate();
 
-            if (!string.IsNullOrEmpty(validateError)) return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = validateError } };
+            if (!string.IsNullOrEmpty(validateError)) return new BLLResponse(null, validateError);
 
             User? userResp = await userDAL.GetUserByEmailAsync(reqUserEmail.Email);
 
@@ -59,19 +59,18 @@ namespace UserBLL
                 _ = Functions.SendRecoverPasswordEmail.SendEmail(userResp.Email, token);
             }
 
-            return new BLLResponse() { Content = new { Mensagem = "Email Sent." }, Error = null };
-
+            return new BLLResponse("Email Sent.");
         }
 
         public async Task<BLLResponse> GenerateUserToken(ReqUserSession reqUserSession)
         {
             string? validateError = reqUserSession.Validate();
 
-            if (!string.IsNullOrEmpty(validateError)) return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = validateError } };
+            if (!string.IsNullOrEmpty(validateError)) return new BLLResponse(null, validateError);
 
             User? userResp = await userDAL.GetUserByEmailAndPassword(reqUserSession.Email, Encryption.Encrypt(reqUserSession.Password));
 
-            if (userResp is null) return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = "User/Password incorrect" } };
+            if (userResp is null) return new BLLResponse(null, "User/Password incorrect");
 
             string userJwt = JwtFunctions.GenerateToken(userResp.Id, userResp.Email, DateTime.UtcNow.AddDays(5));
 
@@ -79,33 +78,37 @@ namespace UserBLL
 
             await userHistoricDAL.ExecuteAddUserHistoric(userHistoric);
 
-            return new BLLResponse() { Content = new { Token = userJwt }, Error = null };
+            return new BLLResponse(new { Token = userJwt });
         }
 
         public async Task<BLLResponse> UpdatePassword(ReqRecoverPassword reqRecoverPassword, int uid)
         {
-            string? validateError = reqRecoverPassword.Validate();
-
-            if (string.IsNullOrEmpty(validateError) && reqRecoverPassword.Password != reqRecoverPassword.PasswordConfirmation)
-                validateError = "Invalid password Confirmation";
-
-            if (!string.IsNullOrEmpty(validateError)) return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = validateError } };
-
-            User? user = await userDAL.GetUserByIdAsync(uid);
-
-            if (user != null)
+            try
             {
-                user.Password = Encryption.Encrypt(reqRecoverPassword.Password);
+                string? validateError = reqRecoverPassword.Validate();
 
-                await userDAL.ExecuteUpdateUserAsync(user);
+                if (string.IsNullOrEmpty(validateError) && reqRecoverPassword.Password != reqRecoverPassword.PasswordConfirmation)
+                    validateError = "Invalid password Confirmation";
 
-                UserHistoric userHistoric = new() { UserHistoricTypeId = (int)UserHistoricTypeValues.PasswordChanged, CreatedAt = DateTime.UtcNow, UserId = user.Id, User = user };
+                if (!string.IsNullOrEmpty(validateError)) return new BLLResponse(null, validateError);
 
-                await userHistoricDAL.ExecuteAddUserHistoric(userHistoric);
+                User? user = await userDAL.GetUserByIdAsync(uid);
 
-                return new BLLResponse() { Content = "Password Updated.", Error = new ErrorMessage() { Error = null } };
+                if (user != null)
+                {
+                    user.Password = Encryption.Encrypt(reqRecoverPassword.Password);
+
+                    await userDAL.ExecuteUpdateUserAsync(user);
+
+                    UserHistoric userHistoric = new() { UserHistoricTypeId = (int)UserHistoricTypeValues.PasswordChanged, CreatedAt = DateTime.UtcNow, UserId = user.Id, User = user };
+
+                    await userHistoricDAL.ExecuteAddUserHistoric(userHistoric);
+
+                    return new BLLResponse("Password Updated.");
+                }
+                else return new BLLResponse(null, "Invalid User");
             }
-            else return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = "Invalid User" } };
+            catch (Exception ex) { throw ex; }
         }
 
         protected async Task<string?> ValidateExistingUser(User user)

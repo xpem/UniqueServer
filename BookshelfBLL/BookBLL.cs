@@ -16,7 +16,7 @@ namespace BookshelfBLL
 
             string? validateError = reqBook.Validate();
 
-            if (!string.IsNullOrEmpty(validateError)) return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = validateError } };
+            if (!string.IsNullOrEmpty(validateError)) return new BLLResponse(null, validateError);
 
             Book book = new()
             {
@@ -42,13 +42,7 @@ namespace BookshelfBLL
             string? existingBookMessage = await ValidateExistingBookAsync(book);
 
             if (existingBookMessage != null)
-            {
-                return new BLLResponse()
-                {
-                    Content = null,
-                    Error = new ErrorMessage() { Error = existingBookMessage }
-                };
-            }
+                return new BLLResponse(null, existingBookMessage);
 
             await bookDAL.ExecuteCreateBookAsync(book);
 
@@ -83,7 +77,7 @@ namespace BookshelfBLL
                 Inactive = book.Inactive
             };
 
-            return new BLLResponse { Content = resBook, Error = null };
+            return new BLLResponse(resBook);
         }
 
         public async Task<BLLResponse> UpdateBook(ReqBook reqBook, int bookId, int uid)
@@ -91,15 +85,15 @@ namespace BookshelfBLL
             string? validateError = reqBook.Validate();
 
             if (!string.IsNullOrEmpty(validateError))
-                return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = validateError } };
+                return new BLLResponse(null, validateError);
 
             if ((await bookDAL.GetBookByTitleWithNotEqualIdAsync(reqBook.Title, uid, bookId) != null))
-                return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = "Already exist a book with this title" } };
+                return new BLLResponse(null, "Already exist a book with this title");
 
             Book? oldBook = await bookDAL.GetBookByIdAsync(bookId, uid);
 
             if (oldBook == null)
-                return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = "Invalid Book id" } };
+                return new BLLResponse(null, "Invalid Book id");
 
             Book? newBook = new()
             {
@@ -159,18 +153,18 @@ namespace BookshelfBLL
                 Inactive = newBook.Inactive
             };
 
-            return new BLLResponse { Content = resBook, Error = null };
+            return new BLLResponse(resBook);
         }
 
         public async Task<BLLResponse> InactivateBook(int bookId, int uid)
         {
             if (bookId < 0)
-                return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = "Invalid Book id" } };
+                return new BLLResponse(null, "Invalid Book id");
 
             Book? oldBook = await bookDAL.GetBookByIdAsync(bookId, uid);
 
             if (oldBook == null)
-                return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = "Invalid Book id" } };
+                return new BLLResponse(null, "Invalid Book id");
 
             if (oldBook.Inactive == false)
             {
@@ -187,7 +181,7 @@ namespace BookshelfBLL
                 await bookHistoricBLL.AddBookHistoricAsync(bookHistoric);
             }
 
-            return new BLLResponse { Content = true, Error = null };
+            return new BLLResponse(true);
         }
 
         public BLLResponse GetByUpdatedAt(DateTime updatedAt, int uid)
@@ -195,7 +189,7 @@ namespace BookshelfBLL
             //string? validateError = req.Validate();
 
             //if (!string.IsNullOrEmpty(validateError))
-            //    return new BLLResponse() { Content = null, Error = new ErrorMessage() { Error = validateError } };
+            //    return new BLLResponse(null, validateError } };
 
             IQueryable<Book> books = bookDAL.GetBooksAfterUpdatedAt(updatedAt, uid);
 
@@ -225,7 +219,7 @@ namespace BookshelfBLL
                 });
             }
 
-            return new BLLResponse() { Content = resBooks, Error = null };
+            return new BLLResponse(resBooks);
         }
 
         protected async Task<string?> ValidateExistingBookAsync(Book book)

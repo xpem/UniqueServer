@@ -9,7 +9,7 @@ namespace InventoryBLL.Interfaces
 
         BLLResponse UpdateItem(ReqItem reqItem, int uid, int id);
 
-        BLLResponse DeleteItem(int uid, int id,string filePath);
+        BLLResponse DeleteItem(int uid, int id, string filePath);
 
         BLLResponse GetById(int uid, int id);
 

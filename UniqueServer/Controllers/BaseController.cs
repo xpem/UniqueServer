@@ -9,7 +9,7 @@ namespace UniqueServer.Controllers
     {
         protected int Uid { get; set; }
 
-        protected IActionResult BuildResponse(BLLResponse bllResp) => (!string.IsNullOrEmpty(bllResp.Error?.Error)) ? BadRequest(bllResp.Error) : Ok(bllResp.Content);
+        protected IActionResult BuildResponse(BLLResponse bllResp) => (!string.IsNullOrEmpty(bllResp.Error?.Message)) ? BadRequest(bllResp.Error.Message) : Ok(bllResp.Content);
 
         protected int? RecoverUidSession()
         {
