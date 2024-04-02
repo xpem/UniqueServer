@@ -41,6 +41,8 @@ namespace InventoryDAL
                );
         }
 
+        public Task<bool> CheckItemImageNameAsync(int uid, int id, string imageName) => dbContext.Item.AnyAsync(x => x.Id == id && x.UserId == uid && (x.Image1 == imageName || x.Image2 == imageName));
+
         public int Delete(Item item)
         {
             dbContext.ChangeTracker?.Clear();

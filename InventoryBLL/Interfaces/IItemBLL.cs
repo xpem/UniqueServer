@@ -17,6 +17,8 @@ namespace InventoryBLL.Interfaces
 
         BLLResponse UpdateItemFileNames(int uid, int id, string? fileName1, string? fileName2);
 
+        Task<bool> CheckItemImageNameAsync(int uid, int id, string imageName);
+
         Task<BLLResponse> GetTotalItemsPagesAsync(int uid);
     }
 }

@@ -103,7 +103,7 @@ namespace UniqueServer.Controllers.Inventory
 
         [Route("item/{id}/image")]
         [HttpPut]
-        public IActionResult UploadItemImages(int id, IFormFile file1, IFormFile? file2)
+        public IActionResult UploadItemImages(int id, IFormFile? file1, IFormFile? file2)
         {
             BLLResponse bLLResponse = itemBLL.GetById(Uid, id);
 
@@ -144,25 +144,14 @@ namespace UniqueServer.Controllers.Inventory
             else return BuildResponse(bLLResponse);
         }
 
-        [Route("item/{id}/image/{imageIndex}")]
+        [Route("item/{id}/image/{imageName}")]
         [HttpGet]
-        public async Task<IActionResult> GetItemImagesByIndex(int id, int imageIndex)
+        public async Task<IActionResult> GetItemImagesByIndex(int id, string imageName)
         {
-            BLLResponse bLLResponse = itemBLL.GetById(Uid, id);
-            var resItem = (bLLResponse.Content as ResItem);
-
-            if (resItem == null)
-                return BadRequest("Invalid Id");
-
-            string? fileName;
-            if (imageIndex is 1) fileName = resItem.Image1;
-            else if (imageIndex is 2) fileName = resItem.Image2;
-            else return BadRequest("Invalid Index");
-
-            if (string.IsNullOrEmpty(fileName)) return BadRequest("File with this index don't exist");
+            if (!await itemBLL.CheckItemImageNameAsync(Uid, id, imageName)) return BadRequest("Invalid Index");
 
             var path = ReturnPath();
-            var fullPath = Path.Combine(path, fileName);
+            var fullPath = Path.Combine(path, imageName);
 
             if (!System.IO.File.Exists(fullPath)) return BadRequest("This file don't exist");
 
@@ -174,7 +163,6 @@ namespace UniqueServer.Controllers.Inventory
             memory.Position = 0;
             var ext = Path.GetExtension(fullPath).ToLowerInvariant();
             return File(memory, GetMimeTypes()[ext], Path.GetFileName(fullPath));
-
         }
 
         private string ReturnPath()
