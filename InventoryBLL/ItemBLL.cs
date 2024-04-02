@@ -243,6 +243,8 @@ namespace InventoryBLL
                 return new BLLResponse(null, "Não foi possivel atualizar.");
         }
 
+        public async Task<bool> CheckItemImageNameAsync(int uid, int id, string imageName) => await itemDAL.CheckItemImageNameAsync(uid, id, imageName);
+
         private string? ValidateIndexes(ReqItem reqItem, int uid)
         {
             if (itemSituationDAL.GetById(uid, reqItem.SituationId) == null)
