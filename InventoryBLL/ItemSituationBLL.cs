@@ -2,7 +2,7 @@
 using InventoryBLL.Interfaces;
 using InventoryDAL.Interfaces;
 using InventoryModels;
-using InventoryModels.Res;
+using InventoryModels.Res.Item;
 
 namespace InventoryBLL
 {

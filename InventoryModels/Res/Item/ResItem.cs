@@ -1,4 +1,4 @@
-﻿namespace InventoryModels.Res
+﻿namespace InventoryModels.Res.Item
 {
     public record ResItem
     {

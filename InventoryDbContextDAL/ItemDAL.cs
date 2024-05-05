@@ -2,7 +2,6 @@
 using InventoryDbContextDAL;
 using InventoryModels;
 using Microsoft.EntityFrameworkCore;
-using System.Xml.Linq;
 
 namespace InventoryDAL
 {
@@ -53,7 +52,7 @@ namespace InventoryDAL
         public async Task<int> GetTotalAsync(int uid) => await dbContext.Item.CountAsync(x => x.UserId == uid);
 
         public async Task<List<Item>?> GetAsync(int uid, int page, int pageSize)
-            => await dbContext.Item.Where(x => x.UserId == uid)
+            => await dbContext.Item.AsNoTracking().Where(x => x.UserId == uid)
             .Include(x => x.Category)
             .Include(x => x.SubCategory)
             .Include(x => x.ItemSituation)

@@ -67,7 +67,7 @@ namespace InventoryBLL
                 int respExec = subCategoryDAL.Delete(subCategory);
 
                 if (respExec == 1)
-                    return new BLLResponse(1);
+                    return new BLLResponse(null);
                 else
                     return new BLLResponse(null, "Não foi possivel atualizar.");
             }

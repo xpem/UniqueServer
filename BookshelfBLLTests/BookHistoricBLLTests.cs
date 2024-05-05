@@ -101,7 +101,7 @@ namespace BookshelfBLL.Tests
 
             mockBookHistoricDAL.Setup(x => x.ExecuteQueryByCreatedAt(dataBusca, 1)).Returns(dataBH);
 
-            BookHistoricBLL bookHistoricBLL = new BookHistoricBLL(mockBookHistoricDAL.Object);
+            BookHistoricBLL bookHistoricBLL = new(mockBookHistoricDAL.Object);
 
             BaseModels.BLLResponse response = bookHistoricBLL.GetByBookIdOrCreatedAt(null, dataBusca, 1);
 

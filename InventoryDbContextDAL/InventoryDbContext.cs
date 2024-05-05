@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using BaseModels;
+﻿using BaseModels;
 using InventoryModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace InventoryDbContextDAL
 {

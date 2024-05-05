@@ -1,8 +1,6 @@
 ﻿using BaseModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.IdentityModel.Tokens;
 using UserBLL;
 using UserModels.Request.User;
@@ -59,7 +57,7 @@ namespace UniqueServer.Controllers
                     html = html.Replace("{{ReturnMessage}}", "User Not Found");
                 else
                 {
-                    var bLLResponse = await userBLL.UpdatePassword(reqRecoverPassword, Convert.ToInt32(uid));
+                    BLLResponse bLLResponse = await userBLL.UpdatePassword(reqRecoverPassword, Convert.ToInt32(uid));
 
                     if (bLLResponse.Success)
                         html = html.Replace("{{ReturnMessage}}", bLLResponse.Content?.ToString());

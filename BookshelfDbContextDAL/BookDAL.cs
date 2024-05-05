@@ -1,8 +1,5 @@
 ﻿using BookshelfModels;
-using BookshelfModels.Request;
 using Microsoft.EntityFrameworkCore;
-using System.Net;
-using UserModels;
 
 namespace BookshelfDbContextDAL
 {

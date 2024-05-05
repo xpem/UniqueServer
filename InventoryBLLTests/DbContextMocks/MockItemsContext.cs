@@ -9,7 +9,7 @@ namespace InventoryBLLTests.DbContextMocks
     {
         protected static ItemBLL MockItemBLL()
         {
-            ItemSituation itemSituation = new ItemSituation()
+            ItemSituation itemSituation = new()
             {
                 CreatedAt = DateTime.Now,
                 Name = "Teste de situação",
@@ -17,11 +17,12 @@ namespace InventoryBLLTests.DbContextMocks
                 Id = 1,
                 SystemDefault = true,
                 UpdatedAt = DateTime.Now,
-                UserId = 1,Type = SituationType.In
-                
+                UserId = 1,
+                Type = SituationType.In
+
             };
 
-            ItemSituation itemSituation2 = new ItemSituation()
+            ItemSituation itemSituation2 = new()
             {
                 CreatedAt = DateTime.Now,
                 Name = "Teste 2 de situação",
@@ -29,10 +30,11 @@ namespace InventoryBLLTests.DbContextMocks
                 Id = 2,
                 SystemDefault = true,
                 UpdatedAt = DateTime.Now,
-                UserId = 1,Type= SituationType.Out
+                UserId = 1,
+                Type = SituationType.Out
             };
 
-            AcquisitionType acquisitionType = new AcquisitionType()
+            AcquisitionType acquisitionType = new()
             {
                 CreatedAt = DateTime.Now,
                 Name = "Teste de Tipo de entrada",
@@ -41,7 +43,7 @@ namespace InventoryBLLTests.DbContextMocks
                 SystemDefault = true,
                 UpdatedAt = DateTime.Now
             };
-            AcquisitionType acquisitionType2 = new AcquisitionType()
+            AcquisitionType acquisitionType2 = new()
             {
                 CreatedAt = DateTime.Now,
                 Name = "Teste 2 de Tipo de entrada",
@@ -51,7 +53,7 @@ namespace InventoryBLLTests.DbContextMocks
                 UpdatedAt = DateTime.Now
             };
 
-            SubCategory subCategory = new SubCategory()
+            SubCategory subCategory = new()
             {
                 Id = 1,
                 CategoryId = 1,
@@ -61,7 +63,7 @@ namespace InventoryBLLTests.DbContextMocks
                 IconName = "Dog",
             };
 
-            Category category = new Category()
+            Category category = new()
             {
                 Id = 1,
                 Color = "#bfc9ca",
@@ -119,9 +121,9 @@ namespace InventoryBLLTests.DbContextMocks
 
             Mock<IItemDAL> mockItemDAL = new();
             Mock<IItemSituationDAL> mockItemSituationDAL = new();
-            Mock<ICategoryDAL> mockCategoryDAL = new Mock<ICategoryDAL>();
-            Mock<ISubCategoryDAL> mockSubCategoryDAL = new Mock<ISubCategoryDAL>();
-            Mock<IAcquisitionTypeDAL> mockAcquisitionTypeDAL = new Mock<IAcquisitionTypeDAL>();
+            Mock<ICategoryDAL> mockCategoryDAL = new();
+            Mock<ISubCategoryDAL> mockSubCategoryDAL = new();
+            Mock<IAcquisitionTypeDAL> mockAcquisitionTypeDAL = new();
 
             mockSubCategoryDAL.Setup(x => x.GetById(1, 1)).Returns(subCategory);
             mockCategoryDAL.Setup(x => x.GetById(1, 1)).Returns(category);

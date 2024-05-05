@@ -1,19 +1,12 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using InventoryBLL;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using InventoryDbContextDAL;
-using Microsoft.EntityFrameworkCore;
-using Moq;
-using InventoryModels;
+﻿using BaseModels;
 using InventoryDAL;
-using BaseModels;
-using InventoryModels.Res;
+using InventoryDbContextDAL;
+using InventoryModels;
 using InventoryModels.Req;
-using InventoryBLL.Interfaces;
+using InventoryModels.Res;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace InventoryBLL.Tests
 {
@@ -226,10 +219,10 @@ namespace InventoryBLL.Tests
 
             if (bLLResponse?.Error is not null)
             {
-                ErrorMessage? errorMessage = bLLResponse?.Error as ErrorMessage;
+                Error? errorMessage = bLLResponse?.Error;
 
-                if (errorMessage?.Error != null)
-                    Assert.AreEqual("A Category with this Name has already been added.", errorMessage.Error);
+                if (errorMessage?.Message != null)
+                    Assert.AreEqual("A Category with this Name has already been added.", errorMessage.Message);
                 else Assert.Fail();
             }
             else Assert.Fail();
