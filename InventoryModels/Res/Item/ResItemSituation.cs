@@ -1,6 +1,6 @@
 ﻿using InventoryModels.Res.Bases;
 
-namespace InventoryModels.Res
+namespace InventoryModels.Res.Item
 {
     public record ResItemSituation : ResTextTypeBase
     {

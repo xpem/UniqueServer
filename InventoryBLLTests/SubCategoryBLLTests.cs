@@ -1,6 +1,6 @@
-﻿using InventoryBLL;
-using BaseModels;
+﻿using BaseModels;
 using InventoryDAL;
+using InventoryDAL.Interfaces;
 using InventoryDbContextDAL;
 using InventoryModels;
 using InventoryModels.Req;
@@ -8,7 +8,6 @@ using InventoryModels.Res;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using InventoryDAL.Interfaces;
 
 namespace InventoryBLL.Tests
 {
@@ -241,7 +240,7 @@ namespace InventoryBLL.Tests
 
             if (bLLResponse?.Error is not null)
             {
-                Error? errorMessage = bLLResponse?.Error as Error;
+                Error? errorMessage = bLLResponse?.Error;
 
                 if (errorMessage?.Message != null)
                     Assert.AreEqual("A Sub Category with this Name has already been added to this Category", errorMessage.Message);
@@ -273,7 +272,7 @@ namespace InventoryBLL.Tests
 
             if (bLLResponse?.Error is not null)
             {
-                Error? errorMessage = bLLResponse?.Error as Error;
+                Error? errorMessage = bLLResponse?.Error;
 
                 if (errorMessage?.Message != null)
                     Assert.AreEqual("It's not possible edit a system default Sub Category", errorMessage.Message);
@@ -319,7 +318,7 @@ namespace InventoryBLL.Tests
 
             if (bLLResponse?.Error is not null && bLLResponse?.Content is null)
             {
-                Error? errorMessage = bLLResponse?.Error as Error;
+                Error? errorMessage = bLLResponse?.Error;
 
                 if (errorMessage?.Message != null)
                 {

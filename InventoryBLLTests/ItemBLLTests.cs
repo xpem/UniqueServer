@@ -1,11 +1,7 @@
-﻿using InventoryBLL;
-using InventoryBLLTests.DbContextMocks;
-using InventoryDAL.Interfaces;
-using InventoryModels;
+﻿using InventoryBLLTests.DbContextMocks;
 using InventoryModels.Req;
-using InventoryModels.Res;
+using InventoryModels.Res.Item;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 
 namespace InventoryBLL.Tests
 {
@@ -33,7 +29,7 @@ namespace InventoryBLL.Tests
 
             ItemBLL itemBLL = MockItemBLL();
 
-            var resp = itemBLL.CreateItem(reqItem, uid);
+            BaseModels.BLLResponse resp = itemBLL.CreateItem(reqItem, uid);
 
             if (resp != null && resp.Content != null)
             {
@@ -56,7 +52,7 @@ namespace InventoryBLL.Tests
 
             ItemBLL itemBLL = MockItemBLL();
 
-            var resp = itemBLL.GetById(uid, 1);
+            BaseModels.BLLResponse resp = itemBLL.GetById(uid, 1);
 
             if (resp != null && resp.Content != null)
             {
@@ -93,7 +89,7 @@ namespace InventoryBLL.Tests
                 ResaleValue = 0,
             };
 
-            var resp = itemBLL.UpdateItem(reqItem, uid, 1);
+            BaseModels.BLLResponse resp = itemBLL.UpdateItem(reqItem, uid, 1);
 
             if (resp != null && resp.Content != null)
             {
@@ -130,11 +126,11 @@ namespace InventoryBLL.Tests
                 ResaleValue = 0,
             };
 
-            var resp = itemBLL.UpdateItem(reqItem, uid, 1);
+            BaseModels.BLLResponse resp = itemBLL.UpdateItem(reqItem, uid, 1);
 
             if (resp != null && resp.Error != null)
             {
-                var errorMsg = resp.Error.Error;
+                string errorMsg = resp.Error.Message;
                 if (errorMsg != null)
                 {
                     Assert.IsTrue(errorMsg == "Category with this id don't exist");
@@ -144,7 +140,7 @@ namespace InventoryBLL.Tests
 
             Assert.Fail();
         }
-        
+
         [TestMethod()]
         public void Try_Update_Item_With_Invaild_Id_Test()
         {
@@ -166,11 +162,11 @@ namespace InventoryBLL.Tests
                 ResaleValue = 0,
             };
 
-            var resp = itemBLL.UpdateItem(reqItem, uid, 3);
+            BaseModels.BLLResponse resp = itemBLL.UpdateItem(reqItem, uid, 3);
 
             if (resp != null && resp.Error != null)
             {
-                var errorMsg = resp.Error.Error;
+                string errorMsg = resp.Error.Message;
                 if (errorMsg != null)
                 {
                     Assert.IsTrue(errorMsg == "Invalid id");

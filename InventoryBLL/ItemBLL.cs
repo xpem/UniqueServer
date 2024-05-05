@@ -4,6 +4,7 @@ using InventoryDAL.Interfaces;
 using InventoryModels;
 using InventoryModels.Req;
 using InventoryModels.Res;
+using InventoryModels.Res.Item;
 
 namespace InventoryBLL
 {
@@ -91,6 +92,43 @@ namespace InventoryBLL
                 return new BLLResponse(null, "Não foi possivel excluir.");
         }
 
+        public BLLResponse DeleteItemImage(int uid, int id, string fileName, string filePath)
+        {
+            Item? item = itemDAL.GetById(uid, id);
+
+            if (item == null)
+                return new BLLResponse(null, "Invalid id");
+
+            if (item.Image1 != null && item.Image1 == fileName)
+            {
+                System.IO.File.Delete(Path.Combine(filePath, fileName));
+                item.Image1 = null;
+            }
+
+            if (item.Image2 != null && item.Image2 == fileName)
+            {
+                System.IO.File.Delete(Path.Combine(filePath, fileName));
+                item.Image2 = null;
+            }
+
+            int respExec = itemDAL.Update(item);
+
+            if (respExec > 0)
+            {
+                Item? createdCompleteItem = itemDAL.GetById(uid, item.Id);
+
+                if (createdCompleteItem != null)
+                {
+                    ResItem? resItem = BuildResItem(createdCompleteItem);
+
+                    return new BLLResponse(resItem);
+                }
+                else throw new Exception($"Não foi possivel recuperar o item de id: {item.Id}");
+            }
+            else
+                return new BLLResponse(null, "Não foi possivel atualizar o Item.");
+        }
+
         public async Task<BLLResponse> GetAsync(int uid, int page)
         {
             if (page <= 0)
@@ -160,10 +198,10 @@ namespace InventoryBLL
                     },
                     Name = item.Name,
                     AcquisitionDate = item.AcquisitionDate,
-                    AcquisitionType = (item.SubCategory is not null) ? new ResItemAcquisitionType()
+                    AcquisitionType = (item.AcquisitionType is not null) ? new ResItemAcquisitionType()
                     {
-                        Id = item.SubCategory?.Id,
-                        Name = item.SubCategory?.Name,
+                        Id = item.AcquisitionType?.Id,
+                        Name = item.AcquisitionType?.Name,
                     } : null,
                     Comment = item.Comment,
                     Image1 = item.Image1,
@@ -238,7 +276,7 @@ namespace InventoryBLL
             int respExec = itemDAL.UpdateFileNames(uid, id, fileName1, fileName2);
 
             if (respExec == 1)
-                return new BLLResponse(1);
+                return new BLLResponse(new ResItemImages { Image1 = fileName1, Image2 = fileName2 });
             else
                 return new BLLResponse(null, "Não foi possivel atualizar.");
         }

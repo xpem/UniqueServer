@@ -19,6 +19,8 @@ namespace InventoryBLL.Interfaces
 
         Task<bool> CheckItemImageNameAsync(int uid, int id, string imageName);
 
+        BLLResponse DeleteItemImage(int uid, int id, string fileName, string filePath);
+
         Task<BLLResponse> GetTotalItemsPagesAsync(int uid);
     }
 }

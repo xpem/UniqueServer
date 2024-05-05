@@ -15,10 +15,10 @@
 
             BookshelfModels.BookHistoricType[] bookHistoricType = new BookshelfModels.BookHistoricType[]
             {
-                new BookshelfModels.BookHistoricType(){Name = "Insert"},
-                new BookshelfModels.BookHistoricType(){Name = "Update"},
-                new BookshelfModels.BookHistoricType(){Name = "Delete"},
-                new BookshelfModels.BookHistoricType(){Name = "Inactivate"},
+                new(){Name = "Insert"},
+                new(){Name = "Update"},
+                new(){Name = "Delete"},
+                new(){Name = "Inactivate"},
             };
 
             //foreach (var _bookHistoricType in bookHistoricType)
@@ -30,18 +30,18 @@
 
             BookshelfModels.BookHistoricItemField[] bookHistoricItemField = new BookshelfModels.BookHistoricItemField[]
             {
-                new BookshelfModels.BookHistoricItemField(){Name = "SubTítulo" },
-                new BookshelfModels.BookHistoricItemField(){Name = "Título" },
-                new BookshelfModels.BookHistoricItemField(){Name = "Capa" },
-                new BookshelfModels.BookHistoricItemField(){Name = "Autores" },
-                new BookshelfModels.BookHistoricItemField(){Name = "Volume"},
-                new BookshelfModels.BookHistoricItemField(){Name = "Páginas"},
-                new BookshelfModels.BookHistoricItemField(){Name = "Ano"},
-                new BookshelfModels.BookHistoricItemField(){Name = "Status"},
-                new BookshelfModels.BookHistoricItemField(){Name = "Avaliação"},
-                new BookshelfModels.BookHistoricItemField(){Name = "Gênero"},
-                new BookshelfModels.BookHistoricItemField(){Name = "Isbn"},
-                new BookshelfModels.BookHistoricItemField(){Name = "Inativo"}
+                new(){Name = "SubTítulo" },
+                new(){Name = "Título" },
+                new(){Name = "Capa" },
+                new(){Name = "Autores" },
+                new(){Name = "Volume"},
+                new(){Name = "Páginas"},
+                new(){Name = "Ano"},
+                new(){Name = "Status"},
+                new(){Name = "Avaliação"},
+                new(){Name = "Gênero"},
+                new(){Name = "Isbn"},
+                new(){Name = "Inativo"}
             };
 
             //foreach (var _bookHistoricItemField in bookHistoricItemField)

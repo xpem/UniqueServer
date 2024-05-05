@@ -1,9 +1,8 @@
 ﻿using BaseModels;
 using InventoryBLL.Interfaces;
 using InventoryModels.Req;
-using InventoryModels.Res;
+using InventoryModels.Res.Item;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Mvc;
 
 namespace UniqueServer.Controllers.Inventory
@@ -107,7 +106,7 @@ namespace UniqueServer.Controllers.Inventory
         {
             BLLResponse bLLResponse = itemBLL.GetById(Uid, id);
 
-            var resItem = (bLLResponse.Content as ResItem);
+            ResItem? resItem = (bLLResponse.Content as ResItem);
 
             if (bLLResponse == null)
                 return BadRequest();
@@ -115,6 +114,7 @@ namespace UniqueServer.Controllers.Inventory
             if (bLLResponse.Content != null)
             {
                 string? fileName1;
+
                 if (file1 != null)
                 {
                     if (!ValidateFileExtension(file1)) return BadRequest("Image in invalid format");
@@ -127,12 +127,13 @@ namespace UniqueServer.Controllers.Inventory
                 else return BadRequest("Image 1 in invalid format");
 
                 string? fileName2;
+
                 if (file2 != null)
                 {
                     if (!ValidateFileExtension(file2)) return BadRequest("Image in invalid format");
 
                     if (resItem?.Image2 != null) fileName2 = resItem.Image2;
-                    else fileName2 = Guid.NewGuid() + Path.GetExtension(file1.FileName).ToLower();
+                    else fileName2 = Guid.NewGuid() + Path.GetExtension(file2.FileName).ToLower();
 
                     _ = SaveInLocalFolder(file2, fileName2);
                 }
@@ -150,24 +151,28 @@ namespace UniqueServer.Controllers.Inventory
         {
             if (!await itemBLL.CheckItemImageNameAsync(Uid, id, imageName)) return BadRequest("Invalid Index");
 
-            var path = ReturnPath();
-            var fullPath = Path.Combine(path, imageName);
+            string path = ReturnPath();
+            string fullPath = Path.Combine(path, imageName);
 
             if (!System.IO.File.Exists(fullPath)) return BadRequest("This file don't exist");
 
-            var memory = new MemoryStream();
-            using (var stream = new FileStream(fullPath, FileMode.Open))
+            MemoryStream memory = new();
+            using (FileStream stream = new(fullPath, FileMode.Open))
             {
                 await stream.CopyToAsync(memory);
             }
             memory.Position = 0;
-            var ext = Path.GetExtension(fullPath).ToLowerInvariant();
+            string ext = Path.GetExtension(fullPath).ToLowerInvariant();
             return File(memory, GetMimeTypes()[ext], Path.GetFileName(fullPath));
         }
 
+        [Route("item/{id}/image/{imageName}")]
+        [HttpDelete]
+        public IActionResult DeleteItemImageByImageName(int id, string imageName) => BuildResponse(itemBLL.DeleteItemImage(Uid, id, imageName, ReturnPath()));
+
         private string ReturnPath()
         {
-            var path = Path.Combine(hostingEnvironment.ContentRootPath, "StaticFiles", "ItemsImages");
+            string path = Path.Combine(hostingEnvironment.ContentRootPath, "StaticFiles", "ItemsImages");
 
             if (!Directory.Exists(path)) Directory.CreateDirectory(path);
 
@@ -176,9 +181,9 @@ namespace UniqueServer.Controllers.Inventory
 
         private async Task<bool> SaveInLocalFolder(IFormFile file, string fileName)
         {
-            var path = ReturnPath();
+            string path = ReturnPath();
 
-            using var fileStream = new FileStream(Path.Combine(path, fileName), FileMode.Create, FileAccess.ReadWrite);
+            using FileStream fileStream = new(Path.Combine(path, fileName), FileMode.Create, FileAccess.ReadWrite);
             await file.CopyToAsync(fileStream);
             return true;
         }
@@ -194,9 +199,9 @@ namespace UniqueServer.Controllers.Inventory
         private bool ValidateFileExtension(IFormFile file)
         {
             string[] validContentTypes = ["image/jpg", "image/jpeg", "image/pjpeg", "image/png"];
-            string[] validExtensions = [".jpg", ".png", ".jpeg"];
+            string[] validExtensions = [".jpg", ".png", ".jpeg", ".webp"];
 
-            if (!validContentTypes.Contains(file.ContentType)) return false;
+            //if (!validContentTypes.Contains(file.ContentType)) return false;
 
             if (!validExtensions.Contains(Path.GetExtension(file.FileName).ToLower())) return false;
 

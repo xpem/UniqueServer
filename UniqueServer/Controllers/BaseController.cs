@@ -23,7 +23,7 @@ namespace UniqueServer.Controllers
 
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            var auth = context.HttpContext.Request.Headers.Authorization;
+            Microsoft.Extensions.Primitives.StringValues auth = context.HttpContext.Request.Headers.Authorization;
             if (!string.IsNullOrEmpty(auth))
             {
                 int? uid = RecoverUidSession();
