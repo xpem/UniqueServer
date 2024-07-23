@@ -1,18 +1,29 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace UserManagementBLL.Functions.Tests
 {
     [TestClass()]
     public class EncryptionTests
     {
+        public static EncryptionService  BuildEncryptionService()
+        {
+            string key32 = "qJEJjz9rat0JyGpbtsA9Wc7zZE4yk9cX";
+            string IV16 = "XtZqKFa6OQyPKRGf";
+
+            return new EncryptionService(key32, IV16);
+        }
+
         [TestMethod()]
         public void CompareEncryptionTest()
         {
             string password = "131313";
 
-            string encryptedString = Encryption.Encrypt(password);
+            var encryptionService = BuildEncryptionService();
 
-            string decryptedString = Encryption.Decrypt(encryptedString);
+            string encryptedString = encryptionService.Encrypt(password);
+
+            string decryptedString = encryptionService.Decrypt(encryptedString);
 
             Assert.AreEqual(password, decryptedString);
         }
@@ -22,11 +33,13 @@ namespace UserManagementBLL.Functions.Tests
         {
             string passworda = "123456";
 
-            string encryptedaString = Encryption.Encrypt(passworda);
+            var encryptionService = BuildEncryptionService();
+
+            string encryptedaString = encryptionService.Encrypt(passworda);
 
             string passwordb = "654321";
 
-            string encryptedbString = Encryption.Encrypt(passwordb);
+            string encryptedbString = encryptionService.Encrypt(passwordb);
 
             Assert.AreNotEqual(encryptedaString, encryptedbString);
         }
@@ -34,10 +47,10 @@ namespace UserManagementBLL.Functions.Tests
         [TestMethod()]
         public void DecrypTest()
         {
-            string encrypted = "eqB8RKRPVewE+8srbICRYw==";
+            string encrypted = "pQhhuP6H8BAZCjFYVfHalA==";
             string decrypted = "131313";
-
-            string DecryptedString = Encryption.Decrypt(encrypted);
+            var encryptionService = BuildEncryptionService();
+            string DecryptedString = encryptionService.Decrypt(encrypted);
 
             Assert.AreEqual(DecryptedString, decrypted);
         }
@@ -46,9 +59,9 @@ namespace UserManagementBLL.Functions.Tests
         public void EncrypTest()
         {
             string decrypted = "131313";
-            string encrypted = "eqB8RKRPVewE+8srbICRYw==";
-
-            string EncryptedString = Encryption.Encrypt(decrypted);
+            string encrypted = "pQhhuP6H8BAZCjFYVfHalA==";
+            var encryptionService = BuildEncryptionService();
+            string EncryptedString = encryptionService.Encrypt(decrypted);
 
             Assert.AreEqual(EncryptedString, encrypted);
         }

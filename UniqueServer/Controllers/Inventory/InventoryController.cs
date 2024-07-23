@@ -4,11 +4,13 @@ using InventoryModels.Req;
 using InventoryModels.Res.Item;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace UniqueServer.Controllers.Inventory
 {
     [Route("[Controller]")]
     [ApiController]
+    [EnableRateLimiting("fixed")]
     [Authorize]
     public class InventoryController(ISubCategoryBLL subCategoryBLL, ICategoryBLL categoryBLL,
         IItemSituationBLL itemSituationBLL, IAcquisitionTypeBLL acquisitionTypeBLL, IItemBLL itemBLL,
@@ -50,7 +52,7 @@ namespace UniqueServer.Controllers.Inventory
 
         [Route("category")]
         [HttpPost]
-        public IActionResult CreateCategory(ReqCategory reqCategory) => BuildResponse(categoryBLL.CreateCategory(reqCategory, Uid));
+        public IActionResult CreateCategory(ReqCategory reqCategory) => BuildResponse(categoryBLL.Create(reqCategory, Uid));
 
         [Route("category/{id}")]
         [HttpPut]

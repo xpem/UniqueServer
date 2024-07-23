@@ -1,4 +1,3 @@
-using BaseModels;
 using BookshelfBLL;
 using BookshelfDAL;
 using BookshelfDbContextDAL;
@@ -6,22 +5,61 @@ using InventoryBLL;
 using InventoryBLL.Interfaces;
 using InventoryDAL;
 using InventoryDAL.Interfaces;
-using InventoryDbContextDAL;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using UniqueServer;
 using UserBLL;
+using UserBLL.Functions;
+using UserManagementBLL.Functions;
 using UserManagementDAL;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+//IConfiguration configurationBuilder = new ConfigurationBuilder()
+//                            .AddJsonFile("appsettings.json")
+//    //.AddJsonFile($"appsettings.Development.json", true, true)
+//    .AddEnvironmentVariables()
+//.Build();
+
+//var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+//{
+//    EnvironmentName = configurationBuilder.GetSection("Hosting")["Environment"]
+//});
+
+//#if DEBUG
+
+//var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+//{
+//    EnvironmentName = configurationBuilder.GetSection("Hosting")["Environment"]
+//});
+//#else
+////var builder = WebApplication.CreateBuilder(args);
+//#endif
 
 // Add services to the container.
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(
+    op =>
+    {
+        op.SwaggerDoc("v1", new OpenApiInfo
+        {
+            Version = $"1.3",
+            Title = "Unique Server",
+            Description = "Routes of apis for Bookshelf, Users Management and Inventory projects",
+        });
+    }
+    );
+
+#region AppContexts
+
+builder.Services.AddDbContexts(builder.Configuration);
+
+#endregion
 
 #region DI DAL
 
@@ -40,10 +78,25 @@ builder.Services.AddScoped<IAcquisitionTypeDAL, AcquisitionTypeDAL>();
 builder.Services.AddScoped<IItemSituationDAL, ItemSituationDAL>();
 builder.Services.AddScoped<IItemDAL, ItemDAL>();
 
+#endregion
+
 #region DI BLL
 
 //usermanagement
 builder.Services.AddScoped<IUserBLL, UserBLL.UserBLL>();
+builder.Services.AddScoped<ISendRecoverPasswordEmailService, SendRecoverPasswordEmailService>(p =>
+new SendRecoverPasswordEmailService(
+    new BaseModels.Configs.SendEmailKeys(
+        builder.Configuration["SendEmailKeys:Host"],
+        builder.Configuration["SendEmailKeys:SenderEmail"],
+        builder.Configuration["SendEmailKeys:SenderPassword"],
+        builder.Configuration["SendEmailKeys:Url"]
+    )));
+builder.Services.AddScoped<IEncryptionService, EncryptionService>(p => 
+new EncryptionService(
+    builder.Configuration["Encryption:Key32"],
+    builder.Configuration["Encryption:IV16"]
+    ));
 
 //bookshelf
 builder.Services.AddScoped<IBookBLL, BookBLL>();
@@ -58,15 +111,7 @@ builder.Services.AddScoped<IItemBLL, ItemBLL>();
 
 #endregion
 
-#endregion
 
-#region AppContexts
-
-builder.Services.AddDbContext<UserManagementDbContext>();
-builder.Services.AddDbContext<BookshelfDbContext>();
-builder.Services.AddDbContext<InventoryDbContext>();
-
-#endregion
 
 #region Auth configs
 
@@ -78,7 +123,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         ValidateIssuer = false,
         ValidateIssuerSigningKey = true,
         ValidateLifetime = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(PrivateKeys.JwtKey))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtKey"]))
     };
     options.SaveToken = true;
 });
@@ -114,6 +159,8 @@ builder.Services.AddAuthorization();
 
 #endregion
 
+builder.Services.AddLimiterRules();
+
 WebApplication app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -121,14 +168,16 @@ WebApplication app = builder.Build();
 //{
 app.UseSwagger();
 app.UseSwaggerUI();
+
 //}
 
+app.UseRateLimiter();
 app.UseAuthentication();
 
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.MapControllers();
+app.MapControllers().RequireRateLimiting("fixed");
 
 app.Run();

@@ -9,7 +9,7 @@ namespace InventoryBLL
 {
     public class CategoryBLL(ICategoryDAL categoryDAL, ISubCategoryDAL subCategoryDAL) : ICategoryBLL
     {
-        public BLLResponse CreateCategory(ReqCategory reqCategory, int uid)
+        public BLLResponse Create(ReqCategory reqCategory, int uid)
         {
             try
             {

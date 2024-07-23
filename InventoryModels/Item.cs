@@ -1,6 +1,7 @@
 ﻿using BaseModels;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace InventoryModels
 {
@@ -41,12 +42,16 @@ namespace InventoryModels
 
         public string? Image2 { get; set; }
 
+        [JsonIgnore]
         public ItemSituation? ItemSituation { get; set; }
 
+        [JsonIgnore]
         public Category? Category { get; set; }
 
+        [JsonIgnore]
         public SubCategory? SubCategory { get; set; }
 
+        [JsonIgnore]
         public AcquisitionType? AcquisitionType { get; set; }
 
         public required DateTime UpdatedAt { get; set; }

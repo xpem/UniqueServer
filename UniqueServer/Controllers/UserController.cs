@@ -13,11 +13,11 @@ namespace UniqueServer.Controllers
     {
         [Route("")]
         [HttpPost]
-        public async Task<IActionResult> SingUp(ReqUser reqUser) => BuildResponse(await userBLL.CreateUser(reqUser));
+        public async Task<IActionResult> SignUp(ReqUser reqUser) => BuildResponse(await userBLL.CreateUser(reqUser));
 
         [Route("Session")]
         [HttpPost]
-        public async Task<IActionResult> SingIn(ReqUserSession reqUserSession) => BuildResponse(await userBLL.GenerateUserToken(reqUserSession));
+        public async Task<IActionResult> SignIn(ReqUserSession reqUserSession) => BuildResponse(await userBLL.GenerateUserToken(reqUserSession));
 
         [Route("")]
         [HttpGet]

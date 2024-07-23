@@ -1,4 +1,5 @@
 ﻿using BaseModels;
+using UserBLL.Functions;
 using UserManagementBLL.Functions;
 using UserModels;
 using UserModels.Request.User;
@@ -6,7 +7,8 @@ using UserModels.Response;
 
 namespace UserBLL
 {
-    public class UserBLL(UserManagementDAL.IUserDAL userDAL, UserManagementDAL.IUserHistoricDAL userHistoricDAL) : IUserBLL
+    public class UserBLL(UserManagementDAL.IUserDAL userDAL, UserManagementDAL.IUserHistoricDAL userHistoricDAL,
+        ISendRecoverPasswordEmailService sendRecoverPasswordEmail,IEncryptionService encryptionService) : IUserBLL
     {
         public async Task<BLLResponse> CreateUser(ReqUser reqUser)
         {
@@ -20,7 +22,7 @@ namespace UserBLL
             if (existingUserMessage != null) { return new BLLResponse(null, existingUserMessage); }
 
             if (user.Password != null)
-                user.Password = Encryption.Encrypt(user.Password);
+                user.Password = encryptionService.Encrypt(user.Password);
             else throw new NullReferenceException("Password do usuario nulo");
 
             await userDAL.ExecuteCreateUserAsync(user);
@@ -55,8 +57,14 @@ namespace UserBLL
             if (userResp != null)
             {
                 string token = JwtFunctions.GenerateToken(userResp.Id, userResp.Email, DateTime.UtcNow.AddHours(1));
-
-                _ = Functions.SendRecoverPasswordEmail.SendEmail(userResp.Email, token);
+                try
+                {
+                    _ = sendRecoverPasswordEmail.SendEmail(userResp.Email, token);
+                }
+                catch
+                {
+                    return new BLLResponse(null, "A error occurred!");
+                }
             }
 
             return new BLLResponse("Email Sent.");
@@ -68,7 +76,7 @@ namespace UserBLL
 
             if (!string.IsNullOrEmpty(validateError)) return new BLLResponse(null, validateError);
 
-            User? userResp = await userDAL.GetUserByEmailAndPassword(reqUserSession.Email, Encryption.Encrypt(reqUserSession.Password));
+            User? userResp = await userDAL.GetUserByEmailAndPassword(reqUserSession.Email, encryptionService.Encrypt(reqUserSession.Password));
 
             if (userResp is null) return new BLLResponse(null, "User/Password incorrect");
 
@@ -96,7 +104,7 @@ namespace UserBLL
 
                 if (user != null)
                 {
-                    user.Password = Encryption.Encrypt(reqRecoverPassword.Password);
+                    user.Password = encryptionService.Encrypt(reqRecoverPassword.Password);
 
                     await userDAL.ExecuteUpdateUserAsync(user);
 

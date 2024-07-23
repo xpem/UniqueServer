@@ -6,20 +6,33 @@ namespace InventoryDbContextDAL
 {
     public class InventoryDbContext : DbContext
     {
-        public virtual DbSet<Category> Category { get; set; }
+        //public InventoryDbContext(DbContextOptions<InventoryDbContext> options)
+        //   : base(options)
+        //{
+        //    ApplyMigrations(this);
+        //}
 
-        public virtual DbSet<SubCategory> SubCategory { get; set; }
+        public virtual DbSet<Category> Category => Set<Category>();
 
-        public virtual DbSet<ItemSituation> ItemSituation { get; set; }
+        public virtual DbSet<SubCategory> SubCategory => Set<SubCategory>();
 
-        public virtual DbSet<AcquisitionType> AcquisitionType { get; set; }
+        public virtual DbSet<ItemSituation> ItemSituation => Set<ItemSituation>();
 
-        public virtual DbSet<Item> Item { get; set; }
+        public virtual DbSet<AcquisitionType> AcquisitionType => Set<AcquisitionType>();
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        public virtual DbSet<Item> Item => Set<Item>();
+
+        public InventoryDbContext(DbContextOptions<InventoryDbContext> options) : base(options)
         {
-            optionsBuilder.UseMySql(PrivateKeys.InventoryConn, ServerVersion.AutoDetect(PrivateKeys.InventoryConn));
         }
+
+        //public void ApplyMigrations(InventoryDbContext context)
+        //{
+        //    if (context.Database.GetPendingMigrations().Any())
+        //    {
+        //        context.Database.Migrate();
+        //    }
+        //}
 
         //migrations
         //no console do gerenciador de pacotes selecione o dal referente:

@@ -11,7 +11,7 @@ namespace InventoryBLL.Interfaces
 
         BLLResponse GetWithSubCategories(int uid);
 
-        BLLResponse CreateCategory(ReqCategory reqCategory, int uid);
+        BLLResponse Create(ReqCategory reqCategory, int uid);
 
         BLLResponse UpdateCategory(ReqCategory reqCategory, int uid, int id);
 
