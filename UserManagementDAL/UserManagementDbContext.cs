@@ -6,16 +6,23 @@ namespace UserManagementDAL
 {
     public class UserManagementDbContext : DbContext
     {
-        public DbSet<User> User { get; set; }
+        public DbSet<User> User => Set<User>();
 
-        public DbSet<UserHistoric> UserHistoric { get; set; }
+        public DbSet<UserHistoric> UserHistoric => Set<UserHistoric>();
 
-        public DbSet<UserHistoricType> UserHistoricType { get; set; }
+        public DbSet<UserHistoricType> UserHistoricType => Set<UserHistoricType>();
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        public UserManagementDbContext(DbContextOptions<UserManagementDbContext> options) : base(options)
         {
-            optionsBuilder.UseMySql(PrivateKeys.UserManagementConn, ServerVersion.AutoDetect(PrivateKeys.UserManagementConn));
-            // b => b.MigrationsAssembly("UserManagementServer")
         }
+
+
+        //migrations
+        //no console do gerenciador de pacotes selecione o dal referente:
+        //EntityFrameworkCore\Add-Migration "Init" -Context UserManagementDbContext
+        //EntityFrameworkCore\update-database -Context UserManagementDbContext
+
+        //to remove last migration snapshot
+        //EntityFrameworkCore\Remove-Migration -Context UserManagementDbContext 
     }
 }

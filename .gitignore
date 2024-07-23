@@ -365,3 +365,6 @@ FodyWeavers.xsd
 /UniqueServer/ItemImages
 /UniqueServer/wwwroot/Images
 /UniqueServer/StaticFiles/ItemsImages
+/UniqueServer/appsettings.json
+/UniqueServer/appsettings.json
+/UniqueServer/appsettings.Development.json

@@ -4,9 +4,8 @@ namespace InventoryDbContextDAL
 {
     public class InventoryInitializeDB()
     {
-        public static void CreateInitiaValues()
+        public static void CreateInitiaValues(InventoryDbContext inventoryDbContext)
         {
-            using InventoryDbContext inventoryDbContext = new();
             inventoryDbContext.Database.EnsureCreated();
 
             CreateBaseCategories(inventoryDbContext);

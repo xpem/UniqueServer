@@ -6,19 +6,18 @@ namespace BookshelfDbContextDAL
 {
     public class BookshelfDbContext : DbContext
     {
-        public virtual DbSet<Book> Book { get; set; }
+        public virtual DbSet<Book> Book => Set<Book>();
 
-        public virtual DbSet<BookHistoric> BookHistoric { get; set; }
+        public virtual DbSet<BookHistoric> BookHistoric  => Set<BookHistoric>();
 
-        public virtual DbSet<BookHistoricType> BookHistoricType { get; set; }
+        public virtual DbSet<BookHistoricType> BookHistoricType => Set<BookHistoricType>();
 
-        public virtual DbSet<BookHistoricItemField> BookHistoricItemField { get; set; }
+        public virtual DbSet<BookHistoricItemField> BookHistoricItemField => Set<BookHistoricItemField>();
 
-        public virtual DbSet<BookHistoricItem> BookHistoricItem { get; set; }
+        public virtual DbSet<BookHistoricItem> BookHistoricItem => Set<BookHistoricItem>();
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        public BookshelfDbContext(DbContextOptions<BookshelfDbContext> options) : base(options)
         {
-            optionsBuilder.UseMySql(PrivateKeys.BookShelfConn, ServerVersion.AutoDetect(PrivateKeys.BookShelfConn));
         }
     }
 }

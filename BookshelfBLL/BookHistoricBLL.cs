@@ -175,7 +175,6 @@ namespace BookshelfBLL
                 });
             }
 
-
             return new BLLResponse(resBookHistorics);
         }
 

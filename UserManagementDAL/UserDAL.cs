@@ -30,7 +30,8 @@ namespace UserManagementDAL
 
         public async Task<User?> GetUserByEmailAsync(string email) => await userManagementDbContext.User.FirstOrDefaultAsync(x => x.Email.Equals(email));
 
-        public async Task<User?> GetUserByEmailAndPassword(string email, string encryptedPassword) => await userManagementDbContext.User.FirstOrDefaultAsync(x => x.Email == email && x.Password == encryptedPassword);
+        public async Task<User?> GetUserByEmailAndPassword(string email, string encryptedPassword) =>
+            await userManagementDbContext.User.FirstOrDefaultAsync(x => x.Email == email && x.Password == encryptedPassword);
 
         public async Task<User?> GetUserByNameOrEmailAsync(string name, string email) => await userManagementDbContext.User.FirstOrDefaultAsync(x => x.Name.Equals(name) || x.Email.Equals(email));
 

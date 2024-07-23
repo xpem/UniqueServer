@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace InventoryModels
 {
@@ -7,8 +8,7 @@ namespace InventoryModels
         [MaxLength(8)]
         public required string Color { get; set; }
 
+        [JsonIgnore]
         public List<SubCategory>? SubCategories { get; set; }
-
-
     }
 }
