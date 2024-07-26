@@ -9,12 +9,12 @@ namespace InventoryBLL
 {
     public class SubCategoryBLL(ISubCategoryDAL subCategoryDAL) : ISubCategoryBLL
     {
-        public BLLResponse CreateSubCategory(ReqSubCategory reqSubCategory, int uid)
+        public BaseResponse CreateSubCategory(ReqSubCategory reqSubCategory, int uid)
         {
             try
             {
                 string? validateError = reqSubCategory.Validate();
-                if (!string.IsNullOrEmpty(validateError)) return new BLLResponse(null, validateError);
+                if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(null, validateError);
 
                 string iconName = "Tag";
 
@@ -36,7 +36,7 @@ namespace InventoryBLL
 
                 if (existingItemMsg != null)
                 {
-                    return new BLLResponse(null, existingItemMsg);
+                    return new BaseResponse(null, existingItemMsg);
                 }
 
                 int respExec = subCategoryDAL.Create(subCategory);
@@ -44,50 +44,50 @@ namespace InventoryBLL
                 if (respExec == 1)
                 {
                     ResSubCategory resSubCategory = new() { Id = subCategory.Id, Name = subCategory.Name, IconName = subCategory.IconName, CategoryId = subCategory.CategoryId, SystemDefault = subCategory.SystemDefault };
-                    return new BLLResponse(resSubCategory);
+                    return new BaseResponse(resSubCategory);
                 }
                 else
-                    return new BLLResponse(null, "Não foi possivel adicionar.");
+                    return new BaseResponse(null, "Não foi possivel adicionar.");
             }
             catch { throw; }
         }
 
-        public BLLResponse DeleteSubCategory(int uid, int id)
+        public BaseResponse DeleteSubCategory(int uid, int id)
         {
             try
             {
                 SubCategory? subCategory = subCategoryDAL.GetById(uid, id);
 
                 if (subCategory == null)
-                    return new BLLResponse(null, "Invalid id");
+                    return new BaseResponse(null, "Invalid id");
 
                 if (subCategory.SystemDefault)
-                    return new BLLResponse(null, "It's not possible delete a system default Sub Category");
+                    return new BaseResponse(null, "It's not possible delete a system default Sub Category");
 
                 int respExec = subCategoryDAL.Delete(subCategory);
 
                 if (respExec == 1)
-                    return new BLLResponse(null);
+                    return new BaseResponse(null);
                 else
-                    return new BLLResponse(null, "Não foi possivel atualizar.");
+                    return new BaseResponse(null, "Não foi possivel atualizar.");
             }
             catch { throw; }
         }
 
-        public BLLResponse UpdateSubCategory(ReqSubCategory reqSubCategory, int uid, int id)
+        public BaseResponse UpdateSubCategory(ReqSubCategory reqSubCategory, int uid, int id)
         {
             try
             {
                 string? validateError = reqSubCategory.Validate();
-                if (!string.IsNullOrEmpty(validateError)) return new BLLResponse(null, validateError);
+                if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(null, validateError);
 
                 SubCategory? oldSubCategory = subCategoryDAL.GetById(uid, id);
 
                 if (oldSubCategory == null)
-                    return new BLLResponse(null, "Invalid id");
+                    return new BaseResponse(null, "Invalid id");
 
                 if (oldSubCategory.SystemDefault)
-                    return new BLLResponse(null, "It's not possible edit a system default Sub Category");
+                    return new BaseResponse(null, "It's not possible edit a system default Sub Category");
 
                 string iconName = "Tag";
 
@@ -110,7 +110,7 @@ namespace InventoryBLL
 
                 if (existingItemMsg != null)
                 {
-                    return new BLLResponse(null, existingItemMsg);
+                    return new BaseResponse(null, existingItemMsg);
                 }
 
                 int respExec = subCategoryDAL.Update(subCategory);
@@ -118,15 +118,15 @@ namespace InventoryBLL
                 if (respExec == 1)
                 {
                     ResSubCategory resSubCategory = new() { Id = subCategory.Id, Name = subCategory.Name, IconName = subCategory.IconName, CategoryId = subCategory.CategoryId, SystemDefault = subCategory.SystemDefault };
-                    return new BLLResponse(resSubCategory);
+                    return new BaseResponse(resSubCategory);
                 }
                 else
-                    return new BLLResponse(null, "Não foi possivel atualizar.");
+                    return new BaseResponse(null, "Não foi possivel atualizar.");
             }
             catch { throw; }
         }
 
-        public BLLResponse GetByCategoryId(int uid, int categoryId)
+        public BaseResponse GetByCategoryId(int uid, int categoryId)
         {
             List<SubCategory>? subCategories = subCategoryDAL.GetByCategoryId(uid, categoryId);
             List<ResSubCategory>? resSubCategories = [];
@@ -143,10 +143,10 @@ namespace InventoryBLL
                             SystemDefault = subCategory.SystemDefault,
                         });
 
-            return new BLLResponse(resSubCategories);
+            return new BaseResponse(resSubCategories);
         }
 
-        public BLLResponse GetById(int uid, int id)
+        public BaseResponse GetById(int uid, int id)
         {
             SubCategory? subCategory = subCategoryDAL.GetById(uid, id);
             ResSubCategory? resSubCategory = null;
@@ -161,7 +161,7 @@ namespace InventoryBLL
                     SystemDefault = subCategory.SystemDefault,
                 };
 
-            return new BLLResponse(resSubCategory);
+            return new BaseResponse(resSubCategory);
         }
 
         protected string? ValidateExistingSubCategory(SubCategory subCategory, int? id = null)

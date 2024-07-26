@@ -1,6 +1,4 @@
-﻿using BaseModels;
-using BaseModels.Configs;
-using System.Configuration;
+﻿using BaseModels.Configs;
 using System.Net;
 using System.Net.Mail;
 

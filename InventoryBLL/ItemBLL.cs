@@ -14,15 +14,15 @@ namespace InventoryBLL
     {
         readonly int pageSize = 50;
 
-        public BLLResponse CreateItem(ReqItem reqItem, int uid)
+        public BaseResponse CreateItem(ReqItem reqItem, int uid)
         {
             try
             {
                 string? validateError = reqItem.Validate();
-                if (!string.IsNullOrEmpty(validateError)) return new BLLResponse(null, validateError);
+                if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(null, validateError);
 
                 string? validateIndexes = ValidateIndexes(reqItem, uid);
-                if (!string.IsNullOrEmpty(validateIndexes)) return new BLLResponse(null, validateIndexes);
+                if (!string.IsNullOrEmpty(validateIndexes)) return new BaseResponse(null, validateIndexes);
 
                 Item item = new()
                 {
@@ -53,23 +53,23 @@ namespace InventoryBLL
                     {
                         ResItem? resItem = BuildResItem(createdCompleteItem);
 
-                        return new BLLResponse(resItem);
+                        return new BaseResponse(resItem);
                     }
                     else throw new Exception($"Não foi possivel recuperar o item de id: {item.Id}");
                 }
                 else
-                    return new BLLResponse(null, "Não foi possivel adicionar.");
+                    return new BaseResponse(null, "Não foi possivel adicionar.");
 
             }
             catch (Exception) { throw; }
         }
 
-        public BLLResponse DeleteItem(int uid, int id, string filePath)
+        public BaseResponse DeleteItem(int uid, int id, string filePath)
         {
             Item? item = itemDAL.GetById(uid, id);
 
             if (item == null)
-                return new BLLResponse(null, "Invalid id");
+                return new BaseResponse(null, "Invalid id");
 
             string? fileName1 = null, fileName2 = null;
 
@@ -86,18 +86,18 @@ namespace InventoryBLL
                 if (fileName2 != null)
                     System.IO.File.Delete(Path.Combine(filePath, fileName2));
 
-                return new BLLResponse(1);
+                return new BaseResponse(1);
             }
             else
-                return new BLLResponse(null, "Não foi possivel excluir.");
+                return new BaseResponse(null, "Não foi possivel excluir.");
         }
 
-        public BLLResponse DeleteItemImage(int uid, int id, string fileName, string filePath)
+        public BaseResponse DeleteItemImage(int uid, int id, string fileName, string filePath)
         {
             Item? item = itemDAL.GetById(uid, id);
 
             if (item == null)
-                return new BLLResponse(null, "Invalid id");
+                return new BaseResponse(null, "Invalid id");
 
             if (item.Image1 != null && item.Image1 == fileName)
             {
@@ -121,18 +121,18 @@ namespace InventoryBLL
                 {
                     ResItem? resItem = BuildResItem(createdCompleteItem);
 
-                    return new BLLResponse(resItem);
+                    return new BaseResponse(resItem);
                 }
                 else throw new Exception($"Não foi possivel recuperar o item de id: {item.Id}");
             }
             else
-                return new BLLResponse(null, "Não foi possivel atualizar o Item.");
+                return new BaseResponse(null, "Não foi possivel atualizar o Item.");
         }
 
-        public async Task<BLLResponse> GetAsync(int uid, int page)
+        public async Task<BaseResponse> GetAsync(int uid, int page)
         {
             if (page <= 0)
-                return new BLLResponse(null, "Invalid page");
+                return new BaseResponse(null, "Invalid page");
 
             List<Item>? items = await itemDAL.GetAsync(uid, page, pageSize);
             List<ResItem> resItems = [];
@@ -145,10 +145,10 @@ namespace InventoryBLL
                     if (bildedResItem != null)
                         resItems.Add(bildedResItem);
                 }
-            return new BLLResponse(resItems);
+            return new BaseResponse(resItems);
         }
 
-        public async Task<BLLResponse> GetTotalItemsPagesAsync(int uid)
+        public async Task<BaseResponse> GetTotalItemsPagesAsync(int uid)
         {
             int totalItems = await itemDAL.GetTotalAsync(uid);
 
@@ -160,19 +160,19 @@ namespace InventoryBLL
 
             ResTotalItems resTotalItems = new() { TotalItems = totalItems, TotalPages = totalPage };
 
-            return new BLLResponse(resTotalItems);
+            return new BaseResponse(resTotalItems);
         }
 
-        public BLLResponse GetById(int uid, int id)
+        public BaseResponse GetById(int uid, int id)
         {
             Item? item = itemDAL.GetById(uid, id);
 
             if (item == null)
-                return new BLLResponse(null, "Invalid id");
+                return new BaseResponse(null, "Invalid id");
 
             ResItem? resItem = BuildResItem(item);
 
-            return new BLLResponse(resItem);
+            return new BaseResponse(resItem);
         }
 
         protected static ResItem? BuildResItem(Item? item)
@@ -220,18 +220,18 @@ namespace InventoryBLL
             return resItem;
         }
 
-        public BLLResponse UpdateItem(ReqItem reqItem, int uid, int id)
+        public BaseResponse UpdateItem(ReqItem reqItem, int uid, int id)
         {
             string? validateError = reqItem.Validate();
-            if (!string.IsNullOrEmpty(validateError)) return new BLLResponse(null, validateError);
+            if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(null, validateError);
 
             Item? oldItem = itemDAL.GetById(uid, id);
 
-            if (oldItem == null) return new BLLResponse(null, "Invalid id");
+            if (oldItem == null) return new BaseResponse(null, "Invalid id");
 
             string? validateIndexes = ValidateIndexes(reqItem, uid);
 
-            if (!string.IsNullOrEmpty(validateIndexes)) return new BLLResponse(null, validateIndexes);
+            if (!string.IsNullOrEmpty(validateIndexes)) return new BaseResponse(null, validateIndexes);
 
             Item item = new()
             {
@@ -263,22 +263,22 @@ namespace InventoryBLL
                 {
                     ResItem? resItem = BuildResItem(createdCompleteItem);
 
-                    return new BLLResponse(resItem);
+                    return new BaseResponse(resItem);
                 }
                 else throw new Exception($"Não foi possivel recuperar o item de id: {item.Id}");
             }
             else
-                return new BLLResponse(null, "Não foi possivel adicionar.");
+                return new BaseResponse(null, "Não foi possivel adicionar.");
         }
 
-        public BLLResponse UpdateItemFileNames(int uid, int id, string? fileName1, string? fileName2)
+        public BaseResponse UpdateItemFileNames(int uid, int id, string? fileName1, string? fileName2)
         {
             int respExec = itemDAL.UpdateFileNames(uid, id, fileName1, fileName2);
 
             if (respExec == 1)
-                return new BLLResponse(new ResItemImages { Image1 = fileName1, Image2 = fileName2 });
+                return new BaseResponse(new ResItemImages { Image1 = fileName1, Image2 = fileName2 });
             else
-                return new BLLResponse(null, "Não foi possivel atualizar.");
+                return new BaseResponse(null, "Não foi possivel atualizar.");
         }
 
         public async Task<bool> CheckItemImageNameAsync(int uid, int id, string imageName) => await itemDAL.CheckItemImageNameAsync(uid, id, imageName);

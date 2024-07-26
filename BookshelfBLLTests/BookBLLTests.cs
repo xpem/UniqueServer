@@ -38,7 +38,7 @@ namespace BookshelfBLL.Tests
             Mock<BookshelfDbContextDAL.BookshelfDbContext> mockContext = new();
 
             Mock<IBookHistoricDAL> mockBookHistoricDAL = new();
-            Mock<IBookDAL> mockBookDAL = new();
+            Mock<IBookRepo> mockBookDAL = new();
 
             mockBookDAL.Setup(x => x.ExecuteCreateBookAsync(It.IsAny<Book>())).ReturnsAsync(1);
             mockBookDAL.Setup(x => x.GetBookByTitleAsync(reqBook.Title, 1)).ReturnsAsync(bookByTitleAsync);
@@ -47,9 +47,9 @@ namespace BookshelfBLL.Tests
 
             IBookHistoricBLL bookHistoricBLL = new BookHistoricBLL(mockBookHistoricDAL.Object);
 
-            BookBLL bookBLL = new(bookHistoricBLL, mockBookDAL.Object);
+            BookService bookBLL = new(bookHistoricBLL, mockBookDAL.Object);
 
-            BaseModels.BLLResponse response = bookBLL.CreateBook(reqBook, 1).Result;
+            BaseModels.BaseResponse response = bookBLL.CreateAsync(reqBook, 1).Result;
 
             if (response.Content is not null)
                 Assert.AreEqual(((ResBook)response.Content).Title, "Teste de Título");
@@ -73,7 +73,7 @@ namespace BookshelfBLL.Tests
                 Id = 1
             };
 
-            Mock<IBookDAL> mockBookDAL = new();
+            Mock<IBookRepo> mockBookDAL = new();
             Mock<IBookHistoricDAL> mockBookHistoricDAL = new();
 
             mockBookHistoricDAL.Setup(x => x.ExecuteAddBookHistoricAsync(It.IsAny<BookHistoric>())).ReturnsAsync(1);
@@ -98,9 +98,9 @@ namespace BookshelfBLL.Tests
 
             mockBookDAL.Setup(x => x.ExecuteUpdateBookAsync(It.IsAny<Book>())).ReturnsAsync(1);
 
-            BookBLL bookBLL = new(bookHistoricBLL, mockBookDAL.Object);
+            BookService bookBLL = new(bookHistoricBLL, mockBookDAL.Object);
 
-            BaseModels.BLLResponse response = bookBLL.UpdateBook(reqBook, 1, 1).Result;
+            BaseModels.BaseResponse response = bookBLL.UpdateAsync(reqBook, 1, 1).Result;
 
             if (response.Content is not null)
                 Assert.AreEqual(((ResBook)response.Content).Title, "Teste de Título alterado");
@@ -124,7 +124,7 @@ namespace BookshelfBLL.Tests
                 Id = 1
             };
 
-            Mock<IBookDAL> mockBookDAL = new();
+            Mock<IBookRepo> mockBookDAL = new();
             Mock<IBookHistoricDAL> mockBookHistoricDAL = new();
 
             mockBookHistoricDAL.Setup(x => x.ExecuteAddBookHistoricAsync(It.IsAny<BookHistoric>())).ReturnsAsync(1);
@@ -153,9 +153,9 @@ namespace BookshelfBLL.Tests
 
             mockBookDAL.Setup(x => x.ExecuteUpdateBookAsync(It.IsAny<Book>())).ReturnsAsync(1);
 
-            BookBLL bookBLL = new(bookHistoricBLL, mockBookDAL.Object);
+            BookService bookBLL = new(bookHistoricBLL, mockBookDAL.Object);
 
-            BaseModels.BLLResponse response = bookBLL.UpdateBook(reqBook, 1, 1).Result;
+            BaseModels.BaseResponse response = bookBLL.UpdateAsync(reqBook, 1, 1).Result;
 
             if (response.Content is not null)
                 Assert.AreEqual(((ResBook)response.Content).Status, 2);
@@ -193,7 +193,7 @@ namespace BookshelfBLL.Tests
 
             mockContext.Setup(m => m.BookHistoricItem).Returns(mockSetBookHistoricItem.Object);
 
-            Mock<IBookDAL> mockBookDAL = new();
+            Mock<IBookRepo> mockBookDAL = new();
             Mock<IBookHistoricDAL> mockBookHistoricDAL = new();
 
             mockBookHistoricDAL.Setup(x => x.ExecuteAddBookHistoricAsync(It.IsAny<BookHistoric>())).ReturnsAsync(1);
@@ -218,9 +218,9 @@ namespace BookshelfBLL.Tests
 
             mockBookDAL.Setup(x => x.ExecuteUpdateBookAsync(It.IsAny<Book>())).ReturnsAsync(1);
 
-            IBookBLL bookBLL = new BookBLL(bookHistoricBLL, mockBookDAL.Object);
+            IBookService bookBLL = new BookService(bookHistoricBLL, mockBookDAL.Object);
 
-            BaseModels.BLLResponse response = bookBLL.UpdateBook(reqBook, 1, 1).Result;
+            BaseModels.BaseResponse response = bookBLL.UpdateAsync(reqBook, 1, 1).Result;
 
             if (response.Content is not null)
                 Assert.AreEqual(((ResBook)response.Content).UpdatedAt, oldUpdatedAt);
@@ -298,7 +298,7 @@ namespace BookshelfBLL.Tests
             mockContext.Setup(m => m.Book).Returns(mockSetBook.Object);
 
             Mock<IBookHistoricDAL> mockBookHistoricDAL = new();
-            Mock<IBookDAL> mockBookDAL = new();
+            Mock<IBookRepo> mockBookDAL = new();
 
             IBookHistoricBLL bookHistoricBLL = new BookHistoricBLL(mockBookHistoricDAL.Object);
 
@@ -306,9 +306,9 @@ namespace BookshelfBLL.Tests
 
             mockBookDAL.Setup(x => x.GetBooksAfterUpdatedAt(updatedAt, 1)).Returns(dataResult);
 
-            IBookBLL bookBLL = new BookBLL(bookHistoricBLL, mockBookDAL.Object);
+            IBookService bookBLL = new BookService(bookHistoricBLL, mockBookDAL.Object);
 
-            BaseModels.BLLResponse response = bookBLL.GetByUpdatedAt(updatedAt, 1);
+            BaseModels.BaseResponse response = bookBLL.GetByUpdatedAt(updatedAt, 1);
 
             List<ResBook>? resBook = [];
 
@@ -340,7 +340,7 @@ namespace BookshelfBLL.Tests
 
             IBookHistoricBLL bookHistoricBLL = new BookHistoricBLL(mockBookHistoricDAL.Object);
 
-            Mock<IBookDAL> mockBookDAL = new();
+            Mock<IBookRepo> mockBookDAL = new();
 
             Book OriBook = new()
             {
@@ -358,9 +358,9 @@ namespace BookshelfBLL.Tests
 
             mockBookDAL.Setup(x => x.ExecuteInactivateBookAsync(1, 1)).ReturnsAsync(1);
 
-            IBookBLL bookBLL = new BookBLL(bookHistoricBLL, mockBookDAL.Object);
+            IBookService bookBLL = new BookService(bookHistoricBLL, mockBookDAL.Object);
 
-            BaseModels.BLLResponse response = bookBLL.InactivateBook(1, 1).Result;
+            BaseModels.BaseResponse response = bookBLL.InactivateAsync(1, 1).Result;
 
             if (response.Content is not null)
                 Assert.IsTrue(Convert.ToBoolean(response.Content));

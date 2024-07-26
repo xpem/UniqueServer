@@ -132,7 +132,7 @@ namespace BookshelfBLL
         /// <summary>
         /// todo, otimizar isto
         /// </summary>
-        public BLLResponse GetByBookIdOrCreatedAt(int? BookId, DateTime? createdAt, int uid)
+        public BaseResponse GetByBookIdOrCreatedAt(int? BookId, DateTime? createdAt, int uid)
         {
             List<BookHistoric> bookHistorics;
 
@@ -175,7 +175,7 @@ namespace BookshelfBLL
                 });
             }
 
-            return new BLLResponse(resBookHistorics);
+            return new BaseResponse(resBookHistorics);
         }
 
         public Task<int> AddBookHistoricAsync(BookHistoric bookHistoric) => bookHistoricDAL.ExecuteAddBookHistoricAsync(bookHistoric);

@@ -5,14 +5,14 @@ namespace UserBLL
 {
     public interface IUserBLL
     {
-        Task<BLLResponse> CreateUser(ReqUser reqUser);
+        Task<BaseResponse> CreateUser(ReqUser reqUser);
 
-        Task<BLLResponse> GenerateUserToken(ReqUserSession reqUserSession);
+        Task<BaseResponse> GenerateUserToken(ReqUserSession reqUserSession);
 
-        Task<BLLResponse> GetUserById(int uid);
+        Task<BaseResponse> GetUserById(int uid);
 
-        Task<BLLResponse> SendRecoverPasswordEmail(ReqUserEmail reqUserEmail);
+        Task<BaseResponse> SendRecoverPasswordEmail(ReqUserEmail reqUserEmail);
 
-        Task<BLLResponse> UpdatePassword(ReqRecoverPassword reqRecoverPassword, int uid);
+        Task<BaseResponse> UpdatePassword(ReqRecoverPassword reqRecoverPassword, int uid);
     }
 }

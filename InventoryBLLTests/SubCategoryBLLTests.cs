@@ -99,7 +99,7 @@ namespace InventoryBLL.Tests
 
             SubCategoryBLL subCategoryBLL = new(bookHistoricDAL);
 
-            BLLResponse bLLResponse = subCategoryBLL.GetById(1, 2);
+            BaseResponse bLLResponse = subCategoryBLL.GetById(1, 2);
 
             if (bLLResponse?.Content is not null)
             {
@@ -118,7 +118,7 @@ namespace InventoryBLL.Tests
 
             SubCategoryBLL subCategoryBLL = new(bookHistoricDAL);
 
-            BLLResponse bLLResponse = subCategoryBLL.GetById(1, 3);
+            BaseResponse bLLResponse = subCategoryBLL.GetById(1, 3);
 
             if (bLLResponse?.Content is not null)
             {
@@ -137,7 +137,7 @@ namespace InventoryBLL.Tests
 
             SubCategoryBLL subCategoryBLL = new(bookHistoricDAL);
 
-            BLLResponse bLLResponse = subCategoryBLL.GetByCategoryId(1, 1);
+            BaseResponse bLLResponse = subCategoryBLL.GetByCategoryId(1, 1);
 
             if (bLLResponse?.Content is not null)
             {
@@ -171,7 +171,7 @@ namespace InventoryBLL.Tests
             mockSubCategoryDAL.Setup(x => x.Create(It.IsAny<SubCategory>())).Returns(1);
             mockSubCategoryDAL.Setup(x => x.GetByCategoryIdAndName(1, reqSubCategory.CategoryId, reqSubCategory.Name)).Returns(nullSubCategory);
 
-            BLLResponse bLLResponse = subCategoryBLL.CreateSubCategory(reqSubCategory, 1);
+            BaseResponse bLLResponse = subCategoryBLL.CreateSubCategory(reqSubCategory, 1);
 
             if (bLLResponse?.Content is not null)
             {
@@ -204,7 +204,7 @@ namespace InventoryBLL.Tests
             // mockSubCategoryDAL.Setup(x => x.UpdateSubCategory(It.IsAny<SubCategory>())).Returns(1);
             // mockSubCategoryDAL.Setup(x => x.GetByCategoryIdAndName(1, reqSubCategory.CategoryId, reqSubCategory.Name)).Returns(nullSubCategory);
 
-            BLLResponse bLLResponse = subCategoryBLL.UpdateSubCategory(reqSubCategory, 2, 6);
+            BaseResponse bLLResponse = subCategoryBLL.UpdateSubCategory(reqSubCategory, 2, 6);
 
             if (bLLResponse?.Content is not null)
             {
@@ -236,7 +236,7 @@ namespace InventoryBLL.Tests
             // mockSubCategoryDAL.Setup(x => x.UpdateSubCategory(It.IsAny<SubCategory>())).Returns(1);
             // mockSubCategoryDAL.Setup(x => x.GetByCategoryIdAndName(1, reqSubCategory.CategoryId, reqSubCategory.Name)).Returns(nullSubCategory);
 
-            BLLResponse bLLResponse = subCategoryBLL.UpdateSubCategory(reqSubCategory, 2, 6);
+            BaseResponse bLLResponse = subCategoryBLL.UpdateSubCategory(reqSubCategory, 2, 6);
 
             if (bLLResponse?.Error is not null)
             {
@@ -268,7 +268,7 @@ namespace InventoryBLL.Tests
             // mockSubCategoryDAL.Setup(x => x.UpdateSubCategory(It.IsAny<SubCategory>())).Returns(1);
             // mockSubCategoryDAL.Setup(x => x.GetByCategoryIdAndName(1, reqSubCategory.CategoryId, reqSubCategory.Name)).Returns(nullSubCategory);
 
-            BLLResponse bLLResponse = subCategoryBLL.UpdateSubCategory(reqSubCategory, 2, 5);
+            BaseResponse bLLResponse = subCategoryBLL.UpdateSubCategory(reqSubCategory, 2, 5);
 
             if (bLLResponse?.Error is not null)
             {
@@ -294,7 +294,7 @@ namespace InventoryBLL.Tests
             // mockSubCategoryDAL.Setup(x => x.UpdateSubCategory(It.IsAny<SubCategory>())).Returns(1);
             // mockSubCategoryDAL.Setup(x => x.GetByCategoryIdAndName(1, reqSubCategory.CategoryId, reqSubCategory.Name)).Returns(nullSubCategory);
 
-            BLLResponse bLLResponse = subCategoryBLL.DeleteSubCategory(2, 6);
+            BaseResponse bLLResponse = subCategoryBLL.DeleteSubCategory(2, 6);
 
             if (bLLResponse?.Error is null && bLLResponse?.Content is null)
                 Assert.IsTrue(true);
@@ -314,7 +314,7 @@ namespace InventoryBLL.Tests
             // mockSubCategoryDAL.Setup(x => x.UpdateSubCategory(It.IsAny<SubCategory>())).Returns(1);
             // mockSubCategoryDAL.Setup(x => x.GetByCategoryIdAndName(1, reqSubCategory.CategoryId, reqSubCategory.Name)).Returns(nullSubCategory);
 
-            BLLResponse bLLResponse = subCategoryBLL.DeleteSubCategory(2, 5);
+            BaseResponse bLLResponse = subCategoryBLL.DeleteSubCategory(2, 5);
 
             if (bLLResponse?.Error is not null && bLLResponse?.Content is null)
             {

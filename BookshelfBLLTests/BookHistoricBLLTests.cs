@@ -103,7 +103,7 @@ namespace BookshelfBLL.Tests
 
             BookHistoricBLL bookHistoricBLL = new(mockBookHistoricDAL.Object);
 
-            BaseModels.BLLResponse response = bookHistoricBLL.GetByBookIdOrCreatedAt(null, dataBusca, 1);
+            BaseModels.BaseResponse response = bookHistoricBLL.GetByBookIdOrCreatedAt(null, dataBusca, 1);
 
             if (response != null && response.Content != null)
             {
@@ -166,7 +166,7 @@ namespace BookshelfBLL.Tests
 
             IBookHistoricBLL bookHistoricBLL = new BookHistoricBLL(mockBookHistoricDAL.Object);
 
-            BaseModels.BLLResponse response = bookHistoricBLL.GetByBookIdOrCreatedAt(210, null, 1);
+            BaseModels.BaseResponse response = bookHistoricBLL.GetByBookIdOrCreatedAt(210, null, 1);
 
             if (response != null && response.Content != null)
             {

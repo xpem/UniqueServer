@@ -17,28 +17,6 @@ using UserManagementDAL;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-//IConfiguration configurationBuilder = new ConfigurationBuilder()
-//                            .AddJsonFile("appsettings.json")
-//    //.AddJsonFile($"appsettings.Development.json", true, true)
-//    .AddEnvironmentVariables()
-//.Build();
-
-//var builder = WebApplication.CreateBuilder(new WebApplicationOptions
-//{
-//    EnvironmentName = configurationBuilder.GetSection("Hosting")["Environment"]
-//});
-
-//#if DEBUG
-
-//var builder = WebApplication.CreateBuilder(new WebApplicationOptions
-//{
-//    EnvironmentName = configurationBuilder.GetSection("Hosting")["Environment"]
-//});
-//#else
-////var builder = WebApplication.CreateBuilder(args);
-//#endif
-
-// Add services to the container.
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -48,7 +26,7 @@ builder.Services.AddSwaggerGen(
     {
         op.SwaggerDoc("v1", new OpenApiInfo
         {
-            Version = $"1.3",
+            Version = $"1.4",
             Title = "Unique Server",
             Description = "Routes of apis for Bookshelf, Users Management and Inventory projects",
         });
@@ -64,7 +42,7 @@ builder.Services.AddDbContexts(builder.Configuration);
 #region DI DAL
 
 //bookshelf
-builder.Services.AddScoped<IBookDAL, BookDAL>();
+builder.Services.AddScoped<IBookRepo, BookRepo>();
 builder.Services.AddScoped<IBookHistoricDAL, BookHistoricDAL>();
 
 //usermanagement
@@ -84,22 +62,11 @@ builder.Services.AddScoped<IItemDAL, ItemDAL>();
 
 //usermanagement
 builder.Services.AddScoped<IUserBLL, UserBLL.UserBLL>();
-builder.Services.AddScoped<ISendRecoverPasswordEmailService, SendRecoverPasswordEmailService>(p =>
-new SendRecoverPasswordEmailService(
-    new BaseModels.Configs.SendEmailKeys(
-        builder.Configuration["SendEmailKeys:Host"],
-        builder.Configuration["SendEmailKeys:SenderEmail"],
-        builder.Configuration["SendEmailKeys:SenderPassword"],
-        builder.Configuration["SendEmailKeys:Url"]
-    )));
-builder.Services.AddScoped<IEncryptionService, EncryptionService>(p => 
-new EncryptionService(
-    builder.Configuration["Encryption:Key32"],
-    builder.Configuration["Encryption:IV16"]
-    ));
+
+builder.Services.AddServices(builder.Configuration);
 
 //bookshelf
-builder.Services.AddScoped<IBookBLL, BookBLL>();
+builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IBookHistoricBLL, BookHistoricBLL>();
 
 //inventory
@@ -110,8 +77,6 @@ builder.Services.AddScoped<IItemSituationBLL, ItemSituationBLL>();
 builder.Services.AddScoped<IItemBLL, ItemBLL>();
 
 #endregion
-
-
 
 #region Auth configs
 

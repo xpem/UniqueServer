@@ -7,7 +7,7 @@ namespace BookshelfBLL
     {
         Task<BookHistoric> BuildAndCreateBookUpdateHistoricAsync(Book oldBook, Book book);
 
-        BLLResponse GetByBookIdOrCreatedAt(int? BookId, DateTime? createdAt, int uid);
+        BaseResponse GetByBookIdOrCreatedAt(int? BookId, DateTime? createdAt, int uid);
 
         Task<int> AddBookHistoricAsync(BookHistoric bookHistoric);
     }

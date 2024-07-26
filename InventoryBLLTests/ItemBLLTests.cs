@@ -29,7 +29,7 @@ namespace InventoryBLL.Tests
 
             ItemBLL itemBLL = MockItemBLL();
 
-            BaseModels.BLLResponse resp = itemBLL.CreateItem(reqItem, uid);
+            BaseModels.BaseResponse resp = itemBLL.CreateItem(reqItem, uid);
 
             if (resp != null && resp.Content != null)
             {
@@ -52,7 +52,7 @@ namespace InventoryBLL.Tests
 
             ItemBLL itemBLL = MockItemBLL();
 
-            BaseModels.BLLResponse resp = itemBLL.GetById(uid, 1);
+            BaseModels.BaseResponse resp = itemBLL.GetById(uid, 1);
 
             if (resp != null && resp.Content != null)
             {
@@ -89,7 +89,7 @@ namespace InventoryBLL.Tests
                 ResaleValue = 0,
             };
 
-            BaseModels.BLLResponse resp = itemBLL.UpdateItem(reqItem, uid, 1);
+            BaseModels.BaseResponse resp = itemBLL.UpdateItem(reqItem, uid, 1);
 
             if (resp != null && resp.Content != null)
             {
@@ -126,7 +126,7 @@ namespace InventoryBLL.Tests
                 ResaleValue = 0,
             };
 
-            BaseModels.BLLResponse resp = itemBLL.UpdateItem(reqItem, uid, 1);
+            BaseModels.BaseResponse resp = itemBLL.UpdateItem(reqItem, uid, 1);
 
             if (resp != null && resp.Error != null)
             {
@@ -162,7 +162,7 @@ namespace InventoryBLL.Tests
                 ResaleValue = 0,
             };
 
-            BaseModels.BLLResponse resp = itemBLL.UpdateItem(reqItem, uid, 3);
+            BaseModels.BaseResponse resp = itemBLL.UpdateItem(reqItem, uid, 3);
 
             if (resp != null && resp.Error != null)
             {
