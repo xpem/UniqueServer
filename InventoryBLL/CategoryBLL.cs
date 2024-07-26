@@ -9,12 +9,12 @@ namespace InventoryBLL
 {
     public class CategoryBLL(ICategoryDAL categoryDAL, ISubCategoryDAL subCategoryDAL) : ICategoryBLL
     {
-        public BLLResponse Create(ReqCategory reqCategory, int uid)
+        public BaseResponse Create(ReqCategory reqCategory, int uid)
         {
             try
             {
                 string? validateError = reqCategory.Validate();
-                if (!string.IsNullOrEmpty(validateError)) return new BLLResponse(null, validateError);
+                if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(null, validateError);
 
                 Category category = new()
                 {
@@ -28,7 +28,7 @@ namespace InventoryBLL
                 string? existingItemMsg = ValidateExistingCategory(category);
 
                 if (existingItemMsg != null)
-                    return new BLLResponse(null, existingItemMsg);
+                    return new BaseResponse(null, existingItemMsg);
 
                 int respExec = categoryDAL.Create(category);
 
@@ -41,42 +41,42 @@ namespace InventoryBLL
                         SystemDefault = category.SystemDefault,
                         Id = category.Id
                     };
-                    return new BLLResponse(resCategory);
+                    return new BaseResponse(resCategory);
                 }
                 else
-                    return new BLLResponse(null, "Não foi possivel adicionar.");
+                    return new BaseResponse(null, "Não foi possivel adicionar.");
             }
             catch { throw; }
         }
 
-        public BLLResponse DeleteCategory(int uid, int id)
+        public BaseResponse DeleteCategory(int uid, int id)
         {
             try
             {
                 Category? category = categoryDAL.GetById(uid, id);
 
                 if (category == null)
-                    return new BLLResponse(null, "Invalid id");
+                    return new BaseResponse(null, "Invalid id");
 
                 if (category.SystemDefault)
-                    return new BLLResponse(null, "It's not possible delete a system default Sub Category");
+                    return new BaseResponse(null, "It's not possible delete a system default Sub Category");
 
                 List<SubCategory>? subCategories = subCategoryDAL.GetByCategoryId(uid, category.Id);
 
                 if (subCategories != null && subCategories.Count > 0)
-                    return new BLLResponse(null, "It's not possible delete a Category with Sub Categories");
+                    return new BaseResponse(null, "It's not possible delete a Category with Sub Categories");
 
                 int respExec = categoryDAL.Delete(category);
 
                 if (respExec == 1)
-                    return new BLLResponse(1);
+                    return new BaseResponse(1);
                 else
-                    return new BLLResponse(null, "Não foi possivel atualizar.");
+                    return new BaseResponse(null, "Não foi possivel atualizar.");
             }
             catch { throw; }
         }
 
-        public BLLResponse Get(int uid)
+        public BaseResponse Get(int uid)
         {
             // InventoryDbContextDAL.InventoryInitializeDB.CreateInitiaValues();
 
@@ -94,10 +94,10 @@ namespace InventoryBLL
                             SystemDefault = category.SystemDefault
                         });
 
-            return new BLLResponse(resCategories);
+            return new BaseResponse(resCategories);
         }
 
-        public BLLResponse GetById(int uid, int id)
+        public BaseResponse GetById(int uid, int id)
         {
             Category? category = categoryDAL.GetById(uid, id);
             ResCategory? resCategories = null;
@@ -111,10 +111,10 @@ namespace InventoryBLL
                     SystemDefault = category.SystemDefault
                 };
 
-            return new BLLResponse(resCategories);
+            return new BaseResponse(resCategories);
         }
 
-        public BLLResponse GetWithSubCategories(int uid)
+        public BaseResponse GetWithSubCategories(int uid)
         {
             List<Category>? categoriesWithSubCategories = categoryDAL.GetWithSubCategories(uid);
             List<ResCategoryWithSubCategories> resCategoriesWithSubCategories = [];
@@ -146,23 +146,23 @@ namespace InventoryBLL
                         });
                 }
 
-            return new BLLResponse(resCategoriesWithSubCategories);
+            return new BaseResponse(resCategoriesWithSubCategories);
         }
 
-        public BLLResponse UpdateCategory(ReqCategory reqCategory, int uid, int id)
+        public BaseResponse UpdateCategory(ReqCategory reqCategory, int uid, int id)
         {
             try
             {
                 string? validateError = reqCategory.Validate();
-                if (!string.IsNullOrEmpty(validateError)) return new BLLResponse(null, validateError);
+                if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(null, validateError);
 
                 Category? oldCategory = categoryDAL.GetById(uid, id);
 
                 if (oldCategory == null)
-                    return new BLLResponse(null, "Invalid id");
+                    return new BaseResponse(null, "Invalid id");
 
                 if (oldCategory.SystemDefault)
-                    return new BLLResponse(null, "It's not possible edit a system default Category");
+                    return new BaseResponse(null, "It's not possible edit a system default Category");
 
                 Category category = new()
                 {
@@ -179,7 +179,7 @@ namespace InventoryBLL
 
                 if (existingItemMsg != null)
                 {
-                    return new BLLResponse(null, existingItemMsg);
+                    return new BaseResponse(null, existingItemMsg);
                 }
 
                 int respExec = categoryDAL.Update(category);
@@ -209,10 +209,10 @@ namespace InventoryBLL
                         SubCategories = resSubCategories
 
                     };
-                    return new BLLResponse(resCategoryWithSubCategories);
+                    return new BaseResponse(resCategoryWithSubCategories);
                 }
                 else
-                    return new BLLResponse("Não foi possivel atualizar.");
+                    return new BaseResponse("Não foi possivel atualizar.");
             }
             catch { throw; }
         }

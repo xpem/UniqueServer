@@ -8,7 +8,7 @@ namespace InventoryBLL
 {
     public class ItemSituationBLL(IItemSituationDAL itemSituationDAL) : IItemSituationBLL
     {
-        public BLLResponse Get(int uid)
+        public BaseResponse Get(int uid)
         {
             List<ItemSituation>? itemSituations = itemSituationDAL.Get(uid);
             List<ResItemSituation> resItemSituations = [];
@@ -25,7 +25,7 @@ namespace InventoryBLL
                             Type = itemSituation.Type,
                         });
 
-            return new BLLResponse(resItemSituations);
+            return new BaseResponse(resItemSituations);
         }
     }
 }

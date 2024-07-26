@@ -168,7 +168,7 @@ namespace InventoryBLL.Tests
         {
             CategoryBLL categoryBLL = BuildCategoryBLL();
 
-            BLLResponse bLLResponse = categoryBLL.Get(1);
+            BaseResponse bLLResponse = categoryBLL.Get(1);
 
             if (bLLResponse?.Content is not null)
             {
@@ -188,7 +188,7 @@ namespace InventoryBLL.Tests
 
             ReqCategory reqCategory = new() { Name = "Teste de título alterado" };
 
-            BLLResponse bLLResponse = categoryBLL.UpdateCategory(reqCategory, 1, 3);
+            BaseResponse bLLResponse = categoryBLL.UpdateCategory(reqCategory, 1, 3);
 
             if (bLLResponse?.Content is not null)
             {
@@ -215,7 +215,7 @@ namespace InventoryBLL.Tests
             // mockSubCategoryDAL.Setup(x => x.UpdateSubCategory(It.IsAny<SubCategory>())).Returns(1);
             // mockSubCategoryDAL.Setup(x => x.GetByCategoryIdAndName(1, reqSubCategory.CategoryId, reqSubCategory.Name)).Returns(nullSubCategory);
 
-            BLLResponse bLLResponse = categoryBLL.UpdateCategory(reqCategory, 1, 3);
+            BaseResponse bLLResponse = categoryBLL.UpdateCategory(reqCategory, 1, 3);
 
             if (bLLResponse?.Error is not null)
             {

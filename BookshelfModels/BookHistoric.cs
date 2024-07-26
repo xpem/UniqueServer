@@ -1,7 +1,15 @@
-﻿namespace BookshelfModels
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace BookshelfModels
 {
-    public class BookHistoric : BaseModels.BaseModel
+    public class BookHistoric
     {
+        public int Id { get; set; }
+
+        [Index("IX_CreatedAt_And_Uid", 1)]
+        public required DateTime CreatedAt { get; set; }
+
+        [Index("IX_UpdatedAt_And_Uid", 2)]
         public required int UserId { get; set; }
 
         public required int BookId { get; set; }

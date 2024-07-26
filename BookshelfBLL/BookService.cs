@@ -6,16 +6,18 @@ using BookshelfModels.Response;
 
 namespace BookshelfBLL
 {
-    public class BookBLL(IBookHistoricBLL bookHistoricBLL, IBookDAL bookDAL) : IBookBLL
+    public class BookService(IBookHistoricBLL bookHistoricBLL, IBookRepo bookDAL) : IBookService
     {
-        public async Task<BLLResponse> CreateBook(ReqBook reqBook, int uid)
+        readonly int pageSize = 50;
+
+        public async Task<BaseResponse> CreateAsync(ReqBook reqBook, int uid)
         {
             //BookshelfDbContextDAL.BookshelfInitializeDB ini = new BookshelfInitializeDB(bookshelfDbContext);
             //ini.CreateInitialValues();
 
             string? validateError = reqBook.Validate();
 
-            if (!string.IsNullOrEmpty(validateError)) return new BLLResponse(null, validateError);
+            if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(null, validateError);
 
             Book book = new()
             {
@@ -41,7 +43,7 @@ namespace BookshelfBLL
             string? existingBookMessage = await ValidateExistingBookAsync(book);
 
             if (existingBookMessage != null)
-                return new BLLResponse(null, existingBookMessage);
+                return new BaseResponse(null, existingBookMessage);
 
             await bookDAL.ExecuteCreateBookAsync(book);
 
@@ -76,23 +78,23 @@ namespace BookshelfBLL
                 Inactive = book.Inactive
             };
 
-            return new BLLResponse(resBook);
+            return new BaseResponse(resBook);
         }
 
-        public async Task<BLLResponse> UpdateBook(ReqBook reqBook, int bookId, int uid)
+        public async Task<BaseResponse> UpdateAsync(ReqBook reqBook, int bookId, int uid)
         {
             string? validateError = reqBook.Validate();
 
             if (!string.IsNullOrEmpty(validateError))
-                return new BLLResponse(null, validateError);
+                return new BaseResponse(null, validateError);
 
             if ((await bookDAL.GetBookByTitleWithNotEqualIdAsync(reqBook.Title, uid, bookId) != null))
-                return new BLLResponse(null, "Already exist a book with this title");
+                return new BaseResponse(null, "Already exist a book with this title");
 
             Book? oldBook = await bookDAL.GetBookByIdAsync(bookId, uid);
 
             if (oldBook == null)
-                return new BLLResponse(null, "Invalid Book id");
+                return new BaseResponse(null, "Invalid Book id");
 
             Book? newBook = new()
             {
@@ -152,18 +154,18 @@ namespace BookshelfBLL
                 Inactive = newBook.Inactive
             };
 
-            return new BLLResponse(resBook);
+            return new BaseResponse(resBook);
         }
 
-        public async Task<BLLResponse> InactivateBook(int bookId, int uid)
+        public async Task<BaseResponse> InactivateAsync(int bookId, int uid)
         {
             if (bookId < 0)
-                return new BLLResponse(null, "Invalid Book id");
+                return new BaseResponse(null, "Invalid Book id");
 
             Book? oldBook = await bookDAL.GetBookByIdAsync(bookId, uid);
 
             if (oldBook == null)
-                return new BLLResponse(null, "Invalid Book id");
+                return new BaseResponse(null, "Invalid Book id");
 
             if (oldBook.Inactive == false)
             {
@@ -180,10 +182,10 @@ namespace BookshelfBLL
                 await bookHistoricBLL.AddBookHistoricAsync(bookHistoric);
             }
 
-            return new BLLResponse(true);
+            return new BaseResponse(true);
         }
 
-        public BLLResponse GetByUpdatedAt(DateTime updatedAt, int uid)
+        public BaseResponse GetByUpdatedAt(DateTime updatedAt, int uid)
         {
             //string? validateError = req.Validate();
 
@@ -218,7 +220,48 @@ namespace BookshelfBLL
                 });
             }
 
-            return new BLLResponse(resBooks);
+            return new BaseResponse(resBooks);
+        }
+
+        public async Task<BaseResponse> GetByUpdatedAtAsync(DateTime updatedAt, int page, int uid)
+        {
+            if (page <= 0)
+                return new BaseResponse(null, "Invalid page");
+
+            //string? validateError = req.Validate();
+
+            //if (!string.IsNullOrEmpty(validateError))
+            //    return new BLLResponse(null, validateError } };
+
+            List<Book> books = await bookDAL.GetBooksAfterUpdatedAtAsync(updatedAt, page, pageSize, uid);
+
+            List<ResBook> resBooks = [];
+
+            foreach (Book? book in books)
+            {
+                resBooks.Add(new ResBook()
+                {
+                    Id = book.Id,
+                    Cover = book.Cover,
+                    Title = book.Title,
+                    Subtitle = book.Subtitle,
+                    Authors = book.Authors,
+                    Volume = book.Volume,
+                    Pages = book.Pages,
+                    Year = book.Year,
+                    Status = book.Status,
+                    Score = book.Score,
+                    Comment = book.Comment,
+                    Genre = book.Genre,
+                    Isbn = book.Isbn,
+                    GoogleId = book.GoogleId,
+                    Inactive = book.Inactive,
+                    CreatedAt = book.CreatedAt,
+                    UpdatedAt = book.UpdatedAt
+                });
+            }
+
+            return new BaseResponse(resBooks);
         }
 
         protected async Task<string?> ValidateExistingBookAsync(Book book)

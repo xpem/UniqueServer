@@ -1,6 +1,6 @@
 ﻿namespace BaseModels
 {
-    public record BLLResponse
+    public record BaseResponse
     {
         public bool Success { get; set; } = true;
 
@@ -8,7 +8,7 @@
 
         public Error? Error { get; init; } = null;
 
-        public BLLResponse(object? content, string? errorMessage = null)
+        public BaseResponse(object? content, string? errorMessage = null)
         {
             if (!string.IsNullOrEmpty(errorMessage))
             {

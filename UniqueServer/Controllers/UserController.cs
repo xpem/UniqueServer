@@ -3,13 +3,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using UserBLL;
+using UserManagementBLL.Functions;
 using UserModels.Request.User;
 
 namespace UniqueServer.Controllers
 {
     [Route("[Controller]")]
     [ApiController]
-    public class UserController(IUserBLL userBLL, IHostEnvironment hostingEnvironment) : BaseController
+    public class UserController(IUserBLL userBLL, IHostEnvironment hostingEnvironment, IJwtTokenService jwtTokenService) : BaseController
     {
         [Route("")]
         [HttpPost]
@@ -49,7 +50,7 @@ namespace UniqueServer.Controllers
 
             try
             {
-                int? uid = UserManagementBLL.Functions.JwtFunctions.GetUidFromToken(token);
+                int? uid = jwtTokenService.GetUidFromToken(token);
 
                 html = html.Replace("{{token}}", token);
 
@@ -57,7 +58,7 @@ namespace UniqueServer.Controllers
                     html = html.Replace("{{ReturnMessage}}", "User Not Found");
                 else
                 {
-                    BLLResponse bLLResponse = await userBLL.UpdatePassword(reqRecoverPassword, Convert.ToInt32(uid));
+                    BaseResponse bLLResponse = await userBLL.UpdatePassword(reqRecoverPassword, Convert.ToInt32(uid));
 
                     if (bLLResponse.Success)
                         html = html.Replace("{{ReturnMessage}}", bLLResponse.Content?.ToString());

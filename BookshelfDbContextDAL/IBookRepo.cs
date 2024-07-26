@@ -2,7 +2,7 @@
 
 namespace BookshelfDbContextDAL
 {
-    public interface IBookDAL
+    public interface IBookRepo
     {
         Task<int> ExecuteInactivateBookAsync(int bookId, int userId);
 
@@ -17,5 +17,6 @@ namespace BookshelfDbContextDAL
         Task<Book?> GetBookByIdAsync(int bookId, int uid);
 
         IQueryable<Book> GetBooksAfterUpdatedAt(DateTime updatedAt, int uid);
+        Task<List<Book>> GetBooksAfterUpdatedAtAsync(DateTime updatedAt, int page, int pageSize, int uid);
     }
 }

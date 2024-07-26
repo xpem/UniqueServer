@@ -1,17 +1,22 @@
-﻿using BaseModels;
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
 namespace UserManagementBLL.Functions
 {
-    public static class JwtFunctions
+    public interface IJwtTokenService
     {
-        public static string GenerateToken(int uid, string email, DateTime expireDt)
+        string GenerateToken(int uid, string email, DateTime expireDt);
+        int? GetUidFromToken(string token);
+    }
+
+    public class JwtTokenService(string jwtKey) : IJwtTokenService
+    {
+        public string GenerateToken(int uid, string email, DateTime expireDt)
         {
             JwtSecurityTokenHandler tokenHandler = new();
-            byte[] key = Encoding.ASCII.GetBytes(PrivateKeys.JwtKey);
+            byte[] key = Encoding.ASCII.GetBytes(jwtKey);
             SecurityTokenDescriptor tokenDescriptor = new()
             {
                 Subject = new ClaimsIdentity(new[] { new Claim("uid", uid.ToString()), new Claim(ClaimTypes.Email, email) }),
@@ -23,13 +28,13 @@ namespace UserManagementBLL.Functions
             return tokenHandler.WriteToken(token);
         }
 
-        public static int? GetUidFromToken(string token)
+        public int? GetUidFromToken(string token)
         {
             if (token == null)
                 return null;
 
             JwtSecurityTokenHandler tokenHandler = new();
-            byte[] key = Encoding.ASCII.GetBytes(PrivateKeys.JwtKey);
+            byte[] key = Encoding.ASCII.GetBytes(jwtKey);
             try
             {
                 tokenHandler.ValidateToken(token, new TokenValidationParameters

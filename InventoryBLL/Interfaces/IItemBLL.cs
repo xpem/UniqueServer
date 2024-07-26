@@ -5,22 +5,22 @@ namespace InventoryBLL.Interfaces
 {
     public interface IItemBLL
     {
-        BLLResponse CreateItem(ReqItem reqItem, int uid);
+        BaseResponse CreateItem(ReqItem reqItem, int uid);
 
-        BLLResponse UpdateItem(ReqItem reqItem, int uid, int id);
+        BaseResponse UpdateItem(ReqItem reqItem, int uid, int id);
 
-        BLLResponse DeleteItem(int uid, int id, string filePath);
+        BaseResponse DeleteItem(int uid, int id, string filePath);
 
-        BLLResponse GetById(int uid, int id);
+        BaseResponse GetById(int uid, int id);
 
-        Task<BLLResponse> GetAsync(int uid, int page);
+        Task<BaseResponse> GetAsync(int uid, int page);
 
-        BLLResponse UpdateItemFileNames(int uid, int id, string? fileName1, string? fileName2);
+        BaseResponse UpdateItemFileNames(int uid, int id, string? fileName1, string? fileName2);
 
         Task<bool> CheckItemImageNameAsync(int uid, int id, string imageName);
 
-        BLLResponse DeleteItemImage(int uid, int id, string fileName, string filePath);
+        BaseResponse DeleteItemImage(int uid, int id, string fileName, string filePath);
 
-        Task<BLLResponse> GetTotalItemsPagesAsync(int uid);
+        Task<BaseResponse> GetTotalItemsPagesAsync(int uid);
     }
 }

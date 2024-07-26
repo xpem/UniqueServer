@@ -106,7 +106,7 @@ namespace UniqueServer.Controllers.Inventory
         [HttpPut]
         public IActionResult UploadItemImages(int id, IFormFile? file1, IFormFile? file2)
         {
-            BLLResponse bLLResponse = itemBLL.GetById(Uid, id);
+            BaseResponse bLLResponse = itemBLL.GetById(Uid, id);
 
             ResItem? resItem = (bLLResponse.Content as ResItem);
 

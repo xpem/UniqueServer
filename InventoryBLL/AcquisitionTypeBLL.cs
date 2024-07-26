@@ -8,7 +8,7 @@ namespace InventoryBLL
 {
     public class AcquisitionTypeBLL(IAcquisitionTypeDAL acquisitionTypeDAL) : IAcquisitionTypeBLL
     {
-        public BLLResponse Get(int uid)
+        public BaseResponse Get(int uid)
         {
             List<AcquisitionType>? acquisitionTypes = acquisitionTypeDAL.Get(uid);
             List<ResAcquisitionType> resAcquisitionTypes = [];
@@ -24,7 +24,7 @@ namespace InventoryBLL
                             SystemDefault = acquisitionType.SystemDefault,
                         });
 
-            return new BLLResponse(resAcquisitionTypes);
+            return new BaseResponse(resAcquisitionTypes);
         }
     }
 }
