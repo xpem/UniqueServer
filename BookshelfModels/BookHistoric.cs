@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace BookshelfModels
 {
@@ -20,6 +21,7 @@ namespace BookshelfModels
 
         public BookHistoricType? BookHistoricType { get; set; }
 
-        public List<BookHistoricItem>? BookHistoricItems { get; set; }
+        [JsonIgnore]
+        public List<BookHistoricItem> BookHistoricItems { get; set; } = new List<BookHistoricItem>();
     }
 }

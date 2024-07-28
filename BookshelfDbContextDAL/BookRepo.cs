@@ -12,9 +12,6 @@ namespace BookshelfDbContextDAL
 
         public async Task<Book?> GetBookByIdAsync(int bookId, int uid) => await bookshelfDbContext.Book.FirstOrDefaultAsync(x => x.Id == bookId && x.UserId == uid);
 
-        public IQueryable<Book> GetBooksAfterUpdatedAt(DateTime updatedAt, int uid) =>
-            bookshelfDbContext.Book.Where(x => x.UpdatedAt > updatedAt && x.UserId == uid);
-
         public async Task<List<Book>> GetBooksAfterUpdatedAtAsync(DateTime updatedAt, int page, int pageSize, int uid) =>
             await bookshelfDbContext.Book.Where(x => x.UpdatedAt > updatedAt && x.UserId == uid).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
 

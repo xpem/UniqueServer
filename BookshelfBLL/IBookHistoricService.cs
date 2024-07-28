@@ -3,12 +3,12 @@ using BookshelfModels;
 
 namespace BookshelfBLL
 {
-    public interface IBookHistoricBLL
+    public interface IBookHistoricService
     {
         Task<BookHistoric> BuildAndCreateBookUpdateHistoricAsync(Book oldBook, Book book);
 
-        BaseResponse GetByBookIdOrCreatedAt(int? BookId, DateTime? createdAt, int uid);
-
         Task<int> AddBookHistoricAsync(BookHistoric bookHistoric);
+        Task<BaseResponse> GetByBookIdAsync(int? bookId, int uid);
+        Task<BaseResponse> GetByCreatedAtAsync(DateTime? createdAt, int page, int uid);
     }
 }
