@@ -69,7 +69,7 @@ namespace InventoryBLL
                 if (respExec == 1)
                     return new BaseResponse(null);
                 else
-                    return new BaseResponse(null, "Não foi possivel atualizar.");
+                    return new BaseResponse(null, "Não foi possivel deletar.");
             }
             catch { throw; }
         }

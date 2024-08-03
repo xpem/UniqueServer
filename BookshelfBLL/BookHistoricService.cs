@@ -138,7 +138,7 @@ namespace BookshelfBLL
             List<BookHistoric> bookHistorics;
 
             if (bookId is not null)
-                bookHistorics = await bookHistoricDAL.ExecuteQueryByBookId(bookId.Value, uid);
+                bookHistorics = await bookHistoricDAL.GetByBookId(bookId.Value, uid);
             else return new BaseResponse("sem parametro válido de busca");
 
             var resBookHistorics = BuildBookHistoricList(bookHistorics);
@@ -152,7 +152,7 @@ namespace BookshelfBLL
             List<BookHistoric> bookHistorics;
 
             if (createdAt.HasValue)
-                bookHistorics = await bookHistoricDAL.ExecuteQueryByCreatedAtAsync(createdAt.Value, page, pageSize, uid);
+                bookHistorics = await bookHistoricDAL.GetByCreatedAtAsync(createdAt.Value, page, pageSize, uid);
             else return new BaseResponse("sem parametro válido de busca");
 
             var resBookHistorics = BuildBookHistoricList(bookHistorics);

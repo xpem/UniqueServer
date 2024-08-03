@@ -20,7 +20,7 @@ namespace BookshelfDAL
             return await bookshelfDbContext.SaveChangesAsync();
         }
 
-        public async Task<List<BookHistoric>> ExecuteQueryByCreatedAtAsync(DateTime createdAt, int page, int pageSize, int uid)
+        public async Task<List<BookHistoric>> GetByCreatedAtAsync(DateTime createdAt, int page, int pageSize, int uid)
         {
             return await bookshelfDbContext.BookHistoric.Where(x => x.UserId == uid && x.CreatedAt > createdAt)
                                 .Include(x => x.BookHistoricItems)
@@ -29,7 +29,7 @@ namespace BookshelfDAL
                                 .OrderBy(x => x.CreatedAt).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
         }
 
-        public async Task<List<BookHistoric>> ExecuteQueryByBookId(int Bookid, int uid)
+        public async Task<List<BookHistoric>> GetByBookId(int Bookid, int uid)
         {
             return await bookshelfDbContext.BookHistoric.Where(x => x.UserId == uid && x.BookId == Bookid)
                                 .Include(x => x.BookHistoricItems)

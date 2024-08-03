@@ -228,7 +228,7 @@ namespace BookshelfBLL.Tests
         }
 
         [TestMethod()]
-        public void GetByUpdatedAtTest()
+        public async void GetByUpdatedAtTest()
         {
             Mock<DbSet<Book>> mockSetBook = new();
 
@@ -287,7 +287,7 @@ namespace BookshelfBLL.Tests
 
             IQueryable<Book> data = list.AsQueryable();
 
-            IQueryable<Book> dataResult = listResult.AsQueryable();
+            List<Book> dataResult = listResult;
 
             mockSetBook.As<IQueryable<Book>>().Setup(m => m.Provider).Returns(data.Provider);
             mockSetBook.As<IQueryable<Book>>().Setup(m => m.Expression).Returns(data.Expression);
@@ -304,11 +304,11 @@ namespace BookshelfBLL.Tests
 
             DateTime updatedAt = DateTime.Now.AddDays(-1);
 
-            mockBookDAL.Setup(x => x.GetBooksAfterUpdatedAt(updatedAt, 1)).Returns(dataResult);
+            mockBookDAL.Setup(x => x.GetBooksAfterUpdatedAtAsync(updatedAt, 1, 50, 1)).ReturnsAsync(dataResult);
 
             IBookService bookBLL = new BookService(bookHistoricBLL, mockBookDAL.Object);
 
-            BaseModels.BaseResponse response = bookBLL.GetByUpdatedAt(updatedAt, 1);
+            BaseModels.BaseResponse response = await bookBLL.GetByUpdatedAtAsync(updatedAt, 1, 1);
 
             List<ResBook>? resBook = [];
 
