@@ -12,13 +12,13 @@ namespace BookshelfBLL.Tests
         [TestMethod()]
         public void BuildAndSaveBookUpdateHistoricTest()
         {
-            Mock<IBookHistoricDAL> mockBookHistoricDAL = new();
+            Mock<IBookHistoricRepo> mockBookHistoricDAL = new();
 
             mockBookHistoricDAL.Setup(x => x.ExecuteAddBookHistoricAsync(It.IsAny<BookHistoric>())).ReturnsAsync(1);
 
             mockBookHistoricDAL.Setup(x => x.ExecuteAddRangeBookHistoricItemListAsync(It.IsAny<List<BookHistoricItem>>())).ReturnsAsync(1);
 
-            BookHistoricBLL bookHistoricBLL = new(mockBookHistoricDAL.Object);
+            BookHistoricService bookHistoricBLL = new(mockBookHistoricDAL.Object);
 
             Book oldBook = new()
             {
@@ -51,7 +51,7 @@ namespace BookshelfBLL.Tests
         }
 
         [TestMethod()]
-        public void GetByCreatedAtTest()
+        public async Task GetByCreatedAtTest()
         {
             Mock<BookshelfDbContextDAL.BookshelfDbContext> mockContext = new();
 
@@ -95,15 +95,15 @@ namespace BookshelfBLL.Tests
                 },
             ];
 
-            Mock<IBookHistoricDAL> mockBookHistoricDAL = new();
+            Mock<IBookHistoricRepo> mockBookHistoricDAL = new();
 
             DateTime dataBusca = DateTime.Now.AddDays(-1).AddHours(-2);
 
-            mockBookHistoricDAL.Setup(x => x.ExecuteQueryByCreatedAt(dataBusca, 1)).Returns(dataBH);
+            mockBookHistoricDAL.Setup(x => x.GetByCreatedAtAsync(dataBusca, 1, 50, 1)).ReturnsAsync(dataBH);
 
-            BookHistoricBLL bookHistoricBLL = new(mockBookHistoricDAL.Object);
+            BookHistoricService bookHistoricBLL = new(mockBookHistoricDAL.Object);
 
-            BaseModels.BaseResponse response = bookHistoricBLL.GetByBookIdOrCreatedAt(null, dataBusca, 1);
+            BaseModels.BaseResponse response = await bookHistoricBLL.GetByCreatedAtAsync(dataBusca, 1, 1);
 
             if (response != null && response.Content != null)
             {
@@ -118,9 +118,9 @@ namespace BookshelfBLL.Tests
         }
 
         [TestMethod()]
-        public void GetByBookIdOrCreatedAtTest()
+        public async Task GetByBookIdOrCreatedAtTest()
         {
-            Mock<IBookHistoricDAL> mockBookHistoricDAL = new();
+            Mock<IBookHistoricRepo> mockBookHistoricDAL = new();
 
             List<BookshelfModels.BookHistoric> dataBH = [
                 new BookHistoric()
@@ -162,11 +162,11 @@ namespace BookshelfBLL.Tests
                 },
             ];
 
-            mockBookHistoricDAL.Setup(x => x.ExecuteQueryByBookId(210, 1)).Returns(dataBH);
+            mockBookHistoricDAL.Setup(x => x.GetByBookId(210, 1)).ReturnsAsync(dataBH);
 
-            IBookHistoricBLL bookHistoricBLL = new BookHistoricBLL(mockBookHistoricDAL.Object);
+            IBookHistoricService bookHistoricBLL = new BookHistoricService(mockBookHistoricDAL.Object);
 
-            BaseModels.BaseResponse response = bookHistoricBLL.GetByBookIdOrCreatedAt(210, null, 1);
+            BaseModels.BaseResponse response = await bookHistoricBLL.GetByBookIdAsync(210, 1);
 
             if (response != null && response.Content != null)
             {

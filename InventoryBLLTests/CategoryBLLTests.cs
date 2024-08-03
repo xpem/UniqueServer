@@ -1,5 +1,6 @@
 ﻿using BaseModels;
 using InventoryDAL;
+using InventoryDAL.Interfaces;
 using InventoryDbContextDAL;
 using InventoryModels;
 using InventoryModels.Req;
@@ -13,15 +14,15 @@ namespace InventoryBLL.Tests
     [TestClass()]
     public class CategoryBLLTests
     {
-        private static Mock<InventoryDbContext> BuildMockInventoryContext()
+        [TestMethod()]
+        public void GetTest()
         {
-            Mock<DbSet<Category>> mockSetCategory = new();
-
             List<Category> categories = [
                 new Category()
                 {
                     Id = 1,
                     Color = "#bfc9ca",
+                    UserId = 1,
                     CreatedAt = DateTime.Now,
                     Name = "Casa",
                     UpdatedAt = DateTime.Now,
@@ -60,6 +61,7 @@ namespace InventoryBLL.Tests
                 new Category()
                 {
                     Id = 2,
+                    UserId = 1,
                     Color = "#f5cba7",
                     CreatedAt = DateTime.Now,
                     Name = "Vestimenta",
@@ -138,43 +140,22 @@ namespace InventoryBLL.Tests
                         },
                     ]
                 }
-            ];
+                ];
 
-            IQueryable<Category> data = categories.AsQueryable();
+            Mock<ICategoryDAL> categoryDAL = new();
+            Mock<ISubCategoryDAL> subCategoryDAL = new();
 
-            mockSetCategory.As<IQueryable<Category>>().Setup(m => m.Provider).Returns(data.Provider);
-            mockSetCategory.As<IQueryable<Category>>().Setup(m => m.Expression).Returns(data.Expression);
-            mockSetCategory.As<IQueryable<Category>>().Setup(m => m.ElementType).Returns(data.ElementType);
-            mockSetCategory.As<IQueryable<Category>>().Setup(m => m.GetEnumerator()).Returns(() => data.GetEnumerator());
+            CategoryBLL categoryBLL = new(categoryDAL.Object, subCategoryDAL.Object);
 
-            Mock<InventoryDbContext> mockContext = new();
-            mockContext.Setup(m => m.Category).Returns(mockSetCategory.Object);
-            mockContext.Setup(m => m.SaveChanges()).Returns(1);
-            return mockContext;
-        }
-
-        public static CategoryBLL BuildCategoryBLL()
-        {
-            Mock<InventoryDbContext> mockContext = BuildMockInventoryContext();
-            Mock<InventoryDbContext> mockSubCategoryContext = SubCategoryBLLTests.BuildMockInventoryContext();
-
-            CategoryDAL categoryDAL = new(mockContext.Object);
-            SubCategoryDAL subCategoryDAL = new(mockSubCategoryContext.Object);
-            return new(categoryDAL, subCategoryDAL);
-        }
-
-        [TestMethod()]
-        public void GetTest()
-        {
-            CategoryBLL categoryBLL = BuildCategoryBLL();
+            categoryDAL.Setup(x => x.Get(1)).Returns(categories);
 
             BaseResponse bLLResponse = categoryBLL.Get(1);
 
             if (bLLResponse?.Content is not null)
             {
-                List<ResCategory>? categories = bLLResponse.Content as List<ResCategory>;
+                List<ResCategory>? resCategories = bLLResponse.Content as List<ResCategory>;
 
-                Assert.IsTrue(categories?.Count == 3);
+                Assert.IsTrue(resCategories?.Count == 3);
                 return;
             }
 
@@ -184,7 +165,57 @@ namespace InventoryBLL.Tests
         [TestMethod()]
         public void UpdateCategoryTest()
         {
-            CategoryBLL categoryBLL = BuildCategoryBLL();
+            Mock<ICategoryDAL> categoryDAL = new();
+            Mock<ISubCategoryDAL> subCategoryDAL = new();
+
+            CategoryBLL categoryBLL = new(categoryDAL.Object, subCategoryDAL.Object);
+
+            var category = new Category()
+            {
+                Id = 3,
+                UserId = 1,
+                Color = "#f5cba7",
+                CreatedAt = DateTime.Now,
+                Name = "Teste",
+                UpdatedAt = DateTime.Now,
+                SystemDefault = false,
+                SubCategories = [
+                       new SubCategory()
+                        {
+                            Id = 4,
+                            UserId = 1,
+                            CategoryId = 2,
+                            CreatedAt = DateTime.Now,
+                            Name = "Teste de título 6",
+                            SystemDefault = false,
+                            IconName = "Chair",
+                        },
+                        new SubCategory()
+                        {
+                            Id = 5,
+                            UserId = 1,
+                            CategoryId = 2,
+                            CreatedAt = DateTime.Now,
+                            Name = "Teste de título 7",
+                            SystemDefault = false,
+                            IconName = "Table",
+                        },
+                        new SubCategory()
+                        {
+                            Id = 6,
+                            UserId = 1,
+                            CategoryId = 2,
+                            CreatedAt = DateTime.Now,
+                            Name = "Teste de título 8",
+                            SystemDefault = false,
+                            IconName = "Plate",
+                        },
+                    ]
+            };
+
+            categoryDAL.Setup(x => x.GetById(1, 3)).Returns(category);
+
+            categoryDAL.Setup(x => x.Update(It.IsAny<Category>())).Returns(1);
 
             ReqCategory reqCategory = new() { Name = "Teste de título alterado" };
 
@@ -207,13 +238,99 @@ namespace InventoryBLL.Tests
         [TestMethod()]
         public void Try_UpdateCategory_With_Same_Name_Test()
         {
-            CategoryBLL categoryBLL = BuildCategoryBLL();
-
             ReqCategory reqCategory = new() { Name = "Vestimenta" };
 
-            //SubCategory? nullSubCategory = null;
-            // mockSubCategoryDAL.Setup(x => x.UpdateSubCategory(It.IsAny<SubCategory>())).Returns(1);
-            // mockSubCategoryDAL.Setup(x => x.GetByCategoryIdAndName(1, reqSubCategory.CategoryId, reqSubCategory.Name)).Returns(nullSubCategory);
+            Mock<ICategoryDAL> categoryDAL = new();
+            Mock<ISubCategoryDAL> subCategoryDAL = new();
+
+            var category = new Category()
+            {
+                Id = 3,
+                UserId = 1,
+                Color = "#f5cba7",
+                CreatedAt = DateTime.Now,
+                Name = "Teste",
+                UpdatedAt = DateTime.Now,
+                SystemDefault = false,
+                SubCategories = [
+                       new SubCategory()
+                        {
+                            Id = 4,
+                            UserId = 1,
+                            CategoryId = 2,
+                            CreatedAt = DateTime.Now,
+                            Name = "Teste de título 6",
+                            SystemDefault = false,
+                            IconName = "Chair",
+                        },
+                        new SubCategory()
+                        {
+                            Id = 5,
+                            UserId = 1,
+                            CategoryId = 2,
+                            CreatedAt = DateTime.Now,
+                            Name = "Teste de título 7",
+                            SystemDefault = false,
+                            IconName = "Table",
+                        },
+                        new SubCategory()
+                        {
+                            Id = 6,
+                            UserId = 1,
+                            CategoryId = 2,
+                            CreatedAt = DateTime.Now,
+                            Name = "Teste de título 8",
+                            SystemDefault = false,
+                            IconName = "Plate",
+                        },
+                    ]
+            };
+
+            var categoryByName = new Category()
+            {
+                Id = 2,
+                UserId = 1,
+                Color = "#f5cba7",
+                CreatedAt = DateTime.Now,
+                Name = "Vestimenta",
+                UpdatedAt = DateTime.Now,
+                SystemDefault = true,
+                SubCategories = [
+                      new SubCategory()
+                        {
+                            Id = 4,
+                            CategoryId = 2,
+                            CreatedAt = DateTime.Now,
+                            Name = "Teste de título 3",
+                            SystemDefault = true,
+                            IconName = "Chair",
+                        },
+                        new SubCategory()
+                        {
+                            Id = 5,
+                            CategoryId = 2,
+                            CreatedAt = DateTime.Now,
+                            Name = "Teste de título 4",
+                            SystemDefault = true,
+                            IconName = "Table",
+                        },
+                        new SubCategory()
+                        {
+                            Id = 6,
+                            CategoryId = 2,
+                            CreatedAt = DateTime.Now,
+                            Name = "Teste de título 5",
+                            SystemDefault = false,
+                            IconName = "Plate",
+                            UserId = 2,
+                        },
+                    ]
+            };
+
+            categoryDAL.Setup(x => x.GetById(1, 3)).Returns(category);
+            categoryDAL.Setup(x => x.GetByName(1, "Vestimenta")).Returns(categoryByName);
+
+            CategoryBLL categoryBLL = new(categoryDAL.Object, subCategoryDAL.Object);
 
             BaseResponse bLLResponse = categoryBLL.UpdateCategory(reqCategory, 1, 3);
 

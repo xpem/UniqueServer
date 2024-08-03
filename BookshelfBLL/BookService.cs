@@ -6,7 +6,7 @@ using BookshelfModels.Response;
 
 namespace BookshelfBLL
 {
-    public class BookService(IBookHistoricBLL bookHistoricBLL, IBookRepo bookDAL) : IBookService
+    public class BookService(IBookHistoricService bookHistoricBLL, IBookRepo bookDAL) : IBookService
     {
         readonly int pageSize = 50;
 
@@ -183,44 +183,6 @@ namespace BookshelfBLL
             }
 
             return new BaseResponse(true);
-        }
-
-        public BaseResponse GetByUpdatedAt(DateTime updatedAt, int uid)
-        {
-            //string? validateError = req.Validate();
-
-            //if (!string.IsNullOrEmpty(validateError))
-            //    return new BLLResponse(null, validateError } };
-
-            IQueryable<Book> books = bookDAL.GetBooksAfterUpdatedAt(updatedAt, uid);
-
-            List<ResBook> resBooks = [];
-
-            foreach (Book? book in books)
-            {
-                resBooks.Add(new ResBook()
-                {
-                    Id = book.Id,
-                    Cover = book.Cover,
-                    Title = book.Title,
-                    Subtitle = book.Subtitle,
-                    Authors = book.Authors,
-                    Volume = book.Volume,
-                    Pages = book.Pages,
-                    Year = book.Year,
-                    Status = book.Status,
-                    Score = book.Score,
-                    Comment = book.Comment,
-                    Genre = book.Genre,
-                    Isbn = book.Isbn,
-                    GoogleId = book.GoogleId,
-                    Inactive = book.Inactive,
-                    CreatedAt = book.CreatedAt,
-                    UpdatedAt = book.UpdatedAt
-                });
-            }
-
-            return new BaseResponse(resBooks);
         }
 
         public async Task<BaseResponse> GetByUpdatedAtAsync(DateTime updatedAt, int page, int uid)

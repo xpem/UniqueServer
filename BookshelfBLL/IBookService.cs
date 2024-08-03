@@ -9,8 +9,6 @@ namespace BookshelfBLL
 
         Task<BaseResponse> UpdateAsync(ReqBook reqBook, int bookId, int uid);
 
-        BaseResponse GetByUpdatedAt(DateTime updatedAt, int uid);
-
         Task<BaseResponse> InactivateAsync(int bookId, int uid);
 
         Task<BaseResponse> GetByUpdatedAtAsync(DateTime updatedAt, int page, int uid);

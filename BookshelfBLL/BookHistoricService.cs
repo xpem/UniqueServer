@@ -2,12 +2,16 @@
 using BookshelfDAL;
 using BookshelfModels;
 using BookshelfModels.Response;
+using System.Collections.Generic;
+using System.Net;
 
 namespace BookshelfBLL
 {
 
-    public class BookHistoricBLL(IBookHistoricDAL bookHistoricDAL) : IBookHistoricBLL
+    public class BookHistoricService(IBookHistoricRepo bookHistoricDAL) : IBookHistoricService
     {
+        readonly int pageSize = 50;
+
         public async Task<BookHistoric> BuildAndCreateBookUpdateHistoricAsync(Book oldBook, Book book)
         {
             List<BookHistoricItem> bookHistoricItemList = [];
@@ -129,21 +133,35 @@ namespace BookshelfBLL
             return bookHistoric;
         }
 
-        /// <summary>
-        /// todo, otimizar isto
-        /// </summary>
-        public BaseResponse GetByBookIdOrCreatedAt(int? BookId, DateTime? createdAt, int uid)
+        public async Task<BaseResponse> GetByBookIdAsync(int? bookId, int uid)
         {
             List<BookHistoric> bookHistorics;
 
-            if (BookId is not null)
-                bookHistorics = bookHistoricDAL.ExecuteQueryByBookId(BookId.Value, uid);
-            else
-            {
-                if (createdAt.HasValue)
-                    bookHistorics = bookHistoricDAL.ExecuteQueryByCreatedAt(createdAt.Value, uid);
-                else throw new NotImplementedException("Get sem parametro válido de busca");
-            }
+            if (bookId is not null)
+                bookHistorics = await bookHistoricDAL.GetByBookId(bookId.Value, uid);
+            else return new BaseResponse("sem parametro válido de busca");
+
+            var resBookHistorics = BuildBookHistoricList(bookHistorics);
+
+            return new BaseResponse(resBookHistorics);
+        }
+
+
+        public async Task<BaseResponse> GetByCreatedAtAsync(DateTime? createdAt, int page, int uid)
+        {
+            List<BookHistoric> bookHistorics;
+
+            if (createdAt.HasValue)
+                bookHistorics = await bookHistoricDAL.GetByCreatedAtAsync(createdAt.Value, page, pageSize, uid);
+            else return new BaseResponse("sem parametro válido de busca");
+
+            var resBookHistorics = BuildBookHistoricList(bookHistorics);
+
+            return new BaseResponse(resBookHistorics);
+        }
+
+        private static List<ResBookHistoric> BuildBookHistoricList(List<BookHistoric> bookHistorics)
+        {
             List<ResBookHistoric> resBookHistorics = [];
 
             foreach (BookHistoric? _bookHistoric in bookHistorics)
@@ -175,7 +193,7 @@ namespace BookshelfBLL
                 });
             }
 
-            return new BaseResponse(resBookHistorics);
+            return resBookHistorics;
         }
 
         public Task<int> AddBookHistoricAsync(BookHistoric bookHistoric) => bookHistoricDAL.ExecuteAddBookHistoricAsync(bookHistoric);

@@ -8,7 +8,7 @@ namespace UniqueServer.Controllers.Bookshelf
     [Route("[Controller]")]
     [ApiController]
     [Authorize]
-    public class BookshelfController(IBookService bookBLL, IBookHistoricBLL bookHistoricBLL) : BaseController
+    public class BookshelfController(IBookService bookBLL, IBookHistoricService bookHistoricBLL) : BaseController
     {
         [Route("book")]
         [HttpPost]
@@ -17,15 +17,6 @@ namespace UniqueServer.Controllers.Bookshelf
         [Route("book/{id}")]
         [HttpPut]
         public async Task<IActionResult> UpdateBook(ReqBook book, int id) => BuildResponse(await bookBLL.UpdateAsync(book, id, Uid));
-
-
-        [Route("book/byupdatedat/{updatedAt}")]
-        [HttpGet]
-        public IActionResult GetBookByUpdatedAt(string updatedAt)
-        {
-            //format 2023-06-10T21:53:28.331Z
-            return BuildResponse(bookBLL.GetByUpdatedAt(DateTime.Parse(updatedAt), Uid));
-        }
 
         [Route("book/byupdatedat/{updatedAt}/{page}")]
         [HttpGet]
@@ -39,17 +30,17 @@ namespace UniqueServer.Controllers.Bookshelf
         [HttpDelete]
         public async Task<IActionResult> InactivateBook(int id) => BuildResponse(await bookBLL.InactivateAsync(id, Uid));
 
-        [Route("book/historic/bycreatedat/{createdAt}")]
+        [Route("book/historic/bycreatedat/{createdAt}/{page}")]
         [HttpGet]
-        public IActionResult GetBookHistoricByUpdatedAt(string createdAt)
+        public async Task<IActionResult> GetBookHistoricByUpdatedAt(string createdAt, int page)
         {
             //format 2023-06-10T21:53:28.331Z
-            return BuildResponse(bookHistoricBLL.GetByBookIdOrCreatedAt(null, DateTime.Parse(createdAt), Uid));
+            return BuildResponse(await bookHistoricBLL.GetByCreatedAtAsync(DateTime.Parse(createdAt), page, Uid));
         }
 
         [Route("book/historic/bybookid/{bookId}")]
         [HttpGet]
-        public IActionResult GetBookHistoricByUpdatedAt(int bookId) => BuildResponse(bookHistoricBLL.GetByBookIdOrCreatedAt(bookId, null, Uid));
+        public async Task<IActionResult> GetBookHistoricByUpdatedAt(int bookId) => BuildResponse(await bookHistoricBLL.GetByBookIdAsync(bookId, Uid));
 
     }
 }

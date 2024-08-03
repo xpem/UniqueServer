@@ -2,14 +2,14 @@
 
 namespace BookshelfDAL
 {
-    public interface IBookHistoricDAL
+    public interface IBookHistoricRepo
     {
         Task<int> ExecuteAddBookHistoricAsync(BookHistoric bookHistoric);
 
         Task<int> ExecuteAddRangeBookHistoricItemListAsync(List<BookHistoricItem> bookHistoricItemList);
 
-        List<BookHistoric> ExecuteQueryByCreatedAt(DateTime createdAt, int uid);
+        Task<List<BookHistoric>> GetByCreatedAtAsync(DateTime createdAt, int page, int pageSize, int uid);
 
-        List<BookHistoric> ExecuteQueryByBookId(int Bookid, int uid);
+        Task<List<BookHistoric>> GetByBookId(int Bookid, int uid);
     }
 }

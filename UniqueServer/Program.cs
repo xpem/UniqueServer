@@ -26,7 +26,7 @@ builder.Services.AddSwaggerGen(
     {
         op.SwaggerDoc("v1", new OpenApiInfo
         {
-            Version = $"1.4",
+            Version = $"1.5",
             Title = "Unique Server",
             Description = "Routes of apis for Bookshelf, Users Management and Inventory projects",
         });
@@ -43,7 +43,7 @@ builder.Services.AddDbContexts(builder.Configuration);
 
 //bookshelf
 builder.Services.AddScoped<IBookRepo, BookRepo>();
-builder.Services.AddScoped<IBookHistoricDAL, BookHistoricDAL>();
+builder.Services.AddScoped<IBookHistoricRepo, BookHistoricRepo>();
 
 //usermanagement
 builder.Services.AddScoped<IUserDAL, UserManagementDAL.UserDAL>();
@@ -67,7 +67,7 @@ builder.Services.AddServices(builder.Configuration);
 
 //bookshelf
 builder.Services.AddScoped<IBookService, BookService>();
-builder.Services.AddScoped<IBookHistoricBLL, BookHistoricBLL>();
+builder.Services.AddScoped<IBookHistoricService, BookHistoricService>();
 
 //inventory
 builder.Services.AddScoped<ICategoryBLL, CategoryBLL>();
