@@ -26,7 +26,7 @@ builder.Services.AddSwaggerGen(
     {
         op.SwaggerDoc("v1", new OpenApiInfo
         {
-            Version = $"1.5",
+            Version = $"1.1.2",
             Title = "Unique Server",
             Description = "Routes of apis for Bookshelf, Users Management and Inventory projects",
         });
@@ -50,7 +50,7 @@ builder.Services.AddScoped<IUserDAL, UserManagementDAL.UserDAL>();
 builder.Services.AddScoped<IUserHistoricDAL, UserHistoricDAL>();
 
 //inventory
-builder.Services.AddScoped<ISubCategoryDAL, SubCategoryDAL>();
+builder.Services.AddScoped<ISubCategoryRepo, SubCategoryRepo>();
 builder.Services.AddScoped<ICategoryDAL, CategoryDAL>();
 builder.Services.AddScoped<IAcquisitionTypeDAL, AcquisitionTypeDAL>();
 builder.Services.AddScoped<IItemSituationDAL, ItemSituationDAL>();
@@ -61,7 +61,7 @@ builder.Services.AddScoped<IItemDAL, ItemDAL>();
 #region DI BLL
 
 //usermanagement
-builder.Services.AddScoped<IUserBLL, UserBLL.UserBLL>();
+builder.Services.AddScoped<IUserBLL, UserBLL.UserService>();
 
 builder.Services.AddServices(builder.Configuration);
 
@@ -71,7 +71,7 @@ builder.Services.AddScoped<IBookHistoricService, BookHistoricService>();
 
 //inventory
 builder.Services.AddScoped<ICategoryBLL, CategoryBLL>();
-builder.Services.AddScoped<ISubCategoryBLL, SubCategoryBLL>();
+builder.Services.AddScoped<ISubCategoryBLL, SubCategoryService>();
 builder.Services.AddScoped<IAcquisitionTypeBLL, AcquisitionTypeBLL>();
 builder.Services.AddScoped<IItemSituationBLL, ItemSituationBLL>();
 builder.Services.AddScoped<IItemBLL, ItemBLL>();

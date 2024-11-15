@@ -18,7 +18,8 @@ namespace InventoryBLLTests.DbContextMocks
                 SystemDefault = true,
                 UpdatedAt = DateTime.Now,
                 UserId = 1,
-                Type = SituationType.In
+                Type = SituationType.In,
+                Version = 1,
 
             };
 
@@ -31,7 +32,8 @@ namespace InventoryBLLTests.DbContextMocks
                 SystemDefault = true,
                 UpdatedAt = DateTime.Now,
                 UserId = 1,
-                Type = SituationType.Out
+                Type = SituationType.Out,
+                Version = 1,
             };
 
             AcquisitionType acquisitionType = new()
@@ -41,7 +43,8 @@ namespace InventoryBLLTests.DbContextMocks
                 Sequence = 1,
                 Id = 1,
                 SystemDefault = true,
-                UpdatedAt = DateTime.Now
+                UpdatedAt = DateTime.Now,
+                Version = 1,
             };
             AcquisitionType acquisitionType2 = new()
             {
@@ -50,7 +53,8 @@ namespace InventoryBLLTests.DbContextMocks
                 Sequence = 2,
                 Id = 2,
                 SystemDefault = true,
-                UpdatedAt = DateTime.Now
+                UpdatedAt = DateTime.Now,
+                Version = 1,
             };
 
             SubCategory subCategory = new()
@@ -61,6 +65,7 @@ namespace InventoryBLLTests.DbContextMocks
                 Name = "Teste de título 1",
                 SystemDefault = true,
                 IconName = "Dog",
+                Version = 1,
             };
 
             Category category = new()
@@ -70,7 +75,8 @@ namespace InventoryBLLTests.DbContextMocks
                 CreatedAt = DateTime.Now,
                 Name = "Casa",
                 UpdatedAt = DateTime.Now,
-                SystemDefault = true
+                SystemDefault = true,
+                Version = 1,
             };
 
             Item item = new()
@@ -122,7 +128,7 @@ namespace InventoryBLLTests.DbContextMocks
             Mock<IItemDAL> mockItemDAL = new();
             Mock<IItemSituationDAL> mockItemSituationDAL = new();
             Mock<ICategoryDAL> mockCategoryDAL = new();
-            Mock<ISubCategoryDAL> mockSubCategoryDAL = new();
+            Mock<ISubCategoryRepo> mockSubCategoryDAL = new();
             Mock<IAcquisitionTypeDAL> mockAcquisitionTypeDAL = new();
 
             mockSubCategoryDAL.Setup(x => x.GetById(1, 1)).Returns(subCategory);

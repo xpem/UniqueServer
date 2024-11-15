@@ -9,7 +9,7 @@ using InventoryModels.Res.Item;
 namespace InventoryBLL
 {
     public class ItemBLL(IItemSituationDAL itemSituationDAL, ICategoryDAL categoryDAL,
-        ISubCategoryDAL subCategoryDAL, IAcquisitionTypeDAL acquisitionTypeDAL,
+        ISubCategoryRepo subCategoryDAL, IAcquisitionTypeDAL acquisitionTypeDAL,
         IItemDAL itemDAL) : IItemBLL
     {
         readonly int pageSize = 50;

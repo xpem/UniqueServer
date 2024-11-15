@@ -190,11 +190,6 @@ namespace BookshelfBLL
             if (page <= 0)
                 return new BaseResponse(null, "Invalid page");
 
-            //string? validateError = req.Validate();
-
-            //if (!string.IsNullOrEmpty(validateError))
-            //    return new BLLResponse(null, validateError } };
-
             List<Book> books = await bookDAL.GetBooksAfterUpdatedAtAsync(updatedAt, page, pageSize, uid);
 
             List<ResBook> resBooks = [];

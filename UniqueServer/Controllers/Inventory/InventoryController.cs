@@ -20,15 +20,15 @@ namespace UniqueServer.Controllers.Inventory
 
         [Route("subcategory")]
         [HttpPost]
-        public IActionResult CreateSubCategory(ReqSubCategory reqSubCategory) => BuildResponse(subCategoryBLL.CreateSubCategory(reqSubCategory, Uid));
+        public async Task<IActionResult> CreateSubCategoryAsync(ReqSubCategory reqSubCategory) => BuildResponse(await subCategoryBLL.CreateSubCategoryAsync(reqSubCategory, Uid));
 
         [Route("subcategory/{id}")]
         [HttpPut]
-        public IActionResult UpdateSubCategory(ReqSubCategory reqSubCategory, int id) => BuildResponse(subCategoryBLL.UpdateSubCategory(reqSubCategory, Uid, id));
+        public async Task<IActionResult> UpdateSubCategoryAsync(ReqSubCategory reqSubCategory, int id) => BuildResponse(await subCategoryBLL.UpdateSubCategoryAsync(reqSubCategory, Uid, id));
 
         [Route("subcategory/{id}")]
         [HttpDelete]
-        public IActionResult DeleteSubCategory(int id) => BuildResponse(subCategoryBLL.DeleteSubCategory(Uid, id));
+        public async Task<IActionResult> DeleteSubCategoryAsync(int id) => BuildResponse(await subCategoryBLL.InactiveSubCategoryAsync(Uid, id));
 
         [Route("subcategory/{id}")]
         [HttpGet]
@@ -37,6 +37,10 @@ namespace UniqueServer.Controllers.Inventory
         [Route("subcategory/category/{categoryId}")]
         [HttpGet]
         public IActionResult GetSubCategoriesByCategoryId(int categoryId) => BuildResponse(subCategoryBLL.GetByCategoryId(Uid, categoryId));
+
+        [Route("subcategory/{version}/{page}")]
+        [HttpGet]
+        public async Task<IActionResult> GetSubCategoriesByVersion(int page, int version) => BuildResponse(await subCategoryBLL.GetByVersionAsync(Uid, page, version));
 
         #endregion
 

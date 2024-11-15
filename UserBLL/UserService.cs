@@ -1,13 +1,14 @@
 ﻿using BaseModels;
 using UserBLL.Functions;
 using UserManagementBLL.Functions;
+using UserManagementModels.Response;
 using UserModels;
 using UserModels.Request.User;
 using UserModels.Response;
 
 namespace UserBLL
 {
-    public class UserBLL(UserManagementDAL.IUserDAL userDAL, UserManagementDAL.IUserHistoricDAL userHistoricDAL,
+    public class UserService(UserManagementDAL.IUserDAL userDAL, UserManagementDAL.IUserHistoricDAL userHistoricDAL,
         ISendRecoverPasswordEmailService sendRecoverPasswordEmail, IEncryptionService encryptionService,
         IJwtTokenService jwtTokenService) : IUserBLL
     {
@@ -87,7 +88,9 @@ namespace UserBLL
 
             await userHistoricDAL.ExecuteAddUserHistoric(userHistoric);
 
-            return new BaseResponse(new { Token = userJwt });
+            ResToken resToken = new() { Token = userJwt };
+
+            return new BaseResponse(resToken);
         }
 
         public async Task<BaseResponse> UpdatePassword(ReqRecoverPassword reqRecoverPassword, int uid)

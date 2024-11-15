@@ -9,10 +9,12 @@ namespace InventoryBLL.Interfaces
 
         BaseResponse GetByCategoryId(int uid, int categoryId);
 
-        BaseResponse CreateSubCategory(ReqSubCategory reqSubCategory, int uid);
+        Task<BaseResponse> CreateSubCategoryAsync(ReqSubCategory reqSubCategory, int uid);
 
-        BaseResponse UpdateSubCategory(ReqSubCategory reqSubCategory, int uid, int id);
+        Task<BaseResponse> UpdateSubCategoryAsync(ReqSubCategory reqSubCategory, int uid, int id);
 
-        BaseResponse DeleteSubCategory(int uid, int subCategoryId);
+        Task<BaseResponse> InactiveSubCategoryAsync(int uid, int subCategoryId);
+
+        Task<BaseResponse> GetByVersionAsync(int uid, int page, int version);
     }
 }
