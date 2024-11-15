@@ -1,4 +1,4 @@
-﻿namespace InventoryModels
+﻿namespace InventoryModels.DTOs
 {
     public class ItemSituation : InventoryBaseModel
     {

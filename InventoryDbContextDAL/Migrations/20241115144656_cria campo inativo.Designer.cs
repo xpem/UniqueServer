@@ -12,20 +12,20 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace InventoryDbContextDAL.Migrations
 {
     [DbContext(typeof(InventoryDbContext))]
-    [Migration("20240314202408_situationtypeandindextoitem")]
-    partial class situationtypeandindextoitem
+    [Migration("20241115144656_cria campo inativo")]
+    partial class criacampoinativo
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.3")
+                .HasAnnotation("ProductVersion", "8.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
-            modelBuilder.Entity("InventoryModels.AcquisitionType", b =>
+            modelBuilder.Entity("InventoryModels.DTOs.AcquisitionType", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -35,6 +35,9 @@ namespace InventoryDbContextDAL.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("Inactive")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -53,12 +56,15 @@ namespace InventoryDbContextDAL.Migrations
                     b.Property<int?>("UserId")
                         .HasColumnType("int");
 
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.ToTable("AcquisitionType");
                 });
 
-            modelBuilder.Entity("InventoryModels.Category", b =>
+            modelBuilder.Entity("InventoryModels.DTOs.Category", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -74,6 +80,9 @@ namespace InventoryDbContextDAL.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<bool>("Inactive")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -88,12 +97,15 @@ namespace InventoryDbContextDAL.Migrations
                     b.Property<int?>("UserId")
                         .HasColumnType("int");
 
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.ToTable("Category");
                 });
 
-            modelBuilder.Entity("InventoryModels.Item", b =>
+            modelBuilder.Entity("InventoryModels.DTOs.Item", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -170,7 +182,7 @@ namespace InventoryDbContextDAL.Migrations
                     b.ToTable("Item");
                 });
 
-            modelBuilder.Entity("InventoryModels.ItemSituation", b =>
+            modelBuilder.Entity("InventoryModels.DTOs.ItemSituation", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -180,6 +192,9 @@ namespace InventoryDbContextDAL.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("Inactive")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -201,12 +216,15 @@ namespace InventoryDbContextDAL.Migrations
                     b.Property<int?>("UserId")
                         .HasColumnType("int");
 
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.ToTable("ItemSituation");
                 });
 
-            modelBuilder.Entity("InventoryModels.SubCategory", b =>
+            modelBuilder.Entity("InventoryModels.DTOs.SubCategory", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -224,6 +242,9 @@ namespace InventoryDbContextDAL.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
+                    b.Property<bool>("Inactive")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -238,6 +259,9 @@ namespace InventoryDbContextDAL.Migrations
                     b.Property<int?>("UserId")
                         .HasColumnType("int");
 
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
@@ -245,27 +269,27 @@ namespace InventoryDbContextDAL.Migrations
                     b.ToTable("SubCategory");
                 });
 
-            modelBuilder.Entity("InventoryModels.Item", b =>
+            modelBuilder.Entity("InventoryModels.DTOs.Item", b =>
                 {
-                    b.HasOne("InventoryModels.AcquisitionType", "AcquisitionType")
+                    b.HasOne("InventoryModels.DTOs.AcquisitionType", "AcquisitionType")
                         .WithMany()
                         .HasForeignKey("AcquisitionTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("InventoryModels.Category", "Category")
+                    b.HasOne("InventoryModels.DTOs.Category", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("InventoryModels.ItemSituation", "ItemSituation")
+                    b.HasOne("InventoryModels.DTOs.ItemSituation", "ItemSituation")
                         .WithMany()
                         .HasForeignKey("ItemSituationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("InventoryModels.SubCategory", "SubCategory")
+                    b.HasOne("InventoryModels.DTOs.SubCategory", "SubCategory")
                         .WithMany()
                         .HasForeignKey("SubCategoryId");
 
@@ -278,9 +302,9 @@ namespace InventoryDbContextDAL.Migrations
                     b.Navigation("SubCategory");
                 });
 
-            modelBuilder.Entity("InventoryModels.SubCategory", b =>
+            modelBuilder.Entity("InventoryModels.DTOs.SubCategory", b =>
                 {
-                    b.HasOne("InventoryModels.Category", "Category")
+                    b.HasOne("InventoryModels.DTOs.Category", "Category")
                         .WithMany("SubCategories")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -289,7 +313,7 @@ namespace InventoryDbContextDAL.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("InventoryModels.Category", b =>
+            modelBuilder.Entity("InventoryModels.DTOs.Category", b =>
                 {
                     b.Navigation("SubCategories");
                 });

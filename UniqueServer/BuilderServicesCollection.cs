@@ -1,5 +1,5 @@
 ﻿using BookshelfDbContextDAL;
-using InventoryDbContextDAL;
+using InventoryRepos;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.RateLimiting;

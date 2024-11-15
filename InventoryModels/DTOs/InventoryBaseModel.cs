@@ -1,7 +1,7 @@
 ﻿using BaseModels;
 using System.ComponentModel.DataAnnotations;
 
-namespace InventoryModels
+namespace InventoryModels.DTOs
 {
     public class InventoryBaseModel : BaseModel
     {
@@ -16,6 +16,6 @@ namespace InventoryModels
 
         public required int Version { get; set; }
 
-        public bool Inactive { get;set; } = false;
+        public bool Inactive { get; set; } = false;
     }
 }

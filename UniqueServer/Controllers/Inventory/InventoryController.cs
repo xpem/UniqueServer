@@ -12,7 +12,7 @@ namespace UniqueServer.Controllers.Inventory
     [ApiController]
     [EnableRateLimiting("fixed")]
     [Authorize]
-    public class InventoryController(ISubCategoryBLL subCategoryBLL, ICategoryBLL categoryBLL,
+    public class InventoryController(ISubCategoryService subCategoryBLL, ICategoryBLL categoryBLL,
         IItemSituationBLL itemSituationBLL, IAcquisitionTypeBLL acquisitionTypeBLL, IItemBLL itemBLL,
         IHostEnvironment hostingEnvironment) : BaseController
     {

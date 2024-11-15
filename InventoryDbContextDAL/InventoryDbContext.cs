@@ -1,10 +1,10 @@
 ﻿using BaseModels;
-using InventoryModels;
+using InventoryModels.DTOs;
 using Microsoft.EntityFrameworkCore;
 
-namespace InventoryDbContextDAL
+namespace InventoryRepos
 {
-    public class InventoryDbContext : DbContext
+    public class InventoryDbContext(DbContextOptions<InventoryDbContext> options) : DbContext(options)
     {
         //public InventoryDbContext(DbContextOptions<InventoryDbContext> options)
         //   : base(options)
@@ -21,10 +21,6 @@ namespace InventoryDbContextDAL
         public virtual DbSet<AcquisitionType> AcquisitionType => Set<AcquisitionType>();
 
         public virtual DbSet<Item> Item => Set<Item>();
-
-        public InventoryDbContext(DbContextOptions<InventoryDbContext> options) : base(options)
-        {
-        }
 
         //public void ApplyMigrations(InventoryDbContext context)
         //{

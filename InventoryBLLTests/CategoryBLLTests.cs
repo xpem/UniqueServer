@@ -1,6 +1,6 @@
 ﻿using BaseModels;
-using InventoryDAL;
-using InventoryDAL.Interfaces;
+using InventoryRepos;
+using InventoryRepos.Interfaces;
 using InventoryDbContextDAL;
 using InventoryModels;
 using InventoryModels.Req;
@@ -8,6 +8,7 @@ using InventoryModels.Res;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using InventoryModels.DTOs;
 
 namespace InventoryBLL.Tests
 {

@@ -1,12 +1,12 @@
-﻿using InventoryModels;
+﻿using InventoryModels.DTOs;
 
-namespace InventoryDAL.Interfaces
+namespace InventoryRepos.Interfaces
 {
     public interface ISubCategoryRepo
     {
         SubCategory? GetById(int uid, int id);
 
-        Task<List<SubCategory>?> GetByVersionAsync(int uid, int version, int page, int pageSize);
+        Task<List<SubCategory>> GetByVersionAsync(int uid, int version, int page, int pageSize);
 
         List<SubCategory>? GetByCategoryId(int uid, int categoryId);
 

@@ -3,7 +3,7 @@ using InventoryModels.Req;
 
 namespace InventoryBLL.Interfaces
 {
-    public interface ISubCategoryBLL
+    public interface ISubCategoryService
     {
         BaseResponse GetById(int uid, int id);
 

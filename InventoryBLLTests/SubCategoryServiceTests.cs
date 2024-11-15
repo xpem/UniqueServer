@@ -1,8 +1,7 @@
 ﻿using BaseModels;
-using InventoryDAL;
-using InventoryDAL.Interfaces;
+using InventoryRepos;
+using InventoryRepos.Interfaces;
 using InventoryDbContextDAL;
-using InventoryModels;
 using InventoryModels.Req;
 using InventoryModels.Res;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +12,7 @@ using System.Collections;
 using System.Data.Entity.Infrastructure;
 using System.Linq.Expressions;
 using System.Reflection.Metadata;
+using InventoryModels.DTOs;
 
 namespace InventoryBLL.Tests
 {
