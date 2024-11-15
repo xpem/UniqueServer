@@ -1,4 +1,5 @@
-﻿using InventoryModels;
+﻿using InventoryModels.DTOs;
+using InventoryRepos;
 
 namespace InventoryDbContextDAL
 {
@@ -20,7 +21,7 @@ namespace InventoryDbContextDAL
         {
             if (inventoryDbContext.Category.Count() is not 0) return;
 
-            InventoryModels.Category[] categories = [
+            Category[] categories = [
                 new Category() { Name = "Casa", Color = "#bfc9ca", SystemDefault = true, CreatedAt = DateTime.Now,Version=0 },
                 new Category() { Name = "Vestimenta", Color = "#f5cba7", SystemDefault = true, CreatedAt = DateTime.Now ,Version=0 },
                 new Category() { Name = "Carro", Color = "#f5b7b1", SystemDefault = true, CreatedAt = DateTime.Now,Version=0  },
@@ -33,7 +34,7 @@ namespace InventoryDbContextDAL
         {
             if (inventoryDbContext.SubCategory.Count() is not 0) return;
 
-            InventoryModels.SubCategory[] subCategories = [
+            SubCategory[] subCategories = [
                 new SubCategory() { CategoryId = 1, CreatedAt = DateTime.Now, Name = "Móveis", SystemDefault = true, IconName = "Car",Version=0  },
                 new SubCategory() { CategoryId = 1, CreatedAt = DateTime.Now, Name = "Eletrodomésticos", SystemDefault = true, IconName = "Tv",Version=0  },
                 new SubCategory() { CategoryId = 1, CreatedAt = DateTime.Now, Name = "Computadores", SystemDefault = true, IconName = "Computer" ,Version=0 },

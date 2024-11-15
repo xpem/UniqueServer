@@ -3,8 +3,9 @@ using BookshelfDAL;
 using BookshelfDbContextDAL;
 using InventoryBLL;
 using InventoryBLL.Interfaces;
-using InventoryDAL;
-using InventoryDAL.Interfaces;
+using InventoryRepos;
+using InventoryRepos.Interfaces;
+using InventoryRepos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -26,7 +27,7 @@ builder.Services.AddSwaggerGen(
     {
         op.SwaggerDoc("v1", new OpenApiInfo
         {
-            Version = $"1.1.2",
+            Version = $"1.5",
             Title = "Unique Server",
             Description = "Routes of apis for Bookshelf, Users Management and Inventory projects",
         });
@@ -71,7 +72,7 @@ builder.Services.AddScoped<IBookHistoricService, BookHistoricService>();
 
 //inventory
 builder.Services.AddScoped<ICategoryBLL, CategoryBLL>();
-builder.Services.AddScoped<ISubCategoryBLL, SubCategoryService>();
+builder.Services.AddScoped<ISubCategoryService, SubCategoryService>();
 builder.Services.AddScoped<IAcquisitionTypeBLL, AcquisitionTypeBLL>();
 builder.Services.AddScoped<IItemSituationBLL, ItemSituationBLL>();
 builder.Services.AddScoped<IItemBLL, ItemBLL>();

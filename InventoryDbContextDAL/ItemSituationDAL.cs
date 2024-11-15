@@ -1,8 +1,7 @@
-﻿using InventoryDAL.Interfaces;
-using InventoryDbContextDAL;
-using InventoryModels;
+﻿using InventoryRepos.Interfaces;
+using InventoryModels.DTOs;
 
-namespace InventoryDAL
+namespace InventoryRepos
 {
     public class ItemSituationDAL(InventoryDbContext dbContext) : IItemSituationDAL
     {

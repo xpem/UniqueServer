@@ -1,13 +1,13 @@
 ﻿using BaseModels;
 using InventoryBLL.Interfaces;
-using InventoryDAL.Interfaces;
-using InventoryModels;
+using InventoryRepos.Interfaces;
 using InventoryModels.Req;
 using InventoryModels.Res;
+using InventoryModels.DTOs;
 
 namespace InventoryBLL
 {
-    public class SubCategoryService(ISubCategoryRepo subCategoryRepo) : ISubCategoryBLL
+    public class SubCategoryService(ISubCategoryRepo subCategoryRepo) : ISubCategoryService
     {
         readonly int pageSize = 50;
 
@@ -186,9 +186,9 @@ namespace InventoryBLL
             if (page <= 0)
                 return new BaseResponse(null, "Invalid page");
 
-            List<SubCategory>? subCategories = await subCategoryRepo.GetByVersionAsync(uid, version, page, pageSize);
+            List<SubCategory> subCategories = await subCategoryRepo.GetByVersionAsync(uid, version, page, pageSize);
 
-            List<ResSubCategory>? resSubCategories = [];
+            List<ResSubCategory> resSubCategories = [];
 
             if (subCategories != null)
                 foreach (SubCategory subCategory in subCategories)

@@ -1,9 +1,8 @@
-﻿using InventoryDAL.Interfaces;
-using InventoryDbContextDAL;
-using InventoryModels;
+﻿using InventoryRepos.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using InventoryModels.DTOs;
 
-namespace InventoryDAL
+namespace InventoryRepos
 {
     public class ItemDAL(InventoryDbContext dbContext) : IItemDAL
     {

@@ -1,4 +1,5 @@
-﻿using InventoryModels.Res.Bases;
+﻿using InventoryModels.DTOs;
+using InventoryModels.Res.Bases;
 
 namespace InventoryModels.Res.Item
 {

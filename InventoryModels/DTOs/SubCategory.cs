@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace InventoryModels
+namespace InventoryModels.DTOs
 {
     public class SubCategory : InventoryBaseModel
     {

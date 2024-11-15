@@ -1,6 +1,6 @@
-﻿using InventoryModels;
+﻿using InventoryModels.DTOs;
 
-namespace InventoryDAL.Interfaces
+namespace InventoryRepos.Interfaces
 {
     public interface IItemDAL
     {
