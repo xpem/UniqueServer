@@ -7,7 +7,7 @@ using InventoryModels.Res;
 
 namespace InventoryBLL
 {
-    public class CategoryBLL(ICategoryDAL categoryDAL, ISubCategoryDAL subCategoryDAL) : ICategoryBLL
+    public class CategoryBLL(ICategoryDAL categoryDAL, ISubCategoryRepo subCategoryDAL) : ICategoryBLL
     {
         public BaseResponse Create(ReqCategory reqCategory, int uid)
         {
@@ -22,7 +22,8 @@ namespace InventoryBLL
                     Color = reqCategory.Color,
                     CreatedAt = DateTime.Now,
                     SystemDefault = false,
-                    UserId = uid
+                    UserId = uid,
+                    Version = 1
                 };
 
                 string? existingItemMsg = ValidateExistingCategory(category);
@@ -173,6 +174,7 @@ namespace InventoryBLL
                     SystemDefault = oldCategory.SystemDefault,
                     UserId = oldCategory.UserId,
                     Id = oldCategory.Id,
+                    Version = 1
                 };
 
                 string? existingItemMsg = ValidateExistingCategory(category, id);

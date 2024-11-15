@@ -9,18 +9,19 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System.Collections;
+using System.Data.Entity.Infrastructure;
+using System.Linq.Expressions;
+using System.Reflection.Metadata;
 
 namespace InventoryBLL.Tests
 {
-    [TestClass()]
-    public class SubCategoryBLLTests
-    {
-        public static Mock<InventoryDbContext> BuildMockInventoryContext()
-        {
-            Mock<DbSet<SubCategory>> mockSetSubCategory = new();
 
-            List<SubCategory> SubCategories = [
-                new SubCategory()
+    [TestClass()]
+    public class SubCategoryServiceTests
+    {
+        private IQueryable<SubCategory> SubCategories = new List<SubCategory>() {
+                 new SubCategory()
                 {
                     Id = 1,
                     CategoryId = 1,
@@ -28,6 +29,7 @@ namespace InventoryBLL.Tests
                     Name = "Teste de título 1",
                     SystemDefault = true,
                     IconName = "Dog",
+                    Version = 1,
                 },
                 new SubCategory()
                 {
@@ -37,6 +39,7 @@ namespace InventoryBLL.Tests
                     Name = "Teste de título 2",
                     SystemDefault = true,
                     IconName = "Cat",
+                      Version = 1,
                 },
                 new SubCategory()
                 {
@@ -47,6 +50,7 @@ namespace InventoryBLL.Tests
                     SystemDefault = false,
                     IconName = "Bird",
                     UserId = 1,
+                      Version = 2,
                 },
                 new SubCategory()
                 {
@@ -56,6 +60,7 @@ namespace InventoryBLL.Tests
                     Name = "Teste de título 3",
                     SystemDefault = true,
                     IconName = "Chair",
+                      Version = 2,
                 },
                 new SubCategory()
                 {
@@ -65,6 +70,7 @@ namespace InventoryBLL.Tests
                     Name = "Teste de título 4",
                     SystemDefault = true,
                     IconName = "Table",
+                      Version = 2,
                 },
                 new SubCategory()
                 {
@@ -75,21 +81,9 @@ namespace InventoryBLL.Tests
                     SystemDefault = false,
                     IconName = "Plate",
                     UserId = 2,
+                      Version = 1,
                 },
-            ];
-
-            IQueryable<SubCategory> data = SubCategories.AsQueryable();
-
-            mockSetSubCategory.As<IQueryable<SubCategory>>().Setup(m => m.Provider).Returns(data.Provider);
-            mockSetSubCategory.As<IQueryable<SubCategory>>().Setup(m => m.Expression).Returns(data.Expression);
-            mockSetSubCategory.As<IQueryable<SubCategory>>().Setup(m => m.ElementType).Returns(data.ElementType);
-            mockSetSubCategory.As<IQueryable<SubCategory>>().Setup(m => m.GetEnumerator()).Returns(() => data.GetEnumerator());
-
-            Mock<InventoryDbContext> mockContext = new();
-            mockContext.Setup(m => m.SubCategory).Returns(mockSetSubCategory.Object);
-            mockContext.Setup(m => m.SaveChanges()).Returns(1);
-            return mockContext;
-        }
+        }.AsQueryable();
 
         [TestMethod()]
         public void GetByIdTest()
@@ -102,15 +96,16 @@ namespace InventoryBLL.Tests
                     CreatedAt = DateTime.Now,
                     Name = "Teste de título 2",
                     SystemDefault = true,
+                    Version = 1,
                     IconName = "Cat",
                 };
 
-            Mock<ISubCategoryDAL> subCategoryDAL = new Mock<ISubCategoryDAL>();
+            Mock<ISubCategoryRepo> subCategoryDAL = new Mock<ISubCategoryRepo>();
             subCategoryDAL.Setup(x => x.GetById(1, 2)).Returns(subCategory);
 
             //Mock<InventoryDbContext> mockContext = BuildMockInventoryContext();
 
-            SubCategoryBLL subCategoryBLL = new(subCategoryDAL.Object);
+            SubCategoryService subCategoryBLL = new(subCategoryDAL.Object);
 
             BaseResponse bLLResponse = subCategoryBLL.GetById(1, 2);
 
@@ -134,11 +129,12 @@ namespace InventoryBLL.Tests
                   Name = "Teste de título 2",
                   SystemDefault = true,
                   IconName = "Cat",
+                  Version = 1,
               };
-            Mock<ISubCategoryDAL> subCategoryDAL = new Mock<ISubCategoryDAL>();
+            Mock<ISubCategoryRepo> subCategoryDAL = new Mock<ISubCategoryRepo>();
             subCategoryDAL.Setup(x => x.GetById(1, 2)).Returns(subCategory);
 
-            SubCategoryBLL subCategoryBLL = new(subCategoryDAL.Object);
+            SubCategoryService subCategoryBLL = new(subCategoryDAL.Object);
 
             BaseResponse bLLResponse = subCategoryBLL.GetById(1, 3);
 
@@ -163,6 +159,7 @@ namespace InventoryBLL.Tests
                     Name = "Teste de título 1",
                     SystemDefault = true,
                     IconName = "Dog",
+                      Version = 1,
                 },
                 new SubCategory()
                 {
@@ -172,6 +169,7 @@ namespace InventoryBLL.Tests
                     Name = "Teste de título 2",
                     SystemDefault = true,
                     IconName = "Cat",
+                      Version = 1,
                 },
                 new SubCategory()
                 {
@@ -182,12 +180,13 @@ namespace InventoryBLL.Tests
                     SystemDefault = false,
                     IconName = "Bird",
                     UserId = 1,
+                      Version = 1,
                 }];
 
-            Mock<ISubCategoryDAL> subCategoryDAL = new Mock<ISubCategoryDAL>();
+            Mock<ISubCategoryRepo> subCategoryDAL = new Mock<ISubCategoryRepo>();
             subCategoryDAL.Setup(x => x.GetByCategoryId(1, 1)).Returns(SubCategories);
 
-            SubCategoryBLL subCategoryBLL = new(subCategoryDAL.Object);
+            SubCategoryService subCategoryBLL = new(subCategoryDAL.Object);
 
             BaseResponse bLLResponse = subCategoryBLL.GetByCategoryId(1, 1);
 
@@ -203,13 +202,13 @@ namespace InventoryBLL.Tests
         }
 
         [TestMethod()]
-        public void CreateSubCategoryTest()
+        public async Task CreateSubCategoryTest()
         {
             //Mock<InventoryDbContext> mockContext = BuildMockInventoryContext();
 
-            Mock<ISubCategoryDAL> mockSubCategoryDAL = new();
+            Mock<ISubCategoryRepo> mockSubCategoryDAL = new();
 
-            SubCategoryBLL subCategoryBLL = new(mockSubCategoryDAL.Object);
+            SubCategoryService subCategoryBLL = new(mockSubCategoryDAL.Object);
 
             ReqSubCategory reqSubCategory = new()
             {
@@ -220,10 +219,10 @@ namespace InventoryBLL.Tests
 
             SubCategory? nullSubCategory = null;
 
-            mockSubCategoryDAL.Setup(x => x.Create(It.IsAny<SubCategory>())).Returns(1);
+            mockSubCategoryDAL.Setup(x => x.Create(It.IsAny<SubCategory>())).ReturnsAsync(1);
             mockSubCategoryDAL.Setup(x => x.GetByCategoryIdAndName(1, reqSubCategory.CategoryId, reqSubCategory.Name)).Returns(nullSubCategory);
 
-            BaseResponse bLLResponse = subCategoryBLL.CreateSubCategory(reqSubCategory, 1);
+            BaseResponse bLLResponse = await subCategoryBLL.CreateSubCategoryAsync(reqSubCategory, 1);
 
             if (bLLResponse?.Content is not null)
             {
@@ -237,9 +236,9 @@ namespace InventoryBLL.Tests
         }
 
         [TestMethod()]
-        public void UpdateSubCategoryTest()
+        public async Task UpdateSubCategoryTest()
         {
-            Mock<ISubCategoryDAL> mockSubCategoryDAL = new();
+            Mock<ISubCategoryRepo> mockSubCategoryDAL = new();
 
             var subCategory = new SubCategory()
             {
@@ -250,15 +249,16 @@ namespace InventoryBLL.Tests
                 SystemDefault = false,
                 IconName = "Plate",
                 UserId = 2,
+                Version = 1,
             };
 
             SubCategory? subCategoryGetByCategoryIdAndName = null;
 
             mockSubCategoryDAL.Setup(x => x.GetById(2, 6)).Returns(subCategory);
             mockSubCategoryDAL.Setup(x => x.GetByCategoryIdAndName(2, 2, "Teste de título alterado")).Returns(subCategoryGetByCategoryIdAndName);
-            mockSubCategoryDAL.Setup(x => x.Update(It.IsAny<SubCategory>())).Returns(1);
+            mockSubCategoryDAL.Setup(x => x.UpdateAsync(It.IsAny<SubCategory>())).ReturnsAsync(1);
 
-            SubCategoryBLL subCategoryBLL = new(mockSubCategoryDAL.Object);
+            SubCategoryService subCategoryBLL = new(mockSubCategoryDAL.Object);
 
 
             ReqSubCategory reqSubCategory = new()
@@ -272,7 +272,7 @@ namespace InventoryBLL.Tests
             // mockSubCategoryDAL.Setup(x => x.UpdateSubCategory(It.IsAny<SubCategory>())).Returns(1);
             // mockSubCategoryDAL.Setup(x => x.GetByCategoryIdAndName(1, reqSubCategory.CategoryId, reqSubCategory.Name)).Returns(nullSubCategory);
 
-            BaseResponse bLLResponse = subCategoryBLL.UpdateSubCategory(reqSubCategory, 2, 6);
+            BaseResponse bLLResponse = await subCategoryBLL.UpdateSubCategoryAsync(reqSubCategory, 2, 6);
 
             if (bLLResponse?.Content is not null)
             {
@@ -286,7 +286,7 @@ namespace InventoryBLL.Tests
         }
 
         [TestMethod()]
-        public void Try_UpdateSubCategory_With_Same_Name_Test()
+        public async Task Try_UpdateSubCategory_With_Same_Name_Test()
         {
             var subCategory = new SubCategory()
             {
@@ -297,6 +297,7 @@ namespace InventoryBLL.Tests
                 SystemDefault = false,
                 IconName = "Plate",
                 UserId = 2,
+                Version = 1,
             };
 
 
@@ -308,14 +309,15 @@ namespace InventoryBLL.Tests
                 Name = "Teste de título 4",
                 SystemDefault = true,
                 IconName = "Table",
+                Version = 1,
             };
 
-            Mock<ISubCategoryDAL> mockSubCategoryDAL = new();
+            Mock<ISubCategoryRepo> mockSubCategoryDAL = new();
             mockSubCategoryDAL.Setup(x => x.GetById(2, 6)).Returns(subCategory);
             mockSubCategoryDAL.Setup(x => x.GetByCategoryIdAndName(2, 2, "Teste de título 4")).Returns(subCategoryWithSameName);
 
 
-            SubCategoryBLL subCategoryBLL = new(mockSubCategoryDAL.Object);
+            SubCategoryService subCategoryBLL = new(mockSubCategoryDAL.Object);
 
             ReqSubCategory reqSubCategory = new()
             {
@@ -323,7 +325,7 @@ namespace InventoryBLL.Tests
                 Name = "Teste de título 4",
             };
 
-            BaseResponse bLLResponse = subCategoryBLL.UpdateSubCategory(reqSubCategory, 2, 6);
+            BaseResponse bLLResponse = await subCategoryBLL.UpdateSubCategoryAsync(reqSubCategory, 2, 6);
 
             if (bLLResponse?.Error is not null)
             {
@@ -337,7 +339,7 @@ namespace InventoryBLL.Tests
         }
 
         [TestMethod()]
-        public void Try_Update_A_SystemDefault_SubCategory__Test()
+        public async Task Try_Update_A_SystemDefault_SubCategory__Test()
         {
 
             var subCategory = new SubCategory()
@@ -348,16 +350,14 @@ namespace InventoryBLL.Tests
                 Name = "Teste de título 4",
                 SystemDefault = true,
                 IconName = "Table",
+                Version = 1,
             };
 
-            Mock<ISubCategoryDAL> mockSubCategoryDAL = new();
+            Mock<ISubCategoryRepo> mockSubCategoryDAL = new();
 
             mockSubCategoryDAL.Setup(x => x.GetById(2, 5)).Returns(subCategory);
 
-
-
-
-            SubCategoryBLL subCategoryBLL = new(mockSubCategoryDAL.Object);
+            SubCategoryService subCategoryBLL = new(mockSubCategoryDAL.Object);
 
             ReqSubCategory reqSubCategory = new()
             {
@@ -365,9 +365,7 @@ namespace InventoryBLL.Tests
                 Name = "Teste de título 4",
             };
 
-
-
-            BaseResponse bLLResponse = subCategoryBLL.UpdateSubCategory(reqSubCategory, 2, 5);
+            BaseResponse bLLResponse = await subCategoryBLL.UpdateSubCategoryAsync(reqSubCategory, 2, 5);
 
             if (bLLResponse?.Error is not null)
             {
@@ -381,7 +379,7 @@ namespace InventoryBLL.Tests
         }
 
         [TestMethod()]
-        public void DeleteSubCategoryTest()
+        public async Task DeleteSubCategoryTest()
         {
             var subcategory = new SubCategory()
             {
@@ -392,15 +390,16 @@ namespace InventoryBLL.Tests
                 SystemDefault = false,
                 IconName = "Plate",
                 UserId = 2,
+                Version = 1,
             };
 
-            Mock<ISubCategoryDAL> subCategoryDAL = new();
+            Mock<ISubCategoryRepo> subCategoryDAL = new();
 
             subCategoryDAL.Setup(x => x.GetById(2, 6)).Returns(subcategory);
-            subCategoryDAL.Setup(x => x.Delete(It.IsAny<SubCategory>())).Returns(1);
-            SubCategoryBLL subCategoryBLL = new(subCategoryDAL.Object);
+            subCategoryDAL.Setup(x => x.UpdateAsync(It.IsAny<SubCategory>())).ReturnsAsync(1);
+            SubCategoryService subCategoryBLL = new(subCategoryDAL.Object);
 
-            BaseResponse bLLResponse = subCategoryBLL.DeleteSubCategory(2, 6);
+            BaseResponse bLLResponse = await subCategoryBLL.InactiveSubCategoryAsync(2, 6);
 
             if (bLLResponse?.Error is null && bLLResponse?.Content is null)
                 Assert.IsTrue(true);
@@ -408,11 +407,9 @@ namespace InventoryBLL.Tests
         }
 
         [TestMethod()]
-        public void Try_Delete_SystemDefault_SubCategoryTest()
+        public async Task Try_Delete_SystemDefault_SubCategoryTest()
         {
-            Mock<InventoryDbContext> mockContext = BuildMockInventoryContext();
-
-            Mock<ISubCategoryDAL> subCategoryDAL = new();
+            Mock<ISubCategoryRepo> subCategoryDAL = new();
 
             var subCategoryById = new SubCategory()
             {
@@ -422,13 +419,14 @@ namespace InventoryBLL.Tests
                 Name = "Teste de título 4",
                 SystemDefault = true,
                 IconName = "Table",
+                Version = 1,
             };
 
             subCategoryDAL.Setup(x => x.GetById(2, 5)).Returns(subCategoryById);
 
-            SubCategoryBLL subCategoryBLL = new(subCategoryDAL.Object);
+            SubCategoryService subCategoryBLL = new(subCategoryDAL.Object);
 
-            BaseResponse bLLResponse = subCategoryBLL.DeleteSubCategory(2, 5);
+            BaseResponse bLLResponse = await subCategoryBLL.InactiveSubCategoryAsync(2, 5);
 
             if (bLLResponse?.Error is not null && bLLResponse?.Content is null)
             {
@@ -442,6 +440,5 @@ namespace InventoryBLL.Tests
             }
             else Assert.Fail();
         }
-
     }
 }

@@ -36,8 +36,8 @@ namespace InventoryDbContextDAL
 
         //migrations
         //no console do gerenciador de pacotes selecione o dal referente:
-        //Add-Migration "Init" -Context InventoryDbContext
-        //update-database -Context InventoryDbContext
+        //EntityFrameworkCore\Add-Migration "Init" -Context InventoryDbContext
+        //EntityFrameworkCore\update-database -Context InventoryDbContext
 
         //to remove last migration snapshot
         //Remove-Migration -Context InventoryDbContext 

@@ -7,9 +7,11 @@ using InventoryModels.Res;
 
 namespace InventoryBLL
 {
-    public class SubCategoryBLL(ISubCategoryDAL subCategoryDAL) : ISubCategoryBLL
+    public class SubCategoryService(ISubCategoryRepo subCategoryRepo) : ISubCategoryBLL
     {
-        public BaseResponse CreateSubCategory(ReqSubCategory reqSubCategory, int uid)
+        readonly int pageSize = 50;
+
+        public async Task<BaseResponse> CreateSubCategoryAsync(ReqSubCategory reqSubCategory, int uid)
         {
             try
             {
@@ -30,6 +32,7 @@ namespace InventoryBLL
                     CreatedAt = DateTime.Now,
                     UpdatedAt = DateTime.Now,
                     SystemDefault = false,
+                    Version = 1
                 };
 
                 string? existingItemMsg = ValidateExistingSubCategory(subCategory);
@@ -39,7 +42,7 @@ namespace InventoryBLL
                     return new BaseResponse(null, existingItemMsg);
                 }
 
-                int respExec = subCategoryDAL.Create(subCategory);
+                int respExec = await subCategoryRepo.Create(subCategory);
 
                 if (respExec == 1)
                 {
@@ -52,11 +55,11 @@ namespace InventoryBLL
             catch { throw; }
         }
 
-        public BaseResponse DeleteSubCategory(int uid, int id)
+        public async Task<BaseResponse> InactiveSubCategoryAsync(int uid, int id)
         {
             try
             {
-                SubCategory? subCategory = subCategoryDAL.GetById(uid, id);
+                SubCategory? subCategory = subCategoryRepo.GetById(uid, id);
 
                 if (subCategory == null)
                     return new BaseResponse(null, "Invalid id");
@@ -64,7 +67,10 @@ namespace InventoryBLL
                 if (subCategory.SystemDefault)
                     return new BaseResponse(null, "It's not possible delete a system default Sub Category");
 
-                int respExec = subCategoryDAL.Delete(subCategory);
+                subCategory.Inactive = true;
+                subCategory.Version++;
+
+                int respExec = await subCategoryRepo.UpdateAsync(subCategory);
 
                 if (respExec == 1)
                     return new BaseResponse(null);
@@ -74,14 +80,14 @@ namespace InventoryBLL
             catch { throw; }
         }
 
-        public BaseResponse UpdateSubCategory(ReqSubCategory reqSubCategory, int uid, int id)
+        public async Task<BaseResponse> UpdateSubCategoryAsync(ReqSubCategory reqSubCategory, int uid, int id)
         {
             try
             {
                 string? validateError = reqSubCategory.Validate();
                 if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(null, validateError);
 
-                SubCategory? oldSubCategory = subCategoryDAL.GetById(uid, id);
+                SubCategory? oldSubCategory = subCategoryRepo.GetById(uid, id);
 
                 if (oldSubCategory == null)
                     return new BaseResponse(null, "Invalid id");
@@ -104,6 +110,7 @@ namespace InventoryBLL
                     CreatedAt = oldSubCategory.CreatedAt,
                     UpdatedAt = DateTime.Now,
                     SystemDefault = oldSubCategory.SystemDefault,
+                    Version = oldSubCategory.Version++,
                 };
 
                 string? existingItemMsg = ValidateExistingSubCategory(subCategory, id);
@@ -113,7 +120,7 @@ namespace InventoryBLL
                     return new BaseResponse(null, existingItemMsg);
                 }
 
-                int respExec = subCategoryDAL.Update(subCategory);
+                int respExec = await subCategoryRepo.UpdateAsync(subCategory);
 
                 if (respExec == 1)
                 {
@@ -128,7 +135,7 @@ namespace InventoryBLL
 
         public BaseResponse GetByCategoryId(int uid, int categoryId)
         {
-            List<SubCategory>? subCategories = subCategoryDAL.GetByCategoryId(uid, categoryId);
+            List<SubCategory>? subCategories = subCategoryRepo.GetByCategoryId(uid, categoryId);
             List<ResSubCategory>? resSubCategories = [];
 
             if (subCategories != null)
@@ -148,7 +155,7 @@ namespace InventoryBLL
 
         public BaseResponse GetById(int uid, int id)
         {
-            SubCategory? subCategory = subCategoryDAL.GetById(uid, id);
+            SubCategory? subCategory = subCategoryRepo.GetById(uid, id);
             ResSubCategory? resSubCategory = null;
 
             if (subCategory is not null)
@@ -166,7 +173,7 @@ namespace InventoryBLL
 
         protected string? ValidateExistingSubCategory(SubCategory subCategory, int? id = null)
         {
-            SubCategory? respSubCategory = subCategoryDAL.GetByCategoryIdAndName(subCategory.UserId.Value, subCategory.CategoryId, subCategory.Name);
+            SubCategory? respSubCategory = subCategoryRepo.GetByCategoryIdAndName(subCategory.UserId.Value, subCategory.CategoryId, subCategory.Name);
 
             if ((respSubCategory is not null) && ((id is not null && respSubCategory.Id != id) || (id is null)))
                 return "A Sub Category with this Name has already been added to this Category";
@@ -174,5 +181,29 @@ namespace InventoryBLL
             return null;
         }
 
+        public async Task<BaseResponse> GetByVersionAsync(int uid, int page, int version)
+        {
+            if (page <= 0)
+                return new BaseResponse(null, "Invalid page");
+
+            List<SubCategory>? subCategories = await subCategoryRepo.GetByVersionAsync(uid, version, page, pageSize);
+
+            List<ResSubCategory>? resSubCategories = [];
+
+            if (subCategories != null)
+                foreach (SubCategory subCategory in subCategories)
+                    resSubCategories.Add(
+                        new()
+                        {
+                            Id = subCategory.Id,
+                            Name = subCategory.Name,
+                            CategoryId = subCategory.CategoryId,
+                            IconName = subCategory.IconName,
+                            SystemDefault = subCategory.SystemDefault,
+                            Version = subCategory.Version,
+                        });
+
+            return new BaseResponse(resSubCategories);
+        }
     }
 }

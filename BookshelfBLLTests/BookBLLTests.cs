@@ -228,7 +228,7 @@ namespace BookshelfBLL.Tests
         }
 
         [TestMethod()]
-        public async void GetByUpdatedAtTest()
+        public async Task GetByUpdatedAtTest()
         {
             Mock<DbSet<Book>> mockSetBook = new();
 
@@ -288,14 +288,6 @@ namespace BookshelfBLL.Tests
             IQueryable<Book> data = list.AsQueryable();
 
             List<Book> dataResult = listResult;
-
-            mockSetBook.As<IQueryable<Book>>().Setup(m => m.Provider).Returns(data.Provider);
-            mockSetBook.As<IQueryable<Book>>().Setup(m => m.Expression).Returns(data.Expression);
-            mockSetBook.As<IQueryable<Book>>().Setup(m => m.ElementType).Returns(data.ElementType);
-            mockSetBook.As<IQueryable<Book>>().Setup(m => m.GetEnumerator()).Returns(() => data.GetEnumerator());
-
-            Mock<BookshelfDbContextDAL.BookshelfDbContext> mockContext = new();
-            mockContext.Setup(m => m.Book).Returns(mockSetBook.Object);
 
             Mock<IBookHistoricRepo> mockBookHistoricDAL = new();
             Mock<IBookRepo> mockBookDAL = new();

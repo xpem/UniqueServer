@@ -30,14 +30,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.7" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.7" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.7">
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.10" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -45,7 +45,7 @@
     <ProjectReference Include="..\BookshelfBLL\BookshelfBLL.csproj" />
     <ProjectReference Include="..\BookshelfDbContextDAL\BookshelfDAL.csproj" />
     <ProjectReference Include="..\InventoryBLL\InventoryBLL.csproj" />
-    <ProjectReference Include="..\InventoryDbContextDAL\InventoryDAL.csproj" />
+    <ProjectReference Include="..\InventoryDbContextDAL\InventoryRepos.csproj" />
     <ProjectReference Include="..\UserBLL\UserManagementBLL.csproj" />
     <ProjectReference Include="..\UserManagementDAL\UserManagementDAL.csproj" />
   </ItemGroup>

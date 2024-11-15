@@ -27,6 +27,7 @@ namespace InventoryBLL.Tests
                     Name = "Casa",
                     UpdatedAt = DateTime.Now,
                     SystemDefault = true,
+                       Version=1,
                     SubCategories = [
                         new SubCategory()
                         {
@@ -36,6 +37,7 @@ namespace InventoryBLL.Tests
                             Name = "Teste de título 1",
                             SystemDefault = true,
                             IconName = "Dog",
+                               Version=1,
                         },
                         new SubCategory()
                         {
@@ -45,6 +47,7 @@ namespace InventoryBLL.Tests
                             Name = "Teste de título 2",
                             SystemDefault = true,
                             IconName = "Cat",
+                               Version=1,
                         },
                         new SubCategory()
                         {
@@ -55,6 +58,7 @@ namespace InventoryBLL.Tests
                             SystemDefault = false,
                             IconName = "Bird",
                             UserId = 1,
+                               Version=1,
                         },
                     ]
                 },
@@ -67,6 +71,7 @@ namespace InventoryBLL.Tests
                     Name = "Vestimenta",
                     UpdatedAt = DateTime.Now,
                     SystemDefault = true,
+                       Version=1,
                     SubCategories = [
                         new SubCategory()
                         {
@@ -76,6 +81,7 @@ namespace InventoryBLL.Tests
                             Name = "Teste de título 3",
                             SystemDefault = true,
                             IconName = "Chair",
+                               Version=1,
                         },
                         new SubCategory()
                         {
@@ -85,6 +91,7 @@ namespace InventoryBLL.Tests
                             Name = "Teste de título 4",
                             SystemDefault = true,
                             IconName = "Table",
+                               Version=1,
                         },
                         new SubCategory()
                         {
@@ -95,6 +102,7 @@ namespace InventoryBLL.Tests
                             SystemDefault = false,
                             IconName = "Plate",
                             UserId = 2,
+                               Version=1,
                         },
                     ]
                 },
@@ -107,6 +115,7 @@ namespace InventoryBLL.Tests
                     Name = "Teste",
                     UpdatedAt = DateTime.Now,
                     SystemDefault = false,
+                       Version=1,
                     SubCategories = [
                         new SubCategory()
                         {
@@ -117,6 +126,7 @@ namespace InventoryBLL.Tests
                             Name = "Teste de título 6",
                             SystemDefault = false,
                             IconName = "Chair",
+                            Version=1,
                         },
                         new SubCategory()
                         {
@@ -127,6 +137,7 @@ namespace InventoryBLL.Tests
                             Name = "Teste de título 7",
                             SystemDefault = false,
                             IconName = "Table",
+                               Version=1,
                         },
                         new SubCategory()
                         {
@@ -137,13 +148,14 @@ namespace InventoryBLL.Tests
                             Name = "Teste de título 8",
                             SystemDefault = false,
                             IconName = "Plate",
+                               Version=1,
                         },
                     ]
                 }
                 ];
 
             Mock<ICategoryDAL> categoryDAL = new();
-            Mock<ISubCategoryDAL> subCategoryDAL = new();
+            Mock<ISubCategoryRepo> subCategoryDAL = new();
 
             CategoryBLL categoryBLL = new(categoryDAL.Object, subCategoryDAL.Object);
 
@@ -166,7 +178,7 @@ namespace InventoryBLL.Tests
         public void UpdateCategoryTest()
         {
             Mock<ICategoryDAL> categoryDAL = new();
-            Mock<ISubCategoryDAL> subCategoryDAL = new();
+            Mock<ISubCategoryRepo> subCategoryDAL = new();
 
             CategoryBLL categoryBLL = new(categoryDAL.Object, subCategoryDAL.Object);
 
@@ -179,6 +191,7 @@ namespace InventoryBLL.Tests
                 Name = "Teste",
                 UpdatedAt = DateTime.Now,
                 SystemDefault = false,
+                Version = 1,
                 SubCategories = [
                        new SubCategory()
                         {
@@ -189,6 +202,7 @@ namespace InventoryBLL.Tests
                             Name = "Teste de título 6",
                             SystemDefault = false,
                             IconName = "Chair",
+                               Version=1,
                         },
                         new SubCategory()
                         {
@@ -199,6 +213,7 @@ namespace InventoryBLL.Tests
                             Name = "Teste de título 7",
                             SystemDefault = false,
                             IconName = "Table",
+                               Version=1,
                         },
                         new SubCategory()
                         {
@@ -209,6 +224,7 @@ namespace InventoryBLL.Tests
                             Name = "Teste de título 8",
                             SystemDefault = false,
                             IconName = "Plate",
+                               Version=1,
                         },
                     ]
             };
@@ -241,7 +257,7 @@ namespace InventoryBLL.Tests
             ReqCategory reqCategory = new() { Name = "Vestimenta" };
 
             Mock<ICategoryDAL> categoryDAL = new();
-            Mock<ISubCategoryDAL> subCategoryDAL = new();
+            Mock<ISubCategoryRepo> subCategoryDAL = new();
 
             var category = new Category()
             {
@@ -252,6 +268,7 @@ namespace InventoryBLL.Tests
                 Name = "Teste",
                 UpdatedAt = DateTime.Now,
                 SystemDefault = false,
+                Version = 1,
                 SubCategories = [
                        new SubCategory()
                         {
@@ -262,6 +279,7 @@ namespace InventoryBLL.Tests
                             Name = "Teste de título 6",
                             SystemDefault = false,
                             IconName = "Chair",
+                               Version=1,
                         },
                         new SubCategory()
                         {
@@ -272,6 +290,7 @@ namespace InventoryBLL.Tests
                             Name = "Teste de título 7",
                             SystemDefault = false,
                             IconName = "Table",
+                               Version=1,
                         },
                         new SubCategory()
                         {
@@ -282,6 +301,7 @@ namespace InventoryBLL.Tests
                             Name = "Teste de título 8",
                             SystemDefault = false,
                             IconName = "Plate",
+                               Version=1,
                         },
                     ]
             };
@@ -295,6 +315,7 @@ namespace InventoryBLL.Tests
                 Name = "Vestimenta",
                 UpdatedAt = DateTime.Now,
                 SystemDefault = true,
+                Version = 1,
                 SubCategories = [
                       new SubCategory()
                         {
@@ -304,6 +325,7 @@ namespace InventoryBLL.Tests
                             Name = "Teste de título 3",
                             SystemDefault = true,
                             IconName = "Chair",
+                               Version=1,
                         },
                         new SubCategory()
                         {
@@ -313,6 +335,7 @@ namespace InventoryBLL.Tests
                             Name = "Teste de título 4",
                             SystemDefault = true,
                             IconName = "Table",
+                               Version=1,
                         },
                         new SubCategory()
                         {
@@ -323,6 +346,7 @@ namespace InventoryBLL.Tests
                             SystemDefault = false,
                             IconName = "Plate",
                             UserId = 2,
+                               Version=1,
                         },
                     ]
             };

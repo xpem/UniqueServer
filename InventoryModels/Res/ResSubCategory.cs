@@ -11,5 +11,7 @@
         public int CategoryId { get; set; }
 
         public bool SystemDefault { get; set; }
+
+        public int Version { get; set; }
     }
 }
