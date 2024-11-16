@@ -14,8 +14,6 @@ namespace InventoryModels.DTOs
         [MaxLength(50)]
         public required string Name { get; set; }
 
-        public required int Version { get; set; }
-
         public bool Inactive { get; set; } = false;
     }
 }

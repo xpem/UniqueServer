@@ -19,7 +19,6 @@ namespace InventoryBLLTests.DbContextMocks
                 UpdatedAt = DateTime.Now,
                 UserId = 1,
                 Type = SituationType.In,
-                Version = 1,
 
             };
 
@@ -33,7 +32,6 @@ namespace InventoryBLLTests.DbContextMocks
                 UpdatedAt = DateTime.Now,
                 UserId = 1,
                 Type = SituationType.Out,
-                Version = 1,
             };
 
             AcquisitionType acquisitionType = new()
@@ -44,7 +42,6 @@ namespace InventoryBLLTests.DbContextMocks
                 Id = 1,
                 SystemDefault = true,
                 UpdatedAt = DateTime.Now,
-                Version = 1,
             };
             AcquisitionType acquisitionType2 = new()
             {
@@ -54,7 +51,6 @@ namespace InventoryBLLTests.DbContextMocks
                 Id = 2,
                 SystemDefault = true,
                 UpdatedAt = DateTime.Now,
-                Version = 1,
             };
 
             SubCategory subCategory = new()
@@ -65,7 +61,6 @@ namespace InventoryBLLTests.DbContextMocks
                 Name = "Teste de título 1",
                 SystemDefault = true,
                 IconName = "Dog",
-                Version = 1,
             };
 
             Category category = new()
@@ -76,7 +71,6 @@ namespace InventoryBLLTests.DbContextMocks
                 Name = "Casa",
                 UpdatedAt = DateTime.Now,
                 SystemDefault = true,
-                Version = 1,
             };
 
             Item item = new()

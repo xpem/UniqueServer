@@ -122,7 +122,7 @@ namespace BookshelfBLL
             {
                 newBook.UpdatedAt = DateTime.Now;
 
-                await bookDAL.ExecuteUpdateBookAsync(newBook);
+                await bookDAL.UpdateAsync(newBook);
 
                 //alternativa
                 //await bookshelfDbContext.Book.Where(a => a.Id == bookId).ExecuteUpdateAsync(

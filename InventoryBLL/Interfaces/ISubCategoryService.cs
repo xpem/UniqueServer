@@ -15,6 +15,6 @@ namespace InventoryBLL.Interfaces
 
         Task<BaseResponse> InactiveSubCategoryAsync(int uid, int subCategoryId);
 
-        Task<BaseResponse> GetByVersionAsync(int uid, int page, int version);
+        Task<BaseResponse> GetByAfterUpdatedAtAsync(int uid, int page, DateTime updatedAt);
     }
 }

@@ -31,8 +31,7 @@ namespace InventoryBLL
                     CategoryId = reqSubCategory.CategoryId,
                     CreatedAt = DateTime.Now,
                     UpdatedAt = DateTime.Now,
-                    SystemDefault = false,
-                    Version = 1
+                    SystemDefault = false
                 };
 
                 string? existingItemMsg = ValidateExistingSubCategory(subCategory);
@@ -42,7 +41,7 @@ namespace InventoryBLL
                     return new BaseResponse(null, existingItemMsg);
                 }
 
-                int respExec = await subCategoryRepo.Create(subCategory);
+                int respExec = await subCategoryRepo.CreateAsync(subCategory);
 
                 if (respExec == 1)
                 {
@@ -68,7 +67,6 @@ namespace InventoryBLL
                     return new BaseResponse(null, "It's not possible delete a system default Sub Category");
 
                 subCategory.Inactive = true;
-                subCategory.Version++;
 
                 int respExec = await subCategoryRepo.UpdateAsync(subCategory);
 
@@ -108,9 +106,7 @@ namespace InventoryBLL
                     UserId = oldSubCategory.UserId,
                     CategoryId = oldSubCategory.CategoryId,
                     CreatedAt = oldSubCategory.CreatedAt,
-                    UpdatedAt = DateTime.Now,
-                    SystemDefault = oldSubCategory.SystemDefault,
-                    Version = oldSubCategory.Version++,
+                    SystemDefault = oldSubCategory.SystemDefault
                 };
 
                 string? existingItemMsg = ValidateExistingSubCategory(subCategory, id);
@@ -181,12 +177,12 @@ namespace InventoryBLL
             return null;
         }
 
-        public async Task<BaseResponse> GetByVersionAsync(int uid, int page, int version)
+        public async Task<BaseResponse> GetByAfterUpdatedAtAsync(int uid, int page, DateTime updatedAt)
         {
             if (page <= 0)
                 return new BaseResponse(null, "Invalid page");
 
-            List<SubCategory> subCategories = await subCategoryRepo.GetByVersionAsync(uid, version, page, pageSize);
+            List<SubCategory> subCategories = await subCategoryRepo.GetByAfterUpdatedAtAsync(uid, updatedAt, page, pageSize);
 
             List<ResSubCategory> resSubCategories = [];
 
@@ -199,8 +195,8 @@ namespace InventoryBLL
                             Name = subCategory.Name,
                             CategoryId = subCategory.CategoryId,
                             IconName = subCategory.IconName,
-                            SystemDefault = subCategory.SystemDefault,
-                            Version = subCategory.Version,
+                            UpdatedAt = subCategory.UpdatedAt,
+                            SystemDefault = subCategory.SystemDefault
                         });
 
             return new BaseResponse(resSubCategories);

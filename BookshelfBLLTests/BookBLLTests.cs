@@ -96,7 +96,7 @@ namespace BookshelfBLL.Tests
 
             mockBookDAL.Setup(x => x.GetBookByIdAsync(1, 1)).ReturnsAsync(OriBook);
 
-            mockBookDAL.Setup(x => x.ExecuteUpdateBookAsync(It.IsAny<Book>())).ReturnsAsync(1);
+            mockBookDAL.Setup(x => x.UpdateAsync(It.IsAny<Book>())).ReturnsAsync(1);
 
             BookService bookBLL = new(bookHistoricBLL, mockBookDAL.Object);
 
@@ -151,7 +151,7 @@ namespace BookshelfBLL.Tests
 
             mockBookDAL.Setup(x => x.GetBookByIdAsync(1, 1)).ReturnsAsync(OriBook);
 
-            mockBookDAL.Setup(x => x.ExecuteUpdateBookAsync(It.IsAny<Book>())).ReturnsAsync(1);
+            mockBookDAL.Setup(x => x.UpdateAsync(It.IsAny<Book>())).ReturnsAsync(1);
 
             BookService bookBLL = new(bookHistoricBLL, mockBookDAL.Object);
 
@@ -216,7 +216,7 @@ namespace BookshelfBLL.Tests
 
             mockBookDAL.Setup(x => x.GetBookByIdAsync(1, 1)).ReturnsAsync(OriBook);
 
-            mockBookDAL.Setup(x => x.ExecuteUpdateBookAsync(It.IsAny<Book>())).ReturnsAsync(1);
+            mockBookDAL.Setup(x => x.UpdateAsync(It.IsAny<Book>())).ReturnsAsync(1);
 
             IBookService bookBLL = new BookService(bookHistoricBLL, mockBookDAL.Object);
 

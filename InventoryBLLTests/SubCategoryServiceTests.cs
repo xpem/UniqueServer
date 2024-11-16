@@ -1,18 +1,10 @@
 ﻿using BaseModels;
-using InventoryRepos;
-using InventoryRepos.Interfaces;
-using InventoryDbContextDAL;
+using InventoryModels.DTOs;
 using InventoryModels.Req;
 using InventoryModels.Res;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Migrations;
+using InventoryRepos.Interfaces;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System.Collections;
-using System.Data.Entity.Infrastructure;
-using System.Linq.Expressions;
-using System.Reflection.Metadata;
-using InventoryModels.DTOs;
 
 namespace InventoryBLL.Tests
 {
@@ -28,8 +20,7 @@ namespace InventoryBLL.Tests
                     CreatedAt = DateTime.Now,
                     Name = "Teste de título 1",
                     SystemDefault = true,
-                    IconName = "Dog",
-                    Version = 1,
+                    IconName = "Dog"
                 },
                 new SubCategory()
                 {
@@ -38,8 +29,7 @@ namespace InventoryBLL.Tests
                     CreatedAt = DateTime.Now,
                     Name = "Teste de título 2",
                     SystemDefault = true,
-                    IconName = "Cat",
-                      Version = 1,
+                    IconName = "Cat"
                 },
                 new SubCategory()
                 {
@@ -49,8 +39,7 @@ namespace InventoryBLL.Tests
                     Name = "Teste de título 2.1",
                     SystemDefault = false,
                     IconName = "Bird",
-                    UserId = 1,
-                      Version = 2,
+                    UserId = 1
                 },
                 new SubCategory()
                 {
@@ -59,8 +48,7 @@ namespace InventoryBLL.Tests
                     CreatedAt = DateTime.Now,
                     Name = "Teste de título 3",
                     SystemDefault = true,
-                    IconName = "Chair",
-                      Version = 2,
+                    IconName = "Chair"
                 },
                 new SubCategory()
                 {
@@ -69,8 +57,7 @@ namespace InventoryBLL.Tests
                     CreatedAt = DateTime.Now,
                     Name = "Teste de título 4",
                     SystemDefault = true,
-                    IconName = "Table",
-                      Version = 2,
+                    IconName = "Table"
                 },
                 new SubCategory()
                 {
@@ -80,8 +67,7 @@ namespace InventoryBLL.Tests
                     Name = "Teste de título 5",
                     SystemDefault = false,
                     IconName = "Plate",
-                    UserId = 2,
-                      Version = 1,
+                    UserId = 2
                 },
         }.AsQueryable();
 
@@ -96,7 +82,6 @@ namespace InventoryBLL.Tests
                     CreatedAt = DateTime.Now,
                     Name = "Teste de título 2",
                     SystemDefault = true,
-                    Version = 1,
                     IconName = "Cat",
                 };
 
@@ -129,7 +114,6 @@ namespace InventoryBLL.Tests
                   Name = "Teste de título 2",
                   SystemDefault = true,
                   IconName = "Cat",
-                  Version = 1,
               };
             Mock<ISubCategoryRepo> subCategoryDAL = new Mock<ISubCategoryRepo>();
             subCategoryDAL.Setup(x => x.GetById(1, 2)).Returns(subCategory);
@@ -159,7 +143,6 @@ namespace InventoryBLL.Tests
                     Name = "Teste de título 1",
                     SystemDefault = true,
                     IconName = "Dog",
-                      Version = 1,
                 },
                 new SubCategory()
                 {
@@ -169,7 +152,6 @@ namespace InventoryBLL.Tests
                     Name = "Teste de título 2",
                     SystemDefault = true,
                     IconName = "Cat",
-                      Version = 1,
                 },
                 new SubCategory()
                 {
@@ -179,8 +161,7 @@ namespace InventoryBLL.Tests
                     Name = "Teste de título 2.1",
                     SystemDefault = false,
                     IconName = "Bird",
-                    UserId = 1,
-                      Version = 1,
+                    UserId = 1
                 }];
 
             Mock<ISubCategoryRepo> subCategoryDAL = new Mock<ISubCategoryRepo>();
@@ -219,7 +200,7 @@ namespace InventoryBLL.Tests
 
             SubCategory? nullSubCategory = null;
 
-            mockSubCategoryDAL.Setup(x => x.Create(It.IsAny<SubCategory>())).ReturnsAsync(1);
+            mockSubCategoryDAL.Setup(x => x.CreateAsync(It.IsAny<SubCategory>())).ReturnsAsync(1);
             mockSubCategoryDAL.Setup(x => x.GetByCategoryIdAndName(1, reqSubCategory.CategoryId, reqSubCategory.Name)).Returns(nullSubCategory);
 
             BaseResponse bLLResponse = await subCategoryBLL.CreateSubCategoryAsync(reqSubCategory, 1);
@@ -248,8 +229,7 @@ namespace InventoryBLL.Tests
                 Name = "Teste de título 5",
                 SystemDefault = false,
                 IconName = "Plate",
-                UserId = 2,
-                Version = 1,
+                UserId = 2
             };
 
             SubCategory? subCategoryGetByCategoryIdAndName = null;
@@ -296,8 +276,7 @@ namespace InventoryBLL.Tests
                 Name = "Teste de título 5",
                 SystemDefault = false,
                 IconName = "Plate",
-                UserId = 2,
-                Version = 1,
+                UserId = 2
             };
 
 
@@ -309,7 +288,6 @@ namespace InventoryBLL.Tests
                 Name = "Teste de título 4",
                 SystemDefault = true,
                 IconName = "Table",
-                Version = 1,
             };
 
             Mock<ISubCategoryRepo> mockSubCategoryDAL = new();
@@ -349,8 +327,7 @@ namespace InventoryBLL.Tests
                 CreatedAt = DateTime.Now,
                 Name = "Teste de título 4",
                 SystemDefault = true,
-                IconName = "Table",
-                Version = 1,
+                IconName = "Table"
             };
 
             Mock<ISubCategoryRepo> mockSubCategoryDAL = new();
@@ -389,8 +366,7 @@ namespace InventoryBLL.Tests
                 Name = "Teste de título 5",
                 SystemDefault = false,
                 IconName = "Plate",
-                UserId = 2,
-                Version = 1,
+                UserId = 2
             };
 
             Mock<ISubCategoryRepo> subCategoryDAL = new();
@@ -418,8 +394,7 @@ namespace InventoryBLL.Tests
                 CreatedAt = DateTime.Now,
                 Name = "Teste de título 4",
                 SystemDefault = true,
-                IconName = "Table",
-                Version = 1,
+                IconName = "Table"
             };
 
             subCategoryDAL.Setup(x => x.GetById(2, 5)).Returns(subCategoryById);

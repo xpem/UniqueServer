@@ -26,7 +26,7 @@ namespace BookshelfDbContextDAL
             return await bookshelfDbContext.SaveChangesAsync();
         }
 
-        public async Task<int> ExecuteUpdateBookAsync(Book book)
+        public async Task<int> UpdateAsync(Book book)
         {
             bookshelfDbContext.ChangeTracker?.Clear();
 
