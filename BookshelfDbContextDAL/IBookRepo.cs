@@ -6,7 +6,7 @@ namespace BookshelfDbContextDAL
     {
         Task<int> ExecuteInactivateBookAsync(int bookId, int userId);
 
-        Task<int> ExecuteUpdateBookAsync(Book book);
+        Task<int> UpdateAsync(Book book);
 
         Task<int> ExecuteCreateBookAsync(Book book);
 

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
@@ -11,7 +12,7 @@ namespace UserModels
         [JsonIgnore]
         public UserHistoricType? UserHistoricType { get; set; }
 
-        [Index("IX_UserHistoric_UserId")]
+        //[Index("IX_UserHistoric_UserId")]
         public required int UserId { get; set; }
 
         [JsonIgnore]

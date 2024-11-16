@@ -22,8 +22,7 @@ namespace InventoryBLL
                     Color = reqCategory.Color,
                     CreatedAt = DateTime.Now,
                     SystemDefault = false,
-                    UserId = uid,
-                    Version = 1
+                    UserId = uid
                 };
 
                 string? existingItemMsg = ValidateExistingCategory(category);
@@ -173,8 +172,7 @@ namespace InventoryBLL
                     UpdatedAt = DateTime.Now,
                     SystemDefault = oldCategory.SystemDefault,
                     UserId = oldCategory.UserId,
-                    Id = oldCategory.Id,
-                    Version = 1
+                    Id = oldCategory.Id
                 };
 
                 string? existingItemMsg = ValidateExistingCategory(category, id);

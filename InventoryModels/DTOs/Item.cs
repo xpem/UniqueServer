@@ -7,7 +7,7 @@ namespace InventoryModels.DTOs
 {
     public class Item : BaseModel
     {
-        [Index("IX_Item_UserId")]
+        //[Index("IX_Item_UserId")]
         public required int UserId { get; set; }
 
         [MaxLength(250)]

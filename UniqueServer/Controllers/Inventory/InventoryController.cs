@@ -38,10 +38,13 @@ namespace UniqueServer.Controllers.Inventory
         [HttpGet]
         public IActionResult GetSubCategoriesByCategoryId(int categoryId) => BuildResponse(subCategoryBLL.GetByCategoryId(Uid, categoryId));
 
-        [Route("subcategory/{version}/{page}")]
+        [Route("subCategory/byAfterUpdatedAt/{updatedAt}/{page}")]
         [HttpGet]
-        public async Task<IActionResult> GetSubCategoriesByVersion(int page, int version) => BuildResponse(await subCategoryBLL.GetByVersionAsync(Uid, page, version));
-
+        public async Task<IActionResult> GetSubCategoriesByAfterUpdatedAt(int page, string updatedAt)
+        {
+            //format 2023-06-10T21:53:28.331Z
+            return BuildResponse(await subCategoryBLL.GetByAfterUpdatedAtAsync(Uid, page, DateTime.Parse(updatedAt)));
+        }
         #endregion
 
         #region category
