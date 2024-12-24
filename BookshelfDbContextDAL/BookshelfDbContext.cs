@@ -1,5 +1,4 @@
-﻿using BaseModels;
-using BookshelfModels;
+﻿using BookshelfModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookshelfDbContextDAL
@@ -8,7 +7,7 @@ namespace BookshelfDbContextDAL
     {
         public virtual DbSet<Book> Book => Set<Book>();
 
-        public virtual DbSet<BookHistoric> BookHistoric  => Set<BookHistoric>();
+        public virtual DbSet<BookHistoric> BookHistoric => Set<BookHistoric>();
 
         public virtual DbSet<BookHistoricType> BookHistoricType => Set<BookHistoricType>();
 

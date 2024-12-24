@@ -1,18 +1,18 @@
 ﻿using BaseModels;
-using UserBLL.Functions;
-using UserManagementBLL.Functions;
 using UserManagementModels.Response;
 using UserModels;
 using UserModels.Request.User;
 using UserModels.Response;
+using UserService;
+using UserManagementService.Functions;
 
-namespace UserBLL
+namespace UserManagementBLL
 {
-    public class UserService(UserManagementDAL.IUserDAL userDAL, UserManagementDAL.IUserHistoricDAL userHistoricDAL,
-        ISendRecoverPasswordEmailService sendRecoverPasswordEmail, IEncryptionService encryptionService,
-        IJwtTokenService jwtTokenService) : IUserBLL
+    public class UserService(UserManagementDAL.IUserRepo userRepo, UserManagementDAL.IUserHistoricDAL userHistoricRepo,
+        ISendRecoverPasswordEmailService sendRecoverPasswordEmailService, IEncryptionService encryptionService,
+        IJwtTokenService jwtTokenService) : IUserService
     {
-        public async Task<BaseResponse> CreateUser(ReqUser reqUser)
+        public async Task<BaseResponse> CreateAsync(ReqUser reqUser)
         {
             string? validateError = reqUser.Validate();
 
@@ -20,14 +20,14 @@ namespace UserBLL
 
             User user = new() { Name = reqUser.Name, Email = reqUser.Email, Password = reqUser.Password, CreatedAt = DateTime.Now };
 
-            string? existingUserMessage = await ValidateExistingUser(user);
+            string? existingUserMessage = await ValidateExistingUserAsync(user);
             if (existingUserMessage != null) { return new BaseResponse(null, existingUserMessage); }
 
             if (user.Password != null)
                 user.Password = encryptionService.Encrypt(user.Password);
             else throw new NullReferenceException("Password do usuario nulo");
 
-            await userDAL.ExecuteCreateUserAsync(user);
+            await userRepo.CreateAsync(user);
 
             ResUser? resUser;
 
@@ -38,30 +38,31 @@ namespace UserBLL
             return new BaseResponse(resUser);
         }
 
-        public async Task<BaseResponse> GetUserById(int uid)
+        public async Task<BaseResponse> GetByIdAsync(int uid)
         {
             //todo - utilizar tmbm o email?
-            User? userResp = await userDAL.GetUserByIdAsync(uid);
+            User? userResp = await userRepo.GetByIdAsync(uid);
+
             if (userResp == null)
                 return new BaseResponse(null, "User not found");
 
             return new BaseResponse(new ResUser() { Id = userResp.Id, Name = userResp.Name, Email = userResp.Email, CreatedAt = userResp.CreatedAt });
         }
 
-        public async Task<BaseResponse> SendRecoverPasswordEmail(ReqUserEmail reqUserEmail)
+        public async Task<BaseResponse> SendRecoverPasswordEmailAsync(ReqUserEmail reqUserEmail)
         {
             string? validateError = reqUserEmail.Validate();
 
             if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(null, validateError);
 
-            User? userResp = await userDAL.GetUserByEmailAsync(reqUserEmail.Email);
+            User? userResp = await userRepo.GetByEmailAsync(reqUserEmail.Email);
 
             if (userResp != null)
             {
                 string token = jwtTokenService.GenerateToken(userResp.Id, userResp.Email, DateTime.UtcNow.AddHours(1));
                 try
                 {
-                    _ = sendRecoverPasswordEmail.SendEmail(userResp.Email, token);
+                    _ = sendRecoverPasswordEmailService.SendEmail(userResp.Email, token);
                 }
                 catch
                 {
@@ -72,13 +73,13 @@ namespace UserBLL
             return new BaseResponse("Email Sent.");
         }
 
-        public async Task<BaseResponse> GenerateUserToken(ReqUserSession reqUserSession)
+        public async Task<BaseResponse> GenerateTokenAsync(ReqUserSession reqUserSession)
         {
             string? validateError = reqUserSession.Validate();
 
             if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(null, validateError);
 
-            User? userResp = await userDAL.GetUserByEmailAndPassword(reqUserSession.Email, encryptionService.Encrypt(reqUserSession.Password));
+            User? userResp = await userRepo.GetByEmailAndPasswordAsync(reqUserSession.Email, encryptionService.Encrypt(reqUserSession.Password));
 
             if (userResp is null) return new BaseResponse(null, "User/Password incorrect");
 
@@ -86,14 +87,14 @@ namespace UserBLL
 
             UserHistoric userHistoric = new() { UserHistoricTypeId = (int)UserHistoricTypeValues.SignIn, CreatedAt = DateTime.UtcNow, UserId = userResp.Id, User = userResp };
 
-            await userHistoricDAL.ExecuteAddUserHistoric(userHistoric);
+            await userHistoricRepo.ExecuteAddUserHistoric(userHistoric);
 
             ResToken resToken = new() { Token = userJwt };
 
             return new BaseResponse(resToken);
         }
 
-        public async Task<BaseResponse> UpdatePassword(ReqRecoverPassword reqRecoverPassword, int uid)
+        public async Task<BaseResponse> UpdatePasswordAsync(ReqRecoverPassword reqRecoverPassword, int uid)
         {
             try
             {
@@ -104,28 +105,28 @@ namespace UserBLL
 
                 if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(null, validateError);
 
-                User? user = await userDAL.GetUserByIdAsync(uid);
+                User? user = await userRepo.GetByIdAsync(uid);
 
                 if (user != null)
                 {
                     user.Password = encryptionService.Encrypt(reqRecoverPassword.Password);
 
-                    await userDAL.ExecuteUpdateUserAsync(user);
+                    await userRepo.UpdateAsync(user);
 
                     UserHistoric userHistoric = new() { UserHistoricTypeId = (int)UserHistoricTypeValues.PasswordChanged, CreatedAt = DateTime.UtcNow, UserId = user.Id, User = user };
 
-                    await userHistoricDAL.ExecuteAddUserHistoric(userHistoric);
+                    await userHistoricRepo.ExecuteAddUserHistoric(userHistoric);
 
                     return new BaseResponse("Password Updated.");
                 }
                 else return new BaseResponse(null, "Invalid User");
             }
-            catch (Exception ex) { throw ex; }
+            catch { throw; }
         }
 
-        protected async Task<string?> ValidateExistingUser(User user)
+        protected async Task<string?> ValidateExistingUserAsync(User user)
         {
-            User? userResp = await userDAL.GetUserByNameOrEmailAsync(user.Name, user.Email);
+            User? userResp = await userRepo.GetByNameOrEmailAsync(user.Name, user.Email);
 
             if (userResp != null)
             {

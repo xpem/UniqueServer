@@ -1,7 +1,7 @@
 ﻿using InventoryBLL;
+using InventoryModels.DTOs;
 using InventoryRepos.Interfaces;
 using Moq;
-using InventoryModels.DTOs;
 
 namespace InventoryBLLTests.DbContextMocks
 {

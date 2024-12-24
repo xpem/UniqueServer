@@ -1,12 +1,12 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
+using UserManagementService.Functions;
 
 namespace UserManagementBLL.Functions.Tests
 {
     [TestClass()]
     public class EncryptionTests
     {
-        public static EncryptionService  BuildEncryptionService()
+        public static EncryptionService BuildEncryptionService()
         {
             string key32 = "qJEJjz9rat0JyGpbtsA9Wc7zZE4yk9cX";
             string IV16 = "XtZqKFa6OQyPKRGf";

@@ -5,15 +5,12 @@ using InventoryBLL;
 using InventoryBLL.Interfaces;
 using InventoryRepos;
 using InventoryRepos.Interfaces;
-using InventoryRepos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using UniqueServer;
-using UserBLL;
-using UserBLL.Functions;
-using UserManagementBLL.Functions;
+using UserService;
 using UserManagementDAL;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -27,7 +24,7 @@ builder.Services.AddSwaggerGen(
     {
         op.SwaggerDoc("v1", new OpenApiInfo
         {
-            Version = $"1.5",
+            Version = $"1.6",
             Title = "Unique Server",
             Description = "Routes of apis for Bookshelf, Users Management and Inventory projects",
         });
@@ -47,7 +44,7 @@ builder.Services.AddScoped<IBookRepo, BookRepo>();
 builder.Services.AddScoped<IBookHistoricRepo, BookHistoricRepo>();
 
 //usermanagement
-builder.Services.AddScoped<IUserDAL, UserManagementDAL.UserDAL>();
+builder.Services.AddScoped<IUserRepo, UserManagementDAL.UserDAL>();
 builder.Services.AddScoped<IUserHistoricDAL, UserHistoricDAL>();
 
 //inventory
@@ -62,7 +59,7 @@ builder.Services.AddScoped<IItemDAL, ItemDAL>();
 #region DI BLL
 
 //usermanagement
-builder.Services.AddScoped<IUserBLL, UserBLL.UserService>();
+builder.Services.AddScoped<IUserService, UserManagementBLL.UserService>();
 
 builder.Services.AddServices(builder.Configuration);
 

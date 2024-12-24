@@ -13,11 +13,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Inventory", "Inventory", "{
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaseModels", "BaseModels\BaseModels.csproj", "{277B8036-919B-4FDA-8169-2AABC879FDB7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserManagementBLL", "UserBLL\UserManagementBLL.csproj", "{A5804468-29B7-47ED-8E67-67AC6A773E0F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserManagementService", "UserBLL\UserManagementService.csproj", "{A5804468-29B7-47ED-8E67-67AC6A773E0F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserManagementModels", "UserModels\UserManagementModels.csproj", "{03DE09AF-1831-4600-BAF7-BBF62772F4EA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserManagementDAL", "UserManagementDAL\UserManagementDAL.csproj", "{E4152702-1537-43A4-8F9C-EF084AA5F559}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserManagementRepo", "UserManagementDAL\UserManagementRepo.csproj", "{E4152702-1537-43A4-8F9C-EF084AA5F559}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookshelfModels", "BookshelfModels\BookshelfModels.csproj", "{63185F5D-3F83-41E6-A10F-89623B0F3EB2}"
 EndProject
@@ -27,7 +27,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookshelfBLL", "BookshelfBL
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookshelfBLLTests", "BookshelfBLLTests\BookshelfBLLTests.csproj", "{46457F81-21BA-4454-90A1-1EBE71364C6F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserManagementBLLTests", "UserManagementBLLTests\UserManagementBLLTests.csproj", "{54CEB18A-5A0C-4BF7-A311-8994700CC433}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserManagementRepoTests", "UserManagementBLLTests\UserManagementRepoTests.csproj", "{54CEB18A-5A0C-4BF7-A311-8994700CC433}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InventoryRepos", "InventoryDbContextDAL\InventoryRepos.csproj", "{33C571B7-33E2-41A3-88D5-F75448211F26}"
 EndProject
