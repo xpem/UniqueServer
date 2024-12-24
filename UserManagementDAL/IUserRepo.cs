@@ -1,6 +1,6 @@
-﻿using UserModels;
+﻿using UserManagementModels;
 
-namespace UserManagementDAL
+namespace UserManagementRepo
 {
     public interface IUserRepo
     {

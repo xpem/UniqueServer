@@ -1,12 +1,12 @@
-﻿using BookshelfDAL;
-using BookshelfDbContextDAL;
+﻿using BookshelfBLL;
+using BookshelfDAL;
 using BookshelfModels;
 using BookshelfModels.Response;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace BookshelfBLL.Tests
+namespace BookshelfBLLTests
 {
     [TestClass()]
     public class BookBLLTests
@@ -15,7 +15,7 @@ namespace BookshelfBLL.Tests
         [TestMethod()]
         public void CreateBookTest()
         {
-            IQueryable<Book> listBook = new List<BookshelfModels.Book>() {
+            IQueryable<Book> listBook = new List<Book>() {
                 new() {
                     Title = "Teste de Título 2",
                     Authors = "Emanuel Teste",
@@ -35,7 +35,7 @@ namespace BookshelfBLL.Tests
 
             Book? bookByTitleAsync = null;
 
-            Mock<BookshelfDbContextDAL.BookshelfDbContext> mockContext = new();
+            Mock<BookshelfDbContext> mockContext = new();
 
             Mock<IBookHistoricRepo> mockBookHistoricDAL = new();
             Mock<IBookRepo> mockBookDAL = new();
@@ -185,7 +185,7 @@ namespace BookshelfBLL.Tests
 
             Mock<DbSet<BookHistoricItem>> mockSetBookHistoricItem = new();
 
-            Mock<BookshelfDbContextDAL.BookshelfDbContext> mockContext = new();
+            Mock<BookshelfDbContext> mockContext = new();
 
             mockContext.Setup(m => m.Book).Returns(mockSetBook.Object);
 
@@ -324,7 +324,7 @@ namespace BookshelfBLL.Tests
 
             Mock<DbSet<BookHistoricItem>> mockSetBookHistoricItem = new();
 
-            Mock<BookshelfDbContextDAL.BookshelfDbContext> mockContext = new();
+            Mock<BookshelfDbContext> mockContext = new();
 
             Mock<IBookHistoricRepo> mockBookHistoricDAL = new();
 

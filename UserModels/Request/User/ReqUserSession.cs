@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace UserModels.Request.User
+namespace UserManagementModels.Request.User
 {
     public record ReqUserSession : ReqUserEmail
     {

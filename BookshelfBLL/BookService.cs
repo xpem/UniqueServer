@@ -1,5 +1,5 @@
 ﻿using BaseModels;
-using BookshelfDbContextDAL;
+using BookshelfDAL;
 using BookshelfModels;
 using BookshelfModels.Request;
 using BookshelfModels.Response;
@@ -45,7 +45,7 @@ namespace BookshelfBLL
             if (existingBookMessage != null)
                 return new BaseResponse(null, existingBookMessage);
 
-            await bookDAL.CreateAsync(book);
+            await bookDAL.ExecuteCreateBookAsync(book);
 
             BookHistoric bookHistoric = new()
             {

@@ -1,6 +1,6 @@
 ﻿using BookshelfModels;
 
-namespace BookshelfDbContextDAL
+namespace BookshelfDAL
 {
     public interface IBookRepo
     {
@@ -8,7 +8,7 @@ namespace BookshelfDbContextDAL
 
         Task<int> UpdateAsync(Book book);
 
-        Task<int> CreateAsync(Book book);
+        Task<int> ExecuteCreateBookAsync(Book book);
 
         Task<Book?> GetBookByTitleWithNotEqualIdAsync(string title, int uid, int bookId);
 

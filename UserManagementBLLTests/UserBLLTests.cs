@@ -2,11 +2,11 @@
 using Moq;
 using UserManagementDAL;
 using UserManagementModels.Response;
-using UserModels;
-using UserModels.Request.User;
 using UserManagementService.Functions;
+using UserManagementModels;
+using UserManagementModels.Request.User;
 
-namespace UserService.Tests
+namespace UserManagementRepoTests
 {
     [TestClass()]
     public class UserBLLTests

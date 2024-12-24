@@ -1,4 +1,4 @@
-﻿namespace BaseBLL
+﻿namespace UserManagementRepo
 {
     public class InitializeDB
     {

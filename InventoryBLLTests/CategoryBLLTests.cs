@@ -1,4 +1,5 @@
 ﻿using BaseModels;
+using InventoryBLL;
 using InventoryModels.DTOs;
 using InventoryModels.Req;
 using InventoryModels.Res;
@@ -6,7 +7,7 @@ using InventoryRepos.Interfaces;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace InventoryBLL.Tests
+namespace InventoryBLLTests
 {
     [TestClass()]
     public class CategoryBLLTests

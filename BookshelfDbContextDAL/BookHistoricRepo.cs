@@ -1,5 +1,4 @@
-﻿using BookshelfDbContextDAL;
-using BookshelfModels;
+﻿using BookshelfModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookshelfDAL

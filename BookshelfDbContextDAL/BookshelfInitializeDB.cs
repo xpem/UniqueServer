@@ -1,4 +1,4 @@
-﻿namespace BookshelfDbContextDAL
+﻿namespace BookshelfDAL
 {
     public class BookshelfInitializeDB
     {

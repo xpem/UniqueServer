@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using UserModels;
+using UserManagementModels;
 
-namespace UserManagementDAL
+namespace UserManagementRepo
 {
     public class UserManagementDbContext : DbContext
     {

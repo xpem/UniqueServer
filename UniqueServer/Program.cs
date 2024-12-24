@@ -1,6 +1,5 @@
 using BookshelfBLL;
 using BookshelfDAL;
-using BookshelfDbContextDAL;
 using InventoryBLL;
 using InventoryBLL.Interfaces;
 using InventoryRepos;
@@ -10,8 +9,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using UniqueServer;
-using UserService;
-using UserManagementDAL;
+using UserManagementRepo;
+using UserManagementService;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -44,8 +43,8 @@ builder.Services.AddScoped<IBookRepo, BookRepo>();
 builder.Services.AddScoped<IBookHistoricRepo, BookHistoricRepo>();
 
 //usermanagement
-builder.Services.AddScoped<IUserRepo, UserManagementDAL.UserDAL>();
-builder.Services.AddScoped<IUserHistoricDAL, UserHistoricDAL>();
+builder.Services.AddScoped<IUserRepo, UserManagementRepo.UserRepo>();
+builder.Services.AddScoped<IUserHistoricRepo, UserHistoricRepo>();
 
 //inventory
 builder.Services.AddScoped<ISubCategoryRepo, SubCategoryRepo>();
@@ -59,7 +58,7 @@ builder.Services.AddScoped<IItemDAL, ItemDAL>();
 #region DI BLL
 
 //usermanagement
-builder.Services.AddScoped<IUserService, UserManagementBLL.UserService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddServices(builder.Configuration);
 

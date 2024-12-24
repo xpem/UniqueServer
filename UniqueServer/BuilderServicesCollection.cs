@@ -1,9 +1,9 @@
-﻿using BookshelfDbContextDAL;
+﻿using BookshelfDAL;
 using InventoryRepos;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.RateLimiting;
-using UserManagementDAL;
+using UserManagementRepo;
 using UserManagementService.Functions;
 
 namespace UniqueServer

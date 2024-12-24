@@ -1,9 +1,10 @@
-﻿using InventoryBLLTests.DbContextMocks;
+﻿using InventoryBLL;
+using InventoryBLLTests.DbContextMocks;
 using InventoryModels.Req;
 using InventoryModels.Res.Item;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace InventoryBLL.Tests
+namespace InventoryBLLTests
 {
     [TestClass()]
     public class ItemBLLTests : MockItemsContext

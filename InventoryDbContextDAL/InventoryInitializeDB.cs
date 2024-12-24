@@ -1,7 +1,6 @@
 ﻿using InventoryModels.DTOs;
-using InventoryRepos;
 
-namespace InventoryDbContextDAL
+namespace InventoryRepos
 {
     public class InventoryInitializeDB()
     {

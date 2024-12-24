@@ -1,7 +1,7 @@
 ﻿using BaseModels;
-using UserModels.Request.User;
+using UserManagementModels.Request.User;
 
-namespace UserService
+namespace UserManagementService
 {
     public interface IUserService
     {

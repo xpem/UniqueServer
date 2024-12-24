@@ -1,7 +1,7 @@
 ﻿using BaseModels.Request;
 using System.ComponentModel.DataAnnotations;
 
-namespace UserModels.Request.User
+namespace UserManagementModels.Request.User
 {
     public record ReqUserEmail : ReqBaseModel
     {

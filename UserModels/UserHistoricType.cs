@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace UserModels
+namespace UserManagementModels
 {
     public class UserHistoricType
     {

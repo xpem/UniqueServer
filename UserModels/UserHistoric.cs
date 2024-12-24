@@ -1,6 +1,9 @@
-﻿using System.Text.Json.Serialization;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
-namespace UserModels
+namespace UserManagementModels
 {
     public class UserHistoric : BaseModels.BaseModel
     {

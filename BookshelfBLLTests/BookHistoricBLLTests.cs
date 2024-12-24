@@ -1,10 +1,11 @@
-﻿using BookshelfDAL;
+﻿using BookshelfBLL;
+using BookshelfDAL;
 using BookshelfModels;
 using BookshelfModels.Response;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace BookshelfBLL.Tests
+namespace BookshelfBLLTests
 {
     [TestClass()]
     public class BookHistoricBLLTests
@@ -53,9 +54,9 @@ namespace BookshelfBLL.Tests
         [TestMethod()]
         public async Task GetByCreatedAtTest()
         {
-            Mock<BookshelfDbContextDAL.BookshelfDbContext> mockContext = new();
+            Mock<BookshelfDbContext> mockContext = new();
 
-            List<BookshelfModels.BookHistoric> dataBH = [
+            List<BookHistoric> dataBH = [
                 new BookHistoric()
                 {
                     Id = 6,
@@ -107,7 +108,7 @@ namespace BookshelfBLL.Tests
 
             if (response != null && response.Content != null)
             {
-                List<ResBookHistoric>? responseList = (response.Content as List<ResBookHistoric>);
+                List<ResBookHistoric>? responseList = response.Content as List<ResBookHistoric>;
 
                 if (responseList is not null && responseList.Count == 1 && responseList.First().BookHistoricItems?.Count == 2)
                     Assert.IsTrue(true);
@@ -122,7 +123,7 @@ namespace BookshelfBLL.Tests
         {
             Mock<IBookHistoricRepo> mockBookHistoricDAL = new();
 
-            List<BookshelfModels.BookHistoric> dataBH = [
+            List<BookHistoric> dataBH = [
                 new BookHistoric()
                 {
                     Id = 6,
@@ -170,7 +171,7 @@ namespace BookshelfBLL.Tests
 
             if (response != null && response.Content != null)
             {
-                List<ResBookHistoric>? responseList = (response.Content as List<ResBookHistoric>);
+                List<ResBookHistoric>? responseList = response.Content as List<ResBookHistoric>;
 
                 if (responseList is not null && responseList.Count == 1 && responseList.First().BookHistoricItems?.Count == 2)
                     Assert.IsTrue(true);

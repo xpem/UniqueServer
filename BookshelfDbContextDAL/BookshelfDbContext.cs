@@ -1,7 +1,8 @@
-﻿using BookshelfModels;
+﻿using BaseModels;
+using BookshelfModels;
 using Microsoft.EntityFrameworkCore;
 
-namespace BookshelfDbContextDAL
+namespace BookshelfDAL
 {
     public class BookshelfDbContext : DbContext
     {

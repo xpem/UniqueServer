@@ -1,14 +1,13 @@
 ﻿using BaseModels;
 using UserManagementModels.Response;
-using UserModels;
-using UserModels.Request.User;
-using UserModels.Response;
-using UserService;
 using UserManagementService.Functions;
+using UserManagementModels.Request.User;
+using UserManagementModels;
+using UserManagementRepo;
 
-namespace UserManagementBLL
+namespace UserManagementService
 {
-    public class UserService(UserManagementDAL.IUserRepo userRepo, UserManagementDAL.IUserHistoricDAL userHistoricRepo,
+    public class UserService(IUserRepo userRepo, IUserHistoricRepo userHistoricRepo,
         ISendRecoverPasswordEmailService sendRecoverPasswordEmailService, IEncryptionService encryptionService,
         IJwtTokenService jwtTokenService) : IUserService
     {

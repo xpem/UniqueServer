@@ -1,16 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using UserModels;
+using UserManagementModels;
 
-namespace UserManagementDAL
+namespace UserManagementRepo
 {
-    public class UserDAL : IUserRepo
+    public class UserRepo(UserManagementDbContext userManagementDbContext) : IUserRepo
     {
-        private readonly UserManagementDbContext userManagementDbContext;
-
-        public UserDAL(UserManagementDbContext userManagementDbContext)
-        {
-            this.userManagementDbContext = userManagementDbContext;
-        }
+        private readonly UserManagementDbContext userManagementDbContext = userManagementDbContext;
 
         public async Task<int> CreateAsync(User user)
         {

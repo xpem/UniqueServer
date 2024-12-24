@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using UserManagementService.Functions;
 
-namespace UserManagementBLL.Functions.Tests
+namespace UserManagementRepoTests.Functions
 {
     [TestClass()]
     public class EncryptionTests
