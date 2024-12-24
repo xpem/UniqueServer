@@ -3,7 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace UserManagementBLL.Functions
+namespace UserManagementService.Functions
 {
     public interface IJwtTokenService
     {
@@ -19,7 +19,7 @@ namespace UserManagementBLL.Functions
             byte[] key = Encoding.ASCII.GetBytes(jwtKey);
             SecurityTokenDescriptor tokenDescriptor = new()
             {
-                Subject = new ClaimsIdentity(new[] { new Claim("uid", uid.ToString()), new Claim(ClaimTypes.Email, email) }),
+                Subject = new ClaimsIdentity([new Claim("uid", uid.ToString()), new Claim(ClaimTypes.Email, email)]),
                 Expires = expireDt,
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
@@ -35,6 +35,7 @@ namespace UserManagementBLL.Functions
 
             JwtSecurityTokenHandler tokenHandler = new();
             byte[] key = Encoding.ASCII.GetBytes(jwtKey);
+
             try
             {
                 tokenHandler.ValidateToken(token, new TokenValidationParameters

@@ -2,8 +2,6 @@
 using BookshelfDAL;
 using BookshelfModels;
 using BookshelfModels.Response;
-using System.Collections.Generic;
-using System.Net;
 
 namespace BookshelfBLL
 {

@@ -1,6 +1,6 @@
-﻿using InventoryRepos.Interfaces;
+﻿using InventoryModels.DTOs;
+using InventoryRepos.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using InventoryModels.DTOs;
 
 namespace InventoryRepos
 {

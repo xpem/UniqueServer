@@ -1,21 +1,12 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using UserBLL;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UserManagementDAL;
 using Moq;
-using UserBLL.Functions;
-using UserManagementBLL.Functions;
-using UserModels.Request.User;
-using UserModels;
-using BaseModels;
-using System.Text.Json.Nodes;
+using UserManagementDAL;
 using UserManagementModels.Response;
+using UserModels;
+using UserModels.Request.User;
+using UserManagementService.Functions;
 
-namespace UserBLL.Tests
+namespace UserService.Tests
 {
     [TestClass()]
     public class UserBLLTests
@@ -23,7 +14,7 @@ namespace UserBLL.Tests
         [TestMethod()]
         public async Task GenerateUserTokenTest()
         {
-            Mock<IUserDAL> userDAL = new();
+            Mock<IUserRepo> userDAL = new();
             Mock<IUserHistoricDAL> userHistoricDAL = new();
             Mock<ISendRecoverPasswordEmailService> sendRecoverPasswordEmail = new();
             Mock<IEncryptionService> encryptionService = new();
@@ -47,7 +38,7 @@ namespace UserBLL.Tests
                 Id = 1,
             };
 
-            userDAL.Setup(x => x.GetUserByEmailAndPassword(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(userResp);
+            userDAL.Setup(x => x.GetByEmailAndPasswordAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(userResp);
             userHistoricDAL.Setup(x => x.ExecuteAddUserHistoric(It.IsAny<UserHistoric>())).ReturnsAsync(1);
             encryptionService.Setup(x => x.Encrypt(It.IsAny<string>())).Returns(encryptedPassword);
             jwtTokenService.Setup(x => x.GenerateToken(userResp.Id, userResp.Email, It.IsAny<DateTime>())).Returns(encryptedtoken);

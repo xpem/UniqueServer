@@ -12,7 +12,7 @@ namespace InventoryBLL.Tests
     [TestClass()]
     public class SubCategoryServiceTests
     {
-        private IQueryable<SubCategory> SubCategories = new List<SubCategory>() {
+        private readonly IQueryable<SubCategory> SubCategories = new List<SubCategory>() {
                  new SubCategory()
                 {
                     Id = 1,

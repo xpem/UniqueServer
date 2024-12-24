@@ -1,5 +1,5 @@
-﻿using InventoryRepos.Interfaces;
-using InventoryModels.DTOs;
+﻿using InventoryModels.DTOs;
+using InventoryRepos.Interfaces;
 
 namespace InventoryRepos
 {

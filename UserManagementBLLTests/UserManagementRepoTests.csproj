@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\UserBLL\UserManagementBLL.csproj" />
+    <ProjectReference Include="..\UserBLL\UserManagementService.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,6 +1,5 @@
 ﻿using BookshelfModels;
 using Microsoft.EntityFrameworkCore;
-using System.Drawing.Printing;
 
 namespace BookshelfDbContextDAL
 {
@@ -35,7 +34,7 @@ namespace BookshelfDbContextDAL
             return await bookshelfDbContext.SaveChangesAsync();
         }
 
-        public async Task<int> ExecuteCreateBookAsync(Book book)
+        public async Task<int> CreateAsync(Book book)
         {
             await bookshelfDbContext.Book.AddAsync(book);
 

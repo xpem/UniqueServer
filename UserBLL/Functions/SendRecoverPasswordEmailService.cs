@@ -2,7 +2,7 @@
 using System.Net;
 using System.Net.Mail;
 
-namespace UserBLL.Functions
+namespace UserManagementService.Functions
 {
     public interface ISendRecoverPasswordEmailService
     {
@@ -37,9 +37,9 @@ namespace UserBLL.Functions
                 await smtpClient.SendMailAsync(mail);
                 Console.WriteLine("Email sent successfully!");
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
         }
     }

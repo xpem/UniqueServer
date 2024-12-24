@@ -1,5 +1,4 @@
-﻿using BaseModels;
-using InventoryModels.DTOs;
+﻿using InventoryModels.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace InventoryRepos

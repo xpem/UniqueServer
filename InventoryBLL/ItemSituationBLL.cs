@@ -1,8 +1,8 @@
 ﻿using BaseModels;
 using InventoryBLL.Interfaces;
-using InventoryRepos.Interfaces;
-using InventoryModels.Res.Item;
 using InventoryModels.DTOs;
+using InventoryModels.Res.Item;
+using InventoryRepos.Interfaces;
 
 namespace InventoryBLL
 {

@@ -2,32 +2,42 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using UserBLL;
-using UserManagementBLL.Functions;
+using UserService;
 using UserModels.Request.User;
+using UserManagementService.Functions;
 
 namespace UniqueServer.Controllers
 {
     [Route("[Controller]")]
     [ApiController]
-    public class UserController(IUserBLL userBLL, IHostEnvironment hostingEnvironment, IJwtTokenService jwtTokenService) : BaseController
+    public class UserController(IUserService userService, IHostEnvironment hostingEnvironment, IJwtTokenService jwtTokenService) : BaseController
     {
         [Route("")]
         [HttpPost]
-        public async Task<IActionResult> SignUp(ReqUser reqUser) => BuildResponse(await userBLL.CreateUser(reqUser));
+        public async Task<IActionResult> SignUp(ReqUser reqUser) => BuildResponse(await userService.CreateAsync(reqUser));
 
         [Route("Session")]
         [HttpPost]
-        public async Task<IActionResult> SignIn(ReqUserSession reqUserSession) => BuildResponse(await userBLL.GenerateUserToken(reqUserSession));
+        public async Task<IActionResult> SignIn(ReqUserSession reqUserSession) => BuildResponse(await userService.GenerateTokenAsync(reqUserSession));
 
         [Route("")]
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetUser() => BuildResponse(await userBLL.GetUserById(Uid));
+        public async Task<IActionResult> GetUser() => BuildResponse(await userService.GetByIdAsync(Uid));
 
         [Route("RecoverPassword")]
         [HttpPost]
-        public async Task<IActionResult> SendRecoverPasswordEmail(ReqUserEmail reqUserEmail) => BuildResponse(await userBLL.SendRecoverPasswordEmail(reqUserEmail));
+        public async Task<IActionResult> SendRecoverPasswordEmail(ReqUserEmail reqUserEmail) => BuildResponse(await userService.SendRecoverPasswordEmailAsync(reqUserEmail));
+
+        [ApiExplorerSettings(IgnoreApi = true)]
+        [Route("PrivacyPolicy")]
+        [HttpGet]
+        public IActionResult PrivacyPolicy()
+        {
+            string html = System.IO.File.ReadAllText(Path.Combine(hostingEnvironment.ContentRootPath, "StaticFiles", "PrivacyPolicy", "Index.html"));
+
+            return base.Content(html, "text/html");
+        }
 
         [ApiExplorerSettings(IgnoreApi = true)]
         [Route("RecoverPassword/{token}")]
@@ -58,7 +68,7 @@ namespace UniqueServer.Controllers
                     html = html.Replace("{{ReturnMessage}}", "User Not Found");
                 else
                 {
-                    BaseResponse bLLResponse = await userBLL.UpdatePassword(reqRecoverPassword, Convert.ToInt32(uid));
+                    BaseResponse bLLResponse = await userService.UpdatePasswordAsync(reqRecoverPassword, Convert.ToInt32(uid));
 
                     if (bLLResponse.Success)
                         html = html.Replace("{{ReturnMessage}}", bLLResponse.Content?.ToString());
@@ -72,6 +82,8 @@ namespace UniqueServer.Controllers
 
             return base.Content(html, "text/html");
         }
+
+
 
     }
 }

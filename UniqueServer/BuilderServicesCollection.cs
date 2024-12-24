@@ -3,9 +3,8 @@ using InventoryRepos;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.RateLimiting;
-using UserBLL.Functions;
-using UserManagementBLL.Functions;
 using UserManagementDAL;
+using UserManagementService.Functions;
 
 namespace UniqueServer
 {

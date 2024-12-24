@@ -45,7 +45,7 @@ namespace BookshelfBLL
             if (existingBookMessage != null)
                 return new BaseResponse(null, existingBookMessage);
 
-            await bookDAL.ExecuteCreateBookAsync(book);
+            await bookDAL.CreateAsync(book);
 
             BookHistoric bookHistoric = new()
             {

@@ -1,5 +1,4 @@
-﻿using BaseModels;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using UserModels;
 
 namespace UserManagementDAL

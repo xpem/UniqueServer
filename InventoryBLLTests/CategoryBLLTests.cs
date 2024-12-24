@@ -24,7 +24,7 @@ namespace InventoryBLL.Tests
                     Name = "Casa",
                     UpdatedAt = DateTime.Now,
                     SystemDefault = true,
-                       
+
                     SubCategories = [
                         new SubCategory()
                         {
@@ -34,7 +34,7 @@ namespace InventoryBLL.Tests
                             Name = "Teste de título 1",
                             SystemDefault = true,
                             IconName = "Dog",
-                               
+
                         },
                         new SubCategory()
                         {
@@ -44,7 +44,7 @@ namespace InventoryBLL.Tests
                             Name = "Teste de título 2",
                             SystemDefault = true,
                             IconName = "Cat",
-                               
+
                         },
                         new SubCategory()
                         {
@@ -55,7 +55,7 @@ namespace InventoryBLL.Tests
                             SystemDefault = false,
                             IconName = "Bird",
                             UserId = 1,
-                               
+
                         },
                     ]
                 },
@@ -68,7 +68,7 @@ namespace InventoryBLL.Tests
                     Name = "Vestimenta",
                     UpdatedAt = DateTime.Now,
                     SystemDefault = true,
-                       
+
                     SubCategories = [
                         new SubCategory()
                         {
@@ -78,7 +78,7 @@ namespace InventoryBLL.Tests
                             Name = "Teste de título 3",
                             SystemDefault = true,
                             IconName = "Chair",
-                               
+
                         },
                         new SubCategory()
                         {
@@ -88,7 +88,7 @@ namespace InventoryBLL.Tests
                             Name = "Teste de título 4",
                             SystemDefault = true,
                             IconName = "Table",
-                               
+
                         },
                         new SubCategory()
                         {
@@ -98,7 +98,7 @@ namespace InventoryBLL.Tests
                             Name = "Teste de título 5",
                             SystemDefault = false,
                             IconName = "Plate",
-                            UserId = 2,                               
+                            UserId = 2,
                         },
                     ]
                 },
@@ -110,7 +110,7 @@ namespace InventoryBLL.Tests
                     CreatedAt = DateTime.Now,
                     Name = "Teste",
                     UpdatedAt = DateTime.Now,
-                    SystemDefault = false,                       
+                    SystemDefault = false,
                     SubCategories = [
                         new SubCategory()
                         {
@@ -121,7 +121,7 @@ namespace InventoryBLL.Tests
                             Name = "Teste de título 6",
                             SystemDefault = false,
                             IconName = "Chair",
-                            
+
                         },
                         new SubCategory()
                         {
@@ -132,7 +132,7 @@ namespace InventoryBLL.Tests
                             Name = "Teste de título 7",
                             SystemDefault = false,
                             IconName = "Table",
-                               
+
                         },
                         new SubCategory()
                         {
@@ -142,7 +142,7 @@ namespace InventoryBLL.Tests
                             CreatedAt = DateTime.Now,
                             Name = "Teste de título 8",
                             SystemDefault = false,
-                            IconName = "Plate",                               
+                            IconName = "Plate",
                         },
                     ]
                 }
@@ -195,7 +195,7 @@ namespace InventoryBLL.Tests
                             Name = "Teste de título 6",
                             SystemDefault = false,
                             IconName = "Chair",
-                               
+
                         },
                         new SubCategory()
                         {
@@ -206,7 +206,7 @@ namespace InventoryBLL.Tests
                             Name = "Teste de título 7",
                             SystemDefault = false,
                             IconName = "Table",
-                               
+
                         },
                         new SubCategory()
                         {
@@ -217,7 +217,7 @@ namespace InventoryBLL.Tests
                             Name = "Teste de título 8",
                             SystemDefault = false,
                             IconName = "Plate",
-                               
+
                         },
                     ]
             };
@@ -271,7 +271,7 @@ namespace InventoryBLL.Tests
                             Name = "Teste de título 6",
                             SystemDefault = false,
                             IconName = "Chair",
-                               
+
                         },
                         new SubCategory()
                         {
@@ -282,7 +282,7 @@ namespace InventoryBLL.Tests
                             Name = "Teste de título 7",
                             SystemDefault = false,
                             IconName = "Table",
-                               
+
                         },
                         new SubCategory()
                         {
@@ -293,7 +293,7 @@ namespace InventoryBLL.Tests
                             Name = "Teste de título 8",
                             SystemDefault = false,
                             IconName = "Plate",
-                               
+
                         },
                     ]
             };
@@ -316,7 +316,7 @@ namespace InventoryBLL.Tests
                             Name = "Teste de título 3",
                             SystemDefault = true,
                             IconName = "Chair",
-                               
+
                         },
                         new SubCategory()
                         {
@@ -326,7 +326,7 @@ namespace InventoryBLL.Tests
                             Name = "Teste de título 4",
                             SystemDefault = true,
                             IconName = "Table",
-                               
+
                         },
                         new SubCategory()
                         {
@@ -337,7 +337,7 @@ namespace InventoryBLL.Tests
                             SystemDefault = false,
                             IconName = "Plate",
                             UserId = 2,
-                               
+
                         },
                     ]
             };
