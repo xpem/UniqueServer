@@ -1,7 +1,7 @@
 ﻿using BaseModels;
 using BookshelfModels.Request;
 
-namespace BookshelfBLL
+namespace BookshelfServices
 {
     public interface IBookService
     {

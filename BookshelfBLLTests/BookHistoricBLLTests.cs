@@ -1,11 +1,11 @@
-﻿using BookshelfBLL;
+﻿using BookshelfServices;
 using BookshelfDAL;
 using BookshelfModels;
 using BookshelfModels.Response;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace BookshelfBLLTests
+namespace BookshelfServicesTests
 {
     [TestClass()]
     public class BookHistoricBLLTests
@@ -15,9 +15,9 @@ namespace BookshelfBLLTests
         {
             Mock<IBookHistoricRepo> mockBookHistoricDAL = new();
 
-            mockBookHistoricDAL.Setup(x => x.ExecuteAddBookHistoricAsync(It.IsAny<BookHistoric>())).ReturnsAsync(1);
+            mockBookHistoricDAL.Setup(x => x.AddAsync(It.IsAny<BookHistoric>())).ReturnsAsync(1);
 
-            mockBookHistoricDAL.Setup(x => x.ExecuteAddRangeBookHistoricItemListAsync(It.IsAny<List<BookHistoricItem>>())).ReturnsAsync(1);
+            mockBookHistoricDAL.Setup(x => x.AddRangeItemListAsync(It.IsAny<List<BookHistoricItem>>())).ReturnsAsync(1);
 
             BookHistoricService bookHistoricBLL = new(mockBookHistoricDAL.Object);
 

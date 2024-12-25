@@ -3,7 +3,7 @@ using BookshelfDAL;
 using BookshelfModels;
 using BookshelfModels.Response;
 
-namespace BookshelfBLL
+namespace BookshelfServices
 {
 
     public class BookHistoricService(IBookHistoricRepo bookHistoricDAL) : IBookHistoricService
@@ -124,7 +124,7 @@ namespace BookshelfBLL
                     CreatedAt = DateTime.Now
                 });
 
-            await bookHistoricDAL.ExecuteAddRangeBookHistoricItemListAsync(bookHistoricItemList);
+            await bookHistoricDAL.AddRangeItemListAsync(bookHistoricItemList);
 
             bookHistoric.BookHistoricItems = bookHistoricItemList;
 
@@ -194,6 +194,6 @@ namespace BookshelfBLL
             return resBookHistorics;
         }
 
-        public Task<int> AddBookHistoricAsync(BookHistoric bookHistoric) => bookHistoricDAL.ExecuteAddBookHistoricAsync(bookHistoric);
+        public Task<int> AddBookHistoricAsync(BookHistoric bookHistoric) => bookHistoricDAL.AddAsync(bookHistoric);
     }
 }

@@ -1,7 +1,7 @@
 ﻿using BaseModels;
 using BookshelfModels;
 
-namespace BookshelfBLL
+namespace BookshelfServices
 {
     public interface IBookHistoricService
     {

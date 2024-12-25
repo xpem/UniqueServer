@@ -4,7 +4,7 @@ using BookshelfModels;
 using BookshelfModels.Request;
 using BookshelfModels.Response;
 
-namespace BookshelfBLL
+namespace BookshelfServices
 {
     public class BookService(IBookHistoricService bookHistoricBLL, IBookRepo bookDAL) : IBookService
     {
@@ -45,7 +45,7 @@ namespace BookshelfBLL
             if (existingBookMessage != null)
                 return new BaseResponse(null, existingBookMessage);
 
-            await bookDAL.ExecuteCreateBookAsync(book);
+            await bookDAL.CreateAsync(book);
 
             BookHistoric bookHistoric = new()
             {

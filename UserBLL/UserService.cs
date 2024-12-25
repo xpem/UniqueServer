@@ -93,6 +93,24 @@ namespace UserManagementService
             return new BaseResponse(resToken);
         }
 
+        public async Task<BaseResponse> DeleteAsync(ReqUserDataExclusion reqUserDataExclusion)
+        {
+            string? validateError = reqUserDataExclusion.Validate();
+
+            if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(null, validateError);
+
+            User? userResp = await userRepo.GetByEmailAndPasswordAsync(reqUserDataExclusion.Email, encryptionService.Encrypt(reqUserDataExclusion.Password));
+
+            if (userResp is null) return new BaseResponse(null, "User/Password incorrect");
+
+            if(reqUserDataExclusion.UserDataBookshelf is not null)
+            {
+
+            }
+
+            return new BaseResponse("User Deleted.");
+        }
+
         public async Task<BaseResponse> UpdatePasswordAsync(ReqRecoverPassword reqRecoverPassword, int uid)
         {
             try

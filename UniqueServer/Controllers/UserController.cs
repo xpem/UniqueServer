@@ -29,12 +29,32 @@ namespace UniqueServer.Controllers
         [HttpPost]
         public async Task<IActionResult> SendRecoverPasswordEmail(ReqUserEmail reqUserEmail) => BuildResponse(await userService.SendRecoverPasswordEmailAsync(reqUserEmail));
 
+        [Route("UserDataExclusion")]
+        [HttpPost]
+        public async Task<IActionResult> UserDataExclusion([FromForm] ReqUserDataExclusion reqUserDataExclusion)
+        {
+            if (reqUserDataExclusion != null) { string teste = ""; }
+
+          return  BuildResponse(new BaseResponse(""));
+        }
+
+
         [ApiExplorerSettings(IgnoreApi = true)]
         [Route("PrivacyPolicy")]
         [HttpGet]
         public IActionResult PrivacyPolicy()
         {
             string html = System.IO.File.ReadAllText(Path.Combine(hostingEnvironment.ContentRootPath, "StaticFiles", "PrivacyPolicy", "Index.html"));
+
+            return base.Content(html, "text/html");
+        }
+
+        [ApiExplorerSettings(IgnoreApi = true)]
+        [Route("UserDataExclusion")]
+        [HttpGet]
+        public IActionResult UserDataExclusionBody()
+        {
+            string html = System.IO.File.ReadAllText(Path.Combine(hostingEnvironment.ContentRootPath, "StaticFiles", "UserDataExclusion", "Index.html"));
 
             return base.Content(html, "text/html");
         }

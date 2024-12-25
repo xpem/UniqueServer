@@ -5,14 +5,14 @@ namespace BookshelfDAL
 {
     public class BookHistoricRepo(BookshelfDbContext bookshelfDbContext) : IBookHistoricRepo
     {
-        public async Task<int> ExecuteAddBookHistoricAsync(BookHistoric bookHistoric)
+        public async Task<int> AddAsync(BookHistoric bookHistoric)
         {
             await bookshelfDbContext.BookHistoric.AddAsync(bookHistoric);
 
             return await bookshelfDbContext.SaveChangesAsync();
         }
 
-        public async Task<int> ExecuteAddRangeBookHistoricItemListAsync(List<BookHistoricItem> bookHistoricItemList)
+        public async Task<int> AddRangeItemListAsync(List<BookHistoricItem> bookHistoricItemList)
         {
             await bookshelfDbContext.BookHistoricItem.AddRangeAsync(bookHistoricItemList);
 
