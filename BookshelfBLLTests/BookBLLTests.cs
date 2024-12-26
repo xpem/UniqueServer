@@ -1,10 +1,10 @@
 ﻿using BookshelfServices;
-using BookshelfDAL;
 using BookshelfModels;
 using BookshelfModels.Response;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using BookshelfRepo;
 
 namespace BookshelfServicesTests
 {
@@ -348,7 +348,7 @@ namespace BookshelfServicesTests
 
             mockBookDAL.Setup(x => x.GetBookByIdAsync(1, 1)).ReturnsAsync(OriBook);
 
-            mockBookDAL.Setup(x => x.ExecuteInactivateBookAsync(1, 1)).ReturnsAsync(1);
+            mockBookDAL.Setup(x => x.InactivateAsync(1, 1)).ReturnsAsync(1);
 
             IBookService bookBLL = new BookService(bookHistoricBLL, mockBookDAL.Object);
 

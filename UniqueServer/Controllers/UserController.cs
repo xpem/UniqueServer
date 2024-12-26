@@ -10,7 +10,7 @@ namespace UniqueServer.Controllers
 {
     [Route("[Controller]")]
     [ApiController]
-    public class UserController(IUserService userService, IHostEnvironment hostingEnvironment, IJwtTokenService jwtTokenService) : BaseController
+    public class UserController(IUserService userService, IHostEnvironment hostingEnvironment, IJwtTokenService jwtTokenService, IUserDataDeleteService userDataDeleteService) : BaseController
     {
         [Route("")]
         [HttpPost]
@@ -33,11 +33,23 @@ namespace UniqueServer.Controllers
         [HttpPost]
         public async Task<IActionResult> UserDataExclusion([FromForm] ReqUserDataExclusion reqUserDataExclusion)
         {
-            if (reqUserDataExclusion != null) { string teste = ""; }
+            var resp = await userDataDeleteService.DeleteAsync(reqUserDataExclusion);
 
-          return  BuildResponse(new BaseResponse(""));
+            string html = System.IO.File.ReadAllText(Path.Combine(hostingEnvironment.ContentRootPath, "StaticFiles", "UserDataExclusion", "UserDataExclusionConfirmation.html"));
+
+            if (resp.Success)
+            {
+                html = html.Replace("{{TypeMessage}}", "success");
+                html = html.Replace("{{ReturnMessage}}", "Usuário excluído com sucesso");
+            }
+            else
+            {
+                html = html.Replace("{{TypeMessage}}", "warning");
+                html = html.Replace("{{ReturnMessage}}", resp.Error?.Message);
+            }
+
+            return base.Content(html, "text/html");
         }
-
 
         [ApiExplorerSettings(IgnoreApi = true)]
         [Route("PrivacyPolicy")]
@@ -102,8 +114,5 @@ namespace UniqueServer.Controllers
 
             return base.Content(html, "text/html");
         }
-
-
-
     }
 }

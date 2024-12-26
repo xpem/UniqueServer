@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BaseModels\BaseModels.csproj" />
+    <ProjectReference Include="..\BookshelfBLL\BookshelfServices.csproj" />
     <ProjectReference Include="..\UserManagementDAL\UserManagementRepo.csproj" />
     <ProjectReference Include="..\UserModels\UserManagementModels.csproj" />
   </ItemGroup>

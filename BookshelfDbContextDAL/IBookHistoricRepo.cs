@@ -1,6 +1,6 @@
 ﻿using BookshelfModels;
 
-namespace BookshelfDAL
+namespace BookshelfRepo
 {
     public interface IBookHistoricRepo
     {
@@ -11,5 +11,7 @@ namespace BookshelfDAL
         Task<List<BookHistoric>> GetByCreatedAtAsync(DateTime createdAt, int page, int pageSize, int uid);
 
         Task<List<BookHistoric>> GetByBookId(int Bookid, int uid);
+
+        Task<int> DeleteAllAsync(int uid);
     }
 }

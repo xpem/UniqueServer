@@ -19,6 +19,9 @@
             var userDataBookshelfCheckbox = document.getElementById('UserDataBookshelf');
             if (userAccountCheckbox.checked) {
                 userDataBookshelfCheckbox.checked = true;
+                userDataBookshelfCheckbox.disabled = true;
+            } else {
+                userDataBookshelfCheckbox.disabled = false;
             }
         }
 

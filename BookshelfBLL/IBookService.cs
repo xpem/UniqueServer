@@ -12,5 +12,7 @@ namespace BookshelfServices
         Task<BaseResponse> InactivateAsync(int bookId, int uid);
 
         Task<BaseResponse> GetByUpdatedAtAsync(DateTime updatedAt, int page, int uid);
+
+        Task<int> DeleteAllAsync(int uid);
     }
 }
