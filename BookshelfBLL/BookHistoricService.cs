@@ -1,9 +1,9 @@
 ﻿using BaseModels;
-using BookshelfDAL;
 using BookshelfModels;
 using BookshelfModels.Response;
+using BookshelfRepo;
 
-namespace BookshelfBLL
+namespace BookshelfServices
 {
 
     public class BookHistoricService(IBookHistoricRepo bookHistoricDAL) : IBookHistoricService
@@ -22,7 +22,7 @@ namespace BookshelfBLL
                 CreatedAt = DateTime.Now
             };
 
-            await AddBookHistoricAsync(bookHistoric);
+            await AddAsync(bookHistoric);
 
             if (oldBook.Title != book.Title)
                 bookHistoricItemList.Add(new BookHistoricItem()
@@ -124,7 +124,7 @@ namespace BookshelfBLL
                     CreatedAt = DateTime.Now
                 });
 
-            await bookHistoricDAL.ExecuteAddRangeBookHistoricItemListAsync(bookHistoricItemList);
+            await bookHistoricDAL.AddRangeItemListAsync(bookHistoricItemList);
 
             bookHistoric.BookHistoricItems = bookHistoricItemList;
 
@@ -139,11 +139,10 @@ namespace BookshelfBLL
                 bookHistorics = await bookHistoricDAL.GetByBookId(bookId.Value, uid);
             else return new BaseResponse("sem parametro válido de busca");
 
-            var resBookHistorics = BuildBookHistoricList(bookHistorics);
+            var resBookHistorics = BuildList(bookHistorics);
 
             return new BaseResponse(resBookHistorics);
         }
-
 
         public async Task<BaseResponse> GetByCreatedAtAsync(DateTime? createdAt, int page, int uid)
         {
@@ -153,12 +152,12 @@ namespace BookshelfBLL
                 bookHistorics = await bookHistoricDAL.GetByCreatedAtAsync(createdAt.Value, page, pageSize, uid);
             else return new BaseResponse("sem parametro válido de busca");
 
-            var resBookHistorics = BuildBookHistoricList(bookHistorics);
+            var resBookHistorics = BuildList(bookHistorics);
 
             return new BaseResponse(resBookHistorics);
         }
 
-        private static List<ResBookHistoric> BuildBookHistoricList(List<BookHistoric> bookHistorics)
+        private static List<ResBookHistoric> BuildList(List<BookHistoric> bookHistorics)
         {
             List<ResBookHistoric> resBookHistorics = [];
 
@@ -194,6 +193,8 @@ namespace BookshelfBLL
             return resBookHistorics;
         }
 
-        public Task<int> AddBookHistoricAsync(BookHistoric bookHistoric) => bookHistoricDAL.ExecuteAddBookHistoricAsync(bookHistoric);
+        public Task<int> AddAsync(BookHistoric bookHistoric) => bookHistoricDAL.AddAsync(bookHistoric);
+
+        public Task<int> DeleteAllAsync(int uid) => bookHistoricDAL.DeleteAllAsync(uid);
     }
 }

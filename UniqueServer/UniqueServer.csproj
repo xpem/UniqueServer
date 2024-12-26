@@ -27,6 +27,9 @@
     <Content Include="StaticFiles\RecoverPassword\PasswordUpdated.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="StaticFiles\UserDataExclusion\UserDataExclusionConfirmation.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -42,8 +45,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BaseModels\BaseModels.csproj" />
-    <ProjectReference Include="..\BookshelfBLL\BookshelfBLL.csproj" />
-    <ProjectReference Include="..\BookshelfDbContextDAL\BookshelfDAL.csproj" />
+    <ProjectReference Include="..\BookshelfBLL\BookshelfServices.csproj" />
+    <ProjectReference Include="..\BookshelfDbContextDAL\BookshelfRepo.csproj" />
     <ProjectReference Include="..\InventoryBLL\InventoryBLL.csproj" />
     <ProjectReference Include="..\InventoryDbContextDAL\InventoryRepos.csproj" />
     <ProjectReference Include="..\UserBLL\UserManagementService.csproj" />

@@ -1,4 +1,4 @@
-﻿namespace BookshelfDAL
+﻿namespace BookshelfRepo
 {
     public class BookshelfInitializeDB
     {

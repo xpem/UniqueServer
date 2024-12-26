@@ -1,18 +1,18 @@
 ﻿using BookshelfModels;
 using Microsoft.EntityFrameworkCore;
 
-namespace BookshelfDAL
+namespace BookshelfRepo
 {
     public class BookHistoricRepo(BookshelfDbContext bookshelfDbContext) : IBookHistoricRepo
     {
-        public async Task<int> ExecuteAddBookHistoricAsync(BookHistoric bookHistoric)
+        public async Task<int> AddAsync(BookHistoric bookHistoric)
         {
             await bookshelfDbContext.BookHistoric.AddAsync(bookHistoric);
 
             return await bookshelfDbContext.SaveChangesAsync();
         }
 
-        public async Task<int> ExecuteAddRangeBookHistoricItemListAsync(List<BookHistoricItem> bookHistoricItemList)
+        public async Task<int> AddRangeItemListAsync(List<BookHistoricItem> bookHistoricItemList)
         {
             await bookshelfDbContext.BookHistoricItem.AddRangeAsync(bookHistoricItemList);
 
@@ -35,6 +35,16 @@ namespace BookshelfDAL
                                 .ThenInclude(bhi => bhi.BookHistoricItemField)
                                 .Include(x => x.BookHistoricType)
                                 .OrderByDescending(x => x.CreatedAt).ToListAsync();
+        }
+
+        /// <summary>
+        /// delete historic with all relationated items
+        /// </summary>
+        /// <param name="uid"></param>
+        /// <returns></returns>
+        public async Task<int> DeleteAllAsync(int uid)
+        {
+            return await bookshelfDbContext.BookHistoric.Where(x => x.UserId == uid).Include(x => x.BookHistoricItems).ExecuteDeleteAsync();
         }
     }
 }

@@ -1,5 +1,4 @@
-using BookshelfBLL;
-using BookshelfDAL;
+using BookshelfServices;
 using InventoryBLL;
 using InventoryBLL.Interfaces;
 using InventoryRepos;
@@ -11,6 +10,7 @@ using System.Text;
 using UniqueServer;
 using UserManagementRepo;
 using UserManagementService;
+using BookshelfRepo;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -55,10 +55,11 @@ builder.Services.AddScoped<IItemDAL, ItemDAL>();
 
 #endregion
 
-#region DI BLL
+#region DI Service Layer
 
 //usermanagement
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUserDataDeleteService, UserDataDeleteService>();
 
 builder.Services.AddServices(builder.Configuration);
 

@@ -21,9 +21,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserManagementRepo", "UserM
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookshelfModels", "BookshelfModels\BookshelfModels.csproj", "{63185F5D-3F83-41E6-A10F-89623B0F3EB2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookshelfDAL", "BookshelfDbContextDAL\BookshelfDAL.csproj", "{C264B489-479C-4444-86E1-A04BFF67BCBA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookshelfRepo", "BookshelfDbContextDAL\BookshelfRepo.csproj", "{C264B489-479C-4444-86E1-A04BFF67BCBA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookshelfBLL", "BookshelfBLL\BookshelfBLL.csproj", "{3A05CB89-93C6-43E4-8ED0-20691F6BA196}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookshelfServices", "BookshelfBLL\BookshelfServices.csproj", "{3A05CB89-93C6-43E4-8ED0-20691F6BA196}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookshelfBLLTests", "BookshelfBLLTests\BookshelfBLLTests.csproj", "{46457F81-21BA-4454-90A1-1EBE71364C6F}"
 EndProject

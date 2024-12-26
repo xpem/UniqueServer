@@ -12,6 +12,6 @@ namespace UserManagementModels
 
     public enum UserHistoricTypeValues
     {
-        SignIn = 1, PasswordChanged = 2
+        SignIn = 1, PasswordChanged = 2, DeleteBookshelfData = 3, DeleteUser = 4
     }
 }

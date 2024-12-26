@@ -86,13 +86,13 @@ namespace UserManagementService
 
             UserHistoric userHistoric = new() { UserHistoricTypeId = (int)UserHistoricTypeValues.SignIn, CreatedAt = DateTime.UtcNow, UserId = userResp.Id, User = userResp };
 
-            await userHistoricRepo.ExecuteAddUserHistoric(userHistoric);
+            await userHistoricRepo.AddAsync(userHistoric);
 
             ResToken resToken = new() { Token = userJwt };
 
             return new BaseResponse(resToken);
         }
-
+        
         public async Task<BaseResponse> UpdatePasswordAsync(ReqRecoverPassword reqRecoverPassword, int uid)
         {
             try
@@ -114,7 +114,7 @@ namespace UserManagementService
 
                     UserHistoric userHistoric = new() { UserHistoricTypeId = (int)UserHistoricTypeValues.PasswordChanged, CreatedAt = DateTime.UtcNow, UserId = user.Id, User = user };
 
-                    await userHistoricRepo.ExecuteAddUserHistoric(userHistoric);
+                    await userHistoricRepo.AddAsync(userHistoric);
 
                     return new BaseResponse("Password Updated.");
                 }

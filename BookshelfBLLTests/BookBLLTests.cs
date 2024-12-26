@@ -1,12 +1,12 @@
-﻿using BookshelfBLL;
-using BookshelfDAL;
+﻿using BookshelfServices;
 using BookshelfModels;
 using BookshelfModels.Response;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using BookshelfRepo;
 
-namespace BookshelfBLLTests
+namespace BookshelfServicesTests
 {
     [TestClass()]
     public class BookBLLTests
@@ -43,7 +43,7 @@ namespace BookshelfBLLTests
             mockBookDAL.Setup(x => x.CreateAsync(It.IsAny<Book>())).ReturnsAsync(1);
             mockBookDAL.Setup(x => x.GetBookByTitleAsync(reqBook.Title, 1)).ReturnsAsync(bookByTitleAsync);
 
-            mockBookHistoricDAL.Setup(x => x.ExecuteAddBookHistoricAsync(It.IsAny<BookHistoric>())).ReturnsAsync(1);
+            mockBookHistoricDAL.Setup(x => x.AddAsync(It.IsAny<BookHistoric>())).ReturnsAsync(1);
 
             IBookHistoricService bookHistoricBLL = new BookHistoricService(mockBookHistoricDAL.Object);
 
@@ -76,9 +76,9 @@ namespace BookshelfBLLTests
             Mock<IBookRepo> mockBookDAL = new();
             Mock<IBookHistoricRepo> mockBookHistoricDAL = new();
 
-            mockBookHistoricDAL.Setup(x => x.ExecuteAddBookHistoricAsync(It.IsAny<BookHistoric>())).ReturnsAsync(1);
+            mockBookHistoricDAL.Setup(x => x.AddAsync(It.IsAny<BookHistoric>())).ReturnsAsync(1);
 
-            mockBookHistoricDAL.Setup(x => x.ExecuteAddRangeBookHistoricItemListAsync(It.IsAny<List<BookHistoricItem>>())).ReturnsAsync(1);
+            mockBookHistoricDAL.Setup(x => x.AddRangeItemListAsync(It.IsAny<List<BookHistoricItem>>())).ReturnsAsync(1);
 
             IBookHistoricService bookHistoricBLL = new BookHistoricService(mockBookHistoricDAL.Object);
 
@@ -127,9 +127,9 @@ namespace BookshelfBLLTests
             Mock<IBookRepo> mockBookDAL = new();
             Mock<IBookHistoricRepo> mockBookHistoricDAL = new();
 
-            mockBookHistoricDAL.Setup(x => x.ExecuteAddBookHistoricAsync(It.IsAny<BookHistoric>())).ReturnsAsync(1);
+            mockBookHistoricDAL.Setup(x => x.AddAsync(It.IsAny<BookHistoric>())).ReturnsAsync(1);
 
-            mockBookHistoricDAL.Setup(x => x.ExecuteAddRangeBookHistoricItemListAsync(It.IsAny<List<BookHistoricItem>>())).ReturnsAsync(1);
+            mockBookHistoricDAL.Setup(x => x.AddRangeItemListAsync(It.IsAny<List<BookHistoricItem>>())).ReturnsAsync(1);
 
             IBookHistoricService bookHistoricBLL = new BookHistoricService(mockBookHistoricDAL.Object);
 
@@ -196,9 +196,9 @@ namespace BookshelfBLLTests
             Mock<IBookRepo> mockBookDAL = new();
             Mock<IBookHistoricRepo> mockBookHistoricDAL = new();
 
-            mockBookHistoricDAL.Setup(x => x.ExecuteAddBookHistoricAsync(It.IsAny<BookHistoric>())).ReturnsAsync(1);
+            mockBookHistoricDAL.Setup(x => x.AddAsync(It.IsAny<BookHistoric>())).ReturnsAsync(1);
 
-            mockBookHistoricDAL.Setup(x => x.ExecuteAddRangeBookHistoricItemListAsync(It.IsAny<List<BookHistoricItem>>())).ReturnsAsync(1);
+            mockBookHistoricDAL.Setup(x => x.AddRangeItemListAsync(It.IsAny<List<BookHistoricItem>>())).ReturnsAsync(1);
 
             IBookHistoricService bookHistoricBLL = new BookHistoricService(mockBookHistoricDAL.Object);
 
@@ -328,7 +328,7 @@ namespace BookshelfBLLTests
 
             Mock<IBookHistoricRepo> mockBookHistoricDAL = new();
 
-            mockBookHistoricDAL.Setup(x => x.ExecuteAddBookHistoricAsync(It.IsAny<BookHistoric>())).ReturnsAsync(1);
+            mockBookHistoricDAL.Setup(x => x.AddAsync(It.IsAny<BookHistoric>())).ReturnsAsync(1);
 
             IBookHistoricService bookHistoricBLL = new BookHistoricService(mockBookHistoricDAL.Object);
 
@@ -348,7 +348,7 @@ namespace BookshelfBLLTests
 
             mockBookDAL.Setup(x => x.GetBookByIdAsync(1, 1)).ReturnsAsync(OriBook);
 
-            mockBookDAL.Setup(x => x.ExecuteInactivateBookAsync(1, 1)).ReturnsAsync(1);
+            mockBookDAL.Setup(x => x.InactivateAsync(1, 1)).ReturnsAsync(1);
 
             IBookService bookBLL = new BookService(bookHistoricBLL, mockBookDAL.Object);
 

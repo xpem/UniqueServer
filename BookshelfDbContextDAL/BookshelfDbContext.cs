@@ -2,9 +2,9 @@
 using BookshelfModels;
 using Microsoft.EntityFrameworkCore;
 
-namespace BookshelfDAL
+namespace BookshelfRepo
 {
-    public class BookshelfDbContext : DbContext
+    public class BookshelfDbContext(DbContextOptions<BookshelfDbContext> options) : DbContext(options)
     {
         public virtual DbSet<Book> Book => Set<Book>();
 
@@ -15,9 +15,5 @@ namespace BookshelfDAL
         public virtual DbSet<BookHistoricItemField> BookHistoricItemField => Set<BookHistoricItemField>();
 
         public virtual DbSet<BookHistoricItem> BookHistoricItem => Set<BookHistoricItem>();
-
-        public BookshelfDbContext(DbContextOptions<BookshelfDbContext> options) : base(options)
-        {
-        }
     }
 }

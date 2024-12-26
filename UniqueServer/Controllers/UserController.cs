@@ -10,7 +10,7 @@ namespace UniqueServer.Controllers
 {
     [Route("[Controller]")]
     [ApiController]
-    public class UserController(IUserService userService, IHostEnvironment hostingEnvironment, IJwtTokenService jwtTokenService) : BaseController
+    public class UserController(IUserService userService, IHostEnvironment hostingEnvironment, IJwtTokenService jwtTokenService, IUserDataDeleteService userDataDeleteService) : BaseController
     {
         [Route("")]
         [HttpPost]
@@ -29,12 +29,44 @@ namespace UniqueServer.Controllers
         [HttpPost]
         public async Task<IActionResult> SendRecoverPasswordEmail(ReqUserEmail reqUserEmail) => BuildResponse(await userService.SendRecoverPasswordEmailAsync(reqUserEmail));
 
+        [Route("UserDataExclusion")]
+        [HttpPost]
+        public async Task<IActionResult> UserDataExclusion([FromForm] ReqUserDataExclusion reqUserDataExclusion)
+        {
+            var resp = await userDataDeleteService.DeleteAsync(reqUserDataExclusion);
+
+            string html = System.IO.File.ReadAllText(Path.Combine(hostingEnvironment.ContentRootPath, "StaticFiles", "UserDataExclusion", "UserDataExclusionConfirmation.html"));
+
+            if (resp.Success)
+            {
+                html = html.Replace("{{TypeMessage}}", "success");
+                html = html.Replace("{{ReturnMessage}}", "Usuário excluído com sucesso");
+            }
+            else
+            {
+                html = html.Replace("{{TypeMessage}}", "warning");
+                html = html.Replace("{{ReturnMessage}}", resp.Error?.Message);
+            }
+
+            return base.Content(html, "text/html");
+        }
+
         [ApiExplorerSettings(IgnoreApi = true)]
         [Route("PrivacyPolicy")]
         [HttpGet]
         public IActionResult PrivacyPolicy()
         {
             string html = System.IO.File.ReadAllText(Path.Combine(hostingEnvironment.ContentRootPath, "StaticFiles", "PrivacyPolicy", "Index.html"));
+
+            return base.Content(html, "text/html");
+        }
+
+        [ApiExplorerSettings(IgnoreApi = true)]
+        [Route("UserDataExclusion")]
+        [HttpGet]
+        public IActionResult UserDataExclusionBody()
+        {
+            string html = System.IO.File.ReadAllText(Path.Combine(hostingEnvironment.ContentRootPath, "StaticFiles", "UserDataExclusion", "Index.html"));
 
             return base.Content(html, "text/html");
         }
@@ -82,8 +114,5 @@ namespace UniqueServer.Controllers
 
             return base.Content(html, "text/html");
         }
-
-
-
     }
 }
