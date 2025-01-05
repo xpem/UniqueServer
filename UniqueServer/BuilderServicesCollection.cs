@@ -49,7 +49,6 @@ namespace UniqueServer
 
             #endregion
 
-
             return services;
         }
 
@@ -73,7 +72,7 @@ namespace UniqueServer
                 }
                 else
                 {
-                    await context.HttpContext.Response.WriteAsync("Too many requests. Please try again later");
+                    await context.HttpContext.Response.WriteAsync("Too many requests. Please try again later", cancellationToken: token);
                 }
             }
             );

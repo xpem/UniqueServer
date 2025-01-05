@@ -29,6 +29,7 @@ namespace UniqueServer.Controllers
         [HttpPost]
         public async Task<IActionResult> SendRecoverPasswordEmail(ReqUserEmail reqUserEmail) => BuildResponse(await userService.SendRecoverPasswordEmailAsync(reqUserEmail));
 
+        [ApiExplorerSettings(IgnoreApi = true)]
         [Route("UserDataExclusion")]
         [HttpPost]
         public async Task<IActionResult> UserDataExclusion([FromForm] ReqUserDataExclusion reqUserDataExclusion)
@@ -51,7 +52,6 @@ namespace UniqueServer.Controllers
             return base.Content(html, "text/html");
         }
 
-        [ApiExplorerSettings(IgnoreApi = true)]
         [Route("PrivacyPolicy")]
         [HttpGet]
         public IActionResult PrivacyPolicy()
