@@ -1,10 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using UserManagementDAL;
 using UserManagementModels.Response;
 using UserManagementService.Functions;
 using UserManagementModels;
 using UserManagementModels.Request.User;
+using UserManagementService;
+using UserManagementRepo;
 
 namespace UserManagementRepoTests
 {
@@ -15,11 +16,10 @@ namespace UserManagementRepoTests
         public async Task GenerateUserTokenTest()
         {
             Mock<IUserRepo> userDAL = new();
-            Mock<IUserHistoricDAL> userHistoricDAL = new();
+            Mock<IUserHistoricRepo> userHistoricDAL = new();
             Mock<ISendRecoverPasswordEmailService> sendRecoverPasswordEmail = new();
             Mock<IEncryptionService> encryptionService = new();
             Mock<IJwtTokenService> jwtTokenService = new();
-
 
             string encryptedPassword = "test";
             string encryptedtoken = "test";
@@ -39,14 +39,13 @@ namespace UserManagementRepoTests
             };
 
             userDAL.Setup(x => x.GetByEmailAndPasswordAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(userResp);
-            userHistoricDAL.Setup(x => x.ExecuteAddUserHistoric(It.IsAny<UserHistoric>())).ReturnsAsync(1);
+            userHistoricDAL.Setup(x => x.AddAsync(It.IsAny<UserHistoric>())).ReturnsAsync(1);
             encryptionService.Setup(x => x.Encrypt(It.IsAny<string>())).Returns(encryptedPassword);
             jwtTokenService.Setup(x => x.GenerateToken(userResp.Id, userResp.Email, It.IsAny<DateTime>())).Returns(encryptedtoken);
 
-            UserService userService = new(userDAL.Object, userHistoricDAL.Object, sendRecoverPasswordEmail.Object,
-                encryptionService.Object, jwtTokenService.Object);
+            UserService userService = new(userDAL.Object, userHistoricDAL.Object, sendRecoverPasswordEmail.Object, encryptionService.Object, jwtTokenService.Object);
 
-            var resp = await userService.GenerateUserToken(reqUserSession);
+            var resp = await userService.GenerateTokenAsync(reqUserSession);
 
             if (resp != null && resp.Content != null && resp.Content is ResToken)
             {
@@ -55,6 +54,7 @@ namespace UserManagementRepoTests
                 Assert.AreEqual(content?.Token, encryptedtoken);
                 return;
             }
+
             Assert.Fail();
         }
     }

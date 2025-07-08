@@ -15,7 +15,6 @@ namespace UserManagementRepo
         public async Task DeleteAllAsync(int uid)
         {
             await userManagementDbContext.UserHistoric.Where(x => x.UserId.Equals(uid)).ExecuteDeleteAsync();
-
         }
     }
 }

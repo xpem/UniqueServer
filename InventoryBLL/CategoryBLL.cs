@@ -114,9 +114,11 @@ namespace InventoryBLL
             return new BaseResponse(resCategories);
         }
 
-        public BaseResponse GetWithSubCategories(int uid)
+
+        public async Task<BaseResponse> GetWithSubCategories(int uid, int? id = null)
         {
-            List<Category>? categoriesWithSubCategories = categoryDAL.GetWithSubCategories(uid);
+
+            List<Category>? categoriesWithSubCategories = await categoryDAL.GetWithSubCategories(uid, id);
             List<ResCategoryWithSubCategories> resCategoriesWithSubCategories = [];
 
             if (categoriesWithSubCategories != null && categoriesWithSubCategories.Count > 0)

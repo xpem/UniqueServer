@@ -71,7 +71,12 @@ namespace UniqueServer.Controllers.Inventory
 
         [Route("category/subcategory")]
         [HttpGet]
-        public IActionResult GetCategoriesWithSubCategories() => BuildResponse(categoryBLL.GetWithSubCategories(Uid));
+        public async Task<IActionResult> GetCategoriesWithSubCategories() => BuildResponse(await categoryBLL.GetWithSubCategories(Uid));
+
+        [Route("category/subcategory/{id}")]
+        [HttpGet]
+        public async Task<IActionResult> GetCategoriyWithSubCategories(int id) => BuildResponse(await categoryBLL.GetWithSubCategories(Uid, id));
+
 
         #endregion
 

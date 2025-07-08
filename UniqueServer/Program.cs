@@ -23,7 +23,7 @@ builder.Services.AddSwaggerGen(
     {
         op.SwaggerDoc("v1", new OpenApiInfo
         {
-            Version = $"1.8",
+            Version = $"1.10",
             Title = "Unique Server",
             Description = "Routes of apis for Bookshelf, Users Management and Inventory projects",
         });
@@ -91,6 +91,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     options.SaveToken = true;
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowLocalhost",
+        policy => policy
+            .WithOrigins("https://localhost:7223")
+            .AllowAnyHeader()
+            .AllowCredentials()
+            .AllowAnyMethod());
+});
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
@@ -142,5 +152,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers().RequireRateLimiting("fixed");
+
+app.UseCors("AllowLocalhost");
 
 app.Run();

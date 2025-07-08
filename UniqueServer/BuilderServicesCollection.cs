@@ -56,10 +56,10 @@ namespace UniqueServer
         {
             services.AddRateLimiter(options => options.AddFixedWindowLimiter(policyName: "fixed", options =>
             {
-                options.PermitLimit = 4;
+                options.PermitLimit = 8;
                 options.Window = TimeSpan.FromSeconds(12);
                 options.QueueProcessingOrder = System.Threading.RateLimiting.QueueProcessingOrder.OldestFirst;
-                options.QueueLimit = 2;
+                options.QueueLimit = 4;
             }).OnRejected = async (context, token) =>
             {
                 context.HttpContext.Response.StatusCode = 429;

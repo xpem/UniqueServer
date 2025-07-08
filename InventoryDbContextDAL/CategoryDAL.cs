@@ -27,8 +27,13 @@ namespace InventoryRepos
 
         public Category? GetByName(int uid, string name) => dbContext.Category.Where(x => (x.UserId == uid || (x.UserId == null && x.SystemDefault)) && x.Name == name).FirstOrDefault();
 
-        public List<Category>? GetWithSubCategories(int uid)
-            => dbContext.Category.Where(x => x.UserId == uid || (x.UserId == null && x.SystemDefault)).Include(x => x.SubCategories).OrderBy(x => x.Id).ToList();
+        public async Task<List<Category>?> GetWithSubCategories(int uid, int? id = null)
+        {
+            if (id is null)
+                return await dbContext.Category.Where(x => x.UserId == uid || (x.UserId == null && x.SystemDefault)).Include(x => x.SubCategories).OrderBy(x => x.Id).ToListAsync();
+            else
+                return await dbContext.Category.Where(x => x.UserId == uid || (x.UserId == null && x.SystemDefault) && x.Id == id).Include(x => x.SubCategories).OrderBy(x => x.Id).ToListAsync();
+        }
 
 
         public int Update(Category category)

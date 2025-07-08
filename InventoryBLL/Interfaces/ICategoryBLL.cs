@@ -9,7 +9,7 @@ namespace InventoryBLL.Interfaces
 
         BaseResponse GetById(int uid, int id);
 
-        BaseResponse GetWithSubCategories(int uid);
+        Task<BaseResponse> GetWithSubCategories(int uid, int? id = null);
 
         BaseResponse Create(ReqCategory reqCategory, int uid);
 

@@ -109,7 +109,10 @@ namespace InventoryBLL
                     SystemDefault = oldSubCategory.SystemDefault
                 };
 
-                string? existingItemMsg = ValidateExistingSubCategory(subCategory, id);
+                string? existingItemMsg = null;
+
+                if (oldSubCategory.Name != subCategory.Name)
+                    existingItemMsg = ValidateExistingSubCategory(subCategory, id);
 
                 if (existingItemMsg != null)
                 {

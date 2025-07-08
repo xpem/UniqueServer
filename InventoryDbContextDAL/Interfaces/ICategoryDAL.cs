@@ -9,7 +9,7 @@ namespace InventoryRepos.Interfaces
         List<Category>? Get(int uid);
         Category? GetById(int uid, int id);
         Category? GetByName(int uid, string name);
-        List<Category>? GetWithSubCategories(int uid);
+        Task<List<Category>?> GetWithSubCategories(int uid, int? id = null);
         int Update(Category category);
     }
 }

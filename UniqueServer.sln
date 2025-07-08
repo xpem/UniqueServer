@@ -27,7 +27,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookshelfServices", "Booksh
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookshelfBLLTests", "BookshelfBLLTests\BookshelfBLLTests.csproj", "{46457F81-21BA-4454-90A1-1EBE71364C6F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserManagementRepoTests", "UserManagementBLLTests\UserManagementRepoTests.csproj", "{54CEB18A-5A0C-4BF7-A311-8994700CC433}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserManagementServiceTests", "UserManagementBLLTests\UserManagementServiceTests.csproj", "{54CEB18A-5A0C-4BF7-A311-8994700CC433}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InventoryRepos", "InventoryDbContextDAL\InventoryRepos.csproj", "{33C571B7-33E2-41A3-88D5-F75448211F26}"
 EndProject
