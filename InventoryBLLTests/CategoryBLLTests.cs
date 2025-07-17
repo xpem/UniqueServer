@@ -149,7 +149,7 @@ namespace InventoryBLLTests
                 }
                 ];
 
-            Mock<ICategoryDAL> categoryDAL = new();
+            Mock<ICategoryRepo> categoryDAL = new();
             Mock<ISubCategoryRepo> subCategoryDAL = new();
 
             CategoryBLL categoryBLL = new(categoryDAL.Object, subCategoryDAL.Object);
@@ -172,7 +172,7 @@ namespace InventoryBLLTests
         [TestMethod()]
         public void UpdateCategoryTest()
         {
-            Mock<ICategoryDAL> categoryDAL = new();
+            Mock<ICategoryRepo> categoryDAL = new();
             Mock<ISubCategoryRepo> subCategoryDAL = new();
 
             CategoryBLL categoryBLL = new(categoryDAL.Object, subCategoryDAL.Object);
@@ -250,7 +250,7 @@ namespace InventoryBLLTests
         {
             ReqCategory reqCategory = new() { Name = "Vestimenta" };
 
-            Mock<ICategoryDAL> categoryDAL = new();
+            Mock<ICategoryRepo> categoryDAL = new();
             Mock<ISubCategoryRepo> subCategoryDAL = new();
 
             var category = new Category()

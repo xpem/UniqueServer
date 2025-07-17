@@ -8,7 +8,7 @@ using InventoryRepos.Interfaces;
 
 namespace InventoryBLL
 {
-    public class ItemBLL(IItemSituationDAL itemSituationDAL, ICategoryDAL categoryDAL,
+    public class ItemBLL(IItemSituationDAL itemSituationDAL, ICategoryRepo categoryDAL,
         ISubCategoryRepo subCategoryDAL, IAcquisitionTypeDAL acquisitionTypeDAL,
         IItemDAL itemDAL) : IItemBLL
     {

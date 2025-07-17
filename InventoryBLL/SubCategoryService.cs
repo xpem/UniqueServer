@@ -58,7 +58,7 @@ namespace InventoryBLL
         {
             try
             {
-                SubCategory? subCategory = subCategoryRepo.GetById(uid, id);
+                SubCategory? subCategory = await subCategoryRepo.GetById(uid, id);
 
                 if (subCategory == null)
                     return new BaseResponse(null, "Invalid id");
@@ -85,7 +85,7 @@ namespace InventoryBLL
                 string? validateError = reqSubCategory.Validate();
                 if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(null, validateError);
 
-                SubCategory? oldSubCategory = subCategoryRepo.GetById(uid, id);
+                SubCategory? oldSubCategory = await subCategoryRepo.GetById(uid, id);
 
                 if (oldSubCategory == null)
                     return new BaseResponse(null, "Invalid id");
@@ -152,9 +152,9 @@ namespace InventoryBLL
             return new BaseResponse(resSubCategories);
         }
 
-        public BaseResponse GetById(int uid, int id)
+        public async Task<BaseResponse> GetById(int uid, int id)
         {
-            SubCategory? subCategory = subCategoryRepo.GetById(uid, id);
+            SubCategory? subCategory = await subCategoryRepo.GetById(uid, id);
             ResSubCategory? resSubCategory = null;
 
             if (subCategory is not null)
@@ -169,6 +169,31 @@ namespace InventoryBLL
 
             return new BaseResponse(resSubCategory);
         }
+
+        //public async Task<BaseResponse> GetByIdWithCategory(int uid, int id)
+        //{
+        //    SubCategory? subCategory = await subCategoryRepo.GetById(uid, id);
+        //    ResSubCategoryWithCategory? resSubCategory = null;
+
+        //    if (subCategory is not null)
+        //        resSubCategory = new()
+        //        {
+        //            Id = subCategory.Id,
+        //            Name = subCategory.Name,
+        //            //CategoryId = subCategory.CategoryId,
+        //            Category = new ResCategory
+        //            {
+        //                Id = subCategory.Category.Id,
+        //                Name = subCategory.Category.Name,
+        //                Color = subCategory.Category.Color,
+        //                SystemDefault = subCategory.Category.SystemDefault
+        //            },
+        //            IconName = subCategory.IconName,
+        //            SystemDefault = subCategory.SystemDefault,
+        //        };
+
+        //    return new BaseResponse(resSubCategory);
+        //}
 
         protected string? ValidateExistingSubCategory(SubCategory subCategory, int? id = null)
         {

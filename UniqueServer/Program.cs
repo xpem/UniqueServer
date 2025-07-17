@@ -1,3 +1,4 @@
+using BookshelfRepo;
 using BookshelfServices;
 using InventoryBLL;
 using InventoryBLL.Interfaces;
@@ -6,11 +7,11 @@ using InventoryRepos.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Microsoft.VisualBasic;
 using System.Text;
 using UniqueServer;
 using UserManagementRepo;
 using UserManagementService;
-using BookshelfRepo;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -23,7 +24,7 @@ builder.Services.AddSwaggerGen(
     {
         op.SwaggerDoc("v1", new OpenApiInfo
         {
-            Version = $"1.10",
+            Version = $"1.17",
             Title = "Unique Server",
             Description = "Routes of apis for Bookshelf, Users Management and Inventory projects",
         });
@@ -48,7 +49,7 @@ builder.Services.AddScoped<IUserHistoricRepo, UserHistoricRepo>();
 
 //inventory
 builder.Services.AddScoped<ISubCategoryRepo, SubCategoryRepo>();
-builder.Services.AddScoped<ICategoryDAL, CategoryDAL>();
+builder.Services.AddScoped<ICategoryRepo, CategoryRepo>();
 builder.Services.AddScoped<IAcquisitionTypeDAL, AcquisitionTypeDAL>();
 builder.Services.AddScoped<IItemSituationDAL, ItemSituationDAL>();
 builder.Services.AddScoped<IItemDAL, ItemDAL>();
@@ -149,10 +150,11 @@ app.UseAuthentication();
 
 app.UseHttpsRedirection();
 
+app.UseCors("AllowLocalhost");
+
 app.UseAuthorization();
 
 app.MapControllers().RequireRateLimiting("fixed");
 
-app.UseCors("AllowLocalhost");
 
 app.Run();

@@ -32,7 +32,7 @@ namespace UniqueServer.Controllers.Inventory
 
         [Route("subcategory/{id}")]
         [HttpGet]
-        public IActionResult GetSubCategoryById(int id) => BuildResponse(subCategoryBLL.GetById(Uid, id));
+        public  async Task<IActionResult> GetSubCategoryById(int id) => BuildResponse(await subCategoryBLL.GetById(Uid, id));
 
         [Route("subcategory/category/{categoryId}")]
         [HttpGet]
@@ -71,11 +71,11 @@ namespace UniqueServer.Controllers.Inventory
 
         [Route("category/subcategory")]
         [HttpGet]
-        public async Task<IActionResult> GetCategoriesWithSubCategories() => BuildResponse(await categoryBLL.GetWithSubCategories(Uid));
+        public async Task<IActionResult> GetCategoriesWithSubCategories() => BuildResponse(await categoryBLL.GetByIdWithSubCategories(Uid));
 
-        [Route("category/subcategory/{id}")]
+        [Route("category/{id}/subcategory")]
         [HttpGet]
-        public async Task<IActionResult> GetCategoriyWithSubCategories(int id) => BuildResponse(await categoryBLL.GetWithSubCategories(Uid, id));
+        public async Task<IActionResult> GetCategoriyWithSubCategories(int id) => BuildResponse(await categoryBLL.GetByIdWithSubCategories(Uid, id));
 
 
         #endregion

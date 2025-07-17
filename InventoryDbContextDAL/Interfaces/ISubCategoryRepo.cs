@@ -4,7 +4,9 @@ namespace InventoryRepos.Interfaces
 {
     public interface ISubCategoryRepo
     {
-        SubCategory? GetById(int uid, int id);
+        Task<SubCategory?> GetById(int uid, int id);
+
+        //Task<SubCategory?> GetByIdWithCategory(int uid, int id);
 
         Task<List<SubCategory>> GetByAfterUpdatedAtAsync(int uid, DateTime updatedAt, int page, int pageSize);
 

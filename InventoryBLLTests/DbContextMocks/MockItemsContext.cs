@@ -121,7 +121,7 @@ namespace InventoryBLLTests.DbContextMocks
 
             Mock<IItemDAL> mockItemDAL = new();
             Mock<IItemSituationDAL> mockItemSituationDAL = new();
-            Mock<ICategoryDAL> mockCategoryDAL = new();
+            Mock<ICategoryRepo> mockCategoryDAL = new();
             Mock<ISubCategoryRepo> mockSubCategoryDAL = new();
             Mock<IAcquisitionTypeDAL> mockAcquisitionTypeDAL = new();
 

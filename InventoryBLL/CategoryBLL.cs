@@ -7,7 +7,7 @@ using InventoryRepos.Interfaces;
 
 namespace InventoryBLL
 {
-    public class CategoryBLL(ICategoryDAL categoryDAL, ISubCategoryRepo subCategoryDAL) : ICategoryBLL
+    public class CategoryBLL(ICategoryRepo categoryDAL, ISubCategoryRepo subCategoryDAL) : ICategoryBLL
     {
         public BaseResponse Create(ReqCategory reqCategory, int uid)
         {
@@ -115,10 +115,10 @@ namespace InventoryBLL
         }
 
 
-        public async Task<BaseResponse> GetWithSubCategories(int uid, int? id = null)
+        public async Task<BaseResponse> GetByIdWithSubCategories(int uid, int? id = null)
         {
 
-            List<Category>? categoriesWithSubCategories = await categoryDAL.GetWithSubCategories(uid, id);
+            List<Category>? categoriesWithSubCategories = await categoryDAL.GetByIdWithSubCategories(uid, id);
             List<ResCategoryWithSubCategories> resCategoriesWithSubCategories = [];
 
             if (categoriesWithSubCategories != null && categoriesWithSubCategories.Count > 0)

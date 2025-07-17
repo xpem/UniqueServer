@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace InventoryRepos
 {
-    public class CategoryDAL(InventoryDbContext dbContext) : ICategoryDAL
+    public class CategoryRepo(InventoryDbContext dbContext) : ICategoryRepo
     {
         public int Create(Category category)
         {
@@ -27,14 +27,20 @@ namespace InventoryRepos
 
         public Category? GetByName(int uid, string name) => dbContext.Category.Where(x => (x.UserId == uid || (x.UserId == null && x.SystemDefault)) && x.Name == name).FirstOrDefault();
 
-        public async Task<List<Category>?> GetWithSubCategories(int uid, int? id = null)
+        public async Task<List<Category>?> GetByIdWithSubCategories(int uid, int? id = null)
         {
             if (id is null)
-                return await dbContext.Category.Where(x => x.UserId == uid || (x.UserId == null && x.SystemDefault)).Include(x => x.SubCategories).OrderBy(x => x.Id).ToListAsync();
+                return await dbContext.Category
+                    .Where(x => x.UserId == uid || (x.UserId == null && x.SystemDefault))
+                    .Include(x => x.SubCategories!.Where(sc => !sc.Inactive && (sc.UserId == uid || (sc.UserId == null && sc.SystemDefault))))
+                    .OrderBy(x => x.Id)
+                    .ToListAsync();
             else
-                return await dbContext.Category.Where(x => x.UserId == uid || (x.UserId == null && x.SystemDefault) && x.Id == id).Include(x => x.SubCategories).OrderBy(x => x.Id).ToListAsync();
+                return await dbContext.Category.Where(x => (x.UserId == uid || (x.UserId == null && x.SystemDefault)) && x.Id == id)
+                    .Include(x => x.SubCategories!.Where(sc => !sc.Inactive && (sc.UserId == uid || (sc.UserId == null && sc.SystemDefault))))
+                    .OrderBy(x => x.Id)
+                    .ToListAsync();
         }
-
 
         public int Update(Category category)
         {
