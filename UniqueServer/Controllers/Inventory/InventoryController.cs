@@ -77,7 +77,6 @@ namespace UniqueServer.Controllers.Inventory
         [HttpGet]
         public async Task<IActionResult> GetCategoriyWithSubCategories(int id) => BuildResponse(await categoryBLL.GetByIdWithSubCategories(Uid, id));
 
-
         #endregion
 
         [Route("acquisitiontype")]

@@ -10,7 +10,7 @@ namespace InventoryModels.Req
         public required string Name { get; init; }
 
         [StringLength(250)]
-        public required string TechnicalDescription { get; init; }
+        public string? TechnicalDescription { get; init; }
 
         public required DateOnly AcquisitionDate { get; init; }
 
