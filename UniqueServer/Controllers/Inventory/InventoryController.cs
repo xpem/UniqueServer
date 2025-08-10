@@ -13,7 +13,7 @@ namespace UniqueServer.Controllers.Inventory
     [EnableRateLimiting("fixed")]
     [Authorize]
     public class InventoryController(ISubCategoryService subCategoryBLL, ICategoryBLL categoryBLL,
-        IItemSituationBLL itemSituationBLL, IAcquisitionTypeBLL acquisitionTypeBLL, IItemBLL itemBLL,
+        IItemSituationBLL itemSituationBLL, IAcquisitionTypeBLL acquisitionTypeBLL, IItemService itemBLL,
         IHostEnvironment hostingEnvironment) : BaseController
     {
         #region subcategory
@@ -32,7 +32,7 @@ namespace UniqueServer.Controllers.Inventory
 
         [Route("subcategory/{id}")]
         [HttpGet]
-        public  async Task<IActionResult> GetSubCategoryById(int id) => BuildResponse(await subCategoryBLL.GetById(Uid, id));
+        public async Task<IActionResult> GetSubCategoryById(int id) => BuildResponse(await subCategoryBLL.GetById(Uid, id));
 
         [Route("subcategory/category/{categoryId}")]
         [HttpGet]
@@ -101,13 +101,16 @@ namespace UniqueServer.Controllers.Inventory
         [HttpGet]
         public IActionResult GetItemById(int id) => BuildResponse(itemBLL.GetById(Uid, id));
 
-        [Route("item")]
-        [HttpGet]
-        public IActionResult GetItems(int page) => BuildResponse(itemBLL.GetAsync(Uid, page).Result);
-
         [Route("item/totals")]
         [HttpGet]
-        public IActionResult GetItems() => BuildResponse(itemBLL.GetTotalItemsPagesAsync(Uid).Result);
+        public IActionResult GetTotalItems([FromQuery] int[]? situationIds) => BuildResponse(itemBLL.GetTotalItemsPagesAsync(Uid, situationIds).Result);
+
+        [Route("item")]
+        [HttpGet]
+        public IActionResult GetItems([FromQuery] int page, [FromQuery] int[]? situationIds)
+        {
+            return BuildResponse(itemBLL.GetAsync(Uid, page, situationIds).Result);
+        }
 
         [Route("item/{id}")]
         [HttpDelete]
@@ -209,7 +212,7 @@ namespace UniqueServer.Controllers.Inventory
                 {".gif", "image/gif"}
             };
 
-        private bool ValidateFileExtension(IFormFile file)
+        private static bool ValidateFileExtension(IFormFile file)
         {
             string[] validContentTypes = ["image/jpg", "image/jpeg", "image/pjpeg", "image/png"];
             string[] validExtensions = [".jpg", ".png", ".jpeg", ".webp"];

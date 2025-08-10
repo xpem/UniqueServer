@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace InventoryRepos
 {
-    public class ItemDAL(InventoryDbContext dbContext) : IItemDAL
+    public class ItemRepo(InventoryDbContext dbContext) : IItemRepo
     {
         public Item? GetById(int uid, int id)
             => dbContext.Item.Where(x => x.Id == id && x.UserId == uid)
@@ -48,10 +48,31 @@ namespace InventoryRepos
             return dbContext.SaveChanges();
         }
 
-        public async Task<int> GetTotalAsync(int uid) => await dbContext.Item.CountAsync(x => x.UserId == uid);
+        public async Task<int> GetTotalAsync(int uid, int[]? situationIds)
+        {
+            if (situationIds is not null && situationIds?.Length > 0)
+            {
+                return await dbContext.Item.CountAsync(x => x.UserId == uid && situationIds.Contains(x.ItemSituationId));
+            }
 
-        public async Task<List<Item>?> GetAsync(int uid, int page, int pageSize)
-            => await dbContext.Item.AsNoTracking().Where(x => x.UserId == uid)
+            return await dbContext.Item.CountAsync(x => x.UserId == uid);
+        }
+
+        public async Task<List<Item>?> GetAsync(int uid, int page, int pageSize, int[]? situationIds)
+        {
+            if (situationIds is not null && situationIds?.Length > 0)
+            {
+                return await dbContext.Item.AsNoTracking().Where(x => x.UserId == uid && situationIds.Contains(x.ItemSituationId))
+                    .Include(x => x.Category)
+                    .Include(x => x.SubCategory)
+                    .Include(x => x.ItemSituation)
+                    .Include(x => x.AcquisitionType)
+                    .OrderByDescending(x => x.CreatedAt)
+                    .Skip((page - 1) * pageSize).Take(pageSize)
+                    .ToListAsync();
+            }
+
+            return await dbContext.Item.AsNoTracking().Where(x => x.UserId == uid)
             .Include(x => x.Category)
             .Include(x => x.SubCategory)
             .Include(x => x.ItemSituation)
@@ -59,5 +80,6 @@ namespace InventoryRepos
             .OrderByDescending(x => x.CreatedAt)
             .Skip((page - 1) * pageSize).Take(pageSize)
             .ToListAsync();
+        }
     }
 }

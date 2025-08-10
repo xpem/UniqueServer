@@ -28,7 +28,7 @@ namespace InventoryBLLTests
                 ResaleValue = 0,
             };
 
-            ItemBLL itemBLL = MockItemBLL();
+            ItemService itemBLL = MockItemBLL();
 
             BaseModels.BaseResponse resp = itemBLL.CreateItem(reqItem, uid);
 
@@ -51,7 +51,7 @@ namespace InventoryBLLTests
         {
             int uid = 1;
 
-            ItemBLL itemBLL = MockItemBLL();
+            ItemService itemBLL = MockItemBLL();
 
             BaseModels.BaseResponse resp = itemBLL.GetById(uid, 1);
 
@@ -74,7 +74,7 @@ namespace InventoryBLLTests
         {
             int uid = 1;
 
-            ItemBLL itemBLL = MockItemBLL();
+            ItemService itemBLL = MockItemBLL();
 
             ReqItem reqItem = new()
             {
@@ -111,7 +111,7 @@ namespace InventoryBLLTests
         {
             int uid = 1;
 
-            ItemBLL itemBLL = MockItemBLL();
+            ItemService itemBLL = MockItemBLL();
 
             ReqItem reqItem = new()
             {
@@ -147,7 +147,7 @@ namespace InventoryBLLTests
         {
             int uid = 1;
 
-            ItemBLL itemBLL = MockItemBLL();
+            ItemService itemBLL = MockItemBLL();
 
             ReqItem reqItem = new()
             {

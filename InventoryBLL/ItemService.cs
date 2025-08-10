@@ -8,9 +8,9 @@ using InventoryRepos.Interfaces;
 
 namespace InventoryBLL
 {
-    public class ItemBLL(IItemSituationDAL itemSituationDAL, ICategoryRepo categoryDAL,
+    public class ItemService(IItemSituationDAL itemSituationDAL, ICategoryRepo categoryDAL,
         ISubCategoryRepo subCategoryDAL, IAcquisitionTypeDAL acquisitionTypeDAL,
-        IItemDAL itemDAL) : IItemBLL
+        IItemRepo itemRepo) : IItemService
     {
         readonly int pageSize = 50;
 
@@ -43,11 +43,11 @@ namespace InventoryBLL
                     WithdrawalDate = reqItem.WithdrawalDate,
                 };
 
-                int resp = itemDAL.Create(item);
+                int resp = itemRepo.Create(item);
 
                 if (resp == 1)
                 {
-                    Item? createdCompleteItem = itemDAL.GetById(uid, item.Id);
+                    Item? createdCompleteItem = itemRepo.GetById(uid, item.Id);
 
                     if (createdCompleteItem != null)
                     {
@@ -66,7 +66,7 @@ namespace InventoryBLL
 
         public BaseResponse DeleteItem(int uid, int id, string filePath)
         {
-            Item? item = itemDAL.GetById(uid, id);
+            Item? item = itemRepo.GetById(uid, id);
 
             if (item == null)
                 return new BaseResponse(null, "Invalid id");
@@ -76,7 +76,7 @@ namespace InventoryBLL
             if (item.Image1 != null) fileName1 = item.Image1;
             if (item.Image2 != null) fileName2 = item.Image2;
 
-            int respExec = itemDAL.Delete(item);
+            int respExec = itemRepo.Delete(item);
 
             if (respExec == 1)
             {
@@ -94,7 +94,7 @@ namespace InventoryBLL
 
         public BaseResponse DeleteItemImage(int uid, int id, string fileName, string filePath)
         {
-            Item? item = itemDAL.GetById(uid, id);
+            Item? item = itemRepo.GetById(uid, id);
 
             if (item == null)
                 return new BaseResponse(null, "Invalid id");
@@ -111,11 +111,11 @@ namespace InventoryBLL
                 item.Image2 = null;
             }
 
-            int respExec = itemDAL.Update(item);
+            int respExec = itemRepo.Update(item);
 
             if (respExec > 0)
             {
-                Item? createdCompleteItem = itemDAL.GetById(uid, item.Id);
+                Item? createdCompleteItem = itemRepo.GetById(uid, item.Id);
 
                 if (createdCompleteItem != null)
                 {
@@ -129,12 +129,12 @@ namespace InventoryBLL
                 return new BaseResponse(null, "Não foi possivel atualizar o Item.");
         }
 
-        public async Task<BaseResponse> GetAsync(int uid, int page)
+        public async Task<BaseResponse> GetAsync(int uid, int page, int[]? situationIds)
         {
             if (page <= 0)
                 return new BaseResponse(null, "Invalid page");
 
-            List<Item>? items = await itemDAL.GetAsync(uid, page, pageSize);
+            List<Item>? items = await itemRepo.GetAsync(uid, page, pageSize, situationIds);
             List<ResItem> resItems = [];
 
             if (items != null && items.Count > 0)
@@ -145,12 +145,13 @@ namespace InventoryBLL
                     if (bildedResItem != null)
                         resItems.Add(bildedResItem);
                 }
+
             return new BaseResponse(resItems);
         }
 
-        public async Task<BaseResponse> GetTotalItemsPagesAsync(int uid)
+        public async Task<BaseResponse> GetTotalItemsPagesAsync(int uid, int[]? situationIds)
         {
-            int totalItems = await itemDAL.GetTotalAsync(uid);
+            int totalItems = await itemRepo.GetTotalAsync(uid, situationIds);
 
             double fractionalTotalPages = totalItems / (double)pageSize;
 
@@ -165,7 +166,7 @@ namespace InventoryBLL
 
         public BaseResponse GetById(int uid, int id)
         {
-            Item? item = itemDAL.GetById(uid, id);
+            Item? item = itemRepo.GetById(uid, id);
 
             if (item == null)
                 return new BaseResponse(null, "Invalid id");
@@ -225,7 +226,7 @@ namespace InventoryBLL
             string? validateError = reqItem.Validate();
             if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(null, validateError);
 
-            Item? oldItem = itemDAL.GetById(uid, id);
+            Item? oldItem = itemRepo.GetById(uid, id);
 
             if (oldItem == null) return new BaseResponse(null, "Invalid id");
 
@@ -253,11 +254,11 @@ namespace InventoryBLL
                 WithdrawalDate = reqItem.WithdrawalDate,
             };
 
-            int respExec = itemDAL.Update(item);
+            int respExec = itemRepo.Update(item);
 
             if (respExec == 1)
             {
-                Item? createdCompleteItem = itemDAL.GetById(uid, item.Id);
+                Item? createdCompleteItem = itemRepo.GetById(uid, item.Id);
 
                 if (createdCompleteItem != null)
                 {
@@ -273,7 +274,7 @@ namespace InventoryBLL
 
         public BaseResponse UpdateItemFileNames(int uid, int id, string? fileName1, string? fileName2)
         {
-            int respExec = itemDAL.UpdateFileNames(uid, id, fileName1, fileName2);
+            int respExec = itemRepo.UpdateFileNames(uid, id, fileName1, fileName2);
 
             if (respExec == 1)
                 return new BaseResponse(new ResItemImages { Image1 = fileName1, Image2 = fileName2 });
@@ -281,7 +282,7 @@ namespace InventoryBLL
                 return new BaseResponse(null, "Não foi possivel atualizar.");
         }
 
-        public async Task<bool> CheckItemImageNameAsync(int uid, int id, string imageName) => await itemDAL.CheckItemImageNameAsync(uid, id, imageName);
+        public async Task<bool> CheckItemImageNameAsync(int uid, int id, string imageName) => await itemRepo.CheckItemImageNameAsync(uid, id, imageName);
 
         private string? ValidateIndexes(ReqItem reqItem, int uid)
         {

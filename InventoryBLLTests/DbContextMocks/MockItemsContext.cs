@@ -7,7 +7,7 @@ namespace InventoryBLLTests.DbContextMocks
 {
     public class MockItemsContext
     {
-        protected static ItemBLL MockItemBLL()
+        protected static ItemService MockItemBLL()
         {
             ItemSituation itemSituation = new()
             {
@@ -119,7 +119,7 @@ namespace InventoryBLLTests.DbContextMocks
                 ResaleValue = 0,
             };
 
-            Mock<IItemDAL> mockItemDAL = new();
+            Mock<IItemRepo> mockItemDAL = new();
             Mock<IItemSituationDAL> mockItemSituationDAL = new();
             Mock<ICategoryRepo> mockCategoryDAL = new();
             Mock<ISubCategoryRepo> mockSubCategoryDAL = new();
@@ -138,7 +138,7 @@ namespace InventoryBLLTests.DbContextMocks
             mockItemDAL.SetupSequence(x => x.GetById(1, 1)).Returns(item).Returns(UpdatedItem);
             mockItemDAL.Setup(x => x.Create(It.IsAny<Item>())).Returns(1);
             mockItemDAL.Setup(x => x.Update(It.IsAny<Item>())).Returns(1);
-            return new ItemBLL(mockItemSituationDAL.Object, mockCategoryDAL.Object,
+            return new ItemService(mockItemSituationDAL.Object, mockCategoryDAL.Object,
                 mockSubCategoryDAL.Object, mockAcquisitionTypeDAL.Object, mockItemDAL.Object);
         }
 

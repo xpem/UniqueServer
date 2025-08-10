@@ -3,7 +3,7 @@ using InventoryModels.Req;
 
 namespace InventoryBLL.Interfaces
 {
-    public interface IItemBLL
+    public interface IItemService
     {
         BaseResponse CreateItem(ReqItem reqItem, int uid);
 
@@ -13,7 +13,7 @@ namespace InventoryBLL.Interfaces
 
         BaseResponse GetById(int uid, int id);
 
-        Task<BaseResponse> GetAsync(int uid, int page);
+        Task<BaseResponse> GetAsync(int uid, int page, int[]? situationIds);
 
         BaseResponse UpdateItemFileNames(int uid, int id, string? fileName1, string? fileName2);
 
@@ -21,6 +21,6 @@ namespace InventoryBLL.Interfaces
 
         BaseResponse DeleteItemImage(int uid, int id, string fileName, string filePath);
 
-        Task<BaseResponse> GetTotalItemsPagesAsync(int uid);
+        Task<BaseResponse> GetTotalItemsPagesAsync(int uid, int[]? situationIds);
     }
 }

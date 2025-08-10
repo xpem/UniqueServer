@@ -24,7 +24,7 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Version = $"1.18",
+        Version = $"1.19",
         Title = "Unique Server",
         Description = "Routes of apis for Bookshelf, Users Management and Inventory projects",
     });
@@ -83,7 +83,7 @@ builder.Services.AddScoped<ISubCategoryRepo, SubCategoryRepo>();
 builder.Services.AddScoped<ICategoryRepo, CategoryRepo>();
 builder.Services.AddScoped<IAcquisitionTypeDAL, AcquisitionTypeDAL>();
 builder.Services.AddScoped<IItemSituationDAL, ItemSituationDAL>();
-builder.Services.AddScoped<IItemDAL, ItemDAL>();
+builder.Services.AddScoped<IItemRepo, ItemRepo>();
 
 #endregion
 
@@ -104,7 +104,7 @@ builder.Services.AddScoped<ICategoryBLL, CategoryBLL>();
 builder.Services.AddScoped<ISubCategoryService, SubCategoryService>();
 builder.Services.AddScoped<IAcquisitionTypeBLL, AcquisitionTypeBLL>();
 builder.Services.AddScoped<IItemSituationBLL, ItemSituationBLL>();
-builder.Services.AddScoped<IItemBLL, ItemBLL>();
+builder.Services.AddScoped<IItemService, ItemService>();
 
 #endregion
 

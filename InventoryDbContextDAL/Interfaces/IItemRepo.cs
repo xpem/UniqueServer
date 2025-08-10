@@ -2,7 +2,7 @@
 
 namespace InventoryRepos.Interfaces
 {
-    public interface IItemDAL
+    public interface IItemRepo
     {
         int Create(Item item);
 
@@ -16,8 +16,8 @@ namespace InventoryRepos.Interfaces
 
         Task<bool> CheckItemImageNameAsync(int uid, int id, string imageName);
 
-        Task<int> GetTotalAsync(int uid);
+        Task<int> GetTotalAsync(int uid, int[]? situationId);
 
-        Task<List<Item>?> GetAsync(int uid, int page, int pageSize);
+        Task<List<Item>?> GetAsync(int uid, int page, int pageSize, int[]? situationId);
     }
 }
