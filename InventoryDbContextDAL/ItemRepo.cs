@@ -1,4 +1,5 @@
 ﻿using InventoryModels.DTOs;
+using InventoryModels.Req;
 using InventoryRepos.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -58,20 +59,8 @@ namespace InventoryRepos
             return await dbContext.Item.CountAsync(x => x.UserId == uid);
         }
 
-        public async Task<List<Item>?> GetAsync(int uid, int page, int pageSize, int[]? situationIds)
+        public async Task<List<Item>?> GetAsync(int uid, int page, int pageSize)
         {
-            if (situationIds is not null && situationIds?.Length > 0)
-            {
-                return await dbContext.Item.AsNoTracking().Where(x => x.UserId == uid && situationIds.Contains(x.ItemSituationId))
-                    .Include(x => x.Category)
-                    .Include(x => x.SubCategory)
-                    .Include(x => x.ItemSituation)
-                    .Include(x => x.AcquisitionType)
-                    .OrderByDescending(x => x.CreatedAt)
-                    .Skip((page - 1) * pageSize).Take(pageSize)
-                    .ToListAsync();
-            }
-
             return await dbContext.Item.AsNoTracking().Where(x => x.UserId == uid)
             .Include(x => x.Category)
             .Include(x => x.SubCategory)
@@ -80,6 +69,43 @@ namespace InventoryRepos
             .OrderByDescending(x => x.CreatedAt)
             .Skip((page - 1) * pageSize).Take(pageSize)
             .ToListAsync();
+        }
+
+        public async Task<List<Item>?> GetBySearchAsync(int uid, int page, int pageSize, ReqSearchItem reqSearchItem)
+        {
+            var query = dbContext.Item.AsNoTracking().Where(x => x.UserId == uid);
+
+            if (reqSearchItem.Situations is not null && reqSearchItem.Situations.Length > 0)
+            {
+                query = query.Where(x => reqSearchItem.Situations.Contains(x.ItemSituationId));
+            }
+
+            if (!string.IsNullOrWhiteSpace(reqSearchItem.Name))
+            {
+                query = query.Where(x => EF.Functions.Like(x.Name.ToLower(), $"%{reqSearchItem.Name.ToLower()}%"));
+            }
+
+            query
+                .Include(x => x.Category)
+                .Include(x => x.SubCategory)
+                .Include(x => x.ItemSituation)
+                .Include(x => x.AcquisitionType);
+
+            if (reqSearchItem is not null)
+            {
+                query = reqSearchItem.OrderBy switch
+                {
+                    ResultOrderBy.Name => query.OrderBy(x => x.Name).ThenByDescending(x => x.CreatedAt),
+                    ResultOrderBy.AcquisitionDate => query.OrderByDescending(x => x.AcquisitionDate).ThenByDescending(x => x.CreatedAt),
+                    ResultOrderBy.UpdatedAt => query.OrderByDescending(x => x.UpdatedAt).ThenByDescending(x => x.CreatedAt),
+                    _ => query.OrderByDescending(x => x.CreatedAt),
+                };
+            }
+
+            return await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
         }
     }
 }

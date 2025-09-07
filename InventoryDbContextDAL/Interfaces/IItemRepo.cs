@@ -1,4 +1,5 @@
 ﻿using InventoryModels.DTOs;
+using InventoryModels.Req;
 
 namespace InventoryRepos.Interfaces
 {
@@ -18,6 +19,8 @@ namespace InventoryRepos.Interfaces
 
         Task<int> GetTotalAsync(int uid, int[]? situationId);
 
-        Task<List<Item>?> GetAsync(int uid, int page, int pageSize, int[]? situationId);
+        Task<List<Item>?> GetAsync(int uid, int page, int pageSize);
+
+        Task<List<Item>?> GetBySearchAsync(int uid, int page, int pageSize, ReqSearchItem reqSearchItem);
     }
 }

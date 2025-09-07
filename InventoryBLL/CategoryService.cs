@@ -7,7 +7,7 @@ using InventoryRepos.Interfaces;
 
 namespace InventoryBLL
 {
-    public class CategoryBLL(ICategoryRepo categoryDAL, ISubCategoryRepo subCategoryDAL) : ICategoryBLL
+    public class CategoryService(ICategoryRepo categoryDAL, ISubCategoryRepo subCategoryDAL) : ICategoryService
     {
         public BaseResponse Create(ReqCategory reqCategory, int uid)
         {
@@ -117,15 +117,18 @@ namespace InventoryBLL
 
         public async Task<BaseResponse> GetByIdWithSubCategories(int uid, int? id = null)
         {
-
             List<Category>? categoriesWithSubCategories = await categoryDAL.GetByIdWithSubCategories(uid, id);
-            List<ResCategoryWithSubCategories> resCategoriesWithSubCategories = [];
 
+            return new BaseResponse(BuildResCategoryWithSubCategories(categoriesWithSubCategories));
+        }
+
+        public static List<ResCategoryWithSubCategories> BuildResCategoryWithSubCategories(List<Category>? categoriesWithSubCategories)
+        {
+            List<ResCategoryWithSubCategories> resCategoriesWithSubCategories = [];
             if (categoriesWithSubCategories != null && categoriesWithSubCategories.Count > 0)
                 foreach (Category categoryWithSubCategories in categoriesWithSubCategories)
                 {
                     List<ResSubCategory> resSubCategories = [];
-
                     if (categoryWithSubCategories.SubCategories is not null)
                         foreach (SubCategory subCategory in categoryWithSubCategories.SubCategories)
                             resSubCategories.Add(new ResSubCategory()
@@ -136,7 +139,6 @@ namespace InventoryBLL
                                 CategoryId = categoryWithSubCategories.Id,
                                 SystemDefault = subCategory.SystemDefault,
                             });
-
                     resCategoriesWithSubCategories.Add(
                         new()
                         {
@@ -147,8 +149,7 @@ namespace InventoryBLL
                             SubCategories = resSubCategories,
                         });
                 }
-
-            return new BaseResponse(resCategoriesWithSubCategories);
+            return resCategoriesWithSubCategories;
         }
 
         public BaseResponse UpdateCategory(ReqCategory reqCategory, int uid, int id)

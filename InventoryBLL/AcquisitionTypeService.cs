@@ -6,13 +6,18 @@ using InventoryRepos.Interfaces;
 
 namespace InventoryBLL
 {
-    public class AcquisitionTypeBLL(IAcquisitionTypeDAL acquisitionTypeDAL) : IAcquisitionTypeBLL
+    public class AcquisitionTypeService(IAcquisitionTypeRepo acquisitionTypeDAL) : IAcquisitionTypeService
     {
-        public BaseResponse Get(int uid)
+        public async Task<BaseResponse> Get(int uid)
         {
-            List<AcquisitionType>? acquisitionTypes = acquisitionTypeDAL.Get(uid);
-            List<ResAcquisitionType> resAcquisitionTypes = [];
+            List<AcquisitionType>? acquisitionTypes = await acquisitionTypeDAL.Get(uid);
 
+            return new BaseResponse(BuildResAcquisitionType(acquisitionTypes));
+        }
+
+        public static List<ResAcquisitionType> BuildResAcquisitionType(List<AcquisitionType>? acquisitionTypes)
+        {
+            List<ResAcquisitionType> resAcquisitionTypes = [];
             if (acquisitionTypes != null && acquisitionTypes.Count > 0)
                 foreach (AcquisitionType acquisitionType in acquisitionTypes)
                     resAcquisitionTypes.Add(
@@ -24,7 +29,7 @@ namespace InventoryBLL
                             SystemDefault = acquisitionType.SystemDefault,
                         });
 
-            return new BaseResponse(resAcquisitionTypes);
+            return resAcquisitionTypes;
         }
     }
 }

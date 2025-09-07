@@ -24,7 +24,7 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Version = $"1.19",
+        Version = $"1.21",
         Title = "Unique Server",
         Description = "Routes of apis for Bookshelf, Users Management and Inventory projects",
     });
@@ -37,6 +37,7 @@ builder.Services.AddSwaggerGen(c =>
         In = ParameterLocation.Header,
         Description = "JWT Authorization header using the Bearer scheme."
     });
+
     if (!builder.Environment.IsDevelopment())
     {
         c.AddServer(new OpenApiServer { Url = "/api" });
@@ -46,6 +47,7 @@ builder.Services.AddSwaggerGen(c =>
         // Em desenvolvimento, o Swagger pode usar a raiz como base
         c.AddServer(new OpenApiServer { Url = "/" });
     }
+
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -81,8 +83,8 @@ builder.Services.AddScoped<IUserHistoricRepo, UserHistoricRepo>();
 //inventory
 builder.Services.AddScoped<ISubCategoryRepo, SubCategoryRepo>();
 builder.Services.AddScoped<ICategoryRepo, CategoryRepo>();
-builder.Services.AddScoped<IAcquisitionTypeDAL, AcquisitionTypeDAL>();
-builder.Services.AddScoped<IItemSituationDAL, ItemSituationDAL>();
+builder.Services.AddScoped<IAcquisitionTypeRepo, AcquisitionTypeRepo>();
+builder.Services.AddScoped<IItemSituationRepo, ItemSituationRepo>();
 builder.Services.AddScoped<IItemRepo, ItemRepo>();
 
 #endregion
@@ -100,10 +102,10 @@ builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IBookHistoricService, BookHistoricService>();
 
 //inventory
-builder.Services.AddScoped<ICategoryBLL, CategoryBLL>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ISubCategoryService, SubCategoryService>();
-builder.Services.AddScoped<IAcquisitionTypeBLL, AcquisitionTypeBLL>();
-builder.Services.AddScoped<IItemSituationBLL, ItemSituationBLL>();
+builder.Services.AddScoped<IAcquisitionTypeService, AcquisitionTypeService>();
+builder.Services.AddScoped<IItemSituationService, ItemSituationService>();
 builder.Services.AddScoped<IItemService, ItemService>();
 
 #endregion

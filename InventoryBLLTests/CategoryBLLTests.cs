@@ -152,7 +152,7 @@ namespace InventoryBLLTests
             Mock<ICategoryRepo> categoryDAL = new();
             Mock<ISubCategoryRepo> subCategoryDAL = new();
 
-            CategoryBLL categoryBLL = new(categoryDAL.Object, subCategoryDAL.Object);
+            CategoryService categoryBLL = new(categoryDAL.Object, subCategoryDAL.Object);
 
             categoryDAL.Setup(x => x.Get(1)).Returns(categories);
 
@@ -175,7 +175,7 @@ namespace InventoryBLLTests
             Mock<ICategoryRepo> categoryDAL = new();
             Mock<ISubCategoryRepo> subCategoryDAL = new();
 
-            CategoryBLL categoryBLL = new(categoryDAL.Object, subCategoryDAL.Object);
+            CategoryService categoryBLL = new(categoryDAL.Object, subCategoryDAL.Object);
 
             var category = new Category()
             {
@@ -346,7 +346,7 @@ namespace InventoryBLLTests
             categoryDAL.Setup(x => x.GetById(1, 3)).Returns(category);
             categoryDAL.Setup(x => x.GetByName(1, "Vestimenta")).Returns(categoryByName);
 
-            CategoryBLL categoryBLL = new(categoryDAL.Object, subCategoryDAL.Object);
+            CategoryService categoryBLL = new(categoryDAL.Object, subCategoryDAL.Object);
 
             BaseResponse bLLResponse = categoryBLL.UpdateCategory(reqCategory, 1, 3);
 

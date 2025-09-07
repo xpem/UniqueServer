@@ -120,10 +120,10 @@ namespace InventoryBLLTests.DbContextMocks
             };
 
             Mock<IItemRepo> mockItemDAL = new();
-            Mock<IItemSituationDAL> mockItemSituationDAL = new();
+            Mock<IItemSituationRepo> mockItemSituationDAL = new();
             Mock<ICategoryRepo> mockCategoryDAL = new();
             Mock<ISubCategoryRepo> mockSubCategoryDAL = new();
-            Mock<IAcquisitionTypeDAL> mockAcquisitionTypeDAL = new();
+            Mock<IAcquisitionTypeRepo> mockAcquisitionTypeDAL = new();
 
             mockSubCategoryDAL.Setup(x => x.GetById(1, 1)).Returns(subCategory);
             mockCategoryDAL.Setup(x => x.GetById(1, 1)).Returns(category);

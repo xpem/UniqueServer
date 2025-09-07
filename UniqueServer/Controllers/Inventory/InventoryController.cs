@@ -12,38 +12,38 @@ namespace UniqueServer.Controllers.Inventory
     [ApiController]
     [EnableRateLimiting("fixed")]
     [Authorize]
-    public class InventoryController(ISubCategoryService subCategoryBLL, ICategoryBLL categoryBLL,
-        IItemSituationBLL itemSituationBLL, IAcquisitionTypeBLL acquisitionTypeBLL, IItemService itemBLL,
+    public class InventoryController(ISubCategoryService subCategoryService, ICategoryService categoryService,
+        IItemSituationService itemSituationService, IAcquisitionTypeService acquisitionTypeService, IItemService itemService,
         IHostEnvironment hostingEnvironment) : BaseController
     {
         #region subcategory
 
         [Route("subcategory")]
         [HttpPost]
-        public async Task<IActionResult> CreateSubCategoryAsync(ReqSubCategory reqSubCategory) => BuildResponse(await subCategoryBLL.CreateSubCategoryAsync(reqSubCategory, Uid));
+        public async Task<IActionResult> CreateSubCategoryAsync(ReqSubCategory reqSubCategory) => BuildResponse(await subCategoryService.CreateSubCategoryAsync(reqSubCategory, Uid));
 
         [Route("subcategory/{id}")]
         [HttpPut]
-        public async Task<IActionResult> UpdateSubCategoryAsync(ReqSubCategory reqSubCategory, int id) => BuildResponse(await subCategoryBLL.UpdateSubCategoryAsync(reqSubCategory, Uid, id));
+        public async Task<IActionResult> UpdateSubCategoryAsync(ReqSubCategory reqSubCategory, int id) => BuildResponse(await subCategoryService.UpdateSubCategoryAsync(reqSubCategory, Uid, id));
 
         [Route("subcategory/{id}")]
         [HttpDelete]
-        public async Task<IActionResult> DeleteSubCategoryAsync(int id) => BuildResponse(await subCategoryBLL.InactiveSubCategoryAsync(Uid, id));
+        public async Task<IActionResult> DeleteSubCategoryAsync(int id) => BuildResponse(await subCategoryService.InactiveSubCategoryAsync(Uid, id));
 
         [Route("subcategory/{id}")]
         [HttpGet]
-        public async Task<IActionResult> GetSubCategoryById(int id) => BuildResponse(await subCategoryBLL.GetById(Uid, id));
+        public async Task<IActionResult> GetSubCategoryById(int id) => BuildResponse(await subCategoryService.GetById(Uid, id));
 
         [Route("subcategory/category/{categoryId}")]
         [HttpGet]
-        public IActionResult GetSubCategoriesByCategoryId(int categoryId) => BuildResponse(subCategoryBLL.GetByCategoryId(Uid, categoryId));
+        public IActionResult GetSubCategoriesByCategoryId(int categoryId) => BuildResponse(subCategoryService.GetByCategoryId(Uid, categoryId));
 
         [Route("subCategory/byAfterUpdatedAt/{updatedAt}/{page}")]
         [HttpGet]
         public async Task<IActionResult> GetSubCategoriesByAfterUpdatedAt(int page, string updatedAt)
         {
             //format 2023-06-10T21:53:28.331Z
-            return BuildResponse(await subCategoryBLL.GetByAfterUpdatedAtAsync(Uid, page, DateTime.Parse(updatedAt)));
+            return BuildResponse(await subCategoryService.GetByAfterUpdatedAtAsync(Uid, page, DateTime.Parse(updatedAt)));
         }
         #endregion
 
@@ -51,76 +51,87 @@ namespace UniqueServer.Controllers.Inventory
 
         [Route("category")]
         [HttpGet]
-        public IActionResult GetCategories() => BuildResponse(categoryBLL.Get(Uid));
+        public IActionResult GetCategories() => BuildResponse(categoryService.Get(Uid));
 
         [Route("category/{id}")]
         [HttpGet]
-        public IActionResult GetCategoryById(int id) => BuildResponse(categoryBLL.GetById(Uid, id));
+        public IActionResult GetCategoryById(int id) => BuildResponse(categoryService.GetById(Uid, id));
 
         [Route("category")]
         [HttpPost]
-        public IActionResult CreateCategory(ReqCategory reqCategory) => BuildResponse(categoryBLL.Create(reqCategory, Uid));
+        public IActionResult CreateCategory(ReqCategory reqCategory) => BuildResponse(categoryService.Create(reqCategory, Uid));
 
         [Route("category/{id}")]
         [HttpPut]
-        public IActionResult UpdateCategory(ReqCategory reqCategory, int id) => BuildResponse(categoryBLL.UpdateCategory(reqCategory, Uid, id));
+        public IActionResult UpdateCategory(ReqCategory reqCategory, int id) => BuildResponse(categoryService.UpdateCategory(reqCategory, Uid, id));
 
         [Route("category/{id}")]
         [HttpDelete]
-        public IActionResult DeleteCategory(int id) => BuildResponse(categoryBLL.DeleteCategory(Uid, id));
+        public IActionResult DeleteCategory(int id) => BuildResponse(categoryService.DeleteCategory(Uid, id));
 
         [Route("category/subcategory")]
         [HttpGet]
-        public async Task<IActionResult> GetCategoriesWithSubCategories() => BuildResponse(await categoryBLL.GetByIdWithSubCategories(Uid));
+        public async Task<IActionResult> GetCategoriesWithSubCategories() => BuildResponse(await categoryService.GetByIdWithSubCategories(Uid));
 
         [Route("category/{id}/subcategory")]
         [HttpGet]
-        public async Task<IActionResult> GetCategoriyWithSubCategories(int id) => BuildResponse(await categoryBLL.GetByIdWithSubCategories(Uid, id));
+        public async Task<IActionResult> GetCategoriyWithSubCategories(int id) => BuildResponse(await categoryService.GetByIdWithSubCategories(Uid, id));
 
         #endregion
 
         [Route("acquisitiontype")]
         [HttpGet]
-        public IActionResult GetAcquisitionTypes() => BuildResponse(acquisitionTypeBLL.Get(Uid));
+        public async Task<IActionResult> GetAcquisitionTypes() => BuildResponse(await acquisitionTypeService.Get(Uid));
 
         [Route("itemsituation")]
         [HttpGet]
-        public IActionResult GetItemSituations() => BuildResponse(itemSituationBLL.Get(Uid));
+        public async Task<IActionResult> GetItemSituations() => BuildResponse(await itemSituationService.Get(Uid));
 
         #region item
 
         [Route("item")]
         [HttpPost]
-        public IActionResult CreateItem(ReqItem reqItem) => BuildResponse(itemBLL.CreateItem(reqItem, Uid));
+        public IActionResult CreateItem(ReqItem reqItem) => BuildResponse(itemService.CreateItem(reqItem, Uid));
 
         [Route("item/{id:int:min(1)}")]
         [HttpPut]
-        public IActionResult UpdateItem(ReqItem reqItem, int id) => BuildResponse(itemBLL.UpdateItem(reqItem, Uid, id));
+        public IActionResult UpdateItem(ReqItem reqItem, int id) => BuildResponse(itemService.UpdateItem(reqItem, Uid, id));
+
+        [Route("item/configs")]
+        [HttpGet]
+        public async Task<IActionResult> GetItemConfigs() => BuildResponse(await itemService.GetConfigs(Uid));
 
         [Route("item/{id:int:min(1)}")]
         [HttpGet]
-        public IActionResult GetItemById(int id) => BuildResponse(itemBLL.GetById(Uid, id));
+        public IActionResult GetItemById(int id) => BuildResponse(itemService.GetById(Uid, id));
 
         [Route("item/totals")]
         [HttpGet]
-        public IActionResult GetTotalItems([FromQuery] int[]? situationIds) => BuildResponse(itemBLL.GetTotalItemsPagesAsync(Uid, situationIds).Result);
+        public IActionResult GetTotalItems([FromQuery] int[]? situationIds) => BuildResponse(itemService.GetTotalItemsPagesAsync(Uid, situationIds).Result);
 
         [Route("item")]
         [HttpGet]
-        public IActionResult GetItems([FromQuery] int page, [FromQuery] int[]? situationIds)
+        public IActionResult GetItems([FromQuery] int page)
         {
-            return BuildResponse(itemBLL.GetAsync(Uid, page, situationIds).Result);
+            return BuildResponse(itemService.GetAsync(Uid, page).Result);
+        }
+
+        [Route("item/search")]
+        [HttpPost]
+        public IActionResult GetItemsBySearch([FromQuery] int page, [FromBody] ReqSearchItem reqSearchItem)
+        {
+            return BuildResponse(itemService.GetBySearch(Uid, page, reqSearchItem).Result);
         }
 
         [Route("item/{id}")]
         [HttpDelete]
-        public IActionResult DeleteItem(int id) => BuildResponse(itemBLL.DeleteItem(Uid, id, ReturnPath()));
+        public IActionResult DeleteItem(int id) => BuildResponse(itemService.DeleteItem(Uid, id, ReturnPath()));
 
         [Route("item/{id}/image")]
         [HttpPut]
         public IActionResult UploadItemImages(int id, IFormFile? file1, IFormFile? file2)
         {
-            BaseResponse bLLResponse = itemBLL.GetById(Uid, id);
+            BaseResponse bLLResponse = itemService.GetById(Uid, id);
 
             ResItem? resItem = (bLLResponse.Content as ResItem);
 
@@ -156,7 +167,7 @@ namespace UniqueServer.Controllers.Inventory
                 else
                     fileName2 = resItem?.Image2;
 
-                return BuildResponse(itemBLL.UpdateItemFileNames(Uid, id, fileName1, fileName2));
+                return BuildResponse(itemService.UpdateItemFileNames(Uid, id, fileName1, fileName2));
             }
             else return BuildResponse(bLLResponse);
         }
@@ -165,7 +176,7 @@ namespace UniqueServer.Controllers.Inventory
         [HttpGet]
         public async Task<IActionResult> GetItemImagesByIndex(int id, string imageName)
         {
-            if (!await itemBLL.CheckItemImageNameAsync(Uid, id, imageName)) return BadRequest("Invalid Index");
+            if (!await itemService.CheckItemImageNameAsync(Uid, id, imageName)) return BadRequest("Invalid Index");
 
             string path = ReturnPath();
             string fullPath = Path.Combine(path, imageName);
@@ -184,7 +195,7 @@ namespace UniqueServer.Controllers.Inventory
 
         [Route("item/{id}/image/{imageName}")]
         [HttpDelete]
-        public IActionResult DeleteItemImageByImageName(int id, string imageName) => BuildResponse(itemBLL.DeleteItemImage(Uid, id, imageName, ReturnPath()));
+        public IActionResult DeleteItemImageByImageName(int id, string imageName) => BuildResponse(itemService.DeleteItemImage(Uid, id, imageName, ReturnPath()));
 
         private string ReturnPath()
         {

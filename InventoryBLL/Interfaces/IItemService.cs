@@ -1,5 +1,6 @@
 ﻿using BaseModels;
 using InventoryModels.Req;
+using InventoryModels.Res.Item;
 
 namespace InventoryBLL.Interfaces
 {
@@ -13,7 +14,7 @@ namespace InventoryBLL.Interfaces
 
         BaseResponse GetById(int uid, int id);
 
-        Task<BaseResponse> GetAsync(int uid, int page, int[]? situationIds);
+        Task<BaseResponse> GetAsync(int uid, int page);
 
         BaseResponse UpdateItemFileNames(int uid, int id, string? fileName1, string? fileName2);
 
@@ -22,5 +23,8 @@ namespace InventoryBLL.Interfaces
         BaseResponse DeleteItemImage(int uid, int id, string fileName, string filePath);
 
         Task<BaseResponse> GetTotalItemsPagesAsync(int uid, int[]? situationIds);
+        Task<BaseResponse> GetConfigs(int uid);
+
+        Task<BaseResponse> GetBySearch(int uid, int page, ReqSearchItem reqSearchItem);
     }
 }

@@ -8,11 +8,11 @@ using InventoryRepos.Interfaces;
 
 namespace InventoryBLL
 {
-    public class ItemService(IItemSituationDAL itemSituationDAL, ICategoryRepo categoryDAL,
-        ISubCategoryRepo subCategoryDAL, IAcquisitionTypeDAL acquisitionTypeDAL,
+    public class ItemService(IItemSituationRepo itemSituationRepo, ICategoryRepo categoryDAL,
+        ISubCategoryRepo subCategoryDAL, IAcquisitionTypeRepo acquisitionTypeRepo,
         IItemRepo itemRepo) : IItemService
     {
-        readonly int pageSize = 50;
+        readonly int pageSize = 20;
 
         public BaseResponse CreateItem(ReqItem reqItem, int uid)
         {
@@ -63,6 +63,24 @@ namespace InventoryBLL
             }
             catch (Exception) { throw; }
         }
+
+        //public BaseResponse ItemConfigs(int uid)
+        //{
+        //    try
+        //    {
+        //        var situations = itemSituationDAL.Get(uid);
+        //        var categories = categoryDAL.Get(uid);
+        //        var acquisitionTypes = acquisitionTypeDAL.Get(uid);
+        //        ResItemConfigs itemConfigs = new()
+        //        {
+        //            ItemSituations = situations,
+        //            Categories = categories,
+        //            AcquisitionTypes = acquisitionTypes,
+        //        };
+        //        return new BaseResponse(itemConfigs);
+        //    }
+        //    catch (Exception) { throw; }
+        //}
 
         public BaseResponse DeleteItem(int uid, int id, string filePath)
         {
@@ -129,12 +147,32 @@ namespace InventoryBLL
                 return new BaseResponse(null, "Não foi possivel atualizar o Item.");
         }
 
-        public async Task<BaseResponse> GetAsync(int uid, int page, int[]? situationIds)
+        public async Task<BaseResponse> GetAsync(int uid, int page)
         {
             if (page <= 0)
                 return new BaseResponse(null, "Invalid page");
 
-            List<Item>? items = await itemRepo.GetAsync(uid, page, pageSize, situationIds);
+            List<Item>? items = await itemRepo.GetAsync(uid, page, pageSize);
+            List<ResItem> resItems = [];
+
+            if (items != null && items.Count > 0)
+                foreach (Item item in items)
+                {
+                    ResItem? bildedResItem = BuildResItem(item);
+
+                    if (bildedResItem != null)
+                        resItems.Add(bildedResItem);
+                }
+
+            return new BaseResponse(resItems);
+        }
+
+        public async Task<BaseResponse> GetBySearch(int uid, int page, ReqSearchItem reqSearchItem)
+        {
+            if (page <= 0)
+                return new BaseResponse(null, "Invalid page");
+
+            List<Item>? items = await itemRepo.GetBySearchAsync(uid, page, pageSize, reqSearchItem);
             List<ResItem> resItems = [];
 
             if (items != null && items.Count > 0)
@@ -286,7 +324,7 @@ namespace InventoryBLL
 
         private string? ValidateIndexes(ReqItem reqItem, int uid)
         {
-            if (itemSituationDAL.GetById(uid, reqItem.SituationId) == null)
+            if (itemSituationRepo.GetById(uid, reqItem.SituationId) == null)
                 return "Situation with this id don't exist";
 
             if (categoryDAL.GetById(uid, reqItem.Category.CategoryId) == null)
@@ -295,10 +333,40 @@ namespace InventoryBLL
             if ((reqItem.Category.SubCategoryId is not null) && (subCategoryDAL.GetById(uid, reqItem.Category.SubCategoryId.Value) == null))
                 return "SubCategory with this id don't exist";
 
-            if (acquisitionTypeDAL.GetById(uid, reqItem.AcquisitionType) == null)
+            if (acquisitionTypeRepo.GetById(uid, reqItem.AcquisitionType) == null)
                 return "Acquisition Type with this id don't exist";
 
             return null;
+        }
+
+        /// <summary>
+        /// to recover the lists needed on the upsert item screen
+        /// </summary>
+        /// <param name="uid"></param>
+        /// <returns></returns>
+        public async Task<BaseResponse> GetConfigs(int uid)
+        {
+            var itemSituationsDTO = await itemSituationRepo.Get(uid);
+
+            List<ResItemSituation> resItemsSituations = ItemSituationService.BuildItemSituation(itemSituationsDTO);
+
+            var acquisitionTypesDTO = await acquisitionTypeRepo.Get(uid);
+
+            var resAcquisitionTypes = AcquisitionTypeService.BuildResAcquisitionType(acquisitionTypesDTO);
+
+
+            var categoryWithSubCategoriesDTO = await categoryDAL.GetByIdWithSubCategories(uid, null);
+
+            var resCategoryWithSubCategories = CategoryService.BuildResCategoryWithSubCategories(categoryWithSubCategoriesDTO);
+
+            ResItemConfigs itemConfigs = new()
+            {
+                ItemSituations = resItemsSituations,
+                Categories = resCategoryWithSubCategories,
+                AcquisitionTypes = resAcquisitionTypes,
+            };
+
+            return new BaseResponse(itemConfigs);
         }
     }
 }

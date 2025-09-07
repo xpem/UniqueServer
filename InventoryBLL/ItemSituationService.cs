@@ -6,11 +6,17 @@ using InventoryRepos.Interfaces;
 
 namespace InventoryBLL
 {
-    public class ItemSituationBLL(IItemSituationDAL itemSituationDAL) : IItemSituationBLL
+    public class ItemSituationService(IItemSituationRepo itemSituationRepo) : IItemSituationService
     {
-        public BaseResponse Get(int uid)
+        public async Task<BaseResponse> Get(int uid)
         {
-            List<ItemSituation>? itemSituations = itemSituationDAL.Get(uid);
+            List<ItemSituation>? itemSituations = await itemSituationRepo.Get(uid);
+
+            return new BaseResponse(BuildItemSituation(itemSituations));
+        }
+
+        public static List<ResItemSituation> BuildItemSituation(List<ItemSituation>? itemSituations)
+        {
             List<ResItemSituation> resItemSituations = [];
 
             if (itemSituations != null && itemSituations.Count > 0)
@@ -25,7 +31,7 @@ namespace InventoryBLL
                             Type = itemSituation.Type,
                         });
 
-            return new BaseResponse(resItemSituations);
+            return resItemSituations;
         }
     }
 }
