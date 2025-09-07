@@ -17,10 +17,12 @@ namespace InventoryRepos.Interfaces
 
         Task<bool> CheckItemImageNameAsync(int uid, int id, string imageName);
 
-        Task<int> GetTotalAsync(int uid, int[]? situationId);
+        Task<int> GetTotalAsync(int uid);
 
         Task<List<Item>?> GetAsync(int uid, int page, int pageSize);
 
         Task<List<Item>?> GetBySearchAsync(int uid, int page, int pageSize, ReqSearchItem reqSearchItem);
+
+        Task<int> GetTotalBySearchAsync(int uid, ReqSearchItem reqSearchItem);
     }
 }

@@ -49,14 +49,29 @@ namespace InventoryRepos
             return dbContext.SaveChanges();
         }
 
-        public async Task<int> GetTotalAsync(int uid, int[]? situationIds)
+        public async Task<int> GetTotalAsync(int uid)
         {
-            if (situationIds is not null && situationIds?.Length > 0)
+            return await dbContext.Item.CountAsync(x => x.UserId == uid);
+        }
+
+        public async Task<int> GetTotalBySearchAsync(int uid, ReqSearchItem reqSearchItem)
+        {
+            var query = dbContext.Item.AsNoTracking().Where(x => x.UserId == uid);
+
+            if (reqSearchItem is not null)
             {
-                return await dbContext.Item.CountAsync(x => x.UserId == uid && situationIds.Contains(x.ItemSituationId));
+                if (reqSearchItem.Situations?.Length > 0)
+                {
+                    query = query.Where(x => reqSearchItem.Situations.Contains(x.ItemSituationId));
+                }
+
+                if (!string.IsNullOrWhiteSpace(reqSearchItem.Name))
+                {
+                    query = query.Where(x => EF.Functions.Like(x.Name.ToLower(), $"%{reqSearchItem.Name.ToLower()}%"));
+                }
             }
 
-            return await dbContext.Item.CountAsync(x => x.UserId == uid);
+            return await query.CountAsync();
         }
 
         public async Task<List<Item>?> GetAsync(int uid, int page, int pageSize)
@@ -75,14 +90,17 @@ namespace InventoryRepos
         {
             var query = dbContext.Item.AsNoTracking().Where(x => x.UserId == uid);
 
-            if (reqSearchItem.Situations is not null && reqSearchItem.Situations.Length > 0)
+            if (reqSearchItem is not null)
             {
-                query = query.Where(x => reqSearchItem.Situations.Contains(x.ItemSituationId));
-            }
+                if (reqSearchItem.Situations is not null && reqSearchItem.Situations.Length > 0)
+                {
+                    query = query.Where(x => reqSearchItem.Situations.Contains(x.ItemSituationId));
+                }
 
-            if (!string.IsNullOrWhiteSpace(reqSearchItem.Name))
-            {
-                query = query.Where(x => EF.Functions.Like(x.Name.ToLower(), $"%{reqSearchItem.Name.ToLower()}%"));
+                if (!string.IsNullOrWhiteSpace(reqSearchItem.Name))
+                {
+                    query = query.Where(x => EF.Functions.Like(x.Name.ToLower(), $"%{reqSearchItem.Name.ToLower()}%"));
+                }
             }
 
             query

@@ -22,9 +22,11 @@ namespace InventoryBLL.Interfaces
 
         BaseResponse DeleteItemImage(int uid, int id, string fileName, string filePath);
 
-        Task<BaseResponse> GetTotalItemsPagesAsync(int uid, int[]? situationIds);
+        Task<BaseResponse> GetTotalItemsPagesAsync(int uid);
         Task<BaseResponse> GetConfigs(int uid);
 
         Task<BaseResponse> GetBySearch(int uid, int page, ReqSearchItem reqSearchItem);
+
+        Task<BaseResponse> GetTotalItemsPagesBySearchAsync(int uid, ReqSearchItem reqSearchItem);
     }
 }

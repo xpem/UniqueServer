@@ -107,7 +107,11 @@ namespace UniqueServer.Controllers.Inventory
 
         [Route("item/totals")]
         [HttpGet]
-        public IActionResult GetTotalItems([FromQuery] int[]? situationIds) => BuildResponse(itemService.GetTotalItemsPagesAsync(Uid, situationIds).Result);
+        public IActionResult GetTotalItems() => BuildResponse(itemService.GetTotalItemsPagesAsync(Uid).Result);
+
+        [Route("item/totals/search")]
+        [HttpGet]
+        public IActionResult GetTotalItemsBySearch([FromBody] ReqSearchItem reqSearchItem) => BuildResponse(itemService.GetTotalItemsPagesBySearchAsync(Uid, reqSearchItem).Result);
 
         [Route("item")]
         [HttpGet]

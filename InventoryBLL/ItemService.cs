@@ -187,9 +187,24 @@ namespace InventoryBLL
             return new BaseResponse(resItems);
         }
 
-        public async Task<BaseResponse> GetTotalItemsPagesAsync(int uid, int[]? situationIds)
+        public async Task<BaseResponse> GetTotalItemsPagesAsync(int uid)
         {
-            int totalItems = await itemRepo.GetTotalAsync(uid, situationIds);
+            int totalItems = await itemRepo.GetTotalAsync(uid);
+
+            double fractionalTotalPages = totalItems / (double)pageSize;
+
+            if (!(fractionalTotalPages % 1 == 0)) fractionalTotalPages += 1;
+
+            int totalPage = Convert.ToInt32(Math.Round(fractionalTotalPages, 0, MidpointRounding.ToZero));
+
+            ResTotalItems resTotalItems = new() { TotalItems = totalItems, TotalPages = totalPage };
+
+            return new BaseResponse(resTotalItems);
+        }
+
+        public async Task<BaseResponse> GetTotalItemsPagesBySearchAsync(int uid, ReqSearchItem reqSearchItem)
+        {
+            int totalItems = await itemRepo.GetTotalBySearchAsync(uid, reqSearchItem);
 
             double fractionalTotalPages = totalItems / (double)pageSize;
 
