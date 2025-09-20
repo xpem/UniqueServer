@@ -6,9 +6,9 @@ namespace InventoryBLL.Interfaces
 {
     public interface IItemService
     {
-        BaseResponse CreateItem(ReqItem reqItem, int uid);
+        Task<BaseResponse> CreateItem(ReqItem reqItem, int uid);
 
-        BaseResponse UpdateItem(ReqItem reqItem, int uid, int id);
+        Task<BaseResponse> UpdateItem(ReqItem reqItem, int uid, int id);
 
         BaseResponse DeleteItem(int uid, int id, string filePath);
 

@@ -4,12 +4,12 @@ namespace InventoryRepos.Interfaces
 {
     public interface ICategoryRepo
     {
-        int Create(Category category);
-        int Delete(Category category);
-        List<Category>? Get(int uid);
-        Category? GetById(int uid, int id);
-        Category? GetByName(int uid, string name);
-        Task<List<Category>?> GetByIdWithSubCategories(int uid, int? id = null);
-        int Update(Category category);
+        Task<int> CreateAsync(Category category);
+        Task<int> DeleteAsync(Category category);
+        Task<List<Category>?> GetAsync(int uid);
+        Task<Category?> GetByIdAsync(int uid, int id);
+        Task<List<Category>?> GetByIdWithSubCategoriesAsync(int uid, int? id = null);
+        Task<Category?> GetByNameAsync(int uid, string name);
+        Task<int> UpdateAsync(Category category);
     }
 }

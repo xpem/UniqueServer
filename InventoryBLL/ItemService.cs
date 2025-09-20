@@ -5,6 +5,7 @@ using InventoryModels.Req;
 using InventoryModels.Res;
 using InventoryModels.Res.Item;
 using InventoryRepos.Interfaces;
+using System.Threading.Tasks;
 
 namespace InventoryBLL
 {
@@ -14,14 +15,15 @@ namespace InventoryBLL
     {
         readonly int pageSize = 20;
 
-        public BaseResponse CreateItem(ReqItem reqItem, int uid)
+        public async Task<BaseResponse> CreateItem(ReqItem reqItem, int uid)
         {
             try
             {
                 string? validateError = reqItem.Validate();
                 if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(null, validateError);
 
-                string? validateIndexes = ValidateIndexes(reqItem, uid);
+                //to do, não preciso validar os indices, serão validados pelas foreign keys no banco
+                string? validateIndexes = await ValidateIndexes(reqItem, uid);
                 if (!string.IsNullOrEmpty(validateIndexes)) return new BaseResponse(null, validateIndexes);
 
                 Item item = new()
@@ -43,23 +45,26 @@ namespace InventoryBLL
                     WithdrawalDate = reqItem.WithdrawalDate,
                 };
 
-                int resp = itemRepo.Create(item);
-
-                if (resp == 1)
+                try
                 {
-                    Item? createdCompleteItem = itemRepo.GetById(uid, item.Id);
+                    int resp = itemRepo.Create(item);
 
-                    if (createdCompleteItem != null)
+                    if (resp == 1)
                     {
-                        ResItem? resItem = BuildResItem(createdCompleteItem);
+                        Item? createdCompleteItem = itemRepo.GetById(uid, item.Id);
 
-                        return new BaseResponse(resItem);
+                        if (createdCompleteItem != null)
+                        {
+                            ResItem? resItem = BuildResItem(createdCompleteItem);
+
+                            return new BaseResponse(resItem);
+                        }
+                        else throw new Exception($"Não foi possivel recuperar o item de id: {item.Id}");
                     }
-                    else throw new Exception($"Não foi possivel recuperar o item de id: {item.Id}");
+                    else
+                        return new BaseResponse(null, "Não foi possivel adicionar.");
                 }
-                else
-                    return new BaseResponse(null, "Não foi possivel adicionar.");
-
+                catch (Exception ex) { throw ex; }
             }
             catch (Exception) { throw; }
         }
@@ -274,7 +279,7 @@ namespace InventoryBLL
             return resItem;
         }
 
-        public BaseResponse UpdateItem(ReqItem reqItem, int uid, int id)
+        public async Task<BaseResponse> UpdateItem(ReqItem reqItem, int uid, int id)
         {
             string? validateError = reqItem.Validate();
             if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(null, validateError);
@@ -283,7 +288,7 @@ namespace InventoryBLL
 
             if (oldItem == null) return new BaseResponse(null, "Invalid id");
 
-            string? validateIndexes = ValidateIndexes(reqItem, uid);
+            string? validateIndexes = await ValidateIndexes(reqItem, uid);
 
             if (!string.IsNullOrEmpty(validateIndexes)) return new BaseResponse(null, validateIndexes);
 
@@ -337,18 +342,18 @@ namespace InventoryBLL
 
         public async Task<bool> CheckItemImageNameAsync(int uid, int id, string imageName) => await itemRepo.CheckItemImageNameAsync(uid, id, imageName);
 
-        private string? ValidateIndexes(ReqItem reqItem, int uid)
+        private async Task<string?> ValidateIndexes(ReqItem reqItem, int uid)
         {
-            if (itemSituationRepo.GetById(uid, reqItem.SituationId) == null)
+            if ((await itemSituationRepo.GetById(uid, reqItem.SituationId)) == null)
                 return "Situation with this id don't exist";
 
-            if (categoryDAL.GetById(uid, reqItem.Category.CategoryId) == null)
+            if ((await categoryDAL.GetByIdAsync(uid, reqItem.Category.CategoryId)) == null)
                 return "Category with this id don't exist";
 
-            if ((reqItem.Category.SubCategoryId is not null) && (subCategoryDAL.GetById(uid, reqItem.Category.SubCategoryId.Value) == null))
+            if ((reqItem.Category.SubCategoryId is not null) && ((await subCategoryDAL.GetById(uid, reqItem.Category.SubCategoryId.Value)) == null))
                 return "SubCategory with this id don't exist";
 
-            if (acquisitionTypeRepo.GetById(uid, reqItem.AcquisitionType) == null)
+            if ((await acquisitionTypeRepo.GetById(uid, reqItem.AcquisitionType)) == null)
                 return "Acquisition Type with this id don't exist";
 
             return null;
@@ -370,7 +375,7 @@ namespace InventoryBLL
             var resAcquisitionTypes = AcquisitionTypeService.BuildResAcquisitionType(acquisitionTypesDTO);
 
 
-            var categoryWithSubCategoriesDTO = await categoryDAL.GetByIdWithSubCategories(uid, null);
+            var categoryWithSubCategoriesDTO = await categoryDAL.GetByIdWithSubCategoriesAsync(uid, null);
 
             var resCategoryWithSubCategories = CategoryService.BuildResCategoryWithSubCategories(categoryWithSubCategoriesDTO);
 

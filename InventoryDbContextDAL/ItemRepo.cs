@@ -103,11 +103,11 @@ namespace InventoryRepos
                 }
             }
 
-            query
-                .Include(x => x.Category)
-                .Include(x => x.SubCategory)
-                .Include(x => x.ItemSituation)
-                .Include(x => x.AcquisitionType);
+            query = query
+                  .Include(x => x.Category)
+                  .Include(x => x.SubCategory)
+                  .Include(x => x.ItemSituation)
+                  .Include(x => x.AcquisitionType);
 
             if (reqSearchItem is not null)
             {

@@ -51,23 +51,23 @@ namespace UniqueServer.Controllers.Inventory
 
         [Route("category")]
         [HttpGet]
-        public IActionResult GetCategories() => BuildResponse(categoryService.Get(Uid));
+        public async Task<IActionResult> GetCategories() => BuildResponse(await categoryService.Get(Uid));
 
         [Route("category/{id}")]
         [HttpGet]
-        public IActionResult GetCategoryById(int id) => BuildResponse(categoryService.GetById(Uid, id));
+        public async Task<IActionResult> GetCategoryById(int id) => BuildResponse(await categoryService.GetById(Uid, id));
 
         [Route("category")]
         [HttpPost]
-        public IActionResult CreateCategory(ReqCategory reqCategory) => BuildResponse(categoryService.Create(reqCategory, Uid));
+        public async Task<IActionResult> CreateCategory(ReqCategory reqCategory) => BuildResponse(await categoryService.Create(reqCategory, Uid));
 
         [Route("category/{id}")]
         [HttpPut]
-        public IActionResult UpdateCategory(ReqCategory reqCategory, int id) => BuildResponse(categoryService.UpdateCategory(reqCategory, Uid, id));
+        public async Task<IActionResult> UpdateCategory(ReqCategory reqCategory, int id) => BuildResponse(await categoryService.UpdateCategory(reqCategory, Uid, id));
 
         [Route("category/{id}")]
         [HttpDelete]
-        public IActionResult DeleteCategory(int id) => BuildResponse(categoryService.DeleteCategory(Uid, id));
+        public async Task<IActionResult> DeleteCategory(int id) => BuildResponse(await categoryService.DeleteCategory(Uid, id));
 
         [Route("category/subcategory")]
         [HttpGet]
@@ -91,11 +91,11 @@ namespace UniqueServer.Controllers.Inventory
 
         [Route("item")]
         [HttpPost]
-        public IActionResult CreateItem(ReqItem reqItem) => BuildResponse(itemService.CreateItem(reqItem, Uid));
+        public async Task<IActionResult> CreateItem(ReqItem reqItem) => BuildResponse(await itemService.CreateItem(reqItem, Uid));
 
         [Route("item/{id:int:min(1)}")]
         [HttpPut]
-        public IActionResult UpdateItem(ReqItem reqItem, int id) => BuildResponse(itemService.UpdateItem(reqItem, Uid, id));
+        public async Task<IActionResult> UpdateItem(ReqItem reqItem, int id) => BuildResponse(await itemService.UpdateItem(reqItem, Uid, id));
 
         [Route("item/configs")]
         [HttpGet]
@@ -110,7 +110,7 @@ namespace UniqueServer.Controllers.Inventory
         public IActionResult GetTotalItems() => BuildResponse(itemService.GetTotalItemsPagesAsync(Uid).Result);
 
         [Route("item/totals/search")]
-        [HttpGet]
+        [HttpPost]
         public IActionResult GetTotalItemsBySearch([FromBody] ReqSearchItem reqSearchItem) => BuildResponse(itemService.GetTotalItemsPagesBySearchAsync(Uid, reqSearchItem).Result);
 
         [Route("item")]

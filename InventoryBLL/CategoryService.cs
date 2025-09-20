@@ -4,12 +4,13 @@ using InventoryModels.DTOs;
 using InventoryModels.Req;
 using InventoryModels.Res;
 using InventoryRepos.Interfaces;
+using System.Threading.Tasks;
 
 namespace InventoryBLL
 {
-    public class CategoryService(ICategoryRepo categoryDAL, ISubCategoryRepo subCategoryDAL) : ICategoryService
+    public class CategoryService(ICategoryRepo categoryRepo, ISubCategoryRepo subCategoryDAL) : ICategoryService
     {
-        public BaseResponse Create(ReqCategory reqCategory, int uid)
+        public async Task<BaseResponse> Create(ReqCategory reqCategory, int uid)
         {
             try
             {
@@ -25,12 +26,12 @@ namespace InventoryBLL
                     UserId = uid
                 };
 
-                string? existingItemMsg = ValidateExistingCategory(category);
+                string? existingItemMsg = await ValidateExistingCategory(category);
 
                 if (existingItemMsg != null)
                     return new BaseResponse(null, existingItemMsg);
 
-                int respExec = categoryDAL.Create(category);
+                int respExec = await categoryRepo.CreateAsync(category);
 
                 if (respExec == 1)
                 {
@@ -49,11 +50,11 @@ namespace InventoryBLL
             catch { throw; }
         }
 
-        public BaseResponse DeleteCategory(int uid, int id)
+        public async Task<BaseResponse> DeleteCategory(int uid, int id)
         {
             try
             {
-                Category? category = categoryDAL.GetById(uid, id);
+                Category? category = await categoryRepo.GetByIdAsync(uid, id);
 
                 if (category == null)
                     return new BaseResponse(null, "Invalid id");
@@ -66,7 +67,7 @@ namespace InventoryBLL
                 if (subCategories != null && subCategories.Count > 0)
                     return new BaseResponse(null, "It's not possible delete a Category with Sub Categories");
 
-                int respExec = categoryDAL.Delete(category);
+                int respExec = await categoryRepo.DeleteAsync(category);
 
                 if (respExec == 1)
                     return new BaseResponse(1);
@@ -76,11 +77,11 @@ namespace InventoryBLL
             catch { throw; }
         }
 
-        public BaseResponse Get(int uid)
+        public async Task<BaseResponse> Get(int uid)
         {
             // InventoryDbContextDAL.InventoryInitializeDB.CreateInitiaValues();
 
-            List<Category>? categories = categoryDAL.Get(uid);
+            List<Category>? categories = await categoryRepo.GetAsync(uid);
             List<ResCategory> resCategories = [];
 
             if (categories != null && categories.Count > 0)
@@ -97,9 +98,9 @@ namespace InventoryBLL
             return new BaseResponse(resCategories);
         }
 
-        public BaseResponse GetById(int uid, int id)
+        public async Task<BaseResponse> GetById(int uid, int id)
         {
-            Category? category = categoryDAL.GetById(uid, id);
+            Category? category = await categoryRepo.GetByIdAsync(uid, id);
             ResCategory? resCategories = null;
 
             if (category is not null)
@@ -117,7 +118,7 @@ namespace InventoryBLL
 
         public async Task<BaseResponse> GetByIdWithSubCategories(int uid, int? id = null)
         {
-            List<Category>? categoriesWithSubCategories = await categoryDAL.GetByIdWithSubCategories(uid, id);
+            List<Category>? categoriesWithSubCategories = await categoryRepo.GetByIdWithSubCategoriesAsync(uid, id);
 
             return new BaseResponse(BuildResCategoryWithSubCategories(categoriesWithSubCategories));
         }
@@ -152,14 +153,14 @@ namespace InventoryBLL
             return resCategoriesWithSubCategories;
         }
 
-        public BaseResponse UpdateCategory(ReqCategory reqCategory, int uid, int id)
+        public async Task<BaseResponse> UpdateCategory(ReqCategory reqCategory, int uid, int id)
         {
             try
             {
                 string? validateError = reqCategory.Validate();
                 if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(null, validateError);
 
-                Category? oldCategory = categoryDAL.GetById(uid, id);
+                Category? oldCategory = await categoryRepo.GetByIdAsync(uid, id);
 
                 if (oldCategory == null)
                     return new BaseResponse(null, "Invalid id");
@@ -178,14 +179,14 @@ namespace InventoryBLL
                     Id = oldCategory.Id
                 };
 
-                string? existingItemMsg = ValidateExistingCategory(category, id);
+                string? existingItemMsg = await ValidateExistingCategory(category, id);
 
                 if (existingItemMsg != null)
                 {
                     return new BaseResponse(null, existingItemMsg);
                 }
 
-                int respExec = categoryDAL.Update(category);
+                int respExec = await categoryRepo.UpdateAsync(category);
 
                 if (respExec == 1)
                 {
@@ -220,9 +221,9 @@ namespace InventoryBLL
             catch { throw; }
         }
 
-        protected string? ValidateExistingCategory(Category Category, int? id = null)
+        protected async Task<string?> ValidateExistingCategory(Category Category, int? id = null)
         {
-            Category? respCategory = categoryDAL.GetByName(Category.UserId.Value, Category.Name);
+            Category? respCategory = await categoryRepo.GetByNameAsync(Category.UserId.Value, Category.Name);
 
             if ((respCategory is not null) && ((id is not null && respCategory.Id != id) || (id is null)))
                 return "A Category with this Name has already been added.";
