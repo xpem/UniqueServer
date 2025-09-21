@@ -7,5 +7,7 @@
         public List<ResAcquisitionType> AcquisitionTypes { get; init; } = new();
 
         public List<ResItemSituation> ItemSituations { get; init; } = new();
+
+        public List<string> LastPurchaseStores { get; init; } = new();
     }
 }

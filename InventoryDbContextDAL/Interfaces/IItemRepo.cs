@@ -24,5 +24,6 @@ namespace InventoryRepos.Interfaces
         Task<List<Item>?> GetBySearchAsync(int uid, int page, int pageSize, ReqSearchItem reqSearchItem);
 
         Task<int> GetTotalBySearchAsync(int uid, ReqSearchItem reqSearchItem);
+        Task<List<string>> GetLastPurchaseStores(int uid, int count);
     }
 }

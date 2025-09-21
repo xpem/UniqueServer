@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.6.33927.249
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11012.119 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UniqueServer", "UniqueServer\UniqueServer.csproj", "{D793DC6E-51A7-4810-83C3-693672143697}"
 EndProject
@@ -33,9 +33,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InventoryRepos", "Inventory
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InventoryModels", "InventoryModels\InventoryModels.csproj", "{37E8ED57-CB61-4271-A677-C9F731C75E55}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InventoryBLL", "InventoryBLL\InventoryBLL.csproj", "{A40E4E6A-6CB4-463B-A782-8A91F6FBC960}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InventoryServices", "InventoryBLL\InventoryServices.csproj", "{A40E4E6A-6CB4-463B-A782-8A91F6FBC960}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InventoryBLLTests", "InventoryBLLTests\InventoryBLLTests.csproj", "{FBCE7724-7D91-443C-9A5F-2D97201077ED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InventoryServicesTests", "InventoryBLLTests\InventoryServicesTests.csproj", "{FBCE7724-7D91-443C-9A5F-2D97201077ED}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

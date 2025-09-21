@@ -125,5 +125,16 @@ namespace InventoryRepos
                 .Take(pageSize)
                 .ToListAsync();
         }
+
+        public async Task<List<string>> GetLastPurchaseStores(int uid, int count)
+        {
+            return await dbContext.Item.AsNoTracking()
+                .Where(x => x.UserId == uid && !string.IsNullOrEmpty(x.PurchaseStore))
+                .OrderByDescending(x => x.CreatedAt)
+                .Select(x => x.PurchaseStore!)
+                .Distinct()
+                .Take(count)
+                .ToListAsync();
+        }
     }
 }

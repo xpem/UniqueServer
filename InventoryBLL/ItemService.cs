@@ -364,6 +364,7 @@ namespace InventoryBLL
         /// </summary>
         /// <param name="uid"></param>
         /// <returns></returns>
+        /// acquisition types, categories with subcategories, item situations, last 5 purchaseStores
         public async Task<BaseResponse> GetConfigs(int uid)
         {
             var itemSituationsDTO = await itemSituationRepo.Get(uid);
@@ -374,16 +375,18 @@ namespace InventoryBLL
 
             var resAcquisitionTypes = AcquisitionTypeService.BuildResAcquisitionType(acquisitionTypesDTO);
 
-
             var categoryWithSubCategoriesDTO = await categoryDAL.GetByIdWithSubCategoriesAsync(uid, null);
 
             var resCategoryWithSubCategories = CategoryService.BuildResCategoryWithSubCategories(categoryWithSubCategoriesDTO);
+
+            var lastPurchaseStores = await itemRepo.GetLastPurchaseStores(uid, 5);
 
             ResItemConfigs itemConfigs = new()
             {
                 ItemSituations = resItemsSituations,
                 Categories = resCategoryWithSubCategories,
                 AcquisitionTypes = resAcquisitionTypes,
+                LastPurchaseStores = lastPurchaseStores,
             };
 
             return new BaseResponse(itemConfigs);
