@@ -1,7 +1,7 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Security.Claims;
 using System.Text;
 using UniqueServer;
 
@@ -63,43 +63,42 @@ builder.Services.AddServices(builder.Configuration);
 
 #region Auth configs
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
     {
-        ValidateAudience = false,
-        ValidateIssuer = false,
-        ValidateIssuerSigningKey = true,
-        ValidateLifetime = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtKey"]))
-    };
-    options.SaveToken = true;
-})
-    //for google login
-    .AddCookie("Cookies"); ;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateAudience = false,
+            ValidateIssuer = false,
+            ValidateIssuerSigningKey = true,
+            ValidateLifetime = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtKey"]))
+        };
+        options.SaveToken = true;
+    })
+    .AddGoogle(options =>
+    {
+        options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+        options.CallbackPath = "/User/SignInGoogleCallback";
+        //options.Events.OnCreatingTicket = ctx =>
+        //{
+        //    var identity = (ClaimsIdentity)ctx.Principal.Identity;
+        //    var email = ctx.User.GetProperty("email").GetString();
+        //    var name = ctx.User.GetProperty("name").GetString();
+        //    return Task.CompletedTask;
+        //};
+    }).AddCookie();
 
-builder.Services.AddAuthentication().AddGoogle(options =>
-{
-    options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-    options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
-    options.CallbackPath = "/User/SignInGoogleCallback";
-    //options.Events.OnCreatingTicket = ctx =>
-    //{
-    //    var identity = (ClaimsIdentity)ctx.Principal.Identity;
-    //    var email = ctx.User.GetProperty("email").GetString();
-    //    var name = ctx.User.GetProperty("name").GetString();
-    //    return Task.CompletedTask;
-    //};
-});
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowLocalhost",
         policy => policy
            .WithOrigins("https://localhost:7223", "https://xpem.vps-kinghost.net") // Adicionado o domínio de produção
-            .AllowAnyHeader()
-            .AllowCredentials()
-            .AllowAnyMethod());
+           .AllowAnyHeader()
+           .AllowCredentials()
+           .AllowAnyMethod());
 });
 
 builder.Services.AddAuthorization();

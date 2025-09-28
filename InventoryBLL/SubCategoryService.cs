@@ -16,7 +16,7 @@ namespace InventoryBLL
             try
             {
                 string? validateError = reqSubCategory.Validate();
-                if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(null, validateError);
+                if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(ErrorCode.InvalidObject, validateError);
 
                 string iconName = "Tag";
 
@@ -38,7 +38,7 @@ namespace InventoryBLL
 
                 if (existingItemMsg != null)
                 {
-                    return new BaseResponse(null, existingItemMsg);
+                    return new BaseResponse(ErrorCode.ExistingObject, existingItemMsg);
                 }
 
                 int respExec = await subCategoryRepo.CreateAsync(subCategory);
@@ -49,7 +49,7 @@ namespace InventoryBLL
                     return new BaseResponse(resSubCategory);
                 }
                 else
-                    return new BaseResponse(null, "Não foi possivel adicionar.");
+                    return new BaseResponse(ErrorCode.ErrorCreatingObject, "Não foi possivel adicionar.");
             }
             catch { throw; }
         }
@@ -61,10 +61,10 @@ namespace InventoryBLL
                 SubCategory? subCategory = await subCategoryRepo.GetById(uid, id);
 
                 if (subCategory == null)
-                    return new BaseResponse(null, "Invalid id");
+                    return new BaseResponse(ErrorCode.InvalidId, "Invalid id");
 
                 if (subCategory.SystemDefault)
-                    return new BaseResponse(null, "It's not possible delete a system default Sub Category");
+                    return new BaseResponse(ErrorCode.TryDeleteSystemDefaultObject, "It's not possible delete a system default Sub Category");
 
                 subCategory.Inactive = true;
 
@@ -73,7 +73,7 @@ namespace InventoryBLL
                 if (respExec == 1)
                     return new BaseResponse(null);
                 else
-                    return new BaseResponse(null, "Não foi possivel deletar.");
+                    return new BaseResponse(ErrorCode.ErrorDeletingObject, "Não foi possivel deletar.");
             }
             catch { throw; }
         }
@@ -83,15 +83,15 @@ namespace InventoryBLL
             try
             {
                 string? validateError = reqSubCategory.Validate();
-                if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(null, validateError);
+                if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(ErrorCode.InvalidObject, validateError);
 
                 SubCategory? oldSubCategory = await subCategoryRepo.GetById(uid, id);
 
                 if (oldSubCategory == null)
-                    return new BaseResponse(null, "Invalid id");
+                    return new BaseResponse(ErrorCode.InvalidId, "Invalid id");
 
                 if (oldSubCategory.SystemDefault)
-                    return new BaseResponse(null, "It's not possible edit a system default Sub Category");
+                    return new BaseResponse(ErrorCode.TryDeleteSystemDefaultObject, "It's not possible edit a system default Sub Category");
 
                 string iconName = "Tag";
 
@@ -116,7 +116,7 @@ namespace InventoryBLL
 
                 if (existingItemMsg != null)
                 {
-                    return new BaseResponse(null, existingItemMsg);
+                    return new BaseResponse(ErrorCode.ExistingObject, existingItemMsg);
                 }
 
                 int respExec = await subCategoryRepo.UpdateAsync(subCategory);
@@ -127,7 +127,7 @@ namespace InventoryBLL
                     return new BaseResponse(resSubCategory);
                 }
                 else
-                    return new BaseResponse(null, "Não foi possivel atualizar.");
+                    return new BaseResponse(ErrorCode.ErrorUpdatingObject, "Não foi possivel atualizar.");
             }
             catch { throw; }
         }
@@ -208,7 +208,7 @@ namespace InventoryBLL
         public async Task<BaseResponse> GetByAfterUpdatedAtAsync(int uid, int page, DateTime updatedAt)
         {
             if (page <= 0)
-                return new BaseResponse(null, "Invalid page");
+                return new BaseResponse(ErrorCode.InvalidPage, "Invalid page");
 
             List<SubCategory> subCategories = await subCategoryRepo.GetByAfterUpdatedAtAsync(uid, updatedAt, page, pageSize);
 

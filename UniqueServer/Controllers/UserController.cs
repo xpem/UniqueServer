@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
+using System.Security.Principal;
 using UserManagementModels.Request.User;
 using UserManagementService.Functions;
 using UserManagementService.Interfaces;
@@ -23,9 +24,9 @@ namespace UniqueServer.Controllers
 
         [HttpGet("SignInGoogle")]
         [AllowAnonymous]
-        public IActionResult LoginGoogle()
+        public IActionResult SignInGoogle()
         {
-            var properties = new AuthenticationProperties { RedirectUri = Url.Action(nameof(SignInGoogleCallback), "User") };
+            var properties = new AuthenticationProperties { RedirectUri = Url.Action("SignInGoogleCallback", "User") };
             return Challenge(properties, GoogleDefaults.AuthenticationScheme);
 
             //var redirectUrl = Url.Action("GoogleResponse", "Auth", new { ReturnUrl = returnUrl });
@@ -37,17 +38,19 @@ namespace UniqueServer.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> SignInGoogleCallback()
         {
-            var authenticateResult = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            var authenticateResult = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
 
             if (!authenticateResult.Succeeded)
             {
                 // Handle authentication failure
-                return RedirectToAction("Login"); // Redirect to your login page
+                throw new Exception("Erro no callback da autenticação com o google.");
             }
 
             // Retrieve user information from authenticateResult.Principal
             var email = authenticateResult.Principal.FindFirst(ClaimTypes.Email)?.Value;
             var name = authenticateResult.Principal.FindFirst(ClaimTypes.Name)?.Value;
+
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, authenticateResult.Principal);
 
             return BuildResponse(await userService.GoogleAuthAsync(name, email));
         }
