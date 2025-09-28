@@ -14,8 +14,6 @@ namespace UserManagementRepo
 
         Task<User?> GetByIdAsync(int uid);
 
-        Task<User?> GetByNameOrEmailAsync(string name, string email);
-
         Task DeleteAsync(int uid);
     }
 }

@@ -9,7 +9,7 @@ namespace UserManagementRepo
 
         public DbSet<UserHistoric> UserHistoric => Set<UserHistoric>();
 
-        public DbSet<UserHistoricType> UserHistoricType => Set<UserHistoricType>();
+        //public DbSet<UserHistoricType> UserHistoricType => Set<UserHistoricType>();
 
         public UserManagementDbContext(DbContextOptions<UserManagementDbContext> options) : base(options)
         {

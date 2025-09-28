@@ -1,10 +1,15 @@
 ﻿using BaseModels;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using UserManagementService.Functions;
+using System.Security.Claims;
 using UserManagementModels.Request.User;
-using UserManagementService;
+using UserManagementService.Functions;
+using UserManagementService.Interfaces;
 
 namespace UniqueServer.Controllers
 {
@@ -15,6 +20,37 @@ namespace UniqueServer.Controllers
         [Route("")]
         [HttpPost]
         public async Task<IActionResult> SignUp(ReqUser reqUser) => BuildResponse(await userService.CreateAsync(reqUser));
+
+        [HttpGet("SignInGoogle")]
+        [AllowAnonymous]
+        public IActionResult LoginGoogle()
+        {
+            var properties = new AuthenticationProperties { RedirectUri = Url.Action(nameof(SignInGoogleCallback), "User") };
+            return Challenge(properties, GoogleDefaults.AuthenticationScheme);
+
+            //var redirectUrl = Url.Action("GoogleResponse", "Auth", new { ReturnUrl = returnUrl });
+            //var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+            //return Challenge(properties, "Google");
+        }
+
+        [HttpGet("SignInGoogleCallback")]
+        [AllowAnonymous]
+        public async Task<IActionResult> SignInGoogleCallback()
+        {
+            var authenticateResult = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            if (!authenticateResult.Succeeded)
+            {
+                // Handle authentication failure
+                return RedirectToAction("Login"); // Redirect to your login page
+            }
+
+            // Retrieve user information from authenticateResult.Principal
+            var email = authenticateResult.Principal.FindFirst(ClaimTypes.Email)?.Value;
+            var name = authenticateResult.Principal.FindFirst(ClaimTypes.Name)?.Value;
+
+            return BuildResponse(await userService.GoogleAuthAsync(name, email));
+        }
 
         [Route("Session")]
         [HttpPost]
