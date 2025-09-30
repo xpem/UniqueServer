@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -63,39 +65,39 @@ builder.Services.AddServices(builder.Configuration);
 
 #region Auth configs
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
+builder.Services.AddAuthentication(op =>
+{
+    op.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    op.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+    op.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+})
+.AddCookie()
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
     {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateAudience = false,
-            ValidateIssuer = false,
-            ValidateIssuerSigningKey = true,
-            ValidateLifetime = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtKey"]))
-        };
-        options.SaveToken = true;
-    })
-    .AddGoogle(options =>
-    {
-        options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
-        options.CallbackPath = "/User/SignInGoogleCallback";
-        //options.Events.OnCreatingTicket = ctx =>
-        //{
-        //    var identity = (ClaimsIdentity)ctx.Principal.Identity;
-        //    var email = ctx.User.GetProperty("email").GetString();
-        //    var name = ctx.User.GetProperty("name").GetString();
-        //    return Task.CompletedTask;
-        //};
-    }).AddCookie();
+        ValidateAudience = false,
+        ValidateIssuer = false,
+        ValidateIssuerSigningKey = true,
+        ValidateLifetime = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtKey"]))
+    };
+    options.SaveToken = true;
+})
+.AddGoogle(options =>
+{
+    options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+    options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+    options.CorrelationCookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None;
+    options.CorrelationCookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.Always;
+});
 
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowLocalhost",
         policy => policy
-           .WithOrigins("https://localhost:7223", "https://xpem.vps-kinghost.net") // Adicionado o domínio de produção
+           .WithOrigins("https://localhost:7223", "https://xpem.vps-kinghost.net", "https://localhost:44303") // Adicionado o domínio de produção
            .AllowAnyHeader()
            .AllowCredentials()
            .AllowAnyMethod());
@@ -114,6 +116,7 @@ app.UseSwaggerUI();
 
 app.UseRateLimiter();
 
+app.UseHsts();
 app.UseHttpsRedirection();
 
 app.UseCors("AllowLocalhost");
