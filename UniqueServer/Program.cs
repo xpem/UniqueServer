@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -65,14 +63,7 @@ builder.Services.AddServices(builder.Configuration);
 
 #region Auth configs
 
-builder.Services.AddAuthentication(op =>
-{
-    op.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    op.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
-    op.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-})
-.AddCookie()
-.AddJwtBearer(options =>
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {
@@ -83,15 +74,7 @@ builder.Services.AddAuthentication(op =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtKey"]))
     };
     options.SaveToken = true;
-})
-.AddGoogle(options =>
-{
-    options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-    options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
-    options.CorrelationCookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None;
-    options.CorrelationCookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.Always;
 });
-
 
 builder.Services.AddCors(options =>
 {
@@ -115,13 +98,11 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseRateLimiter();
+app.UseAuthentication();
 
-app.UseHsts();
 app.UseHttpsRedirection();
 
 app.UseCors("AllowLocalhost");
-
-app.UseAuthentication();
 
 app.UseAuthorization();
 

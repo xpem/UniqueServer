@@ -1,15 +1,8 @@
 ﻿using BaseModels;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
-using System.Security.Principal;
 using UserManagementModels.Request.User;
-using UserManagementModels.Response;
 using UserManagementService.Functions;
 using UserManagementService.Interfaces;
 
@@ -22,42 +15,6 @@ namespace UniqueServer.Controllers
         [Route("")]
         [HttpPost]
         public async Task<IActionResult> SignUp(ReqUser reqUser) => BuildResponse(await userService.CreateAsync(reqUser));
-
-        [HttpGet("SignInGoogle")]
-        [AllowAnonymous]
-        public IActionResult SignInGoogle(string returnUrl = null)
-        {
-            var properties = new AuthenticationProperties { RedirectUri = $"/User/SignInGoogleCallback?returnUrl={Uri.EscapeDataString(returnUrl ?? string.Empty)}" };
-
-            return Challenge(properties, GoogleDefaults.AuthenticationScheme);
-        }
-
-        [HttpGet("SignInGoogleCallback")]
-        [AllowAnonymous]
-        public async Task<IActionResult> SignInGoogleCallback(string returnUrl = null)
-        {
-            var authenticateResult = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
-
-            if (!authenticateResult.Succeeded)
-            {
-                throw new Exception("Erro no callback da autenticação com o google.");
-            }
-
-            var email = authenticateResult.Principal.FindFirst(ClaimTypes.Email)?.Value;
-            var name = authenticateResult.Principal.FindFirst(ClaimTypes.Name)?.Value;
-
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, authenticateResult.Principal);
-
-            var response = await userService.GoogleAuthAsync(name, email);
-
-            if (response.Success && !string.IsNullOrEmpty(returnUrl) && response.Content is ResToken and not null)
-            {
-                // Redireciona para a URL informada
-                return Redirect(returnUrl + $"?Auth={((ResToken)response.Content).Token}");
-            }
-
-            return BuildResponse(response);
-        }
 
         [Route("Session")]
         [HttpPost]
