@@ -131,9 +131,10 @@ namespace InventoryRepos
             return await dbContext.Item.AsNoTracking()
                 .Where(x => x.UserId == uid && !string.IsNullOrEmpty(x.PurchaseStore))
                 .OrderByDescending(x => x.CreatedAt)
+                .ThenBy(x => x.PurchaseStore)
                 .Select(x => x.PurchaseStore!)
                 .Distinct()
-                .Take(count)
+                .Take(count)                                
                 .ToListAsync();
         }
     }

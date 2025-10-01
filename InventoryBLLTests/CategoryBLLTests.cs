@@ -6,6 +6,7 @@ using InventoryModels.Res;
 using InventoryRepos.Interfaces;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System.Threading.Tasks;
 
 namespace InventoryBLLTests
 {
@@ -13,7 +14,7 @@ namespace InventoryBLLTests
     public class CategoryBLLTests
     {
         [TestMethod()]
-        public void GetTest()
+        public async Task GetTest()
         {
             List<Category> categories = [
                 new Category()
@@ -154,9 +155,9 @@ namespace InventoryBLLTests
 
             CategoryService categoryBLL = new(categoryDAL.Object, subCategoryDAL.Object);
 
-            categoryDAL.Setup(x => x.Get(1)).Returns(categories);
+            categoryDAL.Setup(x => x.GetAsync(1)).ReturnsAsync(categories);
 
-            BaseResponse bLLResponse = categoryBLL.Get(1);
+            BaseResponse bLLResponse = await categoryBLL.Get(1);
 
             if (bLLResponse?.Content is not null)
             {
@@ -170,7 +171,7 @@ namespace InventoryBLLTests
         }
 
         [TestMethod()]
-        public void UpdateCategoryTest()
+        public async Task UpdateCategoryTest()
         {
             Mock<ICategoryRepo> categoryDAL = new();
             Mock<ISubCategoryRepo> subCategoryDAL = new();
@@ -223,13 +224,13 @@ namespace InventoryBLLTests
                     ]
             };
 
-            categoryDAL.Setup(x => x.GetById(1, 3)).Returns(category);
+            categoryDAL.Setup(x => x.GetByIdAsync(1, 3)).ReturnsAsync(category);
 
-            categoryDAL.Setup(x => x.Update(It.IsAny<Category>())).Returns(1);
+            categoryDAL.Setup(x => x.UpdateAsync(It.IsAny<Category>())).ReturnsAsync(1);
 
             ReqCategory reqCategory = new() { Name = "Teste de título alterado" };
 
-            BaseResponse bLLResponse = categoryBLL.UpdateCategory(reqCategory, 1, 3);
+            BaseResponse bLLResponse = await categoryBLL.UpdateCategory(reqCategory, 1, 3);
 
             if (bLLResponse?.Content is not null)
             {
@@ -246,7 +247,7 @@ namespace InventoryBLLTests
         }
 
         [TestMethod()]
-        public void Try_UpdateCategory_With_Same_Name_Test()
+        public async Task Try_UpdateCategory_With_Same_Name_Test()
         {
             ReqCategory reqCategory = new() { Name = "Vestimenta" };
 
@@ -343,12 +344,12 @@ namespace InventoryBLLTests
                     ]
             };
 
-            categoryDAL.Setup(x => x.GetById(1, 3)).Returns(category);
-            categoryDAL.Setup(x => x.GetByName(1, "Vestimenta")).Returns(categoryByName);
+            categoryDAL.Setup(x => x.GetByIdAsync(1, 3)).ReturnsAsync(category);
+            categoryDAL.Setup(x => x.GetByNameAsync(1, "Vestimenta")).ReturnsAsync(categoryByName);
 
             CategoryService categoryBLL = new(categoryDAL.Object, subCategoryDAL.Object);
 
-            BaseResponse bLLResponse = categoryBLL.UpdateCategory(reqCategory, 1, 3);
+            BaseResponse bLLResponse = await categoryBLL.UpdateCategory(reqCategory, 1, 3);
 
             if (bLLResponse?.Error is not null)
             {

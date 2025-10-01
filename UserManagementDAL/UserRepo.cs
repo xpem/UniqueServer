@@ -35,7 +35,7 @@ namespace UserManagementRepo
         public async Task<User?> GetByEmailAndPasswordAsync(string email, string encryptedPassword) =>
             await dbContext.User.FirstOrDefaultAsync(x => x.Email == email && x.Password == encryptedPassword);
 
-        public async Task<User?> GetByNameOrEmailAsync(string name, string email) => await dbContext.User.FirstOrDefaultAsync(x => x.Name.Equals(name) || x.Email.Equals(email));
+        //public async Task<User?> GetByNameOrEmailAsync(string name, string email) => await dbContext.User.FirstOrDefaultAsync(x => x.Name.Equals(name) || x.Email.Equals(email));
 
 
     }

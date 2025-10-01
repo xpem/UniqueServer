@@ -36,6 +36,7 @@ namespace UserManagementRepoTests
                 Name = "emanuel",
                 Password = "121212",
                 Id = 1,
+                IsGoogleAuth = false,
             };
 
             userDAL.Setup(x => x.GetByEmailAndPasswordAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(userResp);

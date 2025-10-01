@@ -4,6 +4,7 @@ using UserManagementService.Functions;
 using UserManagementModels.Request.User;
 using UserManagementModels;
 using UserManagementRepo;
+using UserManagementService.Interfaces;
 
 namespace UserManagementService
 {
@@ -15,12 +16,12 @@ namespace UserManagementService
         {
             string? validateError = reqUser.Validate();
 
-            if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(null, validateError);
+            if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(ErrorCode.InvalidObject, validateError);
 
-            User user = new() { Name = reqUser.Name, Email = reqUser.Email, Password = reqUser.Password, CreatedAt = DateTime.Now };
+            User user = new() { Name = reqUser.Name, Email = reqUser.Email, Password = reqUser.Password, CreatedAt = DateTime.Now, IsGoogleAuth = false };
 
             string? existingUserMessage = await ValidateExistingUserAsync(user);
-            if (existingUserMessage != null) { return new BaseResponse(null, existingUserMessage); }
+            if (existingUserMessage != null) { return new BaseResponse(ErrorCode.TryCreateExistingUser, existingUserMessage); }
 
             if (user.Password != null)
                 user.Password = encryptionService.Encrypt(user.Password);
@@ -37,13 +38,40 @@ namespace UserManagementService
             return new BaseResponse(resUser);
         }
 
+        public async Task<BaseResponse> GoogleAuthAsync(string? name, string? email)
+        {
+            if (name is null || email is null)
+                return new BaseResponse(ErrorCode.GoogleAuthNullEmailOrName, "Conta do google sem email ou nome");
+
+            User? user = await userRepo.GetByEmailAsync(email);
+
+            if (user is null)
+            {
+                user = new() { Name = name, Email = email, Password = null, CreatedAt = DateTime.Now, IsGoogleAuth = true };
+                await userRepo.CreateAsync(user);
+            }
+
+            if (!user.IsGoogleAuth)
+                return new BaseResponse(errorCode: ErrorCode.UserEmailPasswordLoginType, "Email do usuário vinculado à acesso de email e senha");
+
+            string userJwt = jwtTokenService.GenerateToken(user.Id, user.Email, DateTime.UtcNow.AddDays(15));
+
+            UserHistoric userHistoric = new() { UserHistoricTypeId = UserHistoricTypeValues.SignInGoogleAuth, CreatedAt = DateTime.UtcNow, UserId = user.Id, User = user };
+
+            await userHistoricRepo.AddAsync(userHistoric);
+
+            ResToken resToken = new() { Token = userJwt };
+
+            return new BaseResponse(resToken);
+        }
+
         public async Task<BaseResponse> GetByIdAsync(int uid)
         {
             //todo - utilizar tmbm o email?
             User? userResp = await userRepo.GetByIdAsync(uid);
 
             if (userResp == null)
-                return new BaseResponse(null, "User not found");
+                return new BaseResponse("User not found");
 
             return new BaseResponse(new ResUser() { Id = userResp.Id, Name = userResp.Name, Email = userResp.Email, CreatedAt = userResp.CreatedAt });
         }
@@ -52,7 +80,7 @@ namespace UserManagementService
         {
             string? validateError = reqUserEmail.Validate();
 
-            if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(null, validateError);
+            if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(ErrorCode.InvalidObject, validateError);
 
             User? userResp = await userRepo.GetByEmailAsync(reqUserEmail.Email);
 
@@ -65,7 +93,8 @@ namespace UserManagementService
                 }
                 catch
                 {
-                    return new BaseResponse(null, "A error occurred!");
+                    //gravar um log de erro
+                    return new BaseResponse(ErrorCode.SendEmailError, "Ocorreu um erro tentando enviar o email!");
                 }
             }
 
@@ -76,15 +105,15 @@ namespace UserManagementService
         {
             string? validateError = reqUserSession.Validate();
 
-            if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(null, validateError);
+            if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(ErrorCode.InvalidObject, validateError);
 
             User? userResp = await userRepo.GetByEmailAndPasswordAsync(reqUserSession.Email, encryptionService.Encrypt(reqUserSession.Password));
 
-            if (userResp is null) return new BaseResponse(null, "User/Password incorrect");
+            if (userResp is null) return new BaseResponse(ErrorCode.InvalidUserPasswordLogin, "User/Password incorrect");
 
             string userJwt = jwtTokenService.GenerateToken(userResp.Id, userResp.Email, DateTime.UtcNow.AddDays(15));
 
-            UserHistoric userHistoric = new() { UserHistoricTypeId = (int)UserHistoricTypeValues.SignIn, CreatedAt = DateTime.UtcNow, UserId = userResp.Id, User = userResp };
+            UserHistoric userHistoric = new() { UserHistoricTypeId = UserHistoricTypeValues.SignIn, CreatedAt = DateTime.UtcNow, UserId = userResp.Id, User = userResp };
 
             await userHistoricRepo.AddAsync(userHistoric);
 
@@ -92,7 +121,7 @@ namespace UserManagementService
 
             return new BaseResponse(resToken);
         }
-        
+
         public async Task<BaseResponse> UpdatePasswordAsync(ReqRecoverPassword reqRecoverPassword, int uid)
         {
             try
@@ -102,7 +131,7 @@ namespace UserManagementService
                 if (string.IsNullOrEmpty(validateError) && reqRecoverPassword.Password != reqRecoverPassword.PasswordConfirmation)
                     validateError = "Invalid password Confirmation";
 
-                if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(null, validateError);
+                if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(ErrorCode.InvalidPasswordConfirmation, validateError);
 
                 User? user = await userRepo.GetByIdAsync(uid);
 
@@ -112,26 +141,23 @@ namespace UserManagementService
 
                     await userRepo.UpdateAsync(user);
 
-                    UserHistoric userHistoric = new() { UserHistoricTypeId = (int)UserHistoricTypeValues.PasswordChanged, CreatedAt = DateTime.UtcNow, UserId = user.Id, User = user };
+                    UserHistoric userHistoric = new() { UserHistoricTypeId = UserHistoricTypeValues.PasswordChanged, CreatedAt = DateTime.UtcNow, UserId = user.Id, User = user };
 
                     await userHistoricRepo.AddAsync(userHistoric);
 
                     return new BaseResponse("Password Updated.");
                 }
-                else return new BaseResponse(null, "Invalid User");
+                else throw new Exception("Invalid User, uid:" + uid);
             }
             catch { throw; }
         }
 
         protected async Task<string?> ValidateExistingUserAsync(User user)
         {
-            User? userResp = await userRepo.GetByNameOrEmailAsync(user.Name, user.Email);
+            User? userResp = await userRepo.GetByEmailAsync(user.Email);
 
             if (userResp != null)
             {
-                if (userResp.Name.Equals(user.Name))
-                    return "User Name already exists.";
-
                 if (userResp.Email.Equals(user.Email))
                     return "User Email already exists.";
             }

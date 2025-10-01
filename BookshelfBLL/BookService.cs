@@ -17,7 +17,7 @@ namespace BookshelfServices
 
             string? validateError = reqBook.Validate();
 
-            if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(null, validateError);
+            if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(ErrorCode.InvalidObject, validateError);
 
             Book book = new()
             {
@@ -43,7 +43,7 @@ namespace BookshelfServices
             string? existingBookMessage = await ValidateExistingBookAsync(book);
 
             if (existingBookMessage != null)
-                return new BaseResponse(null, existingBookMessage);
+                return new BaseResponse(ErrorCode.ExistingObject, existingBookMessage);
 
             await bookRepo.CreateAsync(book);
 
@@ -86,15 +86,15 @@ namespace BookshelfServices
             string? validateError = reqBook.Validate();
 
             if (!string.IsNullOrEmpty(validateError))
-                return new BaseResponse(null, validateError);
+                return new BaseResponse(ErrorCode.InvalidObject, validateError);
 
             if ((await bookRepo.GetBookByTitleWithNotEqualIdAsync(reqBook.Title, uid, bookId) != null))
-                return new BaseResponse(null, "Already exist a book with this title");
+                return new BaseResponse(ErrorCode.ExistingIndex, "Already exist a book with this title");
 
             Book? oldBook = await bookRepo.GetBookByIdAsync(bookId, uid);
 
             if (oldBook == null)
-                return new BaseResponse(null, "Invalid Book id");
+                return new BaseResponse(ErrorCode.InvalidId, "Invalid Book id");
 
             Book? newBook = new()
             {
@@ -162,12 +162,12 @@ namespace BookshelfServices
         public async Task<BaseResponse> InactivateAsync(int bookId, int uid)
         {
             if (bookId < 0)
-                return new BaseResponse(null, "Invalid Book id");
+                return new BaseResponse(ErrorCode.InvalidId, "Invalid Book id");
 
             Book? oldBook = await bookRepo.GetBookByIdAsync(bookId, uid);
 
             if (oldBook == null)
-                return new BaseResponse(null, "Invalid Book id");
+                return new BaseResponse(ErrorCode.InvalidId, "Invalid Book id");
 
             if (oldBook.Inactive == false)
             {
@@ -190,7 +190,7 @@ namespace BookshelfServices
         public async Task<BaseResponse> GetByUpdatedAtAsync(DateTime updatedAt, int page, int uid)
         {
             if (page <= 0)
-                return new BaseResponse(null, "Invalid page");
+                return new BaseResponse(ErrorCode.InvalidPage, "Invalid page");
 
             List<Book> books = await bookRepo.GetBooksAfterUpdatedAtAsync(updatedAt, page, pageSize, uid);
 
