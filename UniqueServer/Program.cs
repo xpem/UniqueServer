@@ -92,18 +92,19 @@ builder.Services.AddAuthentication(op =>
     options.CorrelationCookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.Always;
 });
 
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowLocalhost",
         policy => policy
-           .WithOrigins("https://localhost:7223", "https://xpem.vps-kinghost.net", "https://localhost:44303") // Adicionado o domínio de produção
-           .AllowAnyHeader()
-           .AllowCredentials()
-           .AllowAnyMethod());
+           .WithOrigins("https://localhost:7223", "https://xpem.vps-kinghost.net") // Adicionado o domínio de produção
+            .AllowAnyHeader()
+            .AllowCredentials()
+            .AllowAnyMethod());
 });
 
 builder.Services.AddAuthorization();
+
+
 
 #endregion
 
@@ -111,12 +112,12 @@ builder.Services.AddLimiterRules();
 
 WebApplication app = builder.Build();
 
+app.UseHsts();
 app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseRateLimiter();
 
-app.UseHsts();
 app.UseHttpsRedirection();
 
 app.UseCors("AllowLocalhost");
