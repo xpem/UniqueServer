@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.0.11012.119 d18.0
+VisualStudioVersion = 18.0.11012.119
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UniqueServer", "UniqueServer\UniqueServer.csproj", "{D793DC6E-51A7-4810-83C3-693672143697}"
 EndProject
@@ -33,9 +33,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InventoryRepos", "Inventory
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InventoryModels", "InventoryModels\InventoryModels.csproj", "{37E8ED57-CB61-4271-A677-C9F731C75E55}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InventoryServices", "InventoryBLL\InventoryServices.csproj", "{A40E4E6A-6CB4-463B-A782-8A91F6FBC960}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InventoryServicesTests", "InventoryBLLTests\InventoryServicesTests.csproj", "{FBCE7724-7D91-443C-9A5F-2D97201077ED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryServices", "InventoryService\InventoryServices.csproj", "{8C955202-6EC0-AB51-79E5-0D4917CEA916}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -91,14 +91,14 @@ Global
 		{37E8ED57-CB61-4271-A677-C9F731C75E55}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{37E8ED57-CB61-4271-A677-C9F731C75E55}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{37E8ED57-CB61-4271-A677-C9F731C75E55}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A40E4E6A-6CB4-463B-A782-8A91F6FBC960}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A40E4E6A-6CB4-463B-A782-8A91F6FBC960}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A40E4E6A-6CB4-463B-A782-8A91F6FBC960}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A40E4E6A-6CB4-463B-A782-8A91F6FBC960}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FBCE7724-7D91-443C-9A5F-2D97201077ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FBCE7724-7D91-443C-9A5F-2D97201077ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FBCE7724-7D91-443C-9A5F-2D97201077ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FBCE7724-7D91-443C-9A5F-2D97201077ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C955202-6EC0-AB51-79E5-0D4917CEA916}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C955202-6EC0-AB51-79E5-0D4917CEA916}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C955202-6EC0-AB51-79E5-0D4917CEA916}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C955202-6EC0-AB51-79E5-0D4917CEA916}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -114,8 +114,8 @@ Global
 		{54CEB18A-5A0C-4BF7-A311-8994700CC433} = {BEC0C7D5-054A-4433-9EE0-75B080E367E1}
 		{33C571B7-33E2-41A3-88D5-F75448211F26} = {7147958C-0096-4B31-AD9E-9AA06FE0CA1D}
 		{37E8ED57-CB61-4271-A677-C9F731C75E55} = {7147958C-0096-4B31-AD9E-9AA06FE0CA1D}
-		{A40E4E6A-6CB4-463B-A782-8A91F6FBC960} = {7147958C-0096-4B31-AD9E-9AA06FE0CA1D}
 		{FBCE7724-7D91-443C-9A5F-2D97201077ED} = {7147958C-0096-4B31-AD9E-9AA06FE0CA1D}
+		{8C955202-6EC0-AB51-79E5-0D4917CEA916} = {7147958C-0096-4B31-AD9E-9AA06FE0CA1D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FBC14AD8-ED02-4BEC-93C9-2E416322F0BA}
