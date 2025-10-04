@@ -22,7 +22,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\InventoryService\InventoryServices.csproj" />
+    <ProjectReference Include="..\InventoryBLL\InventoryServices.csproj" />
+    <ProjectReference Include="..\InventoryDbContextDAL\InventoryRepos.csproj" />
+    <ProjectReference Include="..\InventoryModels\InventoryModels.csproj" />
   </ItemGroup>
 
 </Project>
