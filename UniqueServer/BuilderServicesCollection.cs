@@ -1,10 +1,16 @@
 ﻿using BookshelfRepo;
+using BookshelfServices;
+using InventoryBLL;
+using InventoryBLL.Interfaces;
 using InventoryRepos;
+using InventoryRepos.Interfaces;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.RateLimiting;
 using UserManagementRepo;
+using UserManagementService;
 using UserManagementService.Functions;
+using UserManagementService.Interfaces;
 
 namespace UniqueServer
 {
@@ -26,9 +32,33 @@ namespace UniqueServer
             return services;
         }
 
+        public static IServiceCollection AddRepos(this IServiceCollection services, IConfiguration Configuration)
+        {
+            //bookshelf
+            services.AddScoped<IBookRepo, BookRepo>();
+            services.AddScoped<IBookHistoricRepo, BookHistoricRepo>();
+
+            //usermanagement
+            services.AddScoped<IUserRepo, UserManagementRepo.UserRepo>();
+            services.AddScoped<IUserHistoricRepo, UserHistoricRepo>();
+
+            //inventory
+            services.AddScoped<ISubCategoryRepo, SubCategoryRepo>();
+            services.AddScoped<ICategoryRepo, CategoryRepo>();
+            services.AddScoped<IAcquisitionTypeRepo, AcquisitionTypeRepo>();
+            services.AddScoped<IItemSituationRepo, ItemSituationRepo>();
+            services.AddScoped<IItemRepo, ItemRepo>();
+
+            return services;
+
+        }
+
         public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration Configuration)
         {
             #region User
+
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IUserDataDeleteService, UserDataDeleteService>();
 
             services.AddScoped<ISendRecoverPasswordEmailService, SendRecoverPasswordEmailService>(p =>
             new SendRecoverPasswordEmailService(
@@ -46,6 +76,23 @@ namespace UniqueServer
                 ));
 
             services.AddScoped<IJwtTokenService, JwtTokenService>(p => new JwtTokenService(GetConfigValue(Configuration, "JwtKey")));
+
+            #endregion
+
+            #region bookshelf
+
+            services.AddScoped<IBookService, BookService>();
+            services.AddScoped<IBookHistoricService, BookHistoricService>();
+
+            #endregion
+
+            #region inventory
+
+            services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<ISubCategoryService, SubCategoryService>();
+            services.AddScoped<IAcquisitionTypeService, AcquisitionTypeService>();
+            services.AddScoped<IItemSituationService, ItemSituationService>();
+            services.AddScoped<IItemService, ItemService>();
 
             #endregion
 

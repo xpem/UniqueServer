@@ -73,7 +73,7 @@ namespace InventoryBLLTests
         }.AsQueryable();
 
         [TestMethod()]
-        public void GetByIdTest()
+        public async Task GetByIdTest()
         {
             SubCategory subCategory =
                 new SubCategory()
@@ -87,13 +87,13 @@ namespace InventoryBLLTests
                 };
 
             Mock<ISubCategoryRepo> subCategoryDAL = new Mock<ISubCategoryRepo>();
-            subCategoryDAL.Setup(x => x.GetById(1, 2)).Returns(subCategory);
+            subCategoryDAL.Setup(x => x.GetById(1, 2)).ReturnsAsync(subCategory);
 
             //Mock<InventoryDbContext> mockContext = BuildMockInventoryContext();
 
             SubCategoryService subCategoryBLL = new(subCategoryDAL.Object);
 
-            BaseResponse bLLResponse = subCategoryBLL.GetById(1, 2);
+            BaseResponse bLLResponse = await subCategoryBLL.GetById(1, 2);
 
             if (bLLResponse?.Content is not null)
             {
@@ -104,7 +104,7 @@ namespace InventoryBLLTests
         }
 
         [TestMethod()]
-        public void GetById_SytemDefault_Test()
+        public async Task GetById_SytemDefault_Test()
         {
             SubCategory subCategory =
               new SubCategory()
@@ -117,11 +117,11 @@ namespace InventoryBLLTests
                   IconName = "Cat",
               };
             Mock<ISubCategoryRepo> subCategoryDAL = new Mock<ISubCategoryRepo>();
-            subCategoryDAL.Setup(x => x.GetById(1, 2)).Returns(subCategory);
+            subCategoryDAL.Setup(x => x.GetById(1, 2)).ReturnsAsync(subCategory);
 
             SubCategoryService subCategoryBLL = new(subCategoryDAL.Object);
 
-            BaseResponse bLLResponse = subCategoryBLL.GetById(1, 3);
+            BaseResponse bLLResponse = await subCategoryBLL.GetById(1, 3);
 
             if (bLLResponse?.Content is not null)
             {
@@ -235,7 +235,7 @@ namespace InventoryBLLTests
 
             SubCategory? subCategoryGetByCategoryIdAndName = null;
 
-            mockSubCategoryDAL.Setup(x => x.GetById(2, 6)).Returns(subCategory);
+            mockSubCategoryDAL.Setup(x => x.GetById(2, 6)).ReturnsAsync(subCategory);
             mockSubCategoryDAL.Setup(x => x.GetByCategoryIdAndName(2, 2, "Teste de título alterado")).Returns(subCategoryGetByCategoryIdAndName);
             mockSubCategoryDAL.Setup(x => x.UpdateAsync(It.IsAny<SubCategory>())).ReturnsAsync(1);
 
@@ -292,7 +292,7 @@ namespace InventoryBLLTests
             };
 
             Mock<ISubCategoryRepo> mockSubCategoryDAL = new();
-            mockSubCategoryDAL.Setup(x => x.GetById(2, 6)).Returns(subCategory);
+            mockSubCategoryDAL.Setup(x => x.GetById(2, 6)).ReturnsAsync(subCategory);
             mockSubCategoryDAL.Setup(x => x.GetByCategoryIdAndName(2, 2, "Teste de título 4")).Returns(subCategoryWithSameName);
 
 
@@ -333,7 +333,7 @@ namespace InventoryBLLTests
 
             Mock<ISubCategoryRepo> mockSubCategoryDAL = new();
 
-            mockSubCategoryDAL.Setup(x => x.GetById(2, 5)).Returns(subCategory);
+            mockSubCategoryDAL.Setup(x => x.GetById(2, 5)).ReturnsAsync(subCategory);
 
             SubCategoryService subCategoryBLL = new(mockSubCategoryDAL.Object);
 
@@ -372,7 +372,7 @@ namespace InventoryBLLTests
 
             Mock<ISubCategoryRepo> subCategoryDAL = new();
 
-            subCategoryDAL.Setup(x => x.GetById(2, 6)).Returns(subcategory);
+            subCategoryDAL.Setup(x => x.GetById(2, 6)).ReturnsAsync(subcategory);
             subCategoryDAL.Setup(x => x.UpdateAsync(It.IsAny<SubCategory>())).ReturnsAsync(1);
             SubCategoryService subCategoryBLL = new(subCategoryDAL.Object);
 
@@ -398,7 +398,7 @@ namespace InventoryBLLTests
                 IconName = "Table"
             };
 
-            subCategoryDAL.Setup(x => x.GetById(2, 5)).Returns(subCategoryById);
+            subCategoryDAL.Setup(x => x.GetById(2, 5)).ReturnsAsync(subCategoryById);
 
             SubCategoryService subCategoryBLL = new(subCategoryDAL.Object);
 

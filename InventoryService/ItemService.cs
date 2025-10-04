@@ -20,11 +20,11 @@ namespace InventoryBLL
             try
             {
                 string? validateError = reqItem.Validate();
-                if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(null, validateError);
+                if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(ErrorCode.InvalidObject, validateError);
 
                 //to do, não preciso validar os indices, serão validados pelas foreign keys no banco
-                string? validateIndexes = await ValidateIndexes(reqItem, uid);
-                if (!string.IsNullOrEmpty(validateIndexes)) return new BaseResponse(null, validateIndexes);
+                //string? validateIndexes = await ValidateIndexes(reqItem, uid);
+                //if (!string.IsNullOrEmpty(validateIndexes)) return new BaseResponse(null, validateIndexes);
 
                 Item item = new()
                 {
@@ -62,7 +62,7 @@ namespace InventoryBLL
                         else throw new Exception($"Não foi possivel recuperar o item de id: {item.Id}");
                     }
                     else
-                        return new BaseResponse(null, "Não foi possivel adicionar.");
+                        return new BaseResponse(ErrorCode.ErrorCreatingObject, "Não foi possivel adicionar.");
                 }
                 catch (Exception ex) { throw ex; }
             }
@@ -92,7 +92,7 @@ namespace InventoryBLL
             Item? item = itemRepo.GetById(uid, id);
 
             if (item == null)
-                return new BaseResponse(null, "Invalid id");
+                return new BaseResponse(ErrorCode.InvalidId, "Invalid id");
 
             string? fileName1 = null, fileName2 = null;
 
@@ -112,7 +112,7 @@ namespace InventoryBLL
                 return new BaseResponse(1);
             }
             else
-                return new BaseResponse(null, "Não foi possivel excluir.");
+                return new BaseResponse(ErrorCode.ErrorDeletingObject, "Não foi possivel excluir.");
         }
 
         public BaseResponse DeleteItemImage(int uid, int id, string fileName, string filePath)
@@ -120,7 +120,7 @@ namespace InventoryBLL
             Item? item = itemRepo.GetById(uid, id);
 
             if (item == null)
-                return new BaseResponse(null, "Invalid id");
+                return new BaseResponse(ErrorCode.InvalidId, "Invalid id");
 
             if (item.Image1 != null && item.Image1 == fileName)
             {
@@ -149,13 +149,13 @@ namespace InventoryBLL
                 else throw new Exception($"Não foi possivel recuperar o item de id: {item.Id}");
             }
             else
-                return new BaseResponse(null, "Não foi possivel atualizar o Item.");
+                return new BaseResponse(ErrorCode.ErrorUpdatingObject, "Não foi possivel atualizar o Item.");
         }
 
         public async Task<BaseResponse> GetAsync(int uid, int page)
         {
             if (page <= 0)
-                return new BaseResponse(null, "Invalid page");
+                return new BaseResponse(ErrorCode.InvalidPage, "Invalid page");
 
             List<Item>? items = await itemRepo.GetAsync(uid, page, pageSize);
             List<ResItem> resItems = [];
@@ -175,7 +175,7 @@ namespace InventoryBLL
         public async Task<BaseResponse> GetBySearch(int uid, int page, ReqSearchItem reqSearchItem)
         {
             if (page <= 0)
-                return new BaseResponse(null, "Invalid page");
+                return new BaseResponse(ErrorCode.InvalidPage, "Invalid page");
 
             List<Item>? items = await itemRepo.GetBySearchAsync(uid, page, pageSize, reqSearchItem);
             List<ResItem> resItems = [];
@@ -227,7 +227,7 @@ namespace InventoryBLL
             Item? item = itemRepo.GetById(uid, id);
 
             if (item == null)
-                return new BaseResponse(null, "Invalid id");
+                return new BaseResponse(ErrorCode.InvalidId, "Invalid id");
 
             ResItem? resItem = BuildResItem(item);
 
@@ -282,15 +282,15 @@ namespace InventoryBLL
         public async Task<BaseResponse> UpdateItem(ReqItem reqItem, int uid, int id)
         {
             string? validateError = reqItem.Validate();
-            if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(null, validateError);
+            if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(ErrorCode.InvalidObject, validateError);
 
             Item? oldItem = itemRepo.GetById(uid, id);
 
-            if (oldItem == null) return new BaseResponse(null, "Invalid id");
+            if (oldItem == null) return new BaseResponse(ErrorCode.InvalidId, "Invalid id");
 
-            string? validateIndexes = await ValidateIndexes(reqItem, uid);
+            //string? validateIndexes = await ValidateIndexes(reqItem, uid);
 
-            if (!string.IsNullOrEmpty(validateIndexes)) return new BaseResponse(null, validateIndexes);
+            //if (!string.IsNullOrEmpty(validateIndexes)) return new BaseResponse(null, validateIndexes);
 
             Item item = new()
             {
@@ -327,7 +327,7 @@ namespace InventoryBLL
                 else throw new Exception($"Não foi possivel recuperar o item de id: {item.Id}");
             }
             else
-                return new BaseResponse(null, "Não foi possivel adicionar.");
+                return new BaseResponse(ErrorCode.ErrorCreatingObject, "Não foi possivel adicionar.");
         }
 
         public BaseResponse UpdateItemFileNames(int uid, int id, string? fileName1, string? fileName2)
@@ -337,27 +337,27 @@ namespace InventoryBLL
             if (respExec == 1)
                 return new BaseResponse(new ResItemImages { Image1 = fileName1, Image2 = fileName2 });
             else
-                return new BaseResponse(null, "Não foi possivel atualizar.");
+                return new BaseResponse(ErrorCode.ErrorUpdatingObject, "Não foi possivel atualizar.");
         }
 
         public async Task<bool> CheckItemImageNameAsync(int uid, int id, string imageName) => await itemRepo.CheckItemImageNameAsync(uid, id, imageName);
 
-        private async Task<string?> ValidateIndexes(ReqItem reqItem, int uid)
-        {
-            if ((await itemSituationRepo.GetById(uid, reqItem.SituationId)) == null)
-                return "Situation with this id don't exist";
+        //private async Task<string?> ValidateIndexes(ReqItem reqItem, int uid)
+        //{
+        //    if ((await itemSituationRepo.GetById(uid, reqItem.SituationId)) == null)
+        //        return "Situation with this id don't exist";
 
-            if ((await categoryDAL.GetByIdAsync(uid, reqItem.Category.CategoryId)) == null)
-                return "Category with this id don't exist";
+        //    if ((await categoryDAL.GetByIdAsync(uid, reqItem.Category.CategoryId)) == null)
+        //        return "Category with this id don't exist";
 
-            if ((reqItem.Category.SubCategoryId is not null) && ((await subCategoryDAL.GetById(uid, reqItem.Category.SubCategoryId.Value)) == null))
-                return "SubCategory with this id don't exist";
+        //    if ((reqItem.Category.SubCategoryId is not null) && ((await subCategoryDAL.GetById(uid, reqItem.Category.SubCategoryId.Value)) == null))
+        //        return "SubCategory with this id don't exist";
 
-            if ((await acquisitionTypeRepo.GetById(uid, reqItem.AcquisitionType)) == null)
-                return "Acquisition Type with this id don't exist";
+        //    if ((await acquisitionTypeRepo.GetById(uid, reqItem.AcquisitionType)) == null)
+        //        return "Acquisition Type with this id don't exist";
 
-            return null;
-        }
+        //    return null;
+        //}
 
         /// <summary>
         /// to recover the lists needed on the upsert item screen

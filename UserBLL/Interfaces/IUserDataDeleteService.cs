@@ -1,7 +1,7 @@
 ﻿using BaseModels;
 using UserManagementModels.Request.User;
 
-namespace UserManagementService
+namespace UserManagementService.Interfaces
 {
     public interface IUserDataDeleteService
     {

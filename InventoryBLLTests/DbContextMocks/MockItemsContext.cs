@@ -125,12 +125,12 @@ namespace InventoryBLLTests.DbContextMocks
             Mock<ISubCategoryRepo> mockSubCategoryDAL = new();
             Mock<IAcquisitionTypeRepo> mockAcquisitionTypeDAL = new();
 
-            mockSubCategoryDAL.Setup(x => x.GetById(1, 1)).Returns(subCategory);
-            mockCategoryDAL.Setup(x => x.GetById(1, 1)).Returns(category);
-            mockAcquisitionTypeDAL.Setup(x => x.GetById(1, 1)).Returns(acquisitionType);
-            mockAcquisitionTypeDAL.Setup(x => x.GetById(1, 2)).Returns(acquisitionType2);
-            mockItemSituationDAL.Setup(x => x.GetById(1, 1)).Returns(itemSituation);
-            mockItemSituationDAL.Setup(x => x.GetById(1, 2)).Returns(itemSituation2);
+            mockSubCategoryDAL.Setup(x => x.GetById(1, 1)).ReturnsAsync(subCategory);
+            mockCategoryDAL.Setup(x => x.GetByIdAsync(1, 1)).ReturnsAsync(category);
+            mockAcquisitionTypeDAL.Setup(x => x.GetById(1, 1)).ReturnsAsync(acquisitionType);
+            mockAcquisitionTypeDAL.Setup(x => x.GetById(1, 2)).ReturnsAsync(acquisitionType2);
+            mockItemSituationDAL.Setup(x => x.GetById(1, 1)).ReturnsAsync(itemSituation);
+            mockItemSituationDAL.Setup(x => x.GetById(1, 2)).ReturnsAsync(itemSituation2);
 
             //0 pq n tem o id retornado pelo add no dal mockado.
             mockItemDAL.Setup(x => x.GetById(1, 0)).Returns(item);

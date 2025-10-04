@@ -4,6 +4,7 @@ using UserManagementModels;
 using UserManagementModels.Request.User;
 using UserManagementRepo;
 using UserManagementService.Functions;
+using UserManagementService.Interfaces;
 
 namespace UserManagementService
 {
@@ -13,11 +14,11 @@ namespace UserManagementService
         public async Task<BaseResponse> DeleteAsync(ReqUserDataExclusion reqUserDataExclusion)
         {
             string? validateError = reqUserDataExclusion.Validate();
-            if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(null, validateError);
+            if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(ErrorCode.InvalidObject, validateError);
 
             User? userResp = await userRepo.GetByEmailAndPasswordAsync(reqUserDataExclusion.Email, encryptionService.Encrypt(reqUserDataExclusion.Password));
 
-            if (userResp is null) return new BaseResponse(null, "User/Password incorrect");
+            if (userResp is null) return new BaseResponse(ErrorCode.InvalidUserPasswordLogin, "User/Password incorrect");
 
             if (reqUserDataExclusion.UserAccount is not null)
             {
