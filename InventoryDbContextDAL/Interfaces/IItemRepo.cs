@@ -1,5 +1,6 @@
 ﻿using InventoryModels.DTOs;
 using InventoryModels.Req;
+using InventoryModels.Res.Item;
 
 namespace InventoryRepos.Interfaces
 {
@@ -11,7 +12,7 @@ namespace InventoryRepos.Interfaces
 
         int Update(Item item);
 
-        Item? GetById(int uid, int id);
+        Task<Item?> GetById(int uid, int id);
 
         int UpdateFileNames(int uid, int id, string? fileName1, string? fileName2);
 
@@ -25,5 +26,7 @@ namespace InventoryRepos.Interfaces
 
         Task<int> GetTotalBySearchAsync(int uid, ReqSearchItem reqSearchItem);
         Task<List<string>> GetLastPurchaseStores(int uid, int count);
+
+        Task<List<ResItemSituationsGroupingWithQuantities>> GetItemSituationsWithQuantities(int uid);
     }
 }

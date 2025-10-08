@@ -4,6 +4,7 @@ using InventoryBLL;
 using InventoryBLL.Interfaces;
 using InventoryRepos;
 using InventoryRepos.Interfaces;
+using InventoryServices.Interfaces;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.RateLimiting;

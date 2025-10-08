@@ -2,6 +2,7 @@
 using InventoryBLL.Interfaces;
 using InventoryModels.Req;
 using InventoryModels.Res.Item;
+using InventoryServices.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -101,9 +102,13 @@ namespace UniqueServer.Controllers.Inventory
         [HttpGet]
         public async Task<IActionResult> GetItemConfigs() => BuildResponse(await itemService.GetConfigs(Uid));
 
+        [Route("item/GetItemsSituationsGroupingWithQuantities")]
+        [HttpGet]
+        public async Task<IActionResult> GetItemsSituationsGroupingWithQuantities() => BuildResponse(await itemService.GetItemsSituationsGroupingWithQuantities(Uid));
+
         [Route("item/{id:int:min(1)}")]
         [HttpGet]
-        public IActionResult GetItemById(int id) => BuildResponse(itemService.GetById(Uid, id));
+        public async Task<IActionResult> GetItemById(int id) => BuildResponse(await itemService.GetById(Uid, id));
 
         [Route("item/totals")]
         [HttpGet]
@@ -129,13 +134,13 @@ namespace UniqueServer.Controllers.Inventory
 
         [Route("item/{id}")]
         [HttpDelete]
-        public IActionResult DeleteItem(int id) => BuildResponse(itemService.DeleteItem(Uid, id, ReturnPath()));
+        public async Task<IActionResult> DeleteItem(int id) => BuildResponse(await itemService.DeleteItem(Uid, id, ReturnPath()));
 
         [Route("item/{id}/image")]
         [HttpPut]
-        public IActionResult UploadItemImages(int id, IFormFile? file1, IFormFile? file2)
+        public async Task<IActionResult> UploadItemImages(int id, IFormFile? file1, IFormFile? file2)
         {
-            BaseResponse bLLResponse = itemService.GetById(Uid, id);
+            BaseResponse bLLResponse = await itemService.GetById(Uid, id);
 
             ResItem? resItem = (bLLResponse.Content as ResItem);
 
@@ -199,7 +204,8 @@ namespace UniqueServer.Controllers.Inventory
 
         [Route("item/{id}/image/{imageName}")]
         [HttpDelete]
-        public IActionResult DeleteItemImageByImageName(int id, string imageName) => BuildResponse(itemService.DeleteItemImage(Uid, id, imageName, ReturnPath()));
+        public async Task<IActionResult> DeleteItemImageByImageName(int id, string imageName)
+            => BuildResponse(await itemService.DeleteItemImage(Uid, id, imageName, ReturnPath()));
 
         private string ReturnPath()
         {

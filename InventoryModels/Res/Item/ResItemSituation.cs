@@ -6,5 +6,7 @@ namespace InventoryModels.Res.Item
     public record ResItemSituation : ResTextTypeBase
     {
         public required SituationType Type { get; set; }
+
+        public int Quantity { get; set; } = 0;
     }
 }

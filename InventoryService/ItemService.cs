@@ -1,10 +1,10 @@
 ﻿using BaseModels;
-using InventoryBLL.Interfaces;
 using InventoryModels.DTOs;
 using InventoryModels.Req;
 using InventoryModels.Res;
 using InventoryModels.Res.Item;
 using InventoryRepos.Interfaces;
+using InventoryServices.Interfaces;
 using System.Threading.Tasks;
 
 namespace InventoryBLL
@@ -51,7 +51,7 @@ namespace InventoryBLL
 
                     if (resp == 1)
                     {
-                        Item? createdCompleteItem = itemRepo.GetById(uid, item.Id);
+                        Item? createdCompleteItem = await itemRepo.GetById(uid, item.Id);
 
                         if (createdCompleteItem != null)
                         {
@@ -87,9 +87,9 @@ namespace InventoryBLL
         //    catch (Exception) { throw; }
         //}
 
-        public BaseResponse DeleteItem(int uid, int id, string filePath)
+        public async Task<BaseResponse> DeleteItem(int uid, int id, string filePath)
         {
-            Item? item = itemRepo.GetById(uid, id);
+            Item? item = await itemRepo.GetById(uid, id);
 
             if (item == null)
                 return new BaseResponse(ErrorCode.InvalidId, "Invalid id");
@@ -115,9 +115,9 @@ namespace InventoryBLL
                 return new BaseResponse(ErrorCode.ErrorDeletingObject, "Não foi possivel excluir.");
         }
 
-        public BaseResponse DeleteItemImage(int uid, int id, string fileName, string filePath)
+        public async Task<BaseResponse> DeleteItemImage(int uid, int id, string fileName, string filePath)
         {
-            Item? item = itemRepo.GetById(uid, id);
+            Item? item = await itemRepo.GetById(uid, id);
 
             if (item == null)
                 return new BaseResponse(ErrorCode.InvalidId, "Invalid id");
@@ -138,7 +138,7 @@ namespace InventoryBLL
 
             if (respExec > 0)
             {
-                Item? createdCompleteItem = itemRepo.GetById(uid, item.Id);
+                Item? createdCompleteItem = await itemRepo.GetById(uid, item.Id);
 
                 if (createdCompleteItem != null)
                 {
@@ -222,9 +222,9 @@ namespace InventoryBLL
             return new BaseResponse(resTotalItems);
         }
 
-        public BaseResponse GetById(int uid, int id)
+        public async Task<BaseResponse> GetById(int uid, int id)
         {
-            Item? item = itemRepo.GetById(uid, id);
+            Item? item = await itemRepo.GetById(uid, id);
 
             if (item == null)
                 return new BaseResponse(ErrorCode.InvalidId, "Invalid id");
@@ -284,7 +284,7 @@ namespace InventoryBLL
             string? validateError = reqItem.Validate();
             if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(ErrorCode.InvalidObject, validateError);
 
-            Item? oldItem = itemRepo.GetById(uid, id);
+            Item? oldItem = await itemRepo.GetById(uid, id);
 
             if (oldItem == null) return new BaseResponse(ErrorCode.InvalidId, "Invalid id");
 
@@ -316,7 +316,7 @@ namespace InventoryBLL
 
             if (respExec == 1)
             {
-                Item? createdCompleteItem = itemRepo.GetById(uid, item.Id);
+                Item? createdCompleteItem = await itemRepo.GetById(uid, item.Id);
 
                 if (createdCompleteItem != null)
                 {
@@ -371,6 +371,7 @@ namespace InventoryBLL
 
             List<ResItemSituation> resItemsSituations = ItemSituationService.BuildItemSituation(itemSituationsDTO);
 
+
             var acquisitionTypesDTO = await acquisitionTypeRepo.Get(uid);
 
             var resAcquisitionTypes = AcquisitionTypeService.BuildResAcquisitionType(acquisitionTypesDTO);
@@ -383,7 +384,7 @@ namespace InventoryBLL
 
             ResItemConfigs itemConfigs = new()
             {
-                ItemSituations = resItemsSituations,
+                ItemSituationsGrouping = resItemsSituations,
                 Categories = resCategoryWithSubCategories,
                 AcquisitionTypes = resAcquisitionTypes,
                 LastPurchaseStores = lastPurchaseStores,
@@ -391,5 +392,13 @@ namespace InventoryBLL
 
             return new BaseResponse(itemConfigs);
         }
+
+        public async Task<BaseResponse> GetItemsSituationsGroupingWithQuantities(int uid)
+        {
+            List<ResItemSituationsGroupingWithQuantities> itemSituationsGroupingWithQuantities = await itemRepo.GetItemSituationsWithQuantities(uid);
+
+            return new BaseResponse(itemSituationsGroupingWithQuantities);
+        }
+
     }
 }
