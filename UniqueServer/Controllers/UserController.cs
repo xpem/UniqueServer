@@ -14,7 +14,8 @@ namespace UniqueServer.Controllers
     {
         [Route("")]
         [HttpPost]
-        public async Task<IActionResult> SignUp(ReqUser reqUser) => BuildResponse(await userService.CreateAsync(reqUser));
+        public async Task<IActionResult> SignUp(ReqUser reqUser) => 
+            BuildResponse(await userService.CreateAsync(reqUser));
 
         [Route("Session")]
         [HttpPost]
