@@ -1,5 +1,6 @@
 ﻿using InventoryModels.DTOs;
 using InventoryModels.Req;
+using InventoryModels.Res.Item;
 using InventoryRepos.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,13 +8,13 @@ namespace InventoryRepos
 {
     public class ItemRepo(InventoryDbContext dbContext) : IItemRepo
     {
-        public Item? GetById(int uid, int id)
-            => dbContext.Item.Where(x => x.Id == id && x.UserId == uid)
+        public async Task<Item?> GetById(int uid, int id)
+            => await dbContext.Item.Where(x => x.Id == id && x.UserId == uid)
             .Include(x => x.Category)
             .Include(x => x.SubCategory)
             .Include(x => x.ItemSituation)
             .Include(x => x.AcquisitionType)
-            .FirstOrDefault();
+            .FirstOrDefaultAsync();
 
         public int Create(Item item)
         {
@@ -135,6 +136,26 @@ namespace InventoryRepos
                 .Select(x => x.PurchaseStore!)
                 .Distinct()
                 .Take(count)                                
+                .ToListAsync();
+        }
+
+        public async Task<List<ResItemSituationsGroupingWithQuantities>> GetItemSituationsWithQuantities(int uid)
+        {
+            return await dbContext.Item
+                .AsNoTracking()
+                .Where(i => i.UserId == uid)
+                .Join(
+                    dbContext.ItemSituation,
+                    i => i.ItemSituationId,
+                    t => t.Id,
+                    (i, t) => new { i.ItemSituationId, t.Name }
+                )
+                .GroupBy(x => new { x.ItemSituationId, x.Name })
+                .Select(g => new ResItemSituationsGroupingWithQuantities(
+                    g.Key.ItemSituationId,
+                    g.Key.Name,
+                    g.Count()
+                ))
                 .ToListAsync();
         }
     }
