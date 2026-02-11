@@ -384,7 +384,7 @@ namespace InventoryBLL
 
             ResItemConfigs itemConfigs = new()
             {
-                ItemSituationsGrouping = resItemsSituations,
+                ItemSituations = resItemsSituations,
                 Categories = resCategoryWithSubCategories,
                 AcquisitionTypes = resAcquisitionTypes,
                 LastPurchaseStores = lastPurchaseStores,

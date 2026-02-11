@@ -27,13 +27,6 @@ namespace UniqueServer.Controllers
             if (!string.IsNullOrEmpty(auth))
             {
                 int? uid = RecoverUidSession();
-
-                if (uid is null)
-                {
-                    context.Result = new UnauthorizedObjectResult("user is unauthorized");
-                    return;
-                }
-
                 Uid = uid.Value;
             }
 

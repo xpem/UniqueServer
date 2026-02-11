@@ -87,6 +87,7 @@ namespace UserManagementService
             if (userResp != null)
             {
                 string token = jwtTokenService.GenerateToken(userResp.Id, userResp.Email, DateTime.UtcNow.AddHours(1));
+
                 try
                 {
                     _ = sendRecoverPasswordEmailService.SendEmail(userResp.Email, token);
