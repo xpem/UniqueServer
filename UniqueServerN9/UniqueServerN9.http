@@ -1,0 +1,6 @@
+@UniqueServerN9_HostAddress = http://localhost:5127
+
+GET {{UniqueServerN9_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

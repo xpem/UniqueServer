@@ -48,13 +48,13 @@ namespace InventoryBLLTests
         }
 
         [TestMethod()]
-        public void GetByIdTest()
+        public async Task GetByIdTest()
         {
             int uid = 1;
 
             ItemService itemBLL = MockItemBLL();
 
-            BaseModels.BaseResponse resp = itemBLL.GetById(uid, 1);
+            BaseModels.BaseResponse resp = await itemBLL.GetById(uid, 1);
 
             if (resp != null && resp.Content != null)
             {

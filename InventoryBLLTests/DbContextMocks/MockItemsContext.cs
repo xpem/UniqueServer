@@ -133,9 +133,9 @@ namespace InventoryBLLTests.DbContextMocks
             mockItemSituationDAL.Setup(x => x.GetById(1, 2)).ReturnsAsync(itemSituation2);
 
             //0 pq n tem o id retornado pelo add no dal mockado.
-            mockItemDAL.Setup(x => x.GetById(1, 0)).Returns(item);
+            mockItemDAL.Setup(x => x.GetById(1, 0)).ReturnsAsync(item);
 
-            mockItemDAL.SetupSequence(x => x.GetById(1, 1)).Returns(item).Returns(UpdatedItem);
+            mockItemDAL.SetupSequence(x => x.GetById(1, 1)).ReturnsAsync(item).ReturnsAsync(UpdatedItem);
             mockItemDAL.Setup(x => x.Create(It.IsAny<Item>())).Returns(1);
             mockItemDAL.Setup(x => x.Update(It.IsAny<Item>())).Returns(1);
             return new ItemService(mockItemSituationDAL.Object, mockCategoryDAL.Object,
