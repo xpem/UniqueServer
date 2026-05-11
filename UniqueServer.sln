@@ -29,13 +29,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookshelfBLLTests", "Booksh
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserManagementServiceTests", "UserManagementBLLTests\UserManagementServiceTests.csproj", "{54CEB18A-5A0C-4BF7-A311-8994700CC433}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InventoryRepos", "InventoryDbContextDAL\InventoryRepos.csproj", "{33C571B7-33E2-41A3-88D5-F75448211F26}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InventoryRepo", "InventoryDbContextDAL\InventoryRepo.csproj", "{33C571B7-33E2-41A3-88D5-F75448211F26}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InventoryModels", "InventoryModels\InventoryModels.csproj", "{37E8ED57-CB61-4271-A677-C9F731C75E55}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InventoryServicesTests", "InventoryBLLTests\InventoryServicesTests.csproj", "{FBCE7724-7D91-443C-9A5F-2D97201077ED}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryServices", "InventoryService\InventoryServices.csproj", "{8C955202-6EC0-AB51-79E5-0D4917CEA916}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Financial", "Financial", "{4CA2CDC6-E4A8-45E6-A851-52C912EC2248}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinancialService", "FinancialService\FinancialService.csproj", "{8A33FF01-8CFF-4C7D-812A-750567ADC91B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -99,6 +103,10 @@ Global
 		{8C955202-6EC0-AB51-79E5-0D4917CEA916}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8C955202-6EC0-AB51-79E5-0D4917CEA916}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8C955202-6EC0-AB51-79E5-0D4917CEA916}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A33FF01-8CFF-4C7D-812A-750567ADC91B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A33FF01-8CFF-4C7D-812A-750567ADC91B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A33FF01-8CFF-4C7D-812A-750567ADC91B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A33FF01-8CFF-4C7D-812A-750567ADC91B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -116,6 +124,7 @@ Global
 		{37E8ED57-CB61-4271-A677-C9F731C75E55} = {7147958C-0096-4B31-AD9E-9AA06FE0CA1D}
 		{FBCE7724-7D91-443C-9A5F-2D97201077ED} = {7147958C-0096-4B31-AD9E-9AA06FE0CA1D}
 		{8C955202-6EC0-AB51-79E5-0D4917CEA916} = {7147958C-0096-4B31-AD9E-9AA06FE0CA1D}
+		{8A33FF01-8CFF-4C7D-812A-750567ADC91B} = {4CA2CDC6-E4A8-45E6-A851-52C912EC2248}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FBC14AD8-ED02-4BEC-93C9-2E416322F0BA}

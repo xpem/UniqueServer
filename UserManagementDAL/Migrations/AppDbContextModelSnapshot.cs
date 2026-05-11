@@ -10,7 +10,7 @@ using UserManagementRepo;
 
 namespace UserDAL.Migrations
 {
-    [DbContext(typeof(UserManagementDbContext))]
+    [DbContext(typeof(UserManagementDbCtx))]
     partial class AppDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

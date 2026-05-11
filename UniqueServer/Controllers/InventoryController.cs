@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace UniqueServer.Controllers.Inventory
+namespace UniqueServer.Controllers
 {
     [Route("[Controller]")]
     [ApiController]
@@ -33,11 +33,11 @@ namespace UniqueServer.Controllers.Inventory
 
         [Route("subcategory/{id}")]
         [HttpGet]
-        public async Task<IActionResult> GetSubCategoryById(int id) => BuildResponse(await subCategoryService.GetById(Uid, id));
+        public async Task<IActionResult> GetSubCategoryById(int id) => BuildResponse(await subCategoryService.GetByIdAsync(Uid, id));
 
         [Route("subcategory/category/{categoryId}")]
         [HttpGet]
-        public IActionResult GetSubCategoriesByCategoryId(int categoryId) => BuildResponse(subCategoryService.GetByCategoryId(Uid, categoryId));
+        public async Task<IActionResult> GetSubCategoriesByCategoryId(int categoryId) => BuildResponse(await subCategoryService.GetByCategoryIdAsync(Uid, categoryId));
 
         [Route("subCategory/byAfterUpdatedAt/{updatedAt}/{page}")]
         [HttpGet]

@@ -1,8 +1,4 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -13,7 +9,7 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Error()
-    //.MinimumLevel.Information()
+    .MinimumLevel.Information()
     .WriteTo.File(Path.Combine("logs", "uniqueServer.txt"), rollingInterval: RollingInterval.Day)
     .CreateLogger();
 
@@ -111,7 +107,20 @@ app.UseForwardedHeaders();
 
 app.UseHsts();
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(c =>
+{
+    c.ConfigObject.AdditionalItems["syntaxHighlight"] = new Dictionary<string, object> { ["activated"] = false };
+});
+
+app.Use(async (context, next) =>
+{
+    try { await next(); }
+    catch (Exception ex)
+    {
+        Console.WriteLine(ex);
+        throw;
+    }
+});
 
 app.UseRateLimiter();
 

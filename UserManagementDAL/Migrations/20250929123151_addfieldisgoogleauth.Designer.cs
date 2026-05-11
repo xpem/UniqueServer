@@ -11,7 +11,7 @@ using UserManagementRepo;
 
 namespace UserDAL.Migrations
 {
-    [DbContext(typeof(UserManagementDbContext))]
+    [DbContext(typeof(UserManagementDbCtx))]
     [Migration("20250929123151_addfieldisgoogleauth")]
     partial class addfieldisgoogleauth
     {

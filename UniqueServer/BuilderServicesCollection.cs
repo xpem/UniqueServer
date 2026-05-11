@@ -2,6 +2,7 @@
 using BookshelfServices;
 using InventoryBLL;
 using InventoryBLL.Interfaces;
+using InventoryRepo;
 using InventoryRepos;
 using InventoryRepos.Interfaces;
 using InventoryServices.Interfaces;
@@ -26,9 +27,24 @@ namespace UniqueServer
             string? bookshelfConn = GetConfigValue(Configuration, "ConnectionStrings:BookshelfConn");
             string? userManagementfConn = GetConfigValue(Configuration, "ConnectionStrings:UserManagementConn");
 
-            services.AddMySql<InventoryDbContext>(inventoryConn, ServerVersion.AutoDetect(inventoryConn));
-            services.AddMySql<BookshelfDbContext>(bookshelfConn, ServerVersion.AutoDetect(bookshelfConn));
-            services.AddMySql<UserManagementDbContext>(userManagementfConn, ServerVersion.AutoDetect(userManagementfConn));
+
+            services.AddDbContextFactory<BookshelfDbCtx>(options => options.UseMySql(bookshelfConn, ServerVersion.AutoDetect(bookshelfConn),
+                options => options.EnableRetryOnFailure(
+                    maxRetryCount: 5,
+                    maxRetryDelay: System.TimeSpan.FromSeconds(30),
+                    errorNumbersToAdd: null)));
+
+            services.AddDbContextFactory<InventoryDbCtx>(options => options.UseMySql(inventoryConn, ServerVersion.AutoDetect(inventoryConn),
+                options => options.EnableRetryOnFailure(
+                    maxRetryCount: 5,
+                    maxRetryDelay: System.TimeSpan.FromSeconds(30),
+                    errorNumbersToAdd: null)));
+
+            services.AddDbContextFactory<UserManagementDbCtx>(options => options.UseMySql(userManagementfConn, ServerVersion.AutoDetect(userManagementfConn),
+                options => options.EnableRetryOnFailure(
+                    maxRetryCount: 5,
+                    maxRetryDelay: System.TimeSpan.FromSeconds(30),
+                    errorNumbersToAdd: null)));
 
             return services;
         }

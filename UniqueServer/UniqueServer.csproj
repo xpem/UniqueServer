@@ -59,7 +59,7 @@
     <ProjectReference Include="..\BaseModels\BaseModels.csproj" />
     <ProjectReference Include="..\BookshelfBLL\BookshelfServices.csproj" />
     <ProjectReference Include="..\BookshelfDbContextDAL\BookshelfRepo.csproj" />
-    <ProjectReference Include="..\InventoryDbContextDAL\InventoryRepos.csproj" />
+    <ProjectReference Include="..\InventoryDbContextDAL\InventoryRepo.csproj" />
     <ProjectReference Include="..\InventoryService\InventoryServices.csproj" />
     <ProjectReference Include="..\UserBLL\UserManagementService.csproj" />
     <ProjectReference Include="..\UserManagementDAL\UserManagementRepo.csproj" />

@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace InventoryDbContextDAL.Migrations
 {
-    [DbContext(typeof(InventoryDbContext))]
+    [DbContext(typeof(InventoryDbCtx))]
     [Migration("20231222204322_createtblitems")]
     partial class createtblitems
     {

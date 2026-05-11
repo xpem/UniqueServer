@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BookshelfDbContextDAL.Migrations
 {
-    [DbContext(typeof(BookshelfDbContext))]
+    [DbContext(typeof(BookshelfDbCtx))]
     partial class BookshelfDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

@@ -10,7 +10,7 @@ using UserManagementRepo;
 
 namespace UserDAL.Migrations
 {
-    [DbContext(typeof(UserManagementDbContext))]
+    [DbContext(typeof(UserManagementDbCtx))]
     [Migration("20230816173629_ajuste na foreign key do userhistoric")]
     partial class Ajustenaforeignkeydouserhistoric
     {

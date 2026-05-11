@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BookshelfDbContextDAL.Migrations
 {
-    [DbContext(typeof(BookshelfDbContext))]
+    [DbContext(typeof(BookshelfDbCtx))]
     [Migration("20230816220638_RemovingUserTblFromBookshelf")]
     partial class RemovingUserTblFromBookshelf
     {

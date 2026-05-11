@@ -10,9 +10,9 @@ namespace InventoryRepos.Interfaces
 
         Task<List<SubCategory>> GetByAfterUpdatedAtAsync(int uid, DateTime updatedAt, int page, int pageSize);
 
-        List<SubCategory>? GetByCategoryId(int uid, int categoryId);
+        Task<List<SubCategory>?> GetByCategoryIdAsync(int uid, int categoryId);
 
-        SubCategory? GetByCategoryIdAndName(int uid, int categoryId, string name);
+        Task<SubCategory?> GetByCategoryIdAndNameAsync(int uid, int categoryId, string name);
 
         Task<int> CreateAsync(SubCategory subCategory);
 

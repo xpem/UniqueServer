@@ -114,7 +114,7 @@ namespace UserManagementService
 
             string userJwt = jwtTokenService.GenerateToken(userResp.Id, userResp.Email, DateTime.UtcNow.AddDays(15));
 
-            UserHistoric userHistoric = new() { UserHistoricTypeId = UserHistoricTypeValues.SignIn, CreatedAt = DateTime.UtcNow, UserId = userResp.Id, User = userResp };
+            UserHistoric userHistoric = new() { UserHistoricTypeId = UserHistoricTypeValues.SignIn, CreatedAt = DateTime.UtcNow, UserId = userResp.Id };
 
             await userHistoricRepo.AddAsync(userHistoric);
 
@@ -142,7 +142,7 @@ namespace UserManagementService
 
                     await userRepo.UpdateAsync(user);
 
-                    UserHistoric userHistoric = new() { UserHistoricTypeId = UserHistoricTypeValues.PasswordChanged, CreatedAt = DateTime.UtcNow, UserId = user.Id, User = user };
+                    UserHistoric userHistoric = new() { UserHistoricTypeId = UserHistoricTypeValues.PasswordChanged, CreatedAt = DateTime.UtcNow, UserId = user.Id };
 
                     await userHistoricRepo.AddAsync(userHistoric);
 

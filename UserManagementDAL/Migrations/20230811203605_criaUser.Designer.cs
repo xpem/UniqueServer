@@ -11,7 +11,7 @@ using UserManagementRepo;
 
 namespace UserDAL.Migrations
 {
-    [DbContext(typeof(UserManagementDbContext))]
+    [DbContext(typeof(UserManagementDbCtx))]
     [Migration("20230811203605_criaUser")]
     partial class criaUser
     {

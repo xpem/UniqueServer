@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace InventoryDbContextDAL.Migrations
 {
-    [DbContext(typeof(InventoryDbContext))]
+    [DbContext(typeof(InventoryDbCtx))]
     [Migration("20240929164324_cria campo version na subcategoria")]
     partial class criacampoversionnasubcategoria
     {

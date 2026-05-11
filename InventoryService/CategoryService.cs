@@ -62,7 +62,7 @@ namespace InventoryBLL
                 if (category.SystemDefault)
                     return new BaseResponse(ErrorCode.TryDeleteSystemDefaultObject, "It's not possible delete a system default Sub Category");
 
-                List<SubCategory>? subCategories = subCategoryDAL.GetByCategoryId(uid, category.Id);
+                List<SubCategory>? subCategories = await subCategoryDAL.GetByCategoryIdAsync(uid, category.Id);
 
                 if (subCategories != null && subCategories.Count > 0)
                     return new BaseResponse(ErrorCode.TryDeleteObjectWithDependencies, "It's not possible delete a Category with Sub Categories");
@@ -190,7 +190,7 @@ namespace InventoryBLL
 
                 if (respExec == 1)
                 {
-                    List<SubCategory>? subCategories = subCategoryDAL.GetByCategoryId(uid, category.Id);
+                    List<SubCategory>? subCategories = await subCategoryDAL.GetByCategoryIdAsync(uid, category.Id);
                     List<ResSubCategory>? resSubCategories = [];
 
                     if (subCategories is not null)

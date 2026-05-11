@@ -3,18 +3,20 @@ using UserManagementModels;
 
 namespace UserManagementRepo
 {
-    public class UserHistoricRepo(UserManagementDbContext userManagementDbContext) : IUserHistoricRepo
+    public class UserHistoricRepo(IDbContextFactory<UserManagementDbCtx> dbCtx) : IUserHistoricRepo
     {
         public async Task<int> AddAsync(UserHistoric userHistoric)
         {
-            await userManagementDbContext.UserHistoric.AddAsync(userHistoric);
+            await using var dbContext = await dbCtx.CreateDbContextAsync();
+            await dbContext.UserHistoric.AddAsync(userHistoric);
 
-            return await userManagementDbContext.SaveChangesAsync();
+            return await dbContext.SaveChangesAsync();
         }
 
         public async Task DeleteAllAsync(int uid)
         {
-            await userManagementDbContext.UserHistoric.Where(x => x.UserId.Equals(uid)).ExecuteDeleteAsync();
+            await using var dbContext = await dbCtx.CreateDbContextAsync();
+            await dbContext.UserHistoric.Where(x => x.UserId.Equals(uid)).ExecuteDeleteAsync();
         }
     }
 }

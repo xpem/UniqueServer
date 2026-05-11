@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace InventoryDbContextDAL.Migrations
 {
-    [DbContext(typeof(InventoryDbContext))]
+    [DbContext(typeof(InventoryDbCtx))]
     [Migration("20241115144656_cria campo inativo")]
     partial class criacampoinativo
     {

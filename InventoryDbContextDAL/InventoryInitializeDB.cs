@@ -1,22 +1,25 @@
 ﻿using InventoryModels.DTOs;
+using Microsoft.EntityFrameworkCore;
 
 namespace InventoryRepos
 {
     public class InventoryInitializeDB()
     {
-        public static void CreateInitiaValues(InventoryDbContext inventoryDbContext)
+        public static void CreateInitiaValues(IDbContextFactory<InventoryDbCtx> dbCtx)
         {
-            inventoryDbContext.Database.EnsureCreated();
+            using var context = dbCtx.CreateDbContext();
 
-            CreateBaseCategories(inventoryDbContext);
-            CreateBaseSubCategories(inventoryDbContext);
-            CreateBaseItemSituation(inventoryDbContext);
-            CreateBaseAcquisitionType(inventoryDbContext);
+            context.Database.EnsureCreated();
 
-            inventoryDbContext.SaveChanges();
+            CreateBaseCategories(context);
+            CreateBaseSubCategories(context);
+            CreateBaseItemSituation(context);
+            CreateBaseAcquisitionType(context);
+
+            context.SaveChanges();
         }
 
-        public static void CreateBaseCategories(InventoryDbContext inventoryDbContext)
+        public static void CreateBaseCategories(InventoryDbCtx inventoryDbContext)
         {
             if (inventoryDbContext.Category.Count() is not 0) return;
 
@@ -29,7 +32,7 @@ namespace InventoryRepos
             inventoryDbContext.Category.AddRange(categories);
         }
 
-        public static void CreateBaseSubCategories(InventoryDbContext inventoryDbContext)
+        public static void CreateBaseSubCategories(InventoryDbCtx inventoryDbContext)
         {
             if (inventoryDbContext.SubCategory.Count() is not 0) return;
 
@@ -48,7 +51,7 @@ namespace InventoryRepos
             inventoryDbContext.SubCategory.AddRange(subCategories);
         }
 
-        public static void CreateBaseItemSituation(InventoryDbContext inventoryDbContext)
+        public static void CreateBaseItemSituation(InventoryDbCtx inventoryDbContext)
         {
             if (inventoryDbContext.ItemSituation.Count() is not 0) return;
 
@@ -65,7 +68,7 @@ namespace InventoryRepos
             inventoryDbContext.ItemSituation.AddRange(itemSituations);
         }
 
-        public static void CreateBaseAcquisitionType(InventoryDbContext inventoryDbContext)
+        public static void CreateBaseAcquisitionType(InventoryDbCtx inventoryDbContext)
         {
             if (inventoryDbContext.AcquisitionType.Count() is not 0) return;
 

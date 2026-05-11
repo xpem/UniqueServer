@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BookshelfRepo
 {
-    public class BookshelfDbContext(DbContextOptions<BookshelfDbContext> options) : DbContext(options)
+    public class BookshelfDbCtx(DbContextOptions<BookshelfDbCtx> options) : DbContext(options)
     {
         public virtual DbSet<Book> Book => Set<Book>();
 

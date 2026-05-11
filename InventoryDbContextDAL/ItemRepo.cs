@@ -6,58 +6,71 @@ using Microsoft.EntityFrameworkCore;
 
 namespace InventoryRepos
 {
-    public class ItemRepo(InventoryDbContext dbContext) : IItemRepo
+    public class ItemRepo(IDbContextFactory<InventoryDbCtx> dbCtx) : IItemRepo
     {
         public async Task<Item?> GetById(int uid, int id)
-            => await dbContext.Item.Where(x => x.Id == id && x.UserId == uid)
-            .Include(x => x.Category)
-            .Include(x => x.SubCategory)
-            .Include(x => x.ItemSituation)
-            .Include(x => x.AcquisitionType)
-            .FirstOrDefaultAsync();
+        {
+            using var context = dbCtx.CreateDbContext();
+            return await context.Item.Where(x => x.Id == id && x.UserId == uid)
+                .Include(x => x.Category)
+                .Include(x => x.SubCategory)
+                .Include(x => x.ItemSituation)
+                .Include(x => x.AcquisitionType)
+                .FirstOrDefaultAsync();
+        }
 
         public int Create(Item item)
         {
-            dbContext.ChangeTracker?.Clear();
-            dbContext.Item.Add(item);
-            return dbContext.SaveChanges();
+            using var context = dbCtx.CreateDbContext();
+            context.ChangeTracker?.Clear();
+            context.Item.Add(item);
+            return context.SaveChanges();
         }
 
         public int Update(Item item)
         {
-            dbContext.ChangeTracker?.Clear();
-            dbContext.Item.Update(item);
-            return dbContext.SaveChanges();
+            using var context = dbCtx.CreateDbContext();
+            context.ChangeTracker?.Clear();
+            context.Item.Update(item);
+            return context.SaveChanges();
         }
 
         public int UpdateFileNames(int uid, int id, string? fileName1, string? fileName2)
         {
-            dbContext.ChangeTracker?.Clear();
+            using var context = dbCtx.CreateDbContext();
+            context.ChangeTracker?.Clear();
 
-            return dbContext.Item.Where(x => x.UserId == uid && x.Id == id).ExecuteUpdate(y => y
+            return context.Item.Where(x => x.UserId == uid && x.Id == id).ExecuteUpdate(y => y
                .SetProperty(z => z.Image1, fileName1)
                .SetProperty(z => z.Image2, fileName2)
                .SetProperty(z => z.UpdatedAt, DateTime.Now)
                );
         }
 
-        public Task<bool> CheckItemImageNameAsync(int uid, int id, string imageName) => dbContext.Item.AnyAsync(x => x.Id == id && x.UserId == uid && (x.Image1 == imageName || x.Image2 == imageName));
+        public async Task<bool> CheckItemImageNameAsync(int uid, int id, string imageName)
+        {
+            using var context = dbCtx.CreateDbContext();
+            return await context.Item.AnyAsync(x => x.Id == id && x.UserId == uid && (x.Image1 == imageName || x.Image2 == imageName));
+        }
 
         public int Delete(Item item)
         {
-            dbContext.ChangeTracker?.Clear();
-            dbContext.Item.Remove(item);
-            return dbContext.SaveChanges();
+            using var context = dbCtx.CreateDbContext();
+            context.ChangeTracker?.Clear();
+            context.Item.Remove(item);
+            return context.SaveChanges();
         }
 
         public async Task<int> GetTotalAsync(int uid)
         {
-            return await dbContext.Item.CountAsync(x => x.UserId == uid);
+            using var context = dbCtx.CreateDbContext();
+            return await context.Item.CountAsync(x => x.UserId == uid);
         }
 
         public async Task<int> GetTotalBySearchAsync(int uid, ReqSearchItem reqSearchItem)
         {
-            var query = dbContext.Item.AsNoTracking().Where(x => x.UserId == uid);
+            using var context = dbCtx.CreateDbContext();
+            var query = context.Item.AsNoTracking().Where(x => x.UserId == uid);
 
             if (reqSearchItem is not null)
             {
@@ -77,7 +90,8 @@ namespace InventoryRepos
 
         public async Task<List<Item>?> GetAsync(int uid, int page, int pageSize)
         {
-            return await dbContext.Item.AsNoTracking().Where(x => x.UserId == uid)
+            using var context = dbCtx.CreateDbContext();
+            return await context.Item.AsNoTracking().Where(x => x.UserId == uid)
             .Include(x => x.Category)
             .Include(x => x.SubCategory)
             .Include(x => x.ItemSituation)
@@ -89,7 +103,8 @@ namespace InventoryRepos
 
         public async Task<List<Item>?> GetBySearchAsync(int uid, int page, int pageSize, ReqSearchItem reqSearchItem)
         {
-            var query = dbContext.Item.AsNoTracking().Where(x => x.UserId == uid);
+            using var context = dbCtx.CreateDbContext();
+            var query = context.Item.AsNoTracking().Where(x => x.UserId == uid);
 
             if (reqSearchItem is not null)
             {
@@ -129,7 +144,8 @@ namespace InventoryRepos
 
         public async Task<List<string>> GetLastPurchaseStores(int uid, int count)
         {
-            return await dbContext.Item.AsNoTracking()
+            using var context = dbCtx.CreateDbContext();
+            return await context.Item.AsNoTracking()
                 .Where(x => x.UserId == uid && !string.IsNullOrEmpty(x.PurchaseStore))
                 .OrderByDescending(x => x.CreatedAt)
                 .ThenBy(x => x.PurchaseStore)
@@ -141,11 +157,12 @@ namespace InventoryRepos
 
         public async Task<List<ResItemSituationsGroupingWithQuantities>> GetItemSituationsWithQuantities(int uid)
         {
-            return await dbContext.Item
+            using var context = dbCtx.CreateDbContext();
+            return await context.Item
                 .AsNoTracking()
                 .Where(i => i.UserId == uid)
                 .Join(
-                    dbContext.ItemSituation,
+                    context.ItemSituation,
                     i => i.ItemSituationId,
                     t => t.Id,
                     (i, t) => new { i.ItemSituationId, t.Name }

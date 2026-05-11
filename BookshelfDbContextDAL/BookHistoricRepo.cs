@@ -3,25 +3,28 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BookshelfRepo
 {
-    public class BookHistoricRepo(BookshelfDbContext bookshelfDbContext) : IBookHistoricRepo
+    public class BookHistoricRepo(IDbContextFactory<BookshelfDbCtx> dbCtx) : IBookHistoricRepo
     {
         public async Task<int> AddAsync(BookHistoric bookHistoric)
         {
-            await bookshelfDbContext.BookHistoric.AddAsync(bookHistoric);
+            using var context = dbCtx.CreateDbContext();
+            await context.BookHistoric.AddAsync(bookHistoric);
 
-            return await bookshelfDbContext.SaveChangesAsync();
+            return await context.SaveChangesAsync();
         }
 
         public async Task<int> AddRangeItemListAsync(List<BookHistoricItem> bookHistoricItemList)
         {
-            await bookshelfDbContext.BookHistoricItem.AddRangeAsync(bookHistoricItemList);
+            using var context = dbCtx.CreateDbContext();
+            await context.BookHistoricItem.AddRangeAsync(bookHistoricItemList);
 
-            return await bookshelfDbContext.SaveChangesAsync();
+            return await context.SaveChangesAsync();
         }
 
         public async Task<List<BookHistoric>> GetByCreatedAtAsync(DateTime createdAt, int page, int pageSize, int uid)
         {
-            return await bookshelfDbContext.BookHistoric.Where(x => x.UserId == uid && x.CreatedAt > createdAt)
+            using var context = dbCtx.CreateDbContext();
+            return await context.BookHistoric.Where(x => x.UserId == uid && x.CreatedAt > createdAt)
                                 .Include(x => x.BookHistoricItems)
                                 .ThenInclude(bhi => bhi.BookHistoricItemField)
                                 .Include(x => x.BookHistoricType)
@@ -30,7 +33,8 @@ namespace BookshelfRepo
 
         public async Task<List<BookHistoric>> GetByBookId(int Bookid, int uid)
         {
-            return await bookshelfDbContext.BookHistoric.Where(x => x.UserId == uid && x.BookId == Bookid)
+            using var context = dbCtx.CreateDbContext();
+            return await context.BookHistoric.Where(x => x.UserId == uid && x.BookId == Bookid)
                                 .Include(x => x.BookHistoricItems)
                                 .ThenInclude(bhi => bhi.BookHistoricItemField)
                                 .Include(x => x.BookHistoricType)
@@ -44,7 +48,8 @@ namespace BookshelfRepo
         /// <returns></returns>
         public async Task<int> DeleteAllAsync(int uid)
         {
-            return await bookshelfDbContext.BookHistoric.Where(x => x.UserId == uid).Include(x => x.BookHistoricItems).ExecuteDeleteAsync();
+            using var context = dbCtx.CreateDbContext();
+            return await context.BookHistoric.Where(x => x.UserId == uid).Include(x => x.BookHistoricItems).ExecuteDeleteAsync();
         }
     }
 }

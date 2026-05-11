@@ -5,9 +5,9 @@ namespace InventoryBLL.Interfaces
 {
     public interface ISubCategoryService
     {
-        BaseResponse GetByCategoryId(int uid, int categoryId);
+        Task<BaseResponse> GetByCategoryIdAsync(int uid, int categoryId);
 
-        Task<BaseResponse> GetById(int uid, int id);
+        Task<BaseResponse> GetByIdAsync(int uid, int id);
 
         Task<BaseResponse> CreateSubCategoryAsync(ReqSubCategory reqSubCategory, int uid);
 

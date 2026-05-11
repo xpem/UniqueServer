@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace InventoryRepos
 {
-    public class InventoryDbContext(DbContextOptions<InventoryDbContext> options) : DbContext(options)
+    public class InventoryDbCtx(DbContextOptions<InventoryDbCtx> options) : DbContext(options)
     {
         //public InventoryDbContext(DbContextOptions<InventoryDbContext> options)
         //   : base(options)

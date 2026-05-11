@@ -34,7 +34,7 @@ namespace InventoryBLL
                     SystemDefault = false
                 };
 
-                string? existingItemMsg = ValidateExistingSubCategory(subCategory);
+                string? existingItemMsg = await ValidateExistingSubCategory(subCategory);
 
                 if (existingItemMsg != null)
                 {
@@ -112,7 +112,7 @@ namespace InventoryBLL
                 string? existingItemMsg = null;
 
                 if (oldSubCategory.Name != subCategory.Name)
-                    existingItemMsg = ValidateExistingSubCategory(subCategory, id);
+                    existingItemMsg = await ValidateExistingSubCategory(subCategory, id);
 
                 if (existingItemMsg != null)
                 {
@@ -132,9 +132,9 @@ namespace InventoryBLL
             catch { throw; }
         }
 
-        public BaseResponse GetByCategoryId(int uid, int categoryId)
+        public async Task<BaseResponse> GetByCategoryIdAsync(int uid, int categoryId)
         {
-            List<SubCategory>? subCategories = subCategoryRepo.GetByCategoryId(uid, categoryId);
+            List<SubCategory>? subCategories = await subCategoryRepo.GetByCategoryIdAsync(uid, categoryId);
             List<ResSubCategory>? resSubCategories = [];
 
             if (subCategories != null)
@@ -152,7 +152,7 @@ namespace InventoryBLL
             return new BaseResponse(resSubCategories);
         }
 
-        public async Task<BaseResponse> GetById(int uid, int id)
+        public async Task<BaseResponse> GetByIdAsync(int uid, int id)
         {
             SubCategory? subCategory = await subCategoryRepo.GetById(uid, id);
             ResSubCategory? resSubCategory = null;
@@ -195,9 +195,9 @@ namespace InventoryBLL
         //    return new BaseResponse(resSubCategory);
         //}
 
-        protected string? ValidateExistingSubCategory(SubCategory subCategory, int? id = null)
+        protected async Task<string?> ValidateExistingSubCategory(SubCategory subCategory, int? id = null)
         {
-            SubCategory? respSubCategory = subCategoryRepo.GetByCategoryIdAndName(subCategory.UserId.Value, subCategory.CategoryId, subCategory.Name);
+            SubCategory? respSubCategory = await subCategoryRepo.GetByCategoryIdAndNameAsync(subCategory.UserId.Value, subCategory.CategoryId, subCategory.Name);
 
             if ((respSubCategory is not null) && ((id is not null && respSubCategory.Id != id) || (id is null)))
                 return "A Sub Category with this Name has already been added to this Category";

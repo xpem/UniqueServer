@@ -10,7 +10,7 @@ using UserManagementRepo;
 
 namespace UserDAL.Migrations
 {
-    [DbContext(typeof(UserManagementDbContext))]
+    [DbContext(typeof(UserManagementDbCtx))]
     [Migration("20230814211038_Campo de usuario no historico do usuario")]
     partial class Campodeusuarionohistoricodousuario
     {

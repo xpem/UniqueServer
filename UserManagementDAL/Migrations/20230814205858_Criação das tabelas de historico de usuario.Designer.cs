@@ -10,7 +10,7 @@ using UserManagementRepo;
 
 namespace UserDAL.Migrations
 {
-    [DbContext(typeof(UserManagementDbContext))]
+    [DbContext(typeof(UserManagementDbCtx))]
     [Migration("20230814205858_Criação das tabelas de historico de usuario")]
     partial class Criaçãodastabelasdehistoricodeusuario
     {

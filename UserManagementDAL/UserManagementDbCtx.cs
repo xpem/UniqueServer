@@ -3,17 +3,13 @@ using UserManagementModels;
 
 namespace UserManagementRepo
 {
-    public class UserManagementDbContext : DbContext
+    public class UserManagementDbCtx(DbContextOptions<UserManagementDbCtx> options) : DbContext(options)
     {
         public DbSet<User> User => Set<User>();
 
         public DbSet<UserHistoric> UserHistoric => Set<UserHistoric>();
 
         //public DbSet<UserHistoricType> UserHistoricType => Set<UserHistoricType>();
-
-        public UserManagementDbContext(DbContextOptions<UserManagementDbContext> options) : base(options)
-        {
-        }
 
 
         //migrations
