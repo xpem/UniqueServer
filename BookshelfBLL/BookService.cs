@@ -10,14 +10,14 @@ namespace BookshelfServices
     {
         readonly int pageSize = 50;
 
-        public async Task<BaseResponse> CreateAsync(ReqBook reqBook, int uid)
+        public async Task<BaseResp> CreateAsync(ReqBook reqBook, int uid)
         {
             //BookshelfDbContextDAL.BookshelfInitializeDB ini = new BookshelfInitializeDB(bookshelfDbContext);
             //ini.CreateInitialValues();
 
             string? validateError = reqBook.Validate();
 
-            if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(ErrorCode.InvalidObject, validateError);
+            if (!string.IsNullOrEmpty(validateError)) return new BaseResp(ErrorCode.InvalidObject, validateError);
 
             Book book = new()
             {
@@ -43,7 +43,7 @@ namespace BookshelfServices
             string? existingBookMessage = await ValidateExistingBookAsync(book);
 
             if (existingBookMessage != null)
-                return new BaseResponse(ErrorCode.ExistingObject, existingBookMessage);
+                return new BaseResp(ErrorCode.ExistingObject, existingBookMessage);
 
             await bookRepo.CreateAsync(book);
 
@@ -78,23 +78,23 @@ namespace BookshelfServices
                 Inactive = book.Inactive
             };
 
-            return new BaseResponse(resBook);
+            return new BaseResp(resBook);
         }
 
-        public async Task<BaseResponse> UpdateAsync(ReqBook reqBook, int bookId, int uid)
+        public async Task<BaseResp> UpdateAsync(ReqBook reqBook, int bookId, int uid)
         {
             string? validateError = reqBook.Validate();
 
             if (!string.IsNullOrEmpty(validateError))
-                return new BaseResponse(ErrorCode.InvalidObject, validateError);
+                return new BaseResp(ErrorCode.InvalidObject, validateError);
 
             if ((await bookRepo.GetBookByTitleWithNotEqualIdAsync(reqBook.Title, uid, bookId) != null))
-                return new BaseResponse(ErrorCode.ExistingIndex, "Already exist a book with this title");
+                return new BaseResp(ErrorCode.ExistingIndex, "Already exist a book with this title");
 
             Book? oldBook = await bookRepo.GetBookByIdAsync(bookId, uid);
 
             if (oldBook == null)
-                return new BaseResponse(ErrorCode.InvalidId, "Invalid Book id");
+                return new BaseResp(ErrorCode.InvalidId, "Invalid Book id");
 
             Book? newBook = new()
             {
@@ -154,20 +154,20 @@ namespace BookshelfServices
                 Inactive = newBook.Inactive
             };
 
-            return new BaseResponse(resBook);
+            return new BaseResp(resBook);
         }
 
         public async Task<int> DeleteAllAsync(int uid) => await bookRepo.DeleteAllAsync(uid);
 
-        public async Task<BaseResponse> InactivateAsync(int bookId, int uid)
+        public async Task<BaseResp> InactivateAsync(int bookId, int uid)
         {
             if (bookId < 0)
-                return new BaseResponse(ErrorCode.InvalidId, "Invalid Book id");
+                return new BaseResp(ErrorCode.InvalidId, "Invalid Book id");
 
             Book? oldBook = await bookRepo.GetBookByIdAsync(bookId, uid);
 
             if (oldBook == null)
-                return new BaseResponse(ErrorCode.InvalidId, "Invalid Book id");
+                return new BaseResp(ErrorCode.InvalidId, "Invalid Book id");
 
             if (oldBook.Inactive == false)
             {
@@ -184,13 +184,13 @@ namespace BookshelfServices
                 await bookHistoricBLL.AddAsync(bookHistoric);
             }
 
-            return new BaseResponse(true);
+            return new BaseResp(true);
         }
 
-        public async Task<BaseResponse> GetByUpdatedAtAsync(DateTime updatedAt, int page, int uid)
+        public async Task<BaseResp> GetByUpdatedAtAsync(DateTime updatedAt, int page, int uid)
         {
             if (page <= 0)
-                return new BaseResponse(ErrorCode.InvalidPage, "Invalid page");
+                return new BaseResp(ErrorCode.InvalidPage, "Invalid page");
 
             List<Book> books = await bookRepo.GetBooksAfterUpdatedAtAsync(updatedAt, page, pageSize, uid);
 
@@ -220,7 +220,7 @@ namespace BookshelfServices
                 });
             }
 
-            return new BaseResponse(resBooks);
+            return new BaseResp(resBooks);
         }
 
         protected async Task<string?> ValidateExistingBookAsync(Book book)

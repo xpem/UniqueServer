@@ -6,29 +6,29 @@ namespace InventoryServices.Interfaces
 {
     public interface IItemService
     {
-        Task<BaseResponse> CreateItem(ReqItem reqItem, int uid);
+        Task<BaseResp> CreateItem(ReqItem reqItem, int uid);
 
-        Task<BaseResponse> UpdateItem(ReqItem reqItem, int uid, int id);
+        Task<BaseResp> UpdateItem(ReqItem reqItem, int uid, int id);
 
-        Task<BaseResponse> DeleteItem(int uid, int id, string filePath);
+        Task<BaseResp> DeleteItem(int uid, int id, string filePath);
 
-        Task<BaseResponse> GetById(int uid, int id);
+        Task<BaseResp> GetById(int uid, int id);
 
-        Task<BaseResponse> GetAsync(int uid, int page);
+        Task<BaseResp> GetAsync(int uid, int page);
 
-        BaseResponse UpdateItemFileNames(int uid, int id, string? fileName1, string? fileName2);
+        BaseResp UpdateItemFileNames(int uid, int id, string? fileName1, string? fileName2);
 
         Task<bool> CheckItemImageNameAsync(int uid, int id, string imageName);
 
-        Task<BaseResponse> GetTotalItemsPagesAsync(int uid);
-        Task<BaseResponse> GetConfigs(int uid);
+        Task<BaseResp> GetTotalItemsPagesAsync(int uid);
+        Task<BaseResp> GetConfigs(int uid);
 
-        Task<BaseResponse> GetBySearch(int uid, int page, ReqSearchItem reqSearchItem);
+        Task<BaseResp> GetBySearch(int uid, int page, ReqSearchItem reqSearchItem);
 
-        Task<BaseResponse> GetTotalItemsPagesBySearchAsync(int uid, ReqSearchItem reqSearchItem);
+        Task<BaseResp> GetTotalItemsPagesBySearchAsync(int uid, ReqSearchItem reqSearchItem);
 
-        Task<BaseResponse> DeleteItemImage(int uid, int id, string fileName, string filePath);
+        Task<BaseResp> DeleteItemImage(int uid, int id, string fileName, string filePath);
 
-        Task<BaseResponse> GetItemsSituationsGroupingWithQuantities(int uid);
+        Task<BaseResp> GetItemsSituationsGroupingWithQuantities(int uid);
     }
 }

@@ -54,7 +54,7 @@ namespace BookshelfServicesTests
         [TestMethod()]
         public async Task GetByCreatedAtTest()
         {
-            Mock<BookshelfDbContext> mockContext = new();
+            Mock<BookshelfDbCtx> mockContext = new();
 
             List<BookHistoric> dataBH = [
                 new BookHistoric()
@@ -104,7 +104,7 @@ namespace BookshelfServicesTests
 
             BookHistoricService bookHistoricBLL = new(mockBookHistoricDAL.Object);
 
-            BaseModels.BaseResponse response = await bookHistoricBLL.GetByCreatedAtAsync(dataBusca, 1, 1);
+            BaseModels.BaseResp response = await bookHistoricBLL.GetByCreatedAtAsync(dataBusca, 1, 1);
 
             if (response != null && response.Content != null)
             {
@@ -167,7 +167,7 @@ namespace BookshelfServicesTests
 
             IBookHistoricService bookHistoricBLL = new BookHistoricService(mockBookHistoricDAL.Object);
 
-            BaseModels.BaseResponse response = await bookHistoricBLL.GetByBookIdAsync(210, 1);
+            BaseModels.BaseResp response = await bookHistoricBLL.GetByBookIdAsync(210, 1);
 
             if (response != null && response.Content != null)
             {

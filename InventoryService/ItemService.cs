@@ -15,12 +15,12 @@ namespace InventoryBLL
     {
         readonly int pageSize = 20;
 
-        public async Task<BaseResponse> CreateItem(ReqItem reqItem, int uid)
+        public async Task<BaseResp> CreateItem(ReqItem reqItem, int uid)
         {
             try
             {
                 string? validateError = reqItem.Validate();
-                if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(ErrorCode.InvalidObject, validateError);
+                if (!string.IsNullOrEmpty(validateError)) return new BaseResp(ErrorCode.InvalidObject, validateError);
 
                 //to do, não preciso validar os indices, serão validados pelas foreign keys no banco
                 //string? validateIndexes = await ValidateIndexes(reqItem, uid);
@@ -57,12 +57,12 @@ namespace InventoryBLL
                         {
                             ResItem? resItem = BuildResItem(createdCompleteItem);
 
-                            return new BaseResponse(resItem);
+                            return new BaseResp(resItem);
                         }
                         else throw new Exception($"Não foi possivel recuperar o item de id: {item.Id}");
                     }
                     else
-                        return new BaseResponse(ErrorCode.ErrorCreatingObject, "Não foi possivel adicionar.");
+                        return new BaseResp(ErrorCode.ErrorCreatingObject, "Não foi possivel adicionar.");
                 }
                 catch (Exception ex) { throw ex; }
             }
@@ -87,12 +87,12 @@ namespace InventoryBLL
         //    catch (Exception) { throw; }
         //}
 
-        public async Task<BaseResponse> DeleteItem(int uid, int id, string filePath)
+        public async Task<BaseResp> DeleteItem(int uid, int id, string filePath)
         {
             Item? item = await itemRepo.GetById(uid, id);
 
             if (item == null)
-                return new BaseResponse(ErrorCode.InvalidId, "Invalid id");
+                return new BaseResp(ErrorCode.InvalidId, "Invalid id");
 
             string? fileName1 = null, fileName2 = null;
 
@@ -109,18 +109,18 @@ namespace InventoryBLL
                 if (fileName2 != null)
                     System.IO.File.Delete(Path.Combine(filePath, fileName2));
 
-                return new BaseResponse(1);
+                return new BaseResp(1);
             }
             else
-                return new BaseResponse(ErrorCode.ErrorDeletingObject, "Não foi possivel excluir.");
+                return new BaseResp(ErrorCode.ErrorDeletingObject, "Não foi possivel excluir.");
         }
 
-        public async Task<BaseResponse> DeleteItemImage(int uid, int id, string fileName, string filePath)
+        public async Task<BaseResp> DeleteItemImage(int uid, int id, string fileName, string filePath)
         {
             Item? item = await itemRepo.GetById(uid, id);
 
             if (item == null)
-                return new BaseResponse(ErrorCode.InvalidId, "Invalid id");
+                return new BaseResp(ErrorCode.InvalidId, "Invalid id");
 
             if (item.Image1 != null && item.Image1 == fileName)
             {
@@ -144,18 +144,18 @@ namespace InventoryBLL
                 {
                     ResItem? resItem = BuildResItem(createdCompleteItem);
 
-                    return new BaseResponse(resItem);
+                    return new BaseResp(resItem);
                 }
                 else throw new Exception($"Não foi possivel recuperar o item de id: {item.Id}");
             }
             else
-                return new BaseResponse(ErrorCode.ErrorUpdatingObject, "Não foi possivel atualizar o Item.");
+                return new BaseResp(ErrorCode.ErrorUpdatingObject, "Não foi possivel atualizar o Item.");
         }
 
-        public async Task<BaseResponse> GetAsync(int uid, int page)
+        public async Task<BaseResp> GetAsync(int uid, int page)
         {
             if (page <= 0)
-                return new BaseResponse(ErrorCode.InvalidPage, "Invalid page");
+                return new BaseResp(ErrorCode.InvalidPage, "Invalid page");
 
             List<Item>? items = await itemRepo.GetAsync(uid, page, pageSize);
             List<ResItem> resItems = [];
@@ -169,13 +169,13 @@ namespace InventoryBLL
                         resItems.Add(bildedResItem);
                 }
 
-            return new BaseResponse(resItems);
+            return new BaseResp(resItems);
         }
 
-        public async Task<BaseResponse> GetBySearch(int uid, int page, ReqSearchItem reqSearchItem)
+        public async Task<BaseResp> GetBySearch(int uid, int page, ReqSearchItem reqSearchItem)
         {
             if (page <= 0)
-                return new BaseResponse(ErrorCode.InvalidPage, "Invalid page");
+                return new BaseResp(ErrorCode.InvalidPage, "Invalid page");
 
             List<Item>? items = await itemRepo.GetBySearchAsync(uid, page, pageSize, reqSearchItem);
             List<ResItem> resItems = [];
@@ -189,10 +189,10 @@ namespace InventoryBLL
                         resItems.Add(bildedResItem);
                 }
 
-            return new BaseResponse(resItems);
+            return new BaseResp(resItems);
         }
 
-        public async Task<BaseResponse> GetTotalItemsPagesAsync(int uid)
+        public async Task<BaseResp> GetTotalItemsPagesAsync(int uid)
         {
             int totalItems = await itemRepo.GetTotalAsync(uid);
 
@@ -204,10 +204,10 @@ namespace InventoryBLL
 
             ResTotalItems resTotalItems = new() { TotalItems = totalItems, TotalPages = totalPage };
 
-            return new BaseResponse(resTotalItems);
+            return new BaseResp(resTotalItems);
         }
 
-        public async Task<BaseResponse> GetTotalItemsPagesBySearchAsync(int uid, ReqSearchItem reqSearchItem)
+        public async Task<BaseResp> GetTotalItemsPagesBySearchAsync(int uid, ReqSearchItem reqSearchItem)
         {
             int totalItems = await itemRepo.GetTotalBySearchAsync(uid, reqSearchItem);
 
@@ -219,19 +219,19 @@ namespace InventoryBLL
 
             ResTotalItems resTotalItems = new() { TotalItems = totalItems, TotalPages = totalPage };
 
-            return new BaseResponse(resTotalItems);
+            return new BaseResp(resTotalItems);
         }
 
-        public async Task<BaseResponse> GetById(int uid, int id)
+        public async Task<BaseResp> GetById(int uid, int id)
         {
             Item? item = await itemRepo.GetById(uid, id);
 
             if (item == null)
-                return new BaseResponse(ErrorCode.InvalidId, "Invalid id");
+                return new BaseResp(ErrorCode.InvalidId, "Invalid id");
 
             ResItem? resItem = BuildResItem(item);
 
-            return new BaseResponse(resItem);
+            return new BaseResp(resItem);
         }
 
         protected static ResItem? BuildResItem(Item? item)
@@ -279,14 +279,14 @@ namespace InventoryBLL
             return resItem;
         }
 
-        public async Task<BaseResponse> UpdateItem(ReqItem reqItem, int uid, int id)
+        public async Task<BaseResp> UpdateItem(ReqItem reqItem, int uid, int id)
         {
             string? validateError = reqItem.Validate();
-            if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(ErrorCode.InvalidObject, validateError);
+            if (!string.IsNullOrEmpty(validateError)) return new BaseResp(ErrorCode.InvalidObject, validateError);
 
             Item? oldItem = await itemRepo.GetById(uid, id);
 
-            if (oldItem == null) return new BaseResponse(ErrorCode.InvalidId, "Invalid id");
+            if (oldItem == null) return new BaseResp(ErrorCode.InvalidId, "Invalid id");
 
             //string? validateIndexes = await ValidateIndexes(reqItem, uid);
 
@@ -322,22 +322,22 @@ namespace InventoryBLL
                 {
                     ResItem? resItem = BuildResItem(createdCompleteItem);
 
-                    return new BaseResponse(resItem);
+                    return new BaseResp(resItem);
                 }
                 else throw new Exception($"Não foi possivel recuperar o item de id: {item.Id}");
             }
             else
-                return new BaseResponse(ErrorCode.ErrorCreatingObject, "Não foi possivel adicionar.");
+                return new BaseResp(ErrorCode.ErrorCreatingObject, "Não foi possivel adicionar.");
         }
 
-        public BaseResponse UpdateItemFileNames(int uid, int id, string? fileName1, string? fileName2)
+        public BaseResp UpdateItemFileNames(int uid, int id, string? fileName1, string? fileName2)
         {
             int respExec = itemRepo.UpdateFileNames(uid, id, fileName1, fileName2);
 
             if (respExec == 1)
-                return new BaseResponse(new ResItemImages { Image1 = fileName1, Image2 = fileName2 });
+                return new BaseResp(new ResItemImages { Image1 = fileName1, Image2 = fileName2 });
             else
-                return new BaseResponse(ErrorCode.ErrorUpdatingObject, "Não foi possivel atualizar.");
+                return new BaseResp(ErrorCode.ErrorUpdatingObject, "Não foi possivel atualizar.");
         }
 
         public async Task<bool> CheckItemImageNameAsync(int uid, int id, string imageName) => await itemRepo.CheckItemImageNameAsync(uid, id, imageName);
@@ -365,7 +365,7 @@ namespace InventoryBLL
         /// <param name="uid"></param>
         /// <returns></returns>
         /// acquisition types, categories with subcategories, item situations, last 5 purchaseStores
-        public async Task<BaseResponse> GetConfigs(int uid)
+        public async Task<BaseResp> GetConfigs(int uid)
         {
             var itemSituationsDTO = await itemSituationRepo.Get(uid);
 
@@ -390,14 +390,14 @@ namespace InventoryBLL
                 LastPurchaseStores = lastPurchaseStores,
             };
 
-            return new BaseResponse(itemConfigs);
+            return new BaseResp(itemConfigs);
         }
 
-        public async Task<BaseResponse> GetItemsSituationsGroupingWithQuantities(int uid)
+        public async Task<BaseResp> GetItemsSituationsGroupingWithQuantities(int uid)
         {
             List<ResItemSituationsGroupingWithQuantities> itemSituationsGroupingWithQuantities = await itemRepo.GetItemSituationsWithQuantities(uid);
 
-            return new BaseResponse(itemSituationsGroupingWithQuantities);
+            return new BaseResp(itemSituationsGroupingWithQuantities);
         }
 
     }

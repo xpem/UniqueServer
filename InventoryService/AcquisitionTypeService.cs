@@ -8,11 +8,11 @@ namespace InventoryBLL
 {
     public class AcquisitionTypeService(IAcquisitionTypeRepo acquisitionTypeDAL) : IAcquisitionTypeService
     {
-        public async Task<BaseResponse> Get(int uid)
+        public async Task<BaseResp> Get(int uid)
         {
             List<AcquisitionType>? acquisitionTypes = await acquisitionTypeDAL.Get(uid);
 
-            return new BaseResponse(BuildResAcquisitionType(acquisitionTypes));
+            return new BaseResp(BuildResAcquisitionType(acquisitionTypes));
         }
 
         public static List<ResAcquisitionType> BuildResAcquisitionType(List<AcquisitionType>? acquisitionTypes)

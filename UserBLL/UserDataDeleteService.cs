@@ -11,14 +11,14 @@ namespace UserManagementService
     public class UserDataDeleteService(IUserRepo userRepo, IEncryptionService encryptionService,
         IBookService bookService, IBookHistoricService bookHistoricService, IUserHistoricRepo userHistoricRepo) : IUserDataDeleteService
     {
-        public async Task<BaseResponse> DeleteAsync(ReqUserDataExclusion reqUserDataExclusion)
+        public async Task<BaseResp> DeleteAsync(ReqUserDataExclusion reqUserDataExclusion)
         {
             string? validateError = reqUserDataExclusion.Validate();
-            if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(ErrorCode.InvalidObject, validateError);
+            if (!string.IsNullOrEmpty(validateError)) return new BaseResp(ErrorCode.InvalidObject, validateError);
 
             User? userResp = await userRepo.GetByEmailAndPasswordAsync(reqUserDataExclusion.Email, encryptionService.Encrypt(reqUserDataExclusion.Password));
 
-            if (userResp is null) return new BaseResponse(ErrorCode.InvalidUserPasswordLogin, "User/Password incorrect");
+            if (userResp is null) return new BaseResp(ErrorCode.InvalidUserPasswordLogin, "User/Password incorrect");
 
             if (reqUserDataExclusion.UserAccount is not null)
             {
@@ -32,7 +32,7 @@ namespace UserManagementService
             }
             else throw new Exception("Invalid request");
 
-            return new BaseResponse(null);
+            return new BaseResp(null);
         }
 
         private async Task DeleteBookshelfData(int uid)

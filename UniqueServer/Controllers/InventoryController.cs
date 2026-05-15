@@ -140,7 +140,7 @@ namespace UniqueServer.Controllers
         [HttpPut]
         public async Task<IActionResult> UploadItemImages(int id, IFormFile? file1, IFormFile? file2)
         {
-            BaseResponse bLLResponse = await itemService.GetById(Uid, id);
+            BaseResp bLLResponse = await itemService.GetById(Uid, id);
 
             ResItem? resItem = (bLLResponse.Content as ResItem);
 

@@ -132,5 +132,4 @@ app.UseAuthorization();
 
 app.MapControllers().RequireRateLimiting("fixed");
 
-
 app.Run();

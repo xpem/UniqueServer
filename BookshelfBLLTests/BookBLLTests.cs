@@ -35,7 +35,7 @@ namespace BookshelfServicesTests
 
             Book? bookByTitleAsync = null;
 
-            Mock<BookshelfDbContext> mockContext = new();
+            Mock<BookshelfDbCtx> mockContext = new();
 
             Mock<IBookHistoricRepo> mockBookHistoricDAL = new();
             Mock<IBookRepo> mockBookDAL = new();
@@ -49,7 +49,7 @@ namespace BookshelfServicesTests
 
             BookService bookBLL = new(bookHistoricBLL, mockBookDAL.Object);
 
-            BaseModels.BaseResponse response = bookBLL.CreateAsync(reqBook, 1).Result;
+            BaseModels.BaseResp response = bookBLL.CreateAsync(reqBook, 1).Result;
 
             if (response.Content is not null)
                 Assert.AreEqual(((ResBook)response.Content).Title, "Teste de Título");
@@ -100,7 +100,7 @@ namespace BookshelfServicesTests
 
             BookService bookBLL = new(bookHistoricBLL, mockBookDAL.Object);
 
-            BaseModels.BaseResponse response = bookBLL.UpdateAsync(reqBook, 1, 1).Result;
+            BaseModels.BaseResp response = bookBLL.UpdateAsync(reqBook, 1, 1).Result;
 
             if (response.Content is not null)
                 Assert.AreEqual(((ResBook)response.Content).Title, "Teste de Título alterado");
@@ -155,7 +155,7 @@ namespace BookshelfServicesTests
 
             BookService bookBLL = new(bookHistoricBLL, mockBookDAL.Object);
 
-            BaseModels.BaseResponse response = bookBLL.UpdateAsync(reqBook, 1, 1).Result;
+            BaseModels.BaseResp response = bookBLL.UpdateAsync(reqBook, 1, 1).Result;
 
             if (response.Content is not null)
                 Assert.AreEqual(((ResBook)response.Content).Status, 2);
@@ -185,7 +185,8 @@ namespace BookshelfServicesTests
 
             Mock<DbSet<BookHistoricItem>> mockSetBookHistoricItem = new();
 
-            Mock<BookshelfDbContext> mockContext = new();
+            Mock<BookshelfDbCtx> mockContext = new();
+            
 
             mockContext.Setup(m => m.Book).Returns(mockSetBook.Object);
 
@@ -220,7 +221,7 @@ namespace BookshelfServicesTests
 
             IBookService bookBLL = new BookService(bookHistoricBLL, mockBookDAL.Object);
 
-            BaseModels.BaseResponse response = bookBLL.UpdateAsync(reqBook, 1, 1).Result;
+            BaseModels.BaseResp response = bookBLL.UpdateAsync(reqBook, 1, 1).Result;
 
             if (response.Content is not null)
                 Assert.AreEqual(((ResBook)response.Content).UpdatedAt, oldUpdatedAt);
@@ -300,7 +301,7 @@ namespace BookshelfServicesTests
 
             IBookService bookBLL = new BookService(bookHistoricBLL, mockBookDAL.Object);
 
-            BaseModels.BaseResponse response = await bookBLL.GetByUpdatedAtAsync(updatedAt, 1, 1);
+            BaseModels.BaseResp response = await bookBLL.GetByUpdatedAtAsync(updatedAt, 1, 1);
 
             List<ResBook>? resBook = [];
 
@@ -324,7 +325,7 @@ namespace BookshelfServicesTests
 
             Mock<DbSet<BookHistoricItem>> mockSetBookHistoricItem = new();
 
-            Mock<BookshelfDbContext> mockContext = new();
+            Mock<BookshelfDbCtx> mockContext = new();
 
             Mock<IBookHistoricRepo> mockBookHistoricDAL = new();
 
@@ -352,7 +353,7 @@ namespace BookshelfServicesTests
 
             IBookService bookBLL = new BookService(bookHistoricBLL, mockBookDAL.Object);
 
-            BaseModels.BaseResponse response = bookBLL.InactivateAsync(1, 1).Result;
+            BaseModels.BaseResp response = bookBLL.InactivateAsync(1, 1).Result;
 
             if (response.Content is not null)
                 Assert.IsTrue(Convert.ToBoolean(response.Content));

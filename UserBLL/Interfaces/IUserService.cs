@@ -5,14 +5,14 @@ namespace UserManagementService.Interfaces
 {
     public interface IUserService
     {
-        Task<BaseResponse> CreateAsync(ReqUser reqUser);
+        Task<BaseResp> CreateAsync(ReqUser reqUser);
 
-        Task<BaseResponse> GenerateTokenAsync(ReqUserSession reqUserSession);
+        Task<BaseResp> GenerateTokenAsync(ReqUserSession reqUserSession);
 
-        Task<BaseResponse> GetByIdAsync(int uid);
-        Task<BaseResponse> GoogleAuthAsync(string name, string email);
-        Task<BaseResponse> SendRecoverPasswordEmailAsync(ReqUserEmail reqUserEmail);
+        Task<BaseResp> GetByIdAsync(int uid);
+        Task<BaseResp> GoogleAuthAsync(string name, string email);
+        Task<BaseResp> SendRecoverPasswordEmailAsync(ReqUserEmail reqUserEmail);
 
-        Task<BaseResponse> UpdatePasswordAsync(ReqRecoverPassword reqRecoverPassword, int uid);
+        Task<BaseResp> UpdatePasswordAsync(ReqRecoverPassword reqRecoverPassword, int uid);
     }
 }

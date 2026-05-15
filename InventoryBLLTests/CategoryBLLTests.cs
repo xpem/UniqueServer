@@ -157,7 +157,7 @@ namespace InventoryBLLTests
 
             categoryDAL.Setup(x => x.GetAsync(1)).ReturnsAsync(categories);
 
-            BaseResponse bLLResponse = await categoryBLL.Get(1);
+            BaseResp bLLResponse = await categoryBLL.Get(1);
 
             if (bLLResponse?.Content is not null)
             {
@@ -230,7 +230,7 @@ namespace InventoryBLLTests
 
             ReqCategory reqCategory = new() { Name = "Teste de título alterado" };
 
-            BaseResponse bLLResponse = await categoryBLL.UpdateCategory(reqCategory, 1, 3);
+            BaseResp bLLResponse = await categoryBLL.UpdateCategory(reqCategory, 1, 3);
 
             if (bLLResponse?.Content is not null)
             {
@@ -349,7 +349,7 @@ namespace InventoryBLLTests
 
             CategoryService categoryBLL = new(categoryDAL.Object, subCategoryDAL.Object);
 
-            BaseResponse bLLResponse = await categoryBLL.UpdateCategory(reqCategory, 1, 3);
+            BaseResp bLLResponse = await categoryBLL.UpdateCategory(reqCategory, 1, 3);
 
             if (bLLResponse?.Error is not null)
             {

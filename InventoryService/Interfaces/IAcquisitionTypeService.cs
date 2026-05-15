@@ -4,6 +4,6 @@ namespace InventoryBLL.Interfaces
 {
     public interface IAcquisitionTypeService
     {
-        Task<BaseResponse> Get(int uid);
+        Task<BaseResp> Get(int uid);
     }
 }

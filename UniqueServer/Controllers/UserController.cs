@@ -101,7 +101,7 @@ namespace UniqueServer.Controllers
                     html = html.Replace("{{ReturnMessage}}", "User Not Found");
                 else
                 {
-                    BaseResponse bLLResponse = await userService.UpdatePasswordAsync(reqRecoverPassword, Convert.ToInt32(uid));
+                    BaseResp bLLResponse = await userService.UpdatePasswordAsync(reqRecoverPassword, Convert.ToInt32(uid));
 
                     if (bLLResponse.Success)
                         html = html.Replace("{{ReturnMessage}}", bLLResponse.Content?.ToString());

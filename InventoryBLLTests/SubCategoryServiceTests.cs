@@ -93,7 +93,7 @@ namespace InventoryBLLTests
 
             SubCategoryService subCategoryBLL = new(subCategoryDAL.Object);
 
-            BaseResponse bLLResponse = await subCategoryBLL.GetById(1, 2);
+            BaseResp bLLResponse = await subCategoryBLL.GetByIdAsync(1, 2);
 
             if (bLLResponse?.Content is not null)
             {
@@ -121,7 +121,7 @@ namespace InventoryBLLTests
 
             SubCategoryService subCategoryBLL = new(subCategoryDAL.Object);
 
-            BaseResponse bLLResponse = await subCategoryBLL.GetById(1, 3);
+            BaseResp bLLResponse = await subCategoryBLL.GetByIdAsync(1, 3);
 
             if (bLLResponse?.Content is not null)
             {
@@ -132,7 +132,7 @@ namespace InventoryBLLTests
         }
 
         [TestMethod()]
-        public void GetByCategoryIdTest()
+        public async Task GetByCategoryIdTest()
         {
 
             List<SubCategory> SubCategories = [
@@ -166,11 +166,11 @@ namespace InventoryBLLTests
                 }];
 
             Mock<ISubCategoryRepo> subCategoryDAL = new Mock<ISubCategoryRepo>();
-            subCategoryDAL.Setup(x => x.GetByCategoryId(1, 1)).Returns(SubCategories);
+            subCategoryDAL.Setup(x => x.GetByCategoryIdAsync(1, 1)).ReturnsAsync(SubCategories);
 
             SubCategoryService subCategoryBLL = new(subCategoryDAL.Object);
 
-            BaseResponse bLLResponse = subCategoryBLL.GetByCategoryId(1, 1);
+            BaseResp bLLResponse = await subCategoryBLL.GetByCategoryIdAsync(1, 1);
 
             if (bLLResponse?.Content is not null)
             {
@@ -202,9 +202,9 @@ namespace InventoryBLLTests
             SubCategory? nullSubCategory = null;
 
             mockSubCategoryDAL.Setup(x => x.CreateAsync(It.IsAny<SubCategory>())).ReturnsAsync(1);
-            mockSubCategoryDAL.Setup(x => x.GetByCategoryIdAndName(1, reqSubCategory.CategoryId, reqSubCategory.Name)).Returns(nullSubCategory);
+            mockSubCategoryDAL.Setup(x => x.GetByCategoryIdAndNameAsync(1, reqSubCategory.CategoryId, reqSubCategory.Name)).ReturnsAsync(nullSubCategory);
 
-            BaseResponse bLLResponse = await subCategoryBLL.CreateSubCategoryAsync(reqSubCategory, 1);
+            BaseResp bLLResponse = await subCategoryBLL.CreateSubCategoryAsync(reqSubCategory, 1);
 
             if (bLLResponse?.Content is not null)
             {
@@ -236,7 +236,7 @@ namespace InventoryBLLTests
             SubCategory? subCategoryGetByCategoryIdAndName = null;
 
             mockSubCategoryDAL.Setup(x => x.GetById(2, 6)).ReturnsAsync(subCategory);
-            mockSubCategoryDAL.Setup(x => x.GetByCategoryIdAndName(2, 2, "Teste de título alterado")).Returns(subCategoryGetByCategoryIdAndName);
+            mockSubCategoryDAL.Setup(x => x.GetByCategoryIdAndNameAsync(2, 2, "Teste de título alterado")).ReturnsAsync(subCategoryGetByCategoryIdAndName);
             mockSubCategoryDAL.Setup(x => x.UpdateAsync(It.IsAny<SubCategory>())).ReturnsAsync(1);
 
             SubCategoryService subCategoryBLL = new(mockSubCategoryDAL.Object);
@@ -253,7 +253,7 @@ namespace InventoryBLLTests
             // mockSubCategoryDAL.Setup(x => x.UpdateSubCategory(It.IsAny<SubCategory>())).Returns(1);
             // mockSubCategoryDAL.Setup(x => x.GetByCategoryIdAndName(1, reqSubCategory.CategoryId, reqSubCategory.Name)).Returns(nullSubCategory);
 
-            BaseResponse bLLResponse = await subCategoryBLL.UpdateSubCategoryAsync(reqSubCategory, 2, 6);
+            BaseResp bLLResponse = await subCategoryBLL.UpdateSubCategoryAsync(reqSubCategory, 2, 6);
 
             if (bLLResponse?.Content is not null)
             {
@@ -293,7 +293,7 @@ namespace InventoryBLLTests
 
             Mock<ISubCategoryRepo> mockSubCategoryDAL = new();
             mockSubCategoryDAL.Setup(x => x.GetById(2, 6)).ReturnsAsync(subCategory);
-            mockSubCategoryDAL.Setup(x => x.GetByCategoryIdAndName(2, 2, "Teste de título 4")).Returns(subCategoryWithSameName);
+            mockSubCategoryDAL.Setup(x => x.GetByCategoryIdAndNameAsync(2, 2, "Teste de título 4")).ReturnsAsync(subCategoryWithSameName);
 
 
             SubCategoryService subCategoryBLL = new(mockSubCategoryDAL.Object);
@@ -304,7 +304,7 @@ namespace InventoryBLLTests
                 Name = "Teste de título 4",
             };
 
-            BaseResponse bLLResponse = await subCategoryBLL.UpdateSubCategoryAsync(reqSubCategory, 2, 6);
+            BaseResp bLLResponse = await subCategoryBLL.UpdateSubCategoryAsync(reqSubCategory, 2, 6);
 
             if (bLLResponse?.Error is not null)
             {
@@ -343,7 +343,7 @@ namespace InventoryBLLTests
                 Name = "Teste de título 4",
             };
 
-            BaseResponse bLLResponse = await subCategoryBLL.UpdateSubCategoryAsync(reqSubCategory, 2, 5);
+            BaseResp bLLResponse = await subCategoryBLL.UpdateSubCategoryAsync(reqSubCategory, 2, 5);
 
             if (bLLResponse?.Error is not null)
             {
@@ -376,7 +376,7 @@ namespace InventoryBLLTests
             subCategoryDAL.Setup(x => x.UpdateAsync(It.IsAny<SubCategory>())).ReturnsAsync(1);
             SubCategoryService subCategoryBLL = new(subCategoryDAL.Object);
 
-            BaseResponse bLLResponse = await subCategoryBLL.InactiveSubCategoryAsync(2, 6);
+            BaseResp bLLResponse = await subCategoryBLL.InactiveSubCategoryAsync(2, 6);
 
             if (bLLResponse?.Error is null && bLLResponse?.Content is null)
                 Assert.IsTrue(true);
@@ -402,7 +402,7 @@ namespace InventoryBLLTests
 
             SubCategoryService subCategoryBLL = new(subCategoryDAL.Object);
 
-            BaseResponse bLLResponse = await subCategoryBLL.InactiveSubCategoryAsync(2, 5);
+            BaseResp bLLResponse = await subCategoryBLL.InactiveSubCategoryAsync(2, 5);
 
             if (bLLResponse?.Error is not null && bLLResponse?.Content is null)
             {

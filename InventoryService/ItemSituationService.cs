@@ -8,11 +8,11 @@ namespace InventoryBLL
 {
     public class ItemSituationService(IItemSituationRepo itemSituationRepo) : IItemSituationService
     {
-        public async Task<BaseResponse> Get(int uid)
+        public async Task<BaseResp> Get(int uid)
         {
             List<ItemSituation>? itemSituations = await itemSituationRepo.Get(uid);
 
-            return new BaseResponse(BuildItemSituation(itemSituations));
+            return new BaseResp(BuildItemSituation(itemSituations));
         }
 
         public static List<ResItemSituation> BuildItemSituation(List<ItemSituation>? itemSituations)

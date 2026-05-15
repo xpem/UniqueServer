@@ -5,13 +5,13 @@ namespace BookshelfServices
 {
     public interface IBookService
     {
-        Task<BaseResponse> CreateAsync(ReqBook reqBook, int uid);
+        Task<BaseResp> CreateAsync(ReqBook reqBook, int uid);
 
-        Task<BaseResponse> UpdateAsync(ReqBook reqBook, int bookId, int uid);
+        Task<BaseResp> UpdateAsync(ReqBook reqBook, int bookId, int uid);
 
-        Task<BaseResponse> InactivateAsync(int bookId, int uid);
+        Task<BaseResp> InactivateAsync(int bookId, int uid);
 
-        Task<BaseResponse> GetByUpdatedAtAsync(DateTime updatedAt, int page, int uid);
+        Task<BaseResp> GetByUpdatedAtAsync(DateTime updatedAt, int page, int uid);
 
         Task<int> DeleteAllAsync(int uid);
     }

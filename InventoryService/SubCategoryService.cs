@@ -11,12 +11,12 @@ namespace InventoryBLL
     {
         readonly int pageSize = 50;
 
-        public async Task<BaseResponse> CreateSubCategoryAsync(ReqSubCategory reqSubCategory, int uid)
+        public async Task<BaseResp> CreateSubCategoryAsync(ReqSubCategory reqSubCategory, int uid)
         {
             try
             {
                 string? validateError = reqSubCategory.Validate();
-                if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(ErrorCode.InvalidObject, validateError);
+                if (!string.IsNullOrEmpty(validateError)) return new BaseResp(ErrorCode.InvalidObject, validateError);
 
                 string iconName = "Tag";
 
@@ -38,7 +38,7 @@ namespace InventoryBLL
 
                 if (existingItemMsg != null)
                 {
-                    return new BaseResponse(ErrorCode.ExistingObject, existingItemMsg);
+                    return new BaseResp(ErrorCode.ExistingObject, existingItemMsg);
                 }
 
                 int respExec = await subCategoryRepo.CreateAsync(subCategory);
@@ -46,52 +46,52 @@ namespace InventoryBLL
                 if (respExec == 1)
                 {
                     ResSubCategory resSubCategory = new() { Id = subCategory.Id, Name = subCategory.Name, IconName = subCategory.IconName, CategoryId = subCategory.CategoryId, SystemDefault = subCategory.SystemDefault };
-                    return new BaseResponse(resSubCategory);
+                    return new BaseResp(resSubCategory);
                 }
                 else
-                    return new BaseResponse(ErrorCode.ErrorCreatingObject, "Não foi possivel adicionar.");
+                    return new BaseResp(ErrorCode.ErrorCreatingObject, "Não foi possivel adicionar.");
             }
             catch { throw; }
         }
 
-        public async Task<BaseResponse> InactiveSubCategoryAsync(int uid, int id)
+        public async Task<BaseResp> InactiveSubCategoryAsync(int uid, int id)
         {
             try
             {
                 SubCategory? subCategory = await subCategoryRepo.GetById(uid, id);
 
                 if (subCategory == null)
-                    return new BaseResponse(ErrorCode.InvalidId, "Invalid id");
+                    return new BaseResp(ErrorCode.InvalidId, "Invalid id");
 
                 if (subCategory.SystemDefault)
-                    return new BaseResponse(ErrorCode.TryDeleteSystemDefaultObject, "It's not possible delete a system default Sub Category");
+                    return new BaseResp(ErrorCode.TryDeleteSystemDefaultObject, "It's not possible delete a system default Sub Category");
 
                 subCategory.Inactive = true;
 
                 int respExec = await subCategoryRepo.UpdateAsync(subCategory);
 
                 if (respExec == 1)
-                    return new BaseResponse(null);
+                    return new BaseResp(null);
                 else
-                    return new BaseResponse(ErrorCode.ErrorDeletingObject, "Não foi possivel deletar.");
+                    return new BaseResp(ErrorCode.ErrorDeletingObject, "Não foi possivel deletar.");
             }
             catch { throw; }
         }
 
-        public async Task<BaseResponse> UpdateSubCategoryAsync(ReqSubCategory reqSubCategory, int uid, int id)
+        public async Task<BaseResp> UpdateSubCategoryAsync(ReqSubCategory reqSubCategory, int uid, int id)
         {
             try
             {
                 string? validateError = reqSubCategory.Validate();
-                if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(ErrorCode.InvalidObject, validateError);
+                if (!string.IsNullOrEmpty(validateError)) return new BaseResp(ErrorCode.InvalidObject, validateError);
 
                 SubCategory? oldSubCategory = await subCategoryRepo.GetById(uid, id);
 
                 if (oldSubCategory == null)
-                    return new BaseResponse(ErrorCode.InvalidId, "Invalid id");
+                    return new BaseResp(ErrorCode.InvalidId, "Invalid id");
 
                 if (oldSubCategory.SystemDefault)
-                    return new BaseResponse(ErrorCode.TryDeleteSystemDefaultObject, "It's not possible edit a system default Sub Category");
+                    return new BaseResp(ErrorCode.TryDeleteSystemDefaultObject, "It's not possible edit a system default Sub Category");
 
                 string iconName = "Tag";
 
@@ -116,7 +116,7 @@ namespace InventoryBLL
 
                 if (existingItemMsg != null)
                 {
-                    return new BaseResponse(ErrorCode.ExistingObject, existingItemMsg);
+                    return new BaseResp(ErrorCode.ExistingObject, existingItemMsg);
                 }
 
                 int respExec = await subCategoryRepo.UpdateAsync(subCategory);
@@ -124,15 +124,15 @@ namespace InventoryBLL
                 if (respExec == 1)
                 {
                     ResSubCategory resSubCategory = new() { Id = subCategory.Id, Name = subCategory.Name, IconName = subCategory.IconName, CategoryId = subCategory.CategoryId, SystemDefault = subCategory.SystemDefault };
-                    return new BaseResponse(resSubCategory);
+                    return new BaseResp(resSubCategory);
                 }
                 else
-                    return new BaseResponse(ErrorCode.ErrorUpdatingObject, "Não foi possivel atualizar.");
+                    return new BaseResp(ErrorCode.ErrorUpdatingObject, "Não foi possivel atualizar.");
             }
             catch { throw; }
         }
 
-        public async Task<BaseResponse> GetByCategoryIdAsync(int uid, int categoryId)
+        public async Task<BaseResp> GetByCategoryIdAsync(int uid, int categoryId)
         {
             List<SubCategory>? subCategories = await subCategoryRepo.GetByCategoryIdAsync(uid, categoryId);
             List<ResSubCategory>? resSubCategories = [];
@@ -149,10 +149,10 @@ namespace InventoryBLL
                             SystemDefault = subCategory.SystemDefault,
                         });
 
-            return new BaseResponse(resSubCategories);
+            return new BaseResp(resSubCategories);
         }
 
-        public async Task<BaseResponse> GetByIdAsync(int uid, int id)
+        public async Task<BaseResp> GetByIdAsync(int uid, int id)
         {
             SubCategory? subCategory = await subCategoryRepo.GetById(uid, id);
             ResSubCategory? resSubCategory = null;
@@ -167,7 +167,7 @@ namespace InventoryBLL
                     SystemDefault = subCategory.SystemDefault,
                 };
 
-            return new BaseResponse(resSubCategory);
+            return new BaseResp(resSubCategory);
         }
 
         //public async Task<BaseResponse> GetByIdWithCategory(int uid, int id)
@@ -205,10 +205,10 @@ namespace InventoryBLL
             return null;
         }
 
-        public async Task<BaseResponse> GetByAfterUpdatedAtAsync(int uid, int page, DateTime updatedAt)
+        public async Task<BaseResp> GetByAfterUpdatedAtAsync(int uid, int page, DateTime updatedAt)
         {
             if (page <= 0)
-                return new BaseResponse(ErrorCode.InvalidPage, "Invalid page");
+                return new BaseResp(ErrorCode.InvalidPage, "Invalid page");
 
             List<SubCategory> subCategories = await subCategoryRepo.GetByAfterUpdatedAtAsync(uid, updatedAt, page, pageSize);
 
@@ -227,7 +227,7 @@ namespace InventoryBLL
                             SystemDefault = subCategory.SystemDefault
                         });
 
-            return new BaseResponse(resSubCategories);
+            return new BaseResp(resSubCategories);
         }
     }
 }

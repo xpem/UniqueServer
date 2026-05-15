@@ -1,5 +1,7 @@
 ﻿using BookshelfRepo;
 using BookshelfServices;
+using FinancialService.Repo;
+using FinancialService.Service;
 using InventoryBLL;
 using InventoryBLL.Interfaces;
 using InventoryRepo;
@@ -26,6 +28,7 @@ namespace UniqueServer
             string? inventoryConn = GetConfigValue(Configuration, "ConnectionStrings:InventoryConn");
             string? bookshelfConn = GetConfigValue(Configuration, "ConnectionStrings:BookshelfConn");
             string? userManagementfConn = GetConfigValue(Configuration, "ConnectionStrings:UserManagementConn");
+            string? financialConn = GetConfigValue(Configuration, "ConnectionStrings:FinancialConn");
 
 
             services.AddDbContextFactory<BookshelfDbCtx>(options => options.UseMySql(bookshelfConn, ServerVersion.AutoDetect(bookshelfConn),
@@ -35,6 +38,12 @@ namespace UniqueServer
                     errorNumbersToAdd: null)));
 
             services.AddDbContextFactory<InventoryDbCtx>(options => options.UseMySql(inventoryConn, ServerVersion.AutoDetect(inventoryConn),
+                options => options.EnableRetryOnFailure(
+                    maxRetryCount: 5,
+                    maxRetryDelay: System.TimeSpan.FromSeconds(30),
+                    errorNumbersToAdd: null)));
+
+            services.AddDbContextFactory<FinancialDbctx>(options => options.UseMySql(financialConn, ServerVersion.AutoDetect(financialConn),
                 options => options.EnableRetryOnFailure(
                     maxRetryCount: 5,
                     maxRetryDelay: System.TimeSpan.FromSeconds(30),
@@ -65,6 +74,11 @@ namespace UniqueServer
             services.AddScoped<IAcquisitionTypeRepo, AcquisitionTypeRepo>();
             services.AddScoped<IItemSituationRepo, ItemSituationRepo>();
             services.AddScoped<IItemRepo, ItemRepo>();
+
+
+            //financial
+            services.AddScoped<ITransactionCategoryRepo, TransactionCategoryRepo>();
+            services.AddScoped<ITransactionCategoryService, TransactionCategoryService>();
 
             return services;
 
@@ -110,6 +124,13 @@ namespace UniqueServer
             services.AddScoped<IAcquisitionTypeService, AcquisitionTypeService>();
             services.AddScoped<IItemSituationService, ItemSituationService>();
             services.AddScoped<IItemService, ItemService>();
+
+            #endregion
+
+
+            #region financial
+
+            services.AddScoped<FinancialInitDbService, FinancialInitDbService>();
 
             #endregion
 

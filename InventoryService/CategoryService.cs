@@ -10,12 +10,12 @@ namespace InventoryBLL
 {
     public class CategoryService(ICategoryRepo categoryRepo, ISubCategoryRepo subCategoryDAL) : ICategoryService
     {
-        public async Task<BaseResponse> Create(ReqCategory reqCategory, int uid)
+        public async Task<BaseResp> Create(ReqCategory reqCategory, int uid)
         {
             try
             {
                 string? validateError = reqCategory.Validate();
-                if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(ErrorCode.InvalidObject, validateError);
+                if (!string.IsNullOrEmpty(validateError)) return new BaseResp(ErrorCode.InvalidObject, validateError);
 
                 Category category = new()
                 {
@@ -29,7 +29,7 @@ namespace InventoryBLL
                 string? existingItemMsg = await ValidateExistingCategory(category);
 
                 if (existingItemMsg != null)
-                    return new BaseResponse(ErrorCode.ExistingObject, existingItemMsg);
+                    return new BaseResp(ErrorCode.ExistingObject, existingItemMsg);
 
                 int respExec = await categoryRepo.CreateAsync(category);
 
@@ -42,42 +42,42 @@ namespace InventoryBLL
                         SystemDefault = category.SystemDefault,
                         Id = category.Id
                     };
-                    return new BaseResponse(resCategory);
+                    return new BaseResp(resCategory);
                 }
                 else
-                    return new BaseResponse(ErrorCode.ErrorCreatingObject, "Não foi possivel adicionar.");
+                    return new BaseResp(ErrorCode.ErrorCreatingObject, "Não foi possivel adicionar.");
             }
             catch { throw; }
         }
 
-        public async Task<BaseResponse> DeleteCategory(int uid, int id)
+        public async Task<BaseResp> DeleteCategory(int uid, int id)
         {
             try
             {
                 Category? category = await categoryRepo.GetByIdAsync(uid, id);
 
                 if (category == null)
-                    return new BaseResponse(ErrorCode.InvalidId, "Invalid id");
+                    return new BaseResp(ErrorCode.InvalidId, "Invalid id");
 
                 if (category.SystemDefault)
-                    return new BaseResponse(ErrorCode.TryDeleteSystemDefaultObject, "It's not possible delete a system default Sub Category");
+                    return new BaseResp(ErrorCode.TryDeleteSystemDefaultObject, "It's not possible delete a system default Sub Category");
 
                 List<SubCategory>? subCategories = await subCategoryDAL.GetByCategoryIdAsync(uid, category.Id);
 
                 if (subCategories != null && subCategories.Count > 0)
-                    return new BaseResponse(ErrorCode.TryDeleteObjectWithDependencies, "It's not possible delete a Category with Sub Categories");
+                    return new BaseResp(ErrorCode.TryDeleteObjectWithDependencies, "It's not possible delete a Category with Sub Categories");
 
                 int respExec = await categoryRepo.DeleteAsync(category);
 
                 if (respExec == 1)
-                    return new BaseResponse(1);
+                    return new BaseResp(1);
                 else
-                    return new BaseResponse(ErrorCode.ErrorUpdatingObject, "Não foi possivel atualizar.");
+                    return new BaseResp(ErrorCode.ErrorUpdatingObject, "Não foi possivel atualizar.");
             }
             catch { throw; }
         }
 
-        public async Task<BaseResponse> Get(int uid)
+        public async Task<BaseResp> Get(int uid)
         {
             // InventoryDbContextDAL.InventoryInitializeDB.CreateInitiaValues();
 
@@ -95,10 +95,10 @@ namespace InventoryBLL
                             SystemDefault = category.SystemDefault
                         });
 
-            return new BaseResponse(resCategories);
+            return new BaseResp(resCategories);
         }
 
-        public async Task<BaseResponse> GetById(int uid, int id)
+        public async Task<BaseResp> GetById(int uid, int id)
         {
             Category? category = await categoryRepo.GetByIdAsync(uid, id);
             ResCategory? resCategories = null;
@@ -112,15 +112,15 @@ namespace InventoryBLL
                     SystemDefault = category.SystemDefault
                 };
 
-            return new BaseResponse(resCategories);
+            return new BaseResp(resCategories);
         }
 
 
-        public async Task<BaseResponse> GetByIdWithSubCategories(int uid, int? id = null)
+        public async Task<BaseResp> GetByIdWithSubCategories(int uid, int? id = null)
         {
             List<Category>? categoriesWithSubCategories = await categoryRepo.GetByIdWithSubCategoriesAsync(uid, id);
 
-            return new BaseResponse(BuildResCategoryWithSubCategories(categoriesWithSubCategories));
+            return new BaseResp(BuildResCategoryWithSubCategories(categoriesWithSubCategories));
         }
 
         public static List<ResCategoryWithSubCategories> BuildResCategoryWithSubCategories(List<Category>? categoriesWithSubCategories)
@@ -153,20 +153,20 @@ namespace InventoryBLL
             return resCategoriesWithSubCategories;
         }
 
-        public async Task<BaseResponse> UpdateCategory(ReqCategory reqCategory, int uid, int id)
+        public async Task<BaseResp> UpdateCategory(ReqCategory reqCategory, int uid, int id)
         {
             try
             {
                 string? validateError = reqCategory.Validate();
-                if (!string.IsNullOrEmpty(validateError)) return new BaseResponse(ErrorCode.InvalidObject, validateError);
+                if (!string.IsNullOrEmpty(validateError)) return new BaseResp(ErrorCode.InvalidObject, validateError);
 
                 Category? oldCategory = await categoryRepo.GetByIdAsync(uid, id);
 
                 if (oldCategory == null)
-                    return new BaseResponse(ErrorCode.InvalidId, "Invalid id");
+                    return new BaseResp(ErrorCode.InvalidId, "Invalid id");
 
                 if (oldCategory.SystemDefault)
-                    return new BaseResponse(ErrorCode.TryDeleteSystemDefaultObject, "It's not possible edit a system default Category");
+                    return new BaseResp(ErrorCode.TryDeleteSystemDefaultObject, "It's not possible edit a system default Category");
 
                 Category category = new()
                 {
@@ -183,7 +183,7 @@ namespace InventoryBLL
 
                 if (existingItemMsg != null)
                 {
-                    return new BaseResponse(ErrorCode.ExistingObject, existingItemMsg);
+                    return new BaseResp(ErrorCode.ExistingObject, existingItemMsg);
                 }
 
                 int respExec = await categoryRepo.UpdateAsync(category);
@@ -213,10 +213,10 @@ namespace InventoryBLL
                         SubCategories = resSubCategories
 
                     };
-                    return new BaseResponse(resCategoryWithSubCategories);
+                    return new BaseResp(resCategoryWithSubCategories);
                 }
                 else
-                    return new BaseResponse("Não foi possivel atualizar.");
+                    return new BaseResp("Não foi possivel atualizar.");
             }
             catch { throw; }
         }

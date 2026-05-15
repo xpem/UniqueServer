@@ -5,6 +5,6 @@ namespace UserManagementService.Interfaces
 {
     public interface IUserDataDeleteService
     {
-        Task<BaseResponse> DeleteAsync(ReqUserDataExclusion reqUserDataExclusion);
+        Task<BaseResp> DeleteAsync(ReqUserDataExclusion reqUserDataExclusion);
     }
 }

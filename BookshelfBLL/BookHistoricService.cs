@@ -131,30 +131,30 @@ namespace BookshelfServices
             return bookHistoric;
         }
 
-        public async Task<BaseResponse> GetByBookIdAsync(int? bookId, int uid)
+        public async Task<BaseResp> GetByBookIdAsync(int? bookId, int uid)
         {
             List<BookHistoric> bookHistorics;
 
             if (bookId is not null)
                 bookHistorics = await bookHistoricDAL.GetByBookId(bookId.Value, uid);
-            else return new BaseResponse("sem parametro válido de busca");
+            else return new BaseResp("sem parametro válido de busca");
 
             var resBookHistorics = BuildList(bookHistorics);
 
-            return new BaseResponse(resBookHistorics);
+            return new BaseResp(resBookHistorics);
         }
 
-        public async Task<BaseResponse> GetByCreatedAtAsync(DateTime? createdAt, int page, int uid)
+        public async Task<BaseResp> GetByCreatedAtAsync(DateTime? createdAt, int page, int uid)
         {
             List<BookHistoric> bookHistorics;
 
             if (createdAt.HasValue)
                 bookHistorics = await bookHistoricDAL.GetByCreatedAtAsync(createdAt.Value, page, pageSize, uid);
-            else return new BaseResponse("sem parametro válido de busca");
+            else return new BaseResp("sem parametro válido de busca");
 
             var resBookHistorics = BuildList(bookHistorics);
 
-            return new BaseResponse(resBookHistorics);
+            return new BaseResp(resBookHistorics);
         }
 
         private static List<ResBookHistoric> BuildList(List<BookHistoric> bookHistorics)

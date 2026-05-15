@@ -1,6 +1,6 @@
 ﻿namespace BaseModels
 {
-    public record BaseResponse
+    public record BaseResp
     {
         public bool Success { get; set; } = true;
 
@@ -10,7 +10,7 @@
 
         public ErrorCode ErrorCode { get; init; }
 
-        public BaseResponse(object? content)
+        public BaseResp(object? content)
         {
             if (content is ErrorCode) throw new Exception("Retorno de erro deve Ter uma mensagem válida, content:" + content);
 
@@ -18,7 +18,7 @@
             Content = content;
         }
 
-        public BaseResponse(ErrorCode errorCode, string errorMessage)
+        public BaseResp(ErrorCode errorCode, string errorMessage)
         {
             Success = false;
             Content = null;

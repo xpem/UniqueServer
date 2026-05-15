@@ -31,7 +31,7 @@ namespace InventoryBLLTests
 
             ItemService itemBLL = MockItemBLL();
 
-            BaseModels.BaseResponse resp = await itemBLL.CreateItem(reqItem, uid);
+            BaseModels.BaseResp resp = await itemBLL.CreateItem(reqItem, uid);
 
             if (resp != null && resp.Content != null)
             {
@@ -54,7 +54,7 @@ namespace InventoryBLLTests
 
             ItemService itemBLL = MockItemBLL();
 
-            BaseModels.BaseResponse resp = await itemBLL.GetById(uid, 1);
+            BaseModels.BaseResp resp = await itemBLL.GetById(uid, 1);
 
             if (resp != null && resp.Content != null)
             {
@@ -91,7 +91,7 @@ namespace InventoryBLLTests
                 ResaleValue = 0,
             };
 
-            BaseModels.BaseResponse resp = await itemBLL.UpdateItem(reqItem, uid, 1);
+            BaseModels.BaseResp resp = await itemBLL.UpdateItem(reqItem, uid, 1);
 
             if (resp != null && resp.Content != null)
             {
@@ -164,7 +164,7 @@ namespace InventoryBLLTests
                 ResaleValue = 0,
             };
 
-            BaseModels.BaseResponse resp = await itemBLL.UpdateItem(reqItem, uid, 3);
+            BaseModels.BaseResp resp = await itemBLL.UpdateItem(reqItem, uid, 3);
 
             if (resp != null && resp.Error != null)
             {
