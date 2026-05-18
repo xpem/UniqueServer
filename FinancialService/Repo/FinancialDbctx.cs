@@ -1,4 +1,4 @@
-﻿using FinancialService.Model.Dto;
+﻿using FinancialService.Model.DTO;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinancialService.Repo
@@ -7,9 +7,13 @@ namespace FinancialService.Repo
     {
         public virtual DbSet<TransactionCategoryDTO> TransactionCategory => Set<TransactionCategoryDTO>();
 
+        public virtual DbSet<TransactionDTO> Transaction => Set<TransactionDTO>();
+
+        public virtual DbSet<AccountDTO> Account => Set<AccountDTO>();
+
         //migrations
         //no console do gerenciador de pacotes selecione o dal referente:
-        //EntityFrameworkCore\Add-Migration "202605132" -Context FinancialDbctx
+        //EntityFrameworkCore\Add-Migration "202605161" -Context FinancialDbctx
         //EntityFrameworkCore\update-database -Context FinancialDbctx
 
         //to remove last migration snapshot

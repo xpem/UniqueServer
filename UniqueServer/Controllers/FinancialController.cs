@@ -1,4 +1,5 @@
-﻿using FinancialService.Service;
+﻿using FinancialService.Model.Res;
+using FinancialService.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,10 +12,12 @@ namespace UniqueServer.Controllers
     {
         [Route("categories")]
         [HttpGet]
-        public async Task<IActionResult> GetCategories(int uid, DateTime updatedAt)
+        public async Task<IActionResult> GetCategories(DateTime? updatedAt)
         {
+            updatedAt ??= DateTime.MinValue;
+
             //format 2023-06-10T21:53:28.331Z
-            var categories = await transactionCategoryService.GetByUid(uid, updatedAt);
+            List<TransactionCategoryRes> categories = await transactionCategoryService.GetByUid(Uid, updatedAt.Value);
             return Ok(categories);
         }
 

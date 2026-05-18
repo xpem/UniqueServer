@@ -1,4 +1,4 @@
-﻿using FinancialService.Model.Dto;
+﻿using FinancialService.Model.DTO;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinancialService.Repo
@@ -14,7 +14,7 @@ namespace FinancialService.Repo
         {
             using FinancialDbctx context = await dbCtx.CreateDbContextAsync();
             List<TransactionCategoryDTO> categories = await context.TransactionCategory
-                .Where(c => c.UserId == uid && c.UpdatedAt > updatedAt)
+                .Where(c => (c.UserId == uid || c.SystemDefault) && c.UpdatedAt > updatedAt)
                 .ToListAsync();
             return categories;
         }

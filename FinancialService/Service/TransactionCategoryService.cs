@@ -1,4 +1,4 @@
-﻿using FinancialService.Model.Dto;
+﻿using FinancialService.Model.DTO;
 using FinancialService.Model.Res;
 using FinancialService.Repo;
 

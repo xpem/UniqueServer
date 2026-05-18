@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace FinancialService.Model.Dto
+namespace FinancialService.Model.DTO
 {
     [Table("TransactionCategory")]
     public class TransactionCategoryDTO
