@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FinancialService.Model.DTO
 {
@@ -45,6 +40,8 @@ namespace FinancialService.Model.DTO
         public AccountDTO? Account { get; set; }
 
         public required int UserId { get; set; }
+
+        public bool Inactive { get; set; }
     }
 
     public enum TransactionType

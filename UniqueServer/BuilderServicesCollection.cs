@@ -30,7 +30,6 @@ namespace UniqueServer
             string? userManagementfConn = GetConfigValue(Configuration, "ConnectionStrings:UserManagementConn");
             string? financialConn = GetConfigValue(Configuration, "ConnectionStrings:FinancialConn");
 
-
             services.AddDbContextFactory<BookshelfDbCtx>(options => options.UseMySql(bookshelfConn, ServerVersion.AutoDetect(bookshelfConn),
                 options => options.EnableRetryOnFailure(
                     maxRetryCount: 5,
@@ -78,7 +77,7 @@ namespace UniqueServer
 
             //financial
             services.AddScoped<ITransactionCategoryRepo, TransactionCategoryRepo>();
-            services.AddScoped<ITransactionCategoryService, TransactionCategoryService>();
+            services.AddScoped<ITransactionRepo, TransactionRepo>();
 
             return services;
 
@@ -124,6 +123,8 @@ namespace UniqueServer
             services.AddScoped<IAcquisitionTypeService, AcquisitionTypeService>();
             services.AddScoped<IItemSituationService, ItemSituationService>();
             services.AddScoped<IItemService, ItemService>();
+            services.AddScoped<ITransactionCategoryService, TransactionCategoryService>();
+            services.AddScoped<ITransactionService, TransactionService>();
 
             #endregion
 

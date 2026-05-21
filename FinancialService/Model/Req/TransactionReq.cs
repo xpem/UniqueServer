@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace FinancialService.Model.Req
 {
-    public record TransactionReq
+    public record TransactionReq : BaseReq
     {
         public int Id { get; set; }
 
