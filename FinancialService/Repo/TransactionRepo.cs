@@ -16,5 +16,12 @@ namespace FinancialService.Repo
             context.Transaction.Add(transaction);
             await context.SaveChangesAsync();
         }
+
+        public async Task UpdateAsync(TransactionDTO transaction)
+        {
+            using FinancialDbctx context = await dbCtx.CreateDbContextAsync();
+            context.Transaction.Update(transaction);
+            await context.SaveChangesAsync();
+        }
     }
 }

@@ -78,6 +78,7 @@ namespace UniqueServer
             //financial
             services.AddScoped<ITransactionCategoryRepo, TransactionCategoryRepo>();
             services.AddScoped<ITransactionRepo, TransactionRepo>();
+            services.AddScoped<IAccountRepo, AccountRepo>();
 
             return services;
 
@@ -124,14 +125,15 @@ namespace UniqueServer
             services.AddScoped<IItemSituationService, ItemSituationService>();
             services.AddScoped<IItemService, ItemService>();
             services.AddScoped<ITransactionCategoryService, TransactionCategoryService>();
-            services.AddScoped<ITransactionService, TransactionService>();
+            services.AddScoped<IAccountService, AccountService>();
 
             #endregion
-
 
             #region financial
 
             services.AddScoped<FinancialInitDbService, FinancialInitDbService>();
+            services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<ITransactionService, TransactionService>();
 
             #endregion
 

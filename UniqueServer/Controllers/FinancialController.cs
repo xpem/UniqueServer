@@ -9,7 +9,7 @@ namespace UniqueServer.Controllers
     [Route("[Controller]")]
     [ApiController]
     [Authorize]
-    public class FinancialController(ITransactionCategoryService transactionCategoryService,ITransactionService transactionService) : BaseController
+    public class FinancialController(ITransactionCategoryService transactionCategoryService, ITransactionService transactionService, IAccountService accountService) : BaseController
     {
         [Route("categories")]
         [HttpGet]
@@ -20,6 +20,14 @@ namespace UniqueServer.Controllers
             //format 2023-06-10T21:53:28.331Z
             List<TransactionCategoryRes> categories = await transactionCategoryService.GetByUid(Uid, updatedAt.Value);
             return Ok(categories);
+        }
+
+        [HttpPost]
+        [Route("adjustAccountBalance")]
+        public async Task<IActionResult> AdjustAccountBalance([FromBody] AdjustAccountBalanceReq req)
+        {
+            var result = await accountService.AdjustAccountBalanceAsync(req, Uid);
+            return Ok(result);
         }
 
         [Route("transaction")]

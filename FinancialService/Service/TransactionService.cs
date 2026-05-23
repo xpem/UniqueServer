@@ -21,10 +21,8 @@ namespace FinancialService.Service
             }
 
             // Add your logic to process the transaction here
-
             TransactionDTO transactionDTO = new()
             {
-                Id = req.Id,
                 UpdatedAt = req.UpdatedAt,
                 Inactive = req.Inactive,
                 Description = req.Description,

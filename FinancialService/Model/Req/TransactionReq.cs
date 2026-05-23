@@ -5,7 +5,7 @@ namespace FinancialService.Model.Req
 {
     public record TransactionReq : BaseReq
     {
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         public DateTime UpdatedAt { get; set; }
 
