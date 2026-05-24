@@ -30,11 +30,33 @@ namespace UniqueServer.Controllers
             return Ok(result);
         }
 
+        [HttpGet]
+        [Route("account")]
+        public async Task<IActionResult> GetAccount(DateTime? updatedAt)
+        {
+            updatedAt ??= DateTime.MinValue;
+
+            var result = await accountService.GetAsync(Uid, updatedAt.Value);
+            if (result is null) return NoContent();
+            return Ok(result);
+        }
+
         [Route("transaction")]
         [HttpPost]
         public async Task<IActionResult> AddTransaction([FromBody] TransactionReq req)
         {
             string result = await transactionService.AddAsync(req, Uid);
+            return Ok(result);
+        }
+
+        [Route("transaction")]
+        [HttpGet]
+        public async Task<IActionResult> GetTransactions(DateTime? updatedAt)
+        {
+            updatedAt ??= DateTime.MinValue;
+
+            var result = await transactionService.GetByUpdatedAtAsync(Uid, updatedAt.Value);
+            if (result.Count == 0) return NoContent();
             return Ok(result);
         }
 

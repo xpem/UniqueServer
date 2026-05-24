@@ -7,7 +7,7 @@ namespace FinancialService.Repo
     {
         Task Add(AccountDTO account);
         Task<AccountDTO?> GetAsync(int uid);
-
+        Task<AccountDTO?> GetIfUpdatedAfterAsync(int uid, DateTime updatedAt);
         Task Update(AccountDTO account);
     }
 
@@ -17,6 +17,12 @@ namespace FinancialService.Repo
         {
             using FinancialDbctx context = await dbCtx.CreateDbContextAsync();
             return await context.Account.FirstOrDefaultAsync(a => a.UserId == uid);
+        }
+
+        public async Task<AccountDTO?> GetIfUpdatedAfterAsync(int uid, DateTime updatedAt)
+        {
+            using FinancialDbctx context = await dbCtx.CreateDbContextAsync();
+            return await context.Account.FirstOrDefaultAsync(a => a.UserId == uid && a.UpdatedAt > updatedAt);
         }
 
         public async Task Add(AccountDTO account)

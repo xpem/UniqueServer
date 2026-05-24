@@ -1,5 +1,6 @@
 ﻿using FinancialService.Model.DTO;
 using FinancialService.Model.Req;
+using FinancialService.Model.Res;
 using FinancialService.Repo;
 
 namespace FinancialService.Service
@@ -7,10 +8,34 @@ namespace FinancialService.Service
     public interface ITransactionService
     {
         Task<string> AddAsync(TransactionReq req, int uid);
+        Task<List<TransactionRes>> GetByUpdatedAtAsync(int uid, DateTime updatedAt);
     }
 
     public class TransactionService(ITransactionRepo transactionRepo) : ITransactionService
     {
+        public async Task<List<TransactionRes>> GetByUpdatedAtAsync(int uid, DateTime updatedAt)
+        {
+            var transactions = await transactionRepo.GetByUpdatedAtAsync(uid, updatedAt);
+
+            return transactions.Select(t => new TransactionRes
+            {
+                Id = t.Id,
+                CreatedAt = t.CreatedAt,
+                UpdatedAt = t.UpdatedAt,
+                Inactive = t.Inactive,
+                Description = t.Description,
+                Date = t.Date,
+                Amount = t.Amount,
+                Repetition = (int)t.Repetition,
+                TotalInstallments = t.TotalInstallments,
+                InstallmentId = t.InstallmentId,
+                Installment = t.Installment,
+                CategoryId = t.CategoryId,
+                Type = (int)t.Type,
+                Note = t.Note,
+                AccountId = t.AccountId,
+            }).ToList();
+        }
         public async Task<string> AddAsync(TransactionReq req, int uid)
         {
             string? validateError = req.Validate();
