@@ -45,7 +45,7 @@ namespace UniqueServer.Controllers
         [HttpPost]
         public async Task<IActionResult> AddTransaction([FromBody] TransactionReq req)
         {
-            string result = await transactionService.AddAsync(req, Uid);
+            var result = await transactionService.AddAsync(req, Uid);
             return Ok(result);
         }
 

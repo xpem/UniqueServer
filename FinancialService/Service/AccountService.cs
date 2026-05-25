@@ -60,7 +60,6 @@ namespace FinancialService.Service
                 AccountId = existingAccount.Id,
                 UserId = uid,
             };
-
             await transactionRepo.AddAsync(transactionDTO);
 
             req.Id = existingAccount.Id;

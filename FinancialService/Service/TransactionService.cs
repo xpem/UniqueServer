@@ -7,12 +7,42 @@ namespace FinancialService.Service
 {
     public interface ITransactionService
     {
-        Task<string> AddAsync(TransactionReq req, int uid);
+        Task<TransactionDTO> AddAsync(TransactionReq req, int uid);
         Task<List<TransactionRes>> GetByUpdatedAtAsync(int uid, DateTime updatedAt);
     }
 
     public class TransactionService(ITransactionRepo transactionRepo) : ITransactionService
     {
+        public async Task<TransactionDTO> AddAsync(TransactionReq req, int uid)
+        {
+            string? validateError = req.Validate();
+
+            if (validateError != null)
+                throw new ArgumentException(validateError);
+
+            TransactionDTO transactionDTO = new()
+            {
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                Inactive = req.Inactive,
+                Description = req.Description,
+                Date = req.Date,
+                Amount = req.Amount,
+                Repetition = req.Repetition,
+                TotalInstallments = req.TotalInstallments,
+                InstallmentId = req.InstallmentId,
+                Installment = req.Installment,
+                CategoryId = req.CategoryId,                Type = req.Type,
+                Note = req.Note,
+                AccountId = req.AccountId,
+                UserId = uid,
+            };
+
+            await transactionRepo.AddAsync(transactionDTO);
+
+            return transactionDTO;
+        }
+
         public async Task<List<TransactionRes>> GetByUpdatedAtAsync(int uid, DateTime updatedAt)
         {
             var transactions = await transactionRepo.GetByUpdatedAtAsync(uid, updatedAt);
@@ -35,39 +65,6 @@ namespace FinancialService.Service
                 Note = t.Note,
                 AccountId = t.AccountId,
             }).ToList();
-        }
-        public async Task<string> AddAsync(TransactionReq req, int uid)
-        {
-            string? validateError = req.Validate();
-
-            if (validateError != null)
-            {
-                return validateError;
-            }
-
-            // Add your logic to process the transaction here
-            TransactionDTO transactionDTO = new()
-            {
-                UpdatedAt = req.UpdatedAt,
-                Inactive = req.Inactive,
-                Description = req.Description,
-                Date = req.Date,
-                Amount = req.Amount,
-                Repetition = req.Repetition,
-                TotalInstallments = req.TotalInstallments,
-                InstallmentId = req.InstallmentId,
-                Installment = req.Installment,
-                CategoryId = req.CategoryId,
-                Type = req.Type,
-                Note = req.Note,
-                AccountId = req.AccountId,
-                UserId = uid,
-                CreatedAt = DateTime.Now,
-            };
-
-            await transactionRepo.AddAsync(transactionDTO);
-
-            return "Transaction added successfully";
         }
     }
 }

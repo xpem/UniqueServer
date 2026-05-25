@@ -27,7 +27,7 @@ namespace FinancialService.Model.DTO
 
         public int? Installment { get; set; }
 
-        public int CategoryId { get; set; }
+        public int? CategoryId { get; set; }
 
         public TransactionCategoryDTO? Category { get; set; }
 

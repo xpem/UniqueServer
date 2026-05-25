@@ -26,7 +26,7 @@ namespace FinancialService.Model.Req
 
         public int? Installment { get; set; }
 
-        public int CategoryId { get; set; }
+        public int? CategoryId { get; set; }
 
         public TransactionType Type { get; set; }
 
