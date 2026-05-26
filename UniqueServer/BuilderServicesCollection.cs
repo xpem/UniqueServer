@@ -79,6 +79,7 @@ namespace UniqueServer
             services.AddScoped<ITransactionCategoryRepo, TransactionCategoryRepo>();
             services.AddScoped<ITransactionRepo, TransactionRepo>();
             services.AddScoped<IAccountRepo, AccountRepo>();
+            services.AddScoped<IRecurringRuleRepo, RecurringRuleRepo>();
 
             return services;
 
@@ -134,6 +135,7 @@ namespace UniqueServer
             services.AddScoped<FinancialInitDbService, FinancialInitDbService>();
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<ITransactionService, TransactionService>();
+            services.AddScoped<IRecurringRuleService, RecurringRuleService>();
 
             #endregion
 

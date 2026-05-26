@@ -9,7 +9,7 @@ namespace UniqueServer.Controllers
     [Route("[Controller]")]
     [ApiController]
     [Authorize]
-    public class FinancialController(ITransactionCategoryService transactionCategoryService, ITransactionService transactionService, IAccountService accountService) : BaseController
+    public class FinancialController(ITransactionCategoryService transactionCategoryService, ITransactionService transactionService, IAccountService accountService, IRecurringRuleService recurringRuleService) : BaseController
     {
         [Route("categories")]
         [HttpGet]
@@ -56,6 +56,25 @@ namespace UniqueServer.Controllers
             updatedAt ??= DateTime.MinValue;
 
             var result = await transactionService.GetByUpdatedAtAsync(Uid, updatedAt.Value);
+            if (result.Count == 0) return NoContent();
+            return Ok(result);
+        }
+
+        [Route("recurringrule")]
+        [HttpPost]
+        public async Task<IActionResult> AddRecurringRule([FromBody] RecurringRuleReq req)
+        {
+            var result = await recurringRuleService.AddOrUpdateAsync(req, Uid);
+            return Ok(result);
+        }
+
+        [Route("recurringrule")]
+        [HttpGet]
+        public async Task<IActionResult> GetRecurringRules(DateTime? updatedAt)
+        {
+            updatedAt ??= DateTime.MinValue;
+
+            var result = await recurringRuleService.GetByUpdatedAtAsync(Uid, updatedAt.Value);
             if (result.Count == 0) return NoContent();
             return Ok(result);
         }

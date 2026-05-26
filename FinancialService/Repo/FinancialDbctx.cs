@@ -11,9 +11,11 @@ namespace FinancialService.Repo
 
         public virtual DbSet<AccountDTO> Account => Set<AccountDTO>();
 
+        public virtual DbSet<RecurringRuleDTO> RecurringRule => Set<RecurringRuleDTO>();
+
         //migrations
         //no console do gerenciador de pacotes selecione o dal referente:
-        //EntityFrameworkCore\Add-Migration "202605251" -Context FinancialDbctx
+        //EntityFrameworkCore\Add-Migration "202605261" -Context FinancialDbctx
         //EntityFrameworkCore\update-database -Context FinancialDbctx
 
         //to remove last migration snapshot
