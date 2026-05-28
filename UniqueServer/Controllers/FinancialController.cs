@@ -49,6 +49,14 @@ namespace UniqueServer.Controllers
             return Ok(result);
         }
 
+        [Route("transaction/{id}")]
+        [HttpPut]
+        public async Task<IActionResult> UpdateTransaction(int id, [FromBody] TransactionReq req)
+        {
+            await transactionService.UpdateAsync(id, req, Uid);
+            return NoContent();
+        }
+
         [Route("transaction")]
         [HttpGet]
         public async Task<IActionResult> GetTransactions(DateTime? updatedAt)

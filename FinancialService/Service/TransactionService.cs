@@ -8,6 +8,7 @@ namespace FinancialService.Service
     public interface ITransactionService
     {
         Task<TransactionDTO> AddAsync(TransactionReq req, int uid);
+        Task UpdateAsync(int id, TransactionReq req, int uid);
         Task<List<TransactionRes>> GetByUpdatedAtAsync(int uid, DateTime updatedAt);
     }
 
@@ -41,6 +42,23 @@ namespace FinancialService.Service
             await transactionRepo.AddAsync(transactionDTO);
 
             return transactionDTO;
+        }
+
+        public async Task UpdateAsync(int id, TransactionReq req, int uid)
+        {
+            var transaction = await transactionRepo.GetByIdAsync(id, uid)
+                ?? throw new KeyNotFoundException($"Transaction {id} not found.");
+
+            transaction.UpdatedAt = DateTime.UtcNow;
+            transaction.Description = req.Description;
+            transaction.Date = req.Date;
+            transaction.Amount = req.Amount;
+            transaction.Type = req.Type;
+            transaction.CategoryId = req.CategoryId;
+            transaction.Note = req.Note;
+            transaction.Inactive = req.Inactive;
+
+            await transactionRepo.UpdateAsync(transaction);
         }
 
         public async Task<List<TransactionRes>> GetByUpdatedAtAsync(int uid, DateTime updatedAt)

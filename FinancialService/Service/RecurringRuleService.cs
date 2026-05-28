@@ -50,8 +50,6 @@ namespace FinancialService.Service
             return rules.Select(ToRes).ToList();
         }
 
-        // ── helpers ──────────────────────────────────────────────────────────
-
         private static RecurringRuleRes ToRes(RecurringRuleDTO dto) => new()
         {
             Id = dto.Id,
