@@ -9,31 +9,42 @@ namespace FinancialService.Service
     {
         Task<AdjustAccountBalanceReq> AdjustAccountBalanceAsync(AdjustAccountBalanceReq req, int uid);
         Task<AccountRes?> GetAsync(int uid, DateTime updatedAt);
+        Task<AccountRes> CreateAsync(AccountReq req, int uid);
+        Task<AccountRes> UpdateAsync(int id, AccountReq req, int uid);
+        Task<List<AccountRes>> GetUpdatedAfterAsync(int uid, DateTime updatedAt);
+        Task RecalculateBalanceAsync(int accountId, int uid);
     }
 
     public class AccountService(IAccountRepo accountRepo, ITransactionRepo transactionRepo) : IAccountService
     {
         public async Task<AccountRes?> GetAsync(int uid, DateTime updatedAt)
         {
-            var account = await accountRepo.GetAsync(uid);
+            var accounts = await accountRepo.GetUpdatedAfterAsync(uid, updatedAt);
 
-            if (account is null || account.UpdatedAt <= updatedAt) return null;
+            if (accounts.Count == 0) return null;
 
+            var account = accounts[0];
             return new AccountRes
             {
                 Id = account.Id,
+                Name = account.Name,
+                Type = account.Type,
+                CurrentBalance = account.CurrentBalance,
+                IncludeInGeneralBalance = account.IncludeInGeneralBalance,
+                Inactive = account.Inactive,
                 UpdatedAt = account.UpdatedAt,
-                Inactive = false,
             };
         }
         public async Task<AdjustAccountBalanceReq> AdjustAccountBalanceAsync(AdjustAccountBalanceReq req, int uid)
         {
-            var existingAccount = await accountRepo.GetAsync(uid);
+            var accounts = await accountRepo.GetAllAsync(uid);
+            var existingAccount = accounts.FirstOrDefault();
 
             if (existingAccount == null)
             {
                 existingAccount = new AccountDTO
                 {
+                    Name = "Conta Principal",
                     UserId = uid,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow,
@@ -66,6 +77,75 @@ namespace FinancialService.Service
             req.Transaction.Id = transactionDTO.Id;
 
             return req;
+        }
+        public async Task<AccountRes> CreateAsync(AccountReq req, int uid)
+        {
+            string? validateError = req.Validate();
+            if (validateError != null)
+                throw new ArgumentException(validateError);
+
+            if (!Enum.IsDefined(typeof(AccountType), req.Type))
+                throw new ArgumentException("Invalid account type.");
+
+            AccountDTO account = new()
+            {
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                Name = req.Name,
+                Type = req.Type,
+                IncludeInGeneralBalance = req.IncludeInGeneralBalance,
+                Inactive = false,
+                CurrentBalance = 0,
+                UserId = uid,
+            };
+
+            await accountRepo.Add(account);
+
+            return MapToRes(account);
+        }
+        public async Task<AccountRes> UpdateAsync(int id, AccountReq req, int uid)
+        {
+            var account = await accountRepo.GetByIdAsync(id, uid)
+                ?? throw new KeyNotFoundException($"Account {id} not found.");
+
+            account.Name = req.Name;
+            account.Type = req.Type;
+            account.IncludeInGeneralBalance = req.IncludeInGeneralBalance;
+            account.Inactive = req.Inactive;
+            account.UpdatedAt = DateTime.UtcNow;
+
+            await accountRepo.Update(account);
+
+            return MapToRes(account);
+        }
+        public async Task<List<AccountRes>> GetUpdatedAfterAsync(int uid, DateTime updatedAt)
+        {
+            var accounts = await accountRepo.GetUpdatedAfterAsync(uid, updatedAt);
+            return accounts.Select(MapToRes).ToList();
+        }
+        public async Task RecalculateBalanceAsync(int accountId, int uid)
+        {
+            var account = await accountRepo.GetByIdAsync(accountId, uid)
+                ?? throw new KeyNotFoundException($"Account {accountId} not found.");
+
+            decimal sum = await transactionRepo.GetSumByAccountIdAsync(accountId);
+            account.CurrentBalance = sum;
+            account.UpdatedAt = DateTime.UtcNow;
+
+            await accountRepo.Update(account);
+        }
+        private static AccountRes MapToRes(AccountDTO account)
+        {
+            return new AccountRes
+            {
+                Id = account.Id,
+                Name = account.Name,
+                Type = account.Type,
+                CurrentBalance = account.CurrentBalance,
+                IncludeInGeneralBalance = account.IncludeInGeneralBalance,
+                Inactive = account.Inactive,
+                UpdatedAt = account.UpdatedAt,
+            };
         }
     }
 }

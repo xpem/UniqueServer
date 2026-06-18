@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
@@ -14,12 +15,19 @@ namespace FinancialService.Model.DTO
 
         public required DateTime CreatedAt { get; set; }
 
-        public DateTime UpdatedAt { get; set; } = DateTime.Now;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-        //public string Name { get; set; }
+        [StringLength(100)]
+        public required string Name { get; set; }
 
-        //public decimal Balance { get; set; }
+        public AccountType Type { get; set; }
 
-        public int? UserId { get; set; }
+        public decimal CurrentBalance { get; set; }
+
+        public bool IncludeInGeneralBalance { get; set; } = true;
+
+        public bool Inactive { get; set; }
+
+        public required int UserId { get; set; }
     }
 }

@@ -58,6 +58,7 @@ namespace FinancialService.Service
             transaction.CategoryId = req.CategoryId;
             transaction.Note = req.Note;
             transaction.Inactive = req.Inactive;
+            transaction.AccountId = req.AccountId;
 
             await transactionRepo.UpdateAsync(transaction);
         }

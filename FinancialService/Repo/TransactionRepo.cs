@@ -9,6 +9,7 @@ namespace FinancialService.Repo
         Task UpdateAsync(TransactionDTO transaction);
         Task<List<TransactionDTO>> GetByUpdatedAtAsync(int uid, DateTime updatedAt);
         Task<TransactionDTO?> GetByIdAsync(int id, int uid);
+        Task<decimal> GetSumByAccountIdAsync(int accountId);
     }
 
     public class TransactionRepo(IDbContextFactory<FinancialDbctx> dbCtx) : ITransactionRepo
@@ -40,6 +41,14 @@ namespace FinancialService.Repo
             using FinancialDbctx context = await dbCtx.CreateDbContextAsync();
             return await context.Transaction
                 .FirstOrDefaultAsync(t => t.Id == id && t.UserId == uid);
+        }
+
+        public async Task<decimal> GetSumByAccountIdAsync(int accountId)
+        {
+            using FinancialDbctx context = await dbCtx.CreateDbContextAsync();
+            return await context.Transaction
+                .Where(t => t.AccountId == accountId && !t.Inactive)
+                .SumAsync(t => t.Amount);
         }
     }
 }

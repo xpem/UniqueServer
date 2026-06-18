@@ -6,23 +6,30 @@ namespace FinancialService.Repo
     public interface IAccountRepo
     {
         Task Add(AccountDTO account);
-        Task<AccountDTO?> GetAsync(int uid);
-        Task<AccountDTO?> GetIfUpdatedAfterAsync(int uid, DateTime updatedAt);
         Task Update(AccountDTO account);
+        Task<AccountDTO?> GetByIdAsync(int id, int uid);
+        Task<List<AccountDTO>> GetAllAsync(int uid);
+        Task<List<AccountDTO>> GetUpdatedAfterAsync(int uid, DateTime updatedAt);
     }
 
     public class AccountRepo(IDbContextFactory<FinancialDbctx> dbCtx) : IAccountRepo
     {
-        public async Task<AccountDTO?> GetAsync(int uid)
+        public async Task<AccountDTO?> GetByIdAsync(int id, int uid)
         {
             using FinancialDbctx context = await dbCtx.CreateDbContextAsync();
-            return await context.Account.FirstOrDefaultAsync(a => a.UserId == uid);
+            return await context.Account.FirstOrDefaultAsync(a => a.Id == id && a.UserId == uid);
         }
 
-        public async Task<AccountDTO?> GetIfUpdatedAfterAsync(int uid, DateTime updatedAt)
+        public async Task<List<AccountDTO>> GetAllAsync(int uid)
         {
             using FinancialDbctx context = await dbCtx.CreateDbContextAsync();
-            return await context.Account.FirstOrDefaultAsync(a => a.UserId == uid && a.UpdatedAt > updatedAt);
+            return await context.Account.Where(a => a.UserId == uid).ToListAsync();
+        }
+
+        public async Task<List<AccountDTO>> GetUpdatedAfterAsync(int uid, DateTime updatedAt)
+        {
+            using FinancialDbctx context = await dbCtx.CreateDbContextAsync();
+            return await context.Account.Where(a => a.UserId == uid && a.UpdatedAt > updatedAt).ToListAsync();
         }
 
         public async Task Add(AccountDTO account)
