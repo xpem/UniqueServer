@@ -30,25 +30,31 @@ namespace UniqueServer
             string? userManagementfConn = GetConfigValue(Configuration, "ConnectionStrings:UserManagementConn");
             string? financialConn = GetConfigValue(Configuration, "ConnectionStrings:FinancialConn");
 
-            services.AddDbContextFactory<BookshelfDbCtx>(options => options.UseMySql(bookshelfConn, ServerVersion.AutoDetect(bookshelfConn),
+            // Use a hardcoded server version instead of ServerVersion.AutoDetect.
+            // AutoDetect opens a real connection to the database at DI registration time,
+            // which causes the entire service to fail to start if the database is temporarily
+            // unreachable during startup.
+            var mysqlVersion = new MySqlServerVersion(new Version(8, 0, 42));
+
+            services.AddDbContextFactory<BookshelfDbCtx>(options => options.UseMySql(bookshelfConn, mysqlVersion,
                 options => options.EnableRetryOnFailure(
                     maxRetryCount: 5,
                     maxRetryDelay: System.TimeSpan.FromSeconds(30),
                     errorNumbersToAdd: null)));
 
-            services.AddDbContextFactory<InventoryDbCtx>(options => options.UseMySql(inventoryConn, ServerVersion.AutoDetect(inventoryConn),
+            services.AddDbContextFactory<InventoryDbCtx>(options => options.UseMySql(inventoryConn, mysqlVersion,
                 options => options.EnableRetryOnFailure(
                     maxRetryCount: 5,
                     maxRetryDelay: System.TimeSpan.FromSeconds(30),
                     errorNumbersToAdd: null)));
 
-            services.AddDbContextFactory<FinancialDbctx>(options => options.UseMySql(financialConn, ServerVersion.AutoDetect(financialConn),
+            services.AddDbContextFactory<FinancialDbctx>(options => options.UseMySql(financialConn, mysqlVersion,
                 options => options.EnableRetryOnFailure(
                     maxRetryCount: 5,
                     maxRetryDelay: System.TimeSpan.FromSeconds(30),
                     errorNumbersToAdd: null)));
 
-            services.AddDbContextFactory<UserManagementDbCtx>(options => options.UseMySql(userManagementfConn, ServerVersion.AutoDetect(userManagementfConn),
+            services.AddDbContextFactory<UserManagementDbCtx>(options => options.UseMySql(userManagementfConn, mysqlVersion,
                 options => options.EnableRetryOnFailure(
                     maxRetryCount: 5,
                     maxRetryDelay: System.TimeSpan.FromSeconds(30),
@@ -126,7 +132,6 @@ namespace UniqueServer
             services.AddScoped<IItemSituationService, ItemSituationService>();
             services.AddScoped<IItemService, ItemService>();
             services.AddScoped<ITransactionCategoryService, TransactionCategoryService>();
-            services.AddScoped<IAccountService, AccountService>();
 
             #endregion
 

@@ -21,6 +21,17 @@ namespace FinancialService.Service
             if (validateError != null)
                 throw new ArgumentException(validateError);
 
+            // ═══════════════════════════════════════════════════════════════════════
+            // PROTEÇÃO CONTRA DUPLICAÇÃO: Verifica se já existe transação idêntica
+            // ═══════════════════════════════════════════════════════════════════════
+            var existingTransaction = await transactionRepo.FindDuplicateAsync(uid, req);
+            if (existingTransaction != null)
+            {
+                // Retorna a transação existente em vez de criar duplicata
+                System.Diagnostics.Debug.WriteLine($"[TransactionService] Duplicate detected - returning existing transaction {existingTransaction.Id}");
+                return existingTransaction;
+            }
+
             TransactionDTO transactionDTO = new()
             {
                 CreatedAt = DateTime.UtcNow,
@@ -33,7 +44,8 @@ namespace FinancialService.Service
                 TotalInstallments = req.TotalInstallments,
                 InstallmentId = req.InstallmentId,
                 Installment = req.Installment,
-                CategoryId = req.CategoryId,                Type = req.Type,
+                CategoryId = req.CategoryId,
+                Type = req.Type,
                 Note = req.Note,
                 AccountId = req.AccountId,
                 UserId = uid,
@@ -57,6 +69,7 @@ namespace FinancialService.Service
             transaction.CategoryId = req.CategoryId;
             transaction.Note = req.Note;
             transaction.Inactive = req.Inactive;
+            transaction.AccountId = req.AccountId;
 
             await transactionRepo.UpdateAsync(transaction);
         }

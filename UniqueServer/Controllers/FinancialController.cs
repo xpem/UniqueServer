@@ -41,6 +41,51 @@ namespace UniqueServer.Controllers
             return Ok(result);
         }
 
+        [HttpGet]
+        [Route("accounts")]
+        public async Task<IActionResult> GetAccounts(DateTime? updatedAt)
+        {
+            updatedAt ??= DateTime.MinValue;
+
+            var result = await accountService.GetUpdatedAfterAsync(Uid, updatedAt.Value);
+            if (result.Count == 0) return NoContent();
+            return Ok(result);
+        }
+
+        [HttpPost]
+        [Route("account")]
+        public async Task<IActionResult> CreateAccount([FromBody] AccountReq req)
+        {
+            try
+            {
+                var result = await accountService.CreateAsync(req, Uid);
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut]
+        [Route("account/{id}")]
+        public async Task<IActionResult> UpdateAccount(int id, [FromBody] AccountReq req)
+        {
+            try
+            {
+                var result = await accountService.UpdateAsync(id, req, Uid);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [Route("transaction")]
         [HttpPost]
         public async Task<IActionResult> AddTransaction([FromBody] TransactionReq req)
