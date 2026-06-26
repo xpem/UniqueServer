@@ -132,7 +132,6 @@ namespace UniqueServer
             services.AddScoped<IItemSituationService, ItemSituationService>();
             services.AddScoped<IItemService, ItemService>();
             services.AddScoped<ITransactionCategoryService, TransactionCategoryService>();
-            services.AddScoped<IAccountService, AccountService>();
 
             #endregion
 

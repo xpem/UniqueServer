@@ -21,6 +21,17 @@ namespace FinancialService.Service
             if (validateError != null)
                 throw new ArgumentException(validateError);
 
+            // ═══════════════════════════════════════════════════════════════════════
+            // PROTEÇÃO CONTRA DUPLICAÇÃO: Verifica se já existe transação idêntica
+            // ═══════════════════════════════════════════════════════════════════════
+            var existingTransaction = await transactionRepo.FindDuplicateAsync(uid, req);
+            if (existingTransaction != null)
+            {
+                // Retorna a transação existente em vez de criar duplicata
+                System.Diagnostics.Debug.WriteLine($"[TransactionService] Duplicate detected - returning existing transaction {existingTransaction.Id}");
+                return existingTransaction;
+            }
+
             TransactionDTO transactionDTO = new()
             {
                 CreatedAt = DateTime.UtcNow,
