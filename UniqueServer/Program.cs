@@ -102,13 +102,24 @@ builder.Services.AddLimiterRules();
 
 WebApplication app = builder.Build();
 
+if (!app.Environment.IsDevelopment())
+{
+    // Força a API inteira a escutar embaixo de /api em produção
+    app.UsePathBase("/api");
+}
+
 app.UseCors("AllowFrontendOrigins");
 app.UseForwardedHeaders();
 
 app.UseHsts();
-app.UseSwagger();
+app.UseSwagger(c =>
+{
+    c.RouteTemplate = "swagger/{documentName}/swagger.json";
+});
 app.UseSwaggerUI(c =>
 {
+    c.SwaggerEndpoint("/api/swagger/v1/swagger.json", "Unique Server v2");
+    c.RoutePrefix = "swagger";
     c.ConfigObject.AdditionalItems["syntaxHighlight"] = new Dictionary<string, object> { ["activated"] = false };
 });
 
