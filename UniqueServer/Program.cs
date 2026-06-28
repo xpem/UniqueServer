@@ -118,7 +118,8 @@ app.UseSwagger(c =>
 });
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/api/swagger/v1/swagger.json", "Unique Server v2");
+    string basePath = app.Environment.IsDevelopment() ? "" : "/api";
+    c.SwaggerEndpoint($"{basePath}/swagger/v1/swagger.json", "Unique Server v2");
     c.RoutePrefix = "swagger";
     c.ConfigObject.AdditionalItems["syntaxHighlight"] = new Dictionary<string, object> { ["activated"] = false };
 });
