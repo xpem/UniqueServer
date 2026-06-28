@@ -1,0 +1,34 @@
+name: Marte GitTea Deploy UniqueServer
+
+on:
+    push:
+      branches:
+        - branch-para-merge
+
+env:
+  PROJECT_PATH: UniqueServer/UniqueServer.csproj
+  PUBLISH_DIR: publish_output
+  DEPLOY_DIR: /var/www/xpemuniqueserver
+  SERVICE_NAME: xpemuniqueserver.service
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Publish
+        run: dotnet publish ${{ env.PROJECT_PATH }} -c Release -o ${{ env.PUBLISH_DIR }}
+
+      - name: Deploy files
+        run: |
+          rm -rf ${{ env.DEPLOY_DIR }}/*
+          cp -r ${{ env.PUBLISH_DIR }}/* ${{ env.DEPLOY_DIR }}/
+          chown -R xpemdev:xpemdev ${{ env.DEPLOY_DIR }}
+
+      - name: Restart service
+        run: |
+          systemctl restart ${{ env.SERVICE_NAME }}
+          systemctl status ${{ env.SERVICE_NAME }}
