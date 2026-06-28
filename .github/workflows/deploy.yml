@@ -30,7 +30,7 @@ jobs:
         run: |
           sudo rm -rf ${{ env.DEPLOY_DIR }}/*
           sudo cp -r ${{ env.PUBLISH_DIR }}/* ${{ env.DEPLOY_DIR }}/
-          sudo chown -R www-data:www-data ${{ env.DEPLOY_DIR }}
+          sudo chown -R xpemdev:xpemdev ${{ env.DEPLOY_DIR }}
 
       - name: Restart service
         run: |
