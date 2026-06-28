@@ -1,4 +1,4 @@
-name: Marte GitTea Deploy UniqueServer
+name: Marte GitTea Deploy UniqueServer local
 
 on:
   workflow_dispatch:
