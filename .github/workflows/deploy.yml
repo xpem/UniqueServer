@@ -12,7 +12,7 @@ env:
 
 jobs:
   deploy:
-    runs-on: local
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
