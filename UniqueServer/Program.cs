@@ -23,7 +23,7 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Version = $"1.33.1",
+        Version = $"1.33.2",
         Title = "Unique Server",
         Description = "Routes of apis for Bookshelf, Users Management and Inventory projects",
     });
@@ -118,7 +118,8 @@ app.UseSwagger(c =>
 });
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/api/swagger/v1/swagger.json", "Unique Server v2");
+    string basePath = app.Environment.IsDevelopment() ? "" : "/api";
+    c.SwaggerEndpoint($"{basePath}/swagger/v1/swagger.json", "Unique Server v2");
     c.RoutePrefix = "swagger";
     c.ConfigObject.AdditionalItems["syntaxHighlight"] = new Dictionary<string, object> { ["activated"] = false };
 });
