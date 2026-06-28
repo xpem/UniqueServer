@@ -1,6 +1,11 @@
 name: Marte GitTea Deploy UniqueServer local
 
-on: [push, workflow_dispatch]
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - closed
 
 env:
   PROJECT_PATH: UniqueServer/UniqueServer.csproj
