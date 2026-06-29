@@ -33,5 +33,15 @@ namespace FinancialService.Model.Req
         public string? Note { get; set; }
 
         public int AccountId { get; set; }
+
+        /// <summary>
+        /// Stable identifier of the recurring rule that originated this occurrence.
+        /// </summary>
+        public Guid? RecurringRuleId { get; set; }
+
+        /// <summary>
+        /// True when this recurring occurrence has been individually edited.
+        /// </summary>
+        public bool IsCustomized { get; set; }
     }
 }

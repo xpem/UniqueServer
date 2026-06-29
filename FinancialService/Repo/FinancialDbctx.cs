@@ -15,7 +15,7 @@ namespace FinancialService.Repo
 
         //migrations
         //no console do gerenciador de pacotes selecione o dal referente:
-        //EntityFrameworkCore\Add-Migration "202605261" -Context FinancialDbctx
+        //EntityFrameworkCore\Add-Migration "202606291" -Context FinancialDbctx
         //EntityFrameworkCore\update-database -Context FinancialDbctx
 
         //to remove last migration snapshot

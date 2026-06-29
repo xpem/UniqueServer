@@ -49,6 +49,8 @@ namespace FinancialService.Service
                 Note = req.Note,
                 AccountId = req.AccountId,
                 UserId = uid,
+                RecurringRuleId = req.RecurringRuleId,
+                IsCustomized = req.IsCustomized,
             };
 
             await transactionRepo.AddAsync(transactionDTO);
@@ -70,6 +72,8 @@ namespace FinancialService.Service
             transaction.Note = req.Note;
             transaction.Inactive = req.Inactive;
             transaction.AccountId = req.AccountId;
+            transaction.RecurringRuleId = req.RecurringRuleId;
+            transaction.IsCustomized = req.IsCustomized;
 
             await transactionRepo.UpdateAsync(transaction);
         }
@@ -95,6 +99,8 @@ namespace FinancialService.Service
                 Type = (int)t.Type,
                 Note = t.Note,
                 AccountId = t.AccountId,
+                RecurringRuleId = t.RecurringRuleId,
+                IsCustomized = t.IsCustomized,
             }).ToList();
         }
     }

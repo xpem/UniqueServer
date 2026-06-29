@@ -42,6 +42,17 @@ namespace FinancialService.Model.DTO
         public required int UserId { get; set; }
 
         public bool Inactive { get; set; }
+
+        /// <summary>
+        /// Stable identifier of the recurring rule that originated this occurrence.
+        /// </summary>
+        public Guid? RecurringRuleId { get; set; }
+
+        /// <summary>
+        /// True when this recurring occurrence has been individually edited by the user.
+        /// Customized occurrences must not be overwritten by scheduler projections on any device.
+        /// </summary>
+        public bool IsCustomized { get; set; }
     }
 
     public enum TransactionType
@@ -56,6 +67,6 @@ namespace FinancialService.Model.DTO
     {
         None,
         Monthly,
-        //Advanced
+        Recurring,
     }
 }
