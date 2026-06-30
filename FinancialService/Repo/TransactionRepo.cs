@@ -12,6 +12,7 @@ namespace FinancialService.Repo
         Task<TransactionDTO?> GetByIdAsync(int id, int uid);
         Task<decimal> GetSumByAccountIdAsync(int accountId);
         Task<TransactionDTO?> FindDuplicateAsync(int uid, TransactionReq req);
+        Task<TransactionDTO?> FindByTransactionIdAsync(Guid transactionId, int userId);
     }
 
     public class TransactionRepo(IDbContextFactory<FinancialDbctx> dbCtx) : ITransactionRepo
@@ -88,6 +89,16 @@ namespace FinancialService.Repo
                     && t.CreatedAt >= recentThreshold);
 
             return potentialDuplicate;
+        }
+
+        public async Task<TransactionDTO?> FindByTransactionIdAsync(Guid transactionId, int userId)
+        {
+            if (transactionId == Guid.Empty)
+                return null;
+
+            using FinancialDbctx context = await dbCtx.CreateDbContextAsync();
+            return await context.Transaction
+                .FirstOrDefaultAsync(t => t.TransactionId == transactionId && t.UserId == userId);
         }
     }
 }

@@ -33,6 +33,12 @@ namespace FinancialService.Model.Res
         public int AccountId { get; set; }
 
         /// <summary>
+        /// Stable cross-device identifier for this transaction.
+        /// Non-nullable because the server guarantees all records have a TransactionId after backfill migration.
+        /// </summary>
+        public Guid TransactionId { get; set; }
+
+        /// <summary>
         /// Stable identifier of the recurring rule that originated this occurrence.
         /// </summary>
         public Guid? RecurringRuleId { get; set; }

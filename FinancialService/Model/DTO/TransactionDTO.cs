@@ -53,6 +53,12 @@ namespace FinancialService.Model.DTO
         /// Customized occurrences must not be overwritten by scheduler projections on any device.
         /// </summary>
         public bool IsCustomized { get; set; }
+
+        /// <summary>
+        /// Stable cross-device identifier. Nullable during transition period.
+        /// Unique constraint scoped to UserId.
+        /// </summary>
+        public Guid? TransactionId { get; set; }
     }
 
     public enum TransactionType

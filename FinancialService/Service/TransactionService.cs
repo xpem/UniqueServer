@@ -22,12 +22,68 @@ namespace FinancialService.Service
                 throw new ArgumentException(validateError);
 
             // ═══════════════════════════════════════════════════════════════════════
-            // PROTEÇÃO CONTRA DUPLICAÇÃO: Verifica se já existe transação idêntica
+            // UPSERT BY TransactionId: If provided, use Guid-based deduplication
+            // ═══════════════════════════════════════════════════════════════════════
+            if (req.TransactionId != null && req.TransactionId != Guid.Empty)
+            {
+                var existing = await transactionRepo.FindByTransactionIdAsync(req.TransactionId.Value, uid);
+
+                if (existing != null)
+                {
+                    // Update mutable fields on the existing record
+                    existing.UpdatedAt = DateTime.UtcNow;
+                    existing.Inactive = req.Inactive;
+                    existing.Description = req.Description;
+                    existing.Date = req.Date;
+                    existing.Amount = req.Amount;
+                    existing.Repetition = req.Repetition;
+                    existing.TotalInstallments = req.TotalInstallments;
+                    existing.InstallmentId = req.InstallmentId;
+                    existing.Installment = req.Installment;
+                    existing.CategoryId = req.CategoryId;
+                    existing.Type = req.Type;
+                    existing.Note = req.Note;
+                    existing.AccountId = req.AccountId;
+                    existing.RecurringRuleId = req.RecurringRuleId;
+                    existing.IsCustomized = req.IsCustomized;
+
+                    await transactionRepo.UpdateAsync(existing);
+                    return existing;
+                }
+
+                // Not found — insert with the provided TransactionId
+                TransactionDTO newTransaction = new()
+                {
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                    Inactive = req.Inactive,
+                    Description = req.Description,
+                    Date = req.Date,
+                    Amount = req.Amount,
+                    Repetition = req.Repetition,
+                    TotalInstallments = req.TotalInstallments,
+                    InstallmentId = req.InstallmentId,
+                    Installment = req.Installment,
+                    CategoryId = req.CategoryId,
+                    Type = req.Type,
+                    Note = req.Note,
+                    AccountId = req.AccountId,
+                    UserId = uid,
+                    RecurringRuleId = req.RecurringRuleId,
+                    IsCustomized = req.IsCustomized,
+                    TransactionId = req.TransactionId.Value,
+                };
+
+                await transactionRepo.AddAsync(newTransaction);
+                return newTransaction;
+            }
+
+            // ═══════════════════════════════════════════════════════════════════════
+            // FALLBACK: TransactionId is null or Guid.Empty — use heuristic dedup
             // ═══════════════════════════════════════════════════════════════════════
             var existingTransaction = await transactionRepo.FindDuplicateAsync(uid, req);
             if (existingTransaction != null)
             {
-                // Retorna a transação existente em vez de criar duplicata
                 System.Diagnostics.Debug.WriteLine($"[TransactionService] Duplicate detected - returning existing transaction {existingTransaction.Id}");
                 return existingTransaction;
             }
@@ -51,6 +107,7 @@ namespace FinancialService.Service
                 UserId = uid,
                 RecurringRuleId = req.RecurringRuleId,
                 IsCustomized = req.IsCustomized,
+                TransactionId = Guid.NewGuid(),
             };
 
             await transactionRepo.AddAsync(transactionDTO);
@@ -99,6 +156,7 @@ namespace FinancialService.Service
                 Type = (int)t.Type,
                 Note = t.Note,
                 AccountId = t.AccountId,
+                TransactionId = t.TransactionId ?? Guid.Empty,
                 RecurringRuleId = t.RecurringRuleId,
                 IsCustomized = t.IsCustomized,
             }).ToList();

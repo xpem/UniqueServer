@@ -35,6 +35,12 @@ namespace FinancialService.Model.Req
         public int AccountId { get; set; }
 
         /// <summary>
+        /// Stable cross-device identifier used for upsert-based deduplication.
+        /// Nullable for backward compatibility with older clients that do not send this field.
+        /// </summary>
+        public Guid? TransactionId { get; set; }
+
+        /// <summary>
         /// Stable identifier of the recurring rule that originated this occurrence.
         /// </summary>
         public Guid? RecurringRuleId { get; set; }
