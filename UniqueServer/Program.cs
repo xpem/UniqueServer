@@ -23,7 +23,7 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Version = $"1.33.2",
+        Version = $"1.34.2",
         Title = "Unique Server",
         Description = "Routes of apis for Bookshelf, Users Management and Inventory projects",
     });
