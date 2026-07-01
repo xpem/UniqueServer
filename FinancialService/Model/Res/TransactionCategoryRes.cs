@@ -11,6 +11,8 @@ namespace FinancialService.Model.Res
     {
         public int Id { get; set; }
 
+        public Guid? CategoryId { get; set; }
+
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
         public bool SystemDefault { get; set; } = false;
