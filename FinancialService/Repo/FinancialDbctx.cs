@@ -15,7 +15,7 @@ namespace FinancialService.Repo
 
         //migrations
         //no console do gerenciador de pacotes selecione o dal referente:
-        //EntityFrameworkCore\Add-Migration "202606301" -Context FinancialDbctx
+        //EntityFrameworkCore\Add-Migration "202607011" -Context FinancialDbctx
         //EntityFrameworkCore\update-database -Context FinancialDbctx
 
         //to remove last migration snapshot
@@ -31,6 +31,14 @@ namespace FinancialService.Repo
                     .IsUnique()
                     .HasFilter("`TransactionId` IS NOT NULL")
                     .HasDatabaseName("IX_Transaction_TransactionId_UserId");
+            });
+
+            modelBuilder.Entity<TransactionCategoryDTO>(entity =>
+            {
+                entity.HasIndex(e => new { e.CategoryId, e.UserId })
+                    .IsUnique()
+                    .HasFilter("`CategoryId` IS NOT NULL")
+                    .HasDatabaseName("IX_TransactionCategory_CategoryId_UserId");
             });
         }
     }

@@ -86,6 +86,17 @@ namespace UniqueServer.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("category")]
+        public async Task<IActionResult> AddCategory([FromBody] TransactionCategoryReq req)
+        {
+            var validationError = req.Validate();
+            if (validationError is not null) return BadRequest(validationError);
+
+            var result = await transactionCategoryService.UpsertAsync(req, Uid);
+            return Ok(result);
+        }
+
         [Route("transaction")]
         [HttpPost]
         public async Task<IActionResult> AddTransaction([FromBody] TransactionReq req)
