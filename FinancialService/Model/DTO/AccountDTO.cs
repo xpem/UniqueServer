@@ -28,6 +28,8 @@ namespace FinancialService.Model.DTO
 
         public bool Inactive { get; set; }
 
+        public Guid? AccountId { get; set; }
+
         public required int UserId { get; set; }
     }
 }

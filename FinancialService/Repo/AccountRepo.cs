@@ -8,6 +8,7 @@ namespace FinancialService.Repo
         Task Add(AccountDTO account);
         Task Update(AccountDTO account);
         Task<AccountDTO?> GetByIdAsync(int id, int uid);
+        Task<AccountDTO?> FindByAccountIdAsync(Guid accountId, int userId);
         Task<List<AccountDTO>> GetAllAsync(int uid);
         Task<List<AccountDTO>> GetUpdatedAfterAsync(int uid, DateTime updatedAt);
     }
@@ -18,6 +19,14 @@ namespace FinancialService.Repo
         {
             using FinancialDbctx context = await dbCtx.CreateDbContextAsync();
             return await context.Account.FirstOrDefaultAsync(a => a.Id == id && a.UserId == uid);
+        }
+
+        public async Task<AccountDTO?> FindByAccountIdAsync(Guid accountId, int userId)
+        {
+            if (accountId == Guid.Empty) return null;
+
+            using FinancialDbctx context = await dbCtx.CreateDbContextAsync();
+            return await context.Account.FirstOrDefaultAsync(a => a.AccountId == accountId && a.UserId == userId);
         }
 
         public async Task<List<AccountDTO>> GetAllAsync(int uid)
