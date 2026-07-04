@@ -3,7 +3,9 @@ name: Backup MySQL
 on:
   schedule:
     - cron: '0 2 */5 * *' # A cada 5 dias às 02:00 UTC
-  workflow_dispatch:
+  push:
+    branches:
+      - run-backup # Push nessa branch para disparar manualmente
 
 env:
   BACKUP_DIR: /var/backups/mysql
