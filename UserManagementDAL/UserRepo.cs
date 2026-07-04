@@ -47,6 +47,12 @@ namespace UserManagementRepo
             return await dbContext.User.FirstOrDefaultAsync(x => x.Email == email && x.Password == encryptedPassword);
         }
 
+        public async Task<User?> GetByRefreshTokenAsync(string refreshToken)
+        {
+            await using var dbContext = await dbCtx.CreateDbContextAsync();
+            return await dbContext.User.FirstOrDefaultAsync(x => x.RefreshToken == refreshToken);
+        }
+
         //public async Task<User?> GetByNameOrEmailAsync(string name, string email) => await dbContext.User.FirstOrDefaultAsync(x => x.Name.Equals(name) || x.Email.Equals(email));
 
 

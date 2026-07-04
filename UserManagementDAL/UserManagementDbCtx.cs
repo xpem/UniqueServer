@@ -14,8 +14,8 @@ namespace UserManagementRepo
 
         //migrations
         //no console do gerenciador de pacotes selecione o dal referente:
-        //EntityFrameworkCore\Add-Migration "Init" -Context UserManagementDbContext
-        //EntityFrameworkCore\update-database -Context UserManagementDbContext
+        //EntityFrameworkCore\Add-Migration "202607041" -Context UserManagementDbCtx
+        //EntityFrameworkCore\update-database -Context UserManagementDbCtx
 
         //to remove last migration snapshot
         //EntityFrameworkCore\Remove-Migration -Context UserManagementDbContext 

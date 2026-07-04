@@ -14,6 +14,8 @@ namespace UserManagementRepo
 
         Task<User?> GetByIdAsync(int uid);
 
+        Task<User?> GetByRefreshTokenAsync(string refreshToken);
+
         Task DeleteAsync(int uid);
     }
 }

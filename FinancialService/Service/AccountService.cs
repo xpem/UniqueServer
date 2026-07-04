@@ -33,6 +33,7 @@ namespace FinancialService.Service
                 IncludeInGeneralBalance = account.IncludeInGeneralBalance,
                 Inactive = account.Inactive,
                 UpdatedAt = account.UpdatedAt,
+                AccountId = account.AccountId,
             };
         }
         public async Task<AdjustAccountBalanceReq> AdjustAccountBalanceAsync(AdjustAccountBalanceReq req, int uid)
@@ -87,6 +88,30 @@ namespace FinancialService.Service
             if (!Enum.IsDefined(typeof(AccountType), req.Type))
                 throw new ArgumentException("Invalid account type.");
 
+            // Determine if we have a valid AccountId to upsert by
+            Guid? accountId = req.AccountId is not null && req.AccountId.Value != Guid.Empty
+                ? req.AccountId.Value
+                : null;
+
+            if (accountId is not null)
+            {
+                // Upsert path: look for existing record by AccountId + UserId
+                var existing = await accountRepo.FindByAccountIdAsync(accountId.Value, uid);
+                if (existing is not null)
+                {
+                    // Update mutable fields
+                    existing.Name = req.Name;
+                    existing.Type = req.Type;
+                    existing.IncludeInGeneralBalance = req.IncludeInGeneralBalance;
+                    existing.Inactive = req.Inactive;
+                    existing.UpdatedAt = DateTime.UtcNow;
+
+                    await accountRepo.Update(existing);
+                    return MapToRes(existing);
+                }
+            }
+
+            // Insert path: either no AccountId provided, or no existing record found
             AccountDTO account = new()
             {
                 CreatedAt = DateTime.UtcNow,
@@ -94,13 +119,13 @@ namespace FinancialService.Service
                 Name = req.Name,
                 Type = req.Type,
                 IncludeInGeneralBalance = req.IncludeInGeneralBalance,
-                Inactive = false,
+                Inactive = req.Inactive,
                 CurrentBalance = 0,
                 UserId = uid,
+                AccountId = accountId ?? Guid.NewGuid(),
             };
 
             await accountRepo.Add(account);
-
             return MapToRes(account);
         }
         public async Task<AccountRes> UpdateAsync(int id, AccountReq req, int uid)
@@ -145,6 +170,7 @@ namespace FinancialService.Service
                 IncludeInGeneralBalance = account.IncludeInGeneralBalance,
                 Inactive = account.Inactive,
                 UpdatedAt = account.UpdatedAt,
+                AccountId = account.AccountId,
             };
         }
     }

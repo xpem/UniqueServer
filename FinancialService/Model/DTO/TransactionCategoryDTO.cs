@@ -29,5 +29,11 @@ namespace FinancialService.Model.DTO
 
         //se nao for uma categoria principal, deve ter o id da categoria principal
         public int? ParentTransactionCategoryId { get; set; }
+
+        /// <summary>
+        /// Stable cross-device identifier. Nullable during transition period.
+        /// Unique constraint scoped to UserId.
+        /// </summary>
+        public Guid? CategoryId { get; set; }
     }
 }

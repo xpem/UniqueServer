@@ -56,11 +56,16 @@ namespace UserManagementService
 
             string userJwt = jwtTokenService.GenerateToken(user.Id, user.Email, DateTime.UtcNow.AddDays(15));
 
+            string refreshToken = Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N");
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(90);
+            await userRepo.UpdateAsync(user);
+
             UserHistoric userHistoric = new() { UserHistoricTypeId = UserHistoricTypeValues.SignInGoogleAuth, CreatedAt = DateTime.UtcNow, UserId = user.Id, User = user };
 
             await userHistoricRepo.AddAsync(userHistoric);
 
-            ResToken resToken = new() { Token = userJwt };
+            ResToken resToken = new() { Token = userJwt, RefreshToken = refreshToken };
 
             return new BaseResp(resToken);
         }
@@ -114,11 +119,39 @@ namespace UserManagementService
 
             string userJwt = jwtTokenService.GenerateToken(userResp.Id, userResp.Email, DateTime.UtcNow.AddDays(15));
 
+            string refreshToken = Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N");
+            userResp.RefreshToken = refreshToken;
+            userResp.RefreshTokenExpiry = DateTime.UtcNow.AddDays(90);
+            await userRepo.UpdateAsync(userResp);
+
             UserHistoric userHistoric = new() { UserHistoricTypeId = UserHistoricTypeValues.SignIn, CreatedAt = DateTime.UtcNow, UserId = userResp.Id };
 
             await userHistoricRepo.AddAsync(userHistoric);
 
-            ResToken resToken = new() { Token = userJwt };
+            ResToken resToken = new() { Token = userJwt, RefreshToken = refreshToken };
+
+            return new BaseResp(resToken);
+        }
+
+        public async Task<BaseResp> RefreshTokenAsync(ReqRefreshToken reqRefreshToken)
+        {
+            string? validateError = reqRefreshToken.Validate();
+
+            if (!string.IsNullOrEmpty(validateError)) return new BaseResp(ErrorCode.InvalidObject, validateError);
+
+            User? user = await userRepo.GetByRefreshTokenAsync(reqRefreshToken.RefreshToken);
+
+            if (user is null || user.RefreshTokenExpiry is null || user.RefreshTokenExpiry < DateTime.UtcNow)
+                return new BaseResp(ErrorCode.InvalidUserPasswordLogin, "Invalid or expired refresh token");
+
+            string userJwt = jwtTokenService.GenerateToken(user.Id, user.Email, DateTime.UtcNow.AddDays(15));
+
+            string newRefreshToken = Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N");
+            user.RefreshToken = newRefreshToken;
+            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(90);
+            await userRepo.UpdateAsync(user);
+
+            ResToken resToken = new() { Token = userJwt, RefreshToken = newRefreshToken };
 
             return new BaseResp(resToken);
         }

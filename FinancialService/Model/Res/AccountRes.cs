@@ -17,5 +17,7 @@ namespace FinancialService.Model.Res
         public bool Inactive { get; set; }
 
         public DateTime UpdatedAt { get; set; }
+
+        public Guid? AccountId { get; set; }
     }
 }
