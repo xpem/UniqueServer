@@ -21,6 +21,10 @@ namespace UniqueServer.Controllers
         [HttpPost]
         public async Task<IActionResult> SignIn(ReqUserSession reqUserSession) => BuildResponse(await userService.GenerateTokenAsync(reqUserSession));
 
+        [Route("Session/Refresh")]
+        [HttpPost]
+        public async Task<IActionResult> RefreshToken(ReqRefreshToken reqRefreshToken) => BuildResponse(await userService.RefreshTokenAsync(reqRefreshToken));
+
         [Route("")]
         [HttpGet]
         [Authorize]

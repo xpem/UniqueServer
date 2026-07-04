@@ -14,5 +14,10 @@ namespace UserManagementModels
         public required string? Password { get; set; }
 
         public required bool IsGoogleAuth { get; set; } = false;
+
+        [MaxLength(128)]
+        public string? RefreshToken { get; set; }
+
+        public DateTime? RefreshTokenExpiry { get; set; }
     }
 }
