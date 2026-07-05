@@ -33,6 +33,11 @@ namespace FinancialService.Model.Res
         public int AccountId { get; set; }
 
         /// <summary>
+        /// Destination account for Transfer-type transactions.
+        /// </summary>
+        public int? DestinationAccountId { get; set; }
+
+        /// <summary>
         /// Stable cross-device identifier for this transaction.
         /// Non-nullable because the server guarantees all records have a TransactionId after backfill migration.
         /// </summary>

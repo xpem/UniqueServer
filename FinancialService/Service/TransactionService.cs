@@ -44,6 +44,7 @@ namespace FinancialService.Service
                     existing.Type = req.Type;
                     existing.Note = req.Note;
                     existing.AccountId = req.AccountId;
+                    existing.DestinationAccountId = req.DestinationAccountId;
                     existing.RecurringRuleId = req.RecurringRuleId;
                     existing.IsCustomized = req.IsCustomized;
 
@@ -68,6 +69,7 @@ namespace FinancialService.Service
                     Type = req.Type,
                     Note = req.Note,
                     AccountId = req.AccountId,
+                    DestinationAccountId = req.DestinationAccountId,
                     UserId = uid,
                     RecurringRuleId = req.RecurringRuleId,
                     IsCustomized = req.IsCustomized,
@@ -104,6 +106,7 @@ namespace FinancialService.Service
                 Type = req.Type,
                 Note = req.Note,
                 AccountId = req.AccountId,
+                DestinationAccountId = req.DestinationAccountId,
                 UserId = uid,
                 RecurringRuleId = req.RecurringRuleId,
                 IsCustomized = req.IsCustomized,
@@ -129,6 +132,7 @@ namespace FinancialService.Service
             transaction.Note = req.Note;
             transaction.Inactive = req.Inactive;
             transaction.AccountId = req.AccountId;
+            transaction.DestinationAccountId = req.DestinationAccountId;
             transaction.RecurringRuleId = req.RecurringRuleId;
             transaction.IsCustomized = req.IsCustomized;
 
@@ -156,6 +160,7 @@ namespace FinancialService.Service
                 Type = (int)t.Type,
                 Note = t.Note,
                 AccountId = t.AccountId,
+                DestinationAccountId = t.DestinationAccountId,
                 TransactionId = t.TransactionId ?? Guid.Empty,
                 RecurringRuleId = t.RecurringRuleId,
                 IsCustomized = t.IsCustomized,
