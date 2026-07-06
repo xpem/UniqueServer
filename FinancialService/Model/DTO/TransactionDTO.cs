@@ -39,6 +39,11 @@ namespace FinancialService.Model.DTO
 
         public AccountDTO? Account { get; set; }
 
+        /// <summary>
+        /// Destination account for Transfer-type transactions.
+        /// </summary>
+        public int? DestinationAccountId { get; set; }
+
         public required int UserId { get; set; }
 
         public bool Inactive { get; set; }

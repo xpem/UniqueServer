@@ -35,6 +35,11 @@ namespace FinancialService.Model.Req
         public int AccountId { get; set; }
 
         /// <summary>
+        /// Destination account for Transfer-type transactions.
+        /// </summary>
+        public int? DestinationAccountId { get; set; }
+
+        /// <summary>
         /// Stable cross-device identifier used for upsert-based deduplication.
         /// Nullable for backward compatibility with older clients that do not send this field.
         /// </summary>
