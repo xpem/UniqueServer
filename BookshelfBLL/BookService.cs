@@ -19,6 +19,60 @@ namespace BookshelfServices
 
             if (!string.IsNullOrEmpty(validateError)) return new BaseResp(ErrorCode.InvalidObject, validateError);
 
+            // ═══════════════════════════════════════════════════════════════════════
+            // UPSERT BY BookId: If provided, use GUID-based deduplication
+            // ═══════════════════════════════════════════════════════════════════════
+            Guid? bookId = reqBook.BookId is not null && reqBook.BookId.Value != Guid.Empty
+                ? reqBook.BookId.Value
+                : null;
+
+            if (bookId is not null)
+            {
+                var existing = await bookRepo.FindByBookIdAsync(bookId.Value, uid);
+                if (existing is not null)
+                {
+                    // Update mutable fields
+                    existing.Title = reqBook.Title;
+                    existing.Subtitle = reqBook.Subtitle;
+                    existing.Authors = reqBook.Authors;
+                    existing.Volume = reqBook.Volume;
+                    existing.Pages = reqBook.Pages;
+                    existing.Year = reqBook.Year;
+                    existing.Status = reqBook.Status;
+                    existing.Score = reqBook.Score;
+                    existing.Comment = reqBook.Comment;
+                    existing.Genre = reqBook.Genre;
+                    existing.Isbn = reqBook.Isbn;
+                    existing.Cover = reqBook.Cover;
+                    existing.GoogleId = reqBook.GoogleId;
+                    existing.UpdatedAt = DateTime.UtcNow;
+
+                    await bookRepo.UpdateAsync(existing);
+
+                    return new BaseResp(new ResBook
+                    {
+                        Id = existing.Id,
+                        BookId = existing.BookId,
+                        Title = existing.Title,
+                        Subtitle = existing.Subtitle,
+                        Authors = existing.Authors,
+                        Volume = existing.Volume,
+                        Pages = existing.Pages,
+                        Year = existing.Year,
+                        Status = existing.Status,
+                        Genre = existing.Genre,
+                        Isbn = existing.Isbn,
+                        Cover = existing.Cover,
+                        GoogleId = existing.GoogleId,
+                        Score = existing.Score,
+                        Comment = existing.Comment,
+                        CreatedAt = existing.CreatedAt,
+                        UpdatedAt = existing.UpdatedAt,
+                        Inactive = existing.Inactive
+                    });
+                }
+            }
+
             Book book = new()
             {
                 Cover = reqBook.Cover,
@@ -38,6 +92,7 @@ namespace BookshelfServices
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now,
                 UserId = uid,
+                BookId = bookId ?? Guid.NewGuid(),
             };
 
             string? existingBookMessage = await ValidateExistingBookAsync(book);
@@ -60,6 +115,7 @@ namespace BookshelfServices
             BookshelfModels.Response.ResBook resBook = new()
             {
                 Id = book.Id,
+                BookId = book.BookId,
                 Title = book.Title,
                 Subtitle = book.Subtitle,
                 Authors = book.Authors,
@@ -136,6 +192,7 @@ namespace BookshelfServices
             BookshelfModels.Response.ResBook resBook = new()
             {
                 Id = newBook.Id,
+                BookId = newBook.BookId,
                 Title = newBook.Title,
                 Subtitle = newBook.Subtitle,
                 Authors = newBook.Authors,
@@ -201,6 +258,7 @@ namespace BookshelfServices
                 resBooks.Add(new ResBook()
                 {
                     Id = book.Id,
+                    BookId = book.BookId,
                     Cover = book.Cover,
                     Title = book.Title,
                     Subtitle = book.Subtitle,

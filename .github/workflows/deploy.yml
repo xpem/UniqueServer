@@ -15,7 +15,7 @@ env:
 
 jobs:
   deploy:
-    if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true && !contains(github.server_url, 'github.com')
     runs-on: ubuntu-latest
 
     steps:
