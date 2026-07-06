@@ -16,4 +16,13 @@ namespace BookshelfRepo
 
         public virtual DbSet<BookHistoricItem> BookHistoricItem => Set<BookHistoricItem>();
     }
+
+    //migrations
+    //no console do gerenciador de pacotes selecione o dal referente:
+    //EntityFrameworkCore\Add-Migration "202607071" -Context BookshelfDbCtx
+    //EntityFrameworkCore\update-database -Context BookshelfDbCtx
+
+    //to remove last migration snapshot
+    //EntityFrameworkCore\Remove-Migration -Context BookshelfDbCtx 
+
 }

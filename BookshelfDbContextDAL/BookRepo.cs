@@ -5,6 +5,12 @@ namespace BookshelfRepo
 {
     public class BookRepo(IDbContextFactory<BookshelfDbCtx> dbCtx) : IBookRepo
     {
+        public async Task<Book?> FindByBookIdAsync(Guid bookId, int uid)
+        {
+            using var context = dbCtx.CreateDbContext();
+            return await context.Book.FirstOrDefaultAsync(x => x.BookId == bookId && x.UserId == uid);
+        }
+
         public async Task<Book?> GetBookByTitleWithNotEqualIdAsync(string title, int uid, int bookId)
         {
             using var context = dbCtx.CreateDbContext();

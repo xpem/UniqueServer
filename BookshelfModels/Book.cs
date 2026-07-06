@@ -7,6 +7,12 @@ namespace BookshelfModels
         //[Index("IX_UpdatedAt_And_Uid", 1)]
         public required int UserId { get; set; }
 
+        /// <summary>
+        /// Stable cross-device identifier for GUID-based sync.
+        /// Nullable during transition period for existing records.
+        /// </summary>
+        public Guid? BookId { get; set; }
+
         [MaxLength(100)]
         public required string Title { get; set; }
 

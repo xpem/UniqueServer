@@ -4,6 +4,8 @@
     {
         public int Id { get; init; }
 
+        public Guid? BookId { get; init; }
+
         public string? Cover { get; init; }
 
         public string? Title { get; init; }

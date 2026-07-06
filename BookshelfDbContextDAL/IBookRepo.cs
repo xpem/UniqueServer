@@ -16,6 +16,8 @@ namespace BookshelfRepo
 
         Task<Book?> GetBookByIdAsync(int bookId, int uid);
 
+        Task<Book?> FindByBookIdAsync(Guid bookId, int uid);
+
         Task<List<Book>> GetBooksAfterUpdatedAtAsync(DateTime updatedAt, int page, int pageSize, int uid);
 
         Task<int> DeleteAllAsync(int uid);

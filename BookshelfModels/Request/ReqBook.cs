@@ -4,6 +4,11 @@ namespace BookshelfModels.Request
 {
     public record ReqBook : BaseModels.Request.ReqBaseModel
     {
+        /// <summary>
+        /// Stable cross-device identifier for GUID-based upsert.
+        /// </summary>
+        public Guid? BookId { get; set; }
+
         [StringLength(2000)]
         [DataType(DataType.Url)]
         public string? Cover { get; init; }
