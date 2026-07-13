@@ -7,7 +7,7 @@ namespace FinancialService.Model.Req
     {
         public Guid RecurringRuleId { get; set; }
 
-        [StringLength(250)]
+        [StringLength(100)]
         public string? Description { get; set; }
 
         public decimal Amount { get; set; }
