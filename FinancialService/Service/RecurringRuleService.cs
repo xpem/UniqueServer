@@ -8,7 +8,7 @@ namespace FinancialService.Service
     public interface IRecurringRuleService
     {
         Task<RecurringRuleRes> AddOrUpdateAsync(RecurringRuleReq req, int uid);
-        Task<List<RecurringRuleRes>> GetByUpdatedAtAsync(int uid, DateTime updatedAt);
+        Task<List<RecurringRuleRes>> GetByUpdatedAtAsync(int uid, DateTime updatedAt, int page);
     }
 
     public class RecurringRuleService(IRecurringRuleRepo recurringRuleRepo) : IRecurringRuleService
@@ -44,9 +44,9 @@ namespace FinancialService.Service
             return ToRes(dto);
         }
 
-        public async Task<List<RecurringRuleRes>> GetByUpdatedAtAsync(int uid, DateTime updatedAt)
+        public async Task<List<RecurringRuleRes>> GetByUpdatedAtAsync(int uid, DateTime updatedAt, int page)
         {
-            var rules = await recurringRuleRepo.GetByUpdatedAtAsync(uid, updatedAt);
+            var rules = await recurringRuleRepo.GetByUpdatedAtAsync(uid, updatedAt, page, 100);
             return rules.Select(ToRes).ToList();
         }
 

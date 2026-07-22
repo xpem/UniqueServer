@@ -7,15 +7,15 @@ namespace FinancialService.Service
 {
     public interface ITransactionCategoryService
     {
-        Task<List<TransactionCategoryRes>> GetByUid(int uid, DateTime updatedAt);
+        Task<List<TransactionCategoryRes>> GetByUid(int uid, DateTime updatedAt, int page);
         Task<TransactionCategoryUpsertRes> UpsertAsync(TransactionCategoryReq req, int uid);
     }
 
     public class TransactionCategoryService(ITransactionCategoryRepo transactionCategoryRepo) : ITransactionCategoryService
     {
-        public async Task<List<TransactionCategoryRes>> GetByUid(int uid, DateTime updatedAt)
+        public async Task<List<TransactionCategoryRes>> GetByUid(int uid, DateTime updatedAt, int page)
         {
-            List<TransactionCategoryDTO> categories = await transactionCategoryRepo.GetByUid(uid, updatedAt);
+            List<TransactionCategoryDTO> categories = await transactionCategoryRepo.GetByUid(uid, updatedAt, page, 100);
             return [.. categories.Select(c => new TransactionCategoryRes
             {
                 Id = c.Id,

@@ -11,7 +11,7 @@ namespace FinancialService.Service
         Task<AccountRes?> GetAsync(int uid, DateTime updatedAt);
         Task<AccountRes> CreateAsync(AccountReq req, int uid);
         Task<AccountRes> UpdateAsync(int id, AccountReq req, int uid);
-        Task<List<AccountRes>> GetUpdatedAfterAsync(int uid, DateTime updatedAt);
+        Task<List<AccountRes>> GetUpdatedAfterAsync(int uid, DateTime updatedAt, int page);
         Task RecalculateBalanceAsync(int accountId, int uid);
     }
 
@@ -19,7 +19,7 @@ namespace FinancialService.Service
     {
         public async Task<AccountRes?> GetAsync(int uid, DateTime updatedAt)
         {
-            var accounts = await accountRepo.GetUpdatedAfterAsync(uid, updatedAt);
+            var accounts = await accountRepo.GetUpdatedAfterAsync(uid, updatedAt, 1, 1);
 
             if (accounts.Count == 0) return null;
 
@@ -143,9 +143,9 @@ namespace FinancialService.Service
 
             return MapToRes(account);
         }
-        public async Task<List<AccountRes>> GetUpdatedAfterAsync(int uid, DateTime updatedAt)
+        public async Task<List<AccountRes>> GetUpdatedAfterAsync(int uid, DateTime updatedAt, int page)
         {
-            var accounts = await accountRepo.GetUpdatedAfterAsync(uid, updatedAt);
+            var accounts = await accountRepo.GetUpdatedAfterAsync(uid, updatedAt, page, 100);
             return accounts.Select(MapToRes).ToList();
         }
         public async Task RecalculateBalanceAsync(int accountId, int uid)

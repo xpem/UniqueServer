@@ -9,7 +9,7 @@ namespace FinancialService.Service
     {
         Task<TransactionDTO> AddAsync(TransactionReq req, int uid);
         Task UpdateAsync(int id, TransactionReq req, int uid);
-        Task<List<TransactionRes>> GetByUpdatedAtAsync(int uid, DateTime updatedAt);
+        Task<List<TransactionRes>> GetByUpdatedAtAsync(int uid, DateTime updatedAt, int page);
     }
 
     public class TransactionService(ITransactionRepo transactionRepo) : ITransactionService
@@ -139,9 +139,9 @@ namespace FinancialService.Service
             await transactionRepo.UpdateAsync(transaction);
         }
 
-        public async Task<List<TransactionRes>> GetByUpdatedAtAsync(int uid, DateTime updatedAt)
+        public async Task<List<TransactionRes>> GetByUpdatedAtAsync(int uid, DateTime updatedAt, int page)
         {
-            var transactions = await transactionRepo.GetByUpdatedAtAsync(uid, updatedAt);
+            var transactions = await transactionRepo.GetByUpdatedAtAsync(uid, updatedAt, page, 100);
 
             return transactions.Select(t => new TransactionRes
             {

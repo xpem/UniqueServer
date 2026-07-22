@@ -5,7 +5,7 @@ namespace FinancialService.Repo
 {
     public interface ITransactionCategoryRepo
     {
-        Task<List<TransactionCategoryDTO>> GetByUid(int uid, DateTime updatedAt);
+        Task<List<TransactionCategoryDTO>> GetByUid(int uid, DateTime updatedAt, int page, int pageSize);
         Task<TransactionCategoryDTO?> FindByCategoryIdAsync(Guid categoryId, int userId);
         Task<TransactionCategoryDTO> AddAsync(TransactionCategoryDTO dto);
         Task UpdateAsync(TransactionCategoryDTO dto);
@@ -13,11 +13,14 @@ namespace FinancialService.Repo
 
     public class TransactionCategoryRepo(IDbContextFactory<FinancialDbctx> dbCtx) : ITransactionCategoryRepo
     {
-        public async Task<List<TransactionCategoryDTO>> GetByUid(int uid, DateTime updatedAt)
+        public async Task<List<TransactionCategoryDTO>> GetByUid(int uid, DateTime updatedAt, int page, int pageSize)
         {
             using FinancialDbctx context = await dbCtx.CreateDbContextAsync();
             List<TransactionCategoryDTO> categories = await context.TransactionCategory
                 .Where(c => (c.UserId == uid || c.SystemDefault) && c.UpdatedAt > updatedAt)
+                .OrderBy(c => c.UpdatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
             return categories;
         }

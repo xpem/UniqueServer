@@ -7,7 +7,7 @@ namespace FinancialService.Repo
     {
         Task<RecurringRuleDTO> AddAsync(RecurringRuleDTO rule);
         Task UpdateAsync(RecurringRuleDTO rule);
-        Task<List<RecurringRuleDTO>> GetByUpdatedAtAsync(int uid, DateTime updatedAt);
+        Task<List<RecurringRuleDTO>> GetByUpdatedAtAsync(int uid, DateTime updatedAt, int page, int pageSize);
     }
 
     public class RecurringRuleRepo(IDbContextFactory<FinancialDbctx> dbCtx) : IRecurringRuleRepo
@@ -27,11 +27,14 @@ namespace FinancialService.Repo
             await context.SaveChangesAsync();
         }
 
-        public async Task<List<RecurringRuleDTO>> GetByUpdatedAtAsync(int uid, DateTime updatedAt)
+        public async Task<List<RecurringRuleDTO>> GetByUpdatedAtAsync(int uid, DateTime updatedAt, int page, int pageSize)
         {
             using FinancialDbctx context = await dbCtx.CreateDbContextAsync();
             return await context.RecurringRule
                 .Where(r => r.UserId == uid && r.UpdatedAt > updatedAt)
+                .OrderBy(r => r.UpdatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
         }
     }
