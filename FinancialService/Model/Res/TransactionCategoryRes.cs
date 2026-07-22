@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FinancialService.Model.DTO;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -29,5 +30,7 @@ namespace FinancialService.Model.Res
 
         //se nao for uma categoria principal, deve ter o id da categoria principal
         public int? ParentTransactionCategoryId { get; set; }
+
+        public TransactionCategoryType? Type { get; set; }
     }
 }

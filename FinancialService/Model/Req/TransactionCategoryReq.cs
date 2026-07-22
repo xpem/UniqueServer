@@ -20,5 +20,11 @@ namespace FinancialService.Model.Req
 
         [StringLength(8)]
         public string? Color { get; set; }
+
+        /// <summary>
+        /// Category type classification: 0 = Income, 1 = Expense, 2 = Both.
+        /// Nullable for backward compatibility with older clients that do not send this field.
+        /// </summary>
+        public int? Type { get; set; }
     }
 }
