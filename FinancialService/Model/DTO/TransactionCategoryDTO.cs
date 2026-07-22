@@ -35,5 +35,13 @@ namespace FinancialService.Model.DTO
         /// Unique constraint scoped to UserId.
         /// </summary>
         public Guid? CategoryId { get; set; }
+
+        public TransactionCategoryType? Type { get; set; }
+    }
+
+    public enum TransactionCategoryType
+    {
+        Income = 1,
+        Expense = 2
     }
 }
