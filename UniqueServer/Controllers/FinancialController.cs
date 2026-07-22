@@ -13,12 +13,12 @@ namespace UniqueServer.Controllers
     {
         [Route("categories")]
         [HttpGet]
-        public async Task<IActionResult> GetCategories(DateTime? updatedAt)
+        public async Task<IActionResult> GetCategories(DateTime? updatedAt, int page = 1)
         {
             updatedAt ??= DateTime.MinValue;
 
             //format 2023-06-10T21:53:28.331Z
-            List<TransactionCategoryRes> categories = await transactionCategoryService.GetByUid(Uid, updatedAt.Value);
+            List<TransactionCategoryRes> categories = await transactionCategoryService.GetByUid(Uid, updatedAt.Value, page);
             return Ok(categories);
         }
 
@@ -43,11 +43,11 @@ namespace UniqueServer.Controllers
 
         [HttpGet]
         [Route("accounts")]
-        public async Task<IActionResult> GetAccounts(DateTime? updatedAt)
+        public async Task<IActionResult> GetAccounts(DateTime? updatedAt, int page = 1)
         {
             updatedAt ??= DateTime.MinValue;
 
-            var result = await accountService.GetUpdatedAfterAsync(Uid, updatedAt.Value);
+            var result = await accountService.GetUpdatedAfterAsync(Uid, updatedAt.Value, page);
             if (result.Count == 0) return NoContent();
             return Ok(result);
         }
@@ -115,11 +115,11 @@ namespace UniqueServer.Controllers
 
         [Route("transaction")]
         [HttpGet]
-        public async Task<IActionResult> GetTransactions(DateTime? updatedAt)
+        public async Task<IActionResult> GetTransactions(DateTime? updatedAt, int page = 1)
         {
             updatedAt ??= DateTime.MinValue;
 
-            var result = await transactionService.GetByUpdatedAtAsync(Uid, updatedAt.Value);
+            var result = await transactionService.GetByUpdatedAtAsync(Uid, updatedAt.Value, page);
             if (result.Count == 0) return NoContent();
             return Ok(result);
         }
@@ -134,11 +134,11 @@ namespace UniqueServer.Controllers
 
         [Route("recurringrule")]
         [HttpGet]
-        public async Task<IActionResult> GetRecurringRules(DateTime? updatedAt)
+        public async Task<IActionResult> GetRecurringRules(DateTime? updatedAt, int page = 1)
         {
             updatedAt ??= DateTime.MinValue;
 
-            var result = await recurringRuleService.GetByUpdatedAtAsync(Uid, updatedAt.Value);
+            var result = await recurringRuleService.GetByUpdatedAtAsync(Uid, updatedAt.Value, page);
             if (result.Count == 0) return NoContent();
             return Ok(result);
         }

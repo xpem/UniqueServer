@@ -10,7 +10,7 @@ namespace FinancialService.Repo
         Task<AccountDTO?> GetByIdAsync(int id, int uid);
         Task<AccountDTO?> FindByAccountIdAsync(Guid accountId, int userId);
         Task<List<AccountDTO>> GetAllAsync(int uid);
-        Task<List<AccountDTO>> GetUpdatedAfterAsync(int uid, DateTime updatedAt);
+        Task<List<AccountDTO>> GetUpdatedAfterAsync(int uid, DateTime updatedAt, int page, int pageSize);
     }
 
     public class AccountRepo(IDbContextFactory<FinancialDbctx> dbCtx) : IAccountRepo
@@ -35,10 +35,15 @@ namespace FinancialService.Repo
             return await context.Account.Where(a => a.UserId == uid).ToListAsync();
         }
 
-        public async Task<List<AccountDTO>> GetUpdatedAfterAsync(int uid, DateTime updatedAt)
+        public async Task<List<AccountDTO>> GetUpdatedAfterAsync(int uid, DateTime updatedAt, int page, int pageSize)
         {
             using FinancialDbctx context = await dbCtx.CreateDbContextAsync();
-            return await context.Account.Where(a => a.UserId == uid && a.UpdatedAt > updatedAt).ToListAsync();
+            return await context.Account
+                .Where(a => a.UserId == uid && a.UpdatedAt > updatedAt)
+                .OrderBy(a => a.UpdatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
         }
 
         public async Task Add(AccountDTO account)

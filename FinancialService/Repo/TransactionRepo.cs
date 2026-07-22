@@ -8,7 +8,7 @@ namespace FinancialService.Repo
     {
         Task AddAsync(TransactionDTO transaction);
         Task UpdateAsync(TransactionDTO transaction);
-        Task<List<TransactionDTO>> GetByUpdatedAtAsync(int uid, DateTime updatedAt);
+        Task<List<TransactionDTO>> GetByUpdatedAtAsync(int uid, DateTime updatedAt, int page, int pageSize);
         Task<TransactionDTO?> GetByIdAsync(int id, int uid);
         Task<decimal> GetSumByAccountIdAsync(int accountId);
         Task<TransactionDTO?> FindDuplicateAsync(int uid, TransactionReq req);
@@ -31,11 +31,14 @@ namespace FinancialService.Repo
             await context.SaveChangesAsync();
         }
 
-        public async Task<List<TransactionDTO>> GetByUpdatedAtAsync(int uid, DateTime updatedAt)
+        public async Task<List<TransactionDTO>> GetByUpdatedAtAsync(int uid, DateTime updatedAt, int page, int pageSize)
         {
             using FinancialDbctx context = await dbCtx.CreateDbContextAsync();
             return await context.Transaction
                 .Where(t => t.UserId == uid && t.UpdatedAt > updatedAt)
+                .OrderBy(t => t.UpdatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
         }
 
