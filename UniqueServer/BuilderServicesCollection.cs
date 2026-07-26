@@ -98,6 +98,9 @@ namespace UniqueServer
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUserDataDeleteService, UserDataDeleteService>();
 
+            services.AddSingleton(new BaseModels.Configs.GoogleAuthKeys(
+                GetConfigValue(Configuration, "GoogleAuth:ClientId")));
+
             services.AddScoped<ISendRecoverPasswordEmailService, SendRecoverPasswordEmailService>(p =>
             new SendRecoverPasswordEmailService(
                 new BaseModels.Configs.SendEmailKeys(

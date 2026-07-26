@@ -6,6 +6,7 @@ using UserManagementModels.Request.User;
 using UserManagementService.Functions;
 using UserManagementService.Interfaces;
 
+
 namespace UniqueServer.Controllers
 {
     [Route("[Controller]")]
@@ -24,6 +25,10 @@ namespace UniqueServer.Controllers
         [Route("Session/Refresh")]
         [HttpPost]
         public async Task<IActionResult> RefreshToken(ReqRefreshToken reqRefreshToken) => BuildResponse(await userService.RefreshTokenAsync(reqRefreshToken));
+
+        [Route("Session/Google")]
+        [HttpPost]
+        public async Task<IActionResult> GoogleSignIn(ReqGoogleSignIn reqGoogleSignIn) => BuildResponse(await userService.GoogleAuthAsync(reqGoogleSignIn.IdToken));
 
         [Route("")]
         [HttpGet]

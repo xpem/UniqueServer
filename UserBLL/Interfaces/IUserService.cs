@@ -12,7 +12,7 @@ namespace UserManagementService.Interfaces
         Task<BaseResp> RefreshTokenAsync(ReqRefreshToken reqRefreshToken);
 
         Task<BaseResp> GetByIdAsync(int uid);
-        Task<BaseResp> GoogleAuthAsync(string name, string email);
+        Task<BaseResp> GoogleAuthAsync(string idToken);
         Task<BaseResp> SendRecoverPasswordEmailAsync(ReqUserEmail reqUserEmail);
 
         Task<BaseResp> UpdatePasswordAsync(ReqRecoverPassword reqRecoverPassword, int uid);
