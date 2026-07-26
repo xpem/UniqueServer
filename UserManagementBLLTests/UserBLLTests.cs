@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using BaseModels.Configs;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using UserManagementModels.Response;
 using UserManagementService.Functions;
@@ -44,7 +45,7 @@ namespace UserManagementRepoTests
             encryptionService.Setup(x => x.Encrypt(It.IsAny<string>())).Returns(encryptedPassword);
             jwtTokenService.Setup(x => x.GenerateToken(userResp.Id, userResp.Email, It.IsAny<DateTime>())).Returns(encryptedtoken);
 
-            UserService userService = new(userDAL.Object, userHistoricDAL.Object, sendRecoverPasswordEmail.Object, encryptionService.Object, jwtTokenService.Object);
+            UserService userService = new(userDAL.Object, userHistoricDAL.Object, sendRecoverPasswordEmail.Object, encryptionService.Object, jwtTokenService.Object, new GoogleAuthKeys("test-client-id"));
 
             var resp = await userService.GenerateTokenAsync(reqUserSession);
 

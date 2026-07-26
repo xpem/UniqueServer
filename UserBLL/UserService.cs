@@ -1,16 +1,18 @@
 ﻿using BaseModels;
+using BaseModels.Configs;
 using UserManagementModels.Response;
 using UserManagementService.Functions;
 using UserManagementModels.Request.User;
 using UserManagementModels;
 using UserManagementRepo;
 using UserManagementService.Interfaces;
+using Google.Apis.Auth;
 
 namespace UserManagementService
 {
     public class UserService(IUserRepo userRepo, IUserHistoricRepo userHistoricRepo,
         ISendRecoverPasswordEmailService sendRecoverPasswordEmailService, IEncryptionService encryptionService,
-        IJwtTokenService jwtTokenService) : IUserService
+        IJwtTokenService jwtTokenService, GoogleAuthKeys googleAuthKeys) : IUserService
     {
         public async Task<BaseResp> CreateAsync(ReqUser reqUser)
         {
@@ -38,8 +40,25 @@ namespace UserManagementService
             return new BaseResp(resUser);
         }
 
-        public async Task<BaseResp> GoogleAuthAsync(string? name, string? email)
+        public async Task<BaseResp> GoogleAuthAsync(string idToken)
         {
+            GoogleJsonWebSignature.Payload payload;
+
+            try
+            {
+                payload = await GoogleJsonWebSignature.ValidateAsync(idToken, new GoogleJsonWebSignature.ValidationSettings
+                {
+                    Audience = [googleAuthKeys.clientId]
+                });
+            }
+            catch (InvalidJwtException)
+            {
+                return new BaseResp(ErrorCode.GoogleAuthNullEmailOrName, "Token do Google inválido");
+            }
+
+            string? name = payload.Name;
+            string? email = payload.Email;
+
             if (name is null || email is null)
                 return new BaseResp(ErrorCode.GoogleAuthNullEmailOrName, "Conta do google sem email ou nome");
 
