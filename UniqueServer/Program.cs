@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi;
+using Scalar.AspNetCore;
 using Serilog;
 using System.Text;
 using UniqueServer;
@@ -16,41 +16,25 @@ Log.Logger = new LoggerConfiguration()
 builder.Logging.AddSerilog();
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
 
-builder.Services.AddSwaggerGen(c =>
+builder.Services.AddOpenApi("v1", options =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo
+    options.AddDocumentTransformer((document, context, ct) =>
     {
-        Version = $"1.34.3",
-        Title = "Unique Server",
-        Description = "Routes of apis for Bookshelf, Users Management and Inventory projects",
-    });
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
-    {
-        Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer",
-        BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-        Description = "JWT Authorization header using the Bearer scheme."
+        document.Info = new()
+        {
+            Version = "1.34.3",
+            Title = "Unique Server",
+            Description = "Routes of apis for Bookshelf, Users Management and Inventory projects",
+        };
+
+        string baseUrl = builder.Environment.IsDevelopment() ? "/" : "/api";
+        document.Servers = [new() { Url = baseUrl }];
+
+        return Task.CompletedTask;
     });
 
-    if (!builder.Environment.IsDevelopment())
-    {
-        c.AddServer(new OpenApiServer { Url = "/api" });
-    }
-    else
-    {
-        // Em desenvolvimento, o Swagger pode usar a raiz como base
-        c.AddServer(new OpenApiServer { Url = "/" });
-    }
-
-    c.AddSecurityRequirement(_ => new OpenApiSecurityRequirement
-    {
-        [new OpenApiSecuritySchemeReference("Bearer")] = new List<string>()
-    });
+    options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
 });
 
 builder.Services.AddDbContexts(builder.Configuration);
@@ -102,16 +86,11 @@ app.UseCors("AllowFrontendOrigins");
 app.UseForwardedHeaders();
 
 app.UseHsts();
-app.UseSwagger(c =>
+app.MapOpenApi();
+app.MapScalarApiReference(options =>
 {
-    c.RouteTemplate = "swagger/{documentName}/swagger.json";
-});
-app.UseSwaggerUI(c =>
-{
-    string basePath = app.Environment.IsDevelopment() ? "" : "/api";
-    c.SwaggerEndpoint($"{basePath}/swagger/v1/swagger.json", "Unique Server v2");
-    c.RoutePrefix = "swagger";
-    c.ConfigObject.AdditionalItems["syntaxHighlight"] = new Dictionary<string, object> { ["activated"] = false };
+    options.WithTitle("Unique Server");
+    options.WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
 });
 
 app.Use(async (context, next) =>
