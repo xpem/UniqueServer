@@ -1,4 +1,4 @@
-ï»¿using BaseModels;
+using BaseModels;
 using InventoryBLL.Interfaces;
 using InventoryModels.DTOs;
 using InventoryModels.Req;
@@ -21,7 +21,7 @@ namespace InventoryBLL
                 {
                     Name = reqCategory.Name,
                     Color = reqCategory.Color,
-                    CreatedAt = DateTime.Now,
+                    CreatedAt = DateTime.UtcNow,
                     SystemDefault = false,
                     UserId = uid
                 };
@@ -45,7 +45,7 @@ namespace InventoryBLL
                     return new BaseResp(resCategory);
                 }
                 else
-                    return new BaseResp(ErrorCode.ErrorCreatingObject, "NÃ£o foi possivel adicionar.");
+                    return new BaseResp(ErrorCode.ErrorCreatingObject, "Não foi possivel adicionar.");
             }
             catch { throw; }
         }
@@ -72,7 +72,7 @@ namespace InventoryBLL
                 if (respExec == 1)
                     return new BaseResp(1);
                 else
-                    return new BaseResp(ErrorCode.ErrorUpdatingObject, "NÃ£o foi possivel atualizar.");
+                    return new BaseResp(ErrorCode.ErrorUpdatingObject, "Não foi possivel atualizar.");
             }
             catch { throw; }
         }
@@ -173,7 +173,7 @@ namespace InventoryBLL
                     Name = reqCategory.Name,
                     Color = reqCategory.Color,
                     CreatedAt = oldCategory.CreatedAt,
-                    UpdatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.UtcNow,
                     SystemDefault = oldCategory.SystemDefault,
                     UserId = oldCategory.UserId,
                     Id = oldCategory.Id
@@ -216,7 +216,7 @@ namespace InventoryBLL
                     return new BaseResp(resCategoryWithSubCategories);
                 }
                 else
-                    return new BaseResp("NÃ£o foi possivel atualizar.");
+                    return new BaseResp("Não foi possivel atualizar.");
             }
             catch { throw; }
         }

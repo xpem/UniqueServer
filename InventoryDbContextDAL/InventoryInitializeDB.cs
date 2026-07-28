@@ -1,4 +1,4 @@
-ï»¿using InventoryModels.DTOs;
+using InventoryModels.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace InventoryRepos
@@ -24,9 +24,9 @@ namespace InventoryRepos
             if (inventoryDbContext.Category.Count() is not 0) return;
 
             Category[] categories = [
-                new Category() { Name = "Casa", Color = "#bfc9ca", SystemDefault = true, CreatedAt = DateTime.Now },
-                new Category() { Name = "Vestimenta", Color = "#f5cba7", SystemDefault = true, CreatedAt = DateTime.Now  },
-                new Category() { Name = "Carro", Color = "#f5b7b1", SystemDefault = true, CreatedAt = DateTime.Now  },
+                new Category() { Name = "Casa", Color = "#bfc9ca", SystemDefault = true, CreatedAt = DateTime.UtcNow },
+                new Category() { Name = "Vestimenta", Color = "#f5cba7", SystemDefault = true, CreatedAt = DateTime.UtcNow  },
+                new Category() { Name = "Carro", Color = "#f5b7b1", SystemDefault = true, CreatedAt = DateTime.UtcNow  },
             ];
 
             inventoryDbContext.Category.AddRange(categories);
@@ -37,15 +37,15 @@ namespace InventoryRepos
             if (inventoryDbContext.SubCategory.Count() is not 0) return;
 
             SubCategory[] subCategories = [
-                new SubCategory() { CategoryId = 1, CreatedAt = DateTime.Now, Name = "MÃ³veis", SystemDefault = true, IconName = "Car"  },
-                new SubCategory() { CategoryId = 1, CreatedAt = DateTime.Now, Name = "EletrodomÃ©sticos", SystemDefault = true, IconName = "Tv"  },
-                new SubCategory() { CategoryId = 1, CreatedAt = DateTime.Now, Name = "Computadores", SystemDefault = true, IconName = "Computer"  },
-                new SubCategory() { CategoryId = 2, CreatedAt = DateTime.Now, Name = "EletrÃ´nicos", SystemDefault = true, IconName = "Mobile"  },
-                new SubCategory() { CategoryId = 2, CreatedAt = DateTime.Now, Name = "CalÃ§ados", SystemDefault = true, IconName = "ShoePrints"  },
-                new SubCategory() { CategoryId = 2, CreatedAt = DateTime.Now, Name = "Roupas", SystemDefault = true, IconName = "Tshirt"  },
-                new SubCategory() { CategoryId = 3, CreatedAt = DateTime.Now, Name = "UtensÃ­lios", SystemDefault = true, IconName = "AirFreshener"  },
-                new SubCategory() { CategoryId = 3, CreatedAt = DateTime.Now, Name = "PeÃ§as internas", SystemDefault = true, IconName = "Wrench"  },
-                new SubCategory() { CategoryId = 3, CreatedAt = DateTime.Now, Name = "PeÃ§as externas", SystemDefault = true, IconName = "Car"  },
+                new SubCategory() { CategoryId = 1, CreatedAt = DateTime.UtcNow, Name = "Móveis", SystemDefault = true, IconName = "Car"  },
+                new SubCategory() { CategoryId = 1, CreatedAt = DateTime.UtcNow, Name = "Eletrodomésticos", SystemDefault = true, IconName = "Tv"  },
+                new SubCategory() { CategoryId = 1, CreatedAt = DateTime.UtcNow, Name = "Computadores", SystemDefault = true, IconName = "Computer"  },
+                new SubCategory() { CategoryId = 2, CreatedAt = DateTime.UtcNow, Name = "Eletrônicos", SystemDefault = true, IconName = "Mobile"  },
+                new SubCategory() { CategoryId = 2, CreatedAt = DateTime.UtcNow, Name = "Calçados", SystemDefault = true, IconName = "ShoePrints"  },
+                new SubCategory() { CategoryId = 2, CreatedAt = DateTime.UtcNow, Name = "Roupas", SystemDefault = true, IconName = "Tshirt"  },
+                new SubCategory() { CategoryId = 3, CreatedAt = DateTime.UtcNow, Name = "Utensílios", SystemDefault = true, IconName = "AirFreshener"  },
+                new SubCategory() { CategoryId = 3, CreatedAt = DateTime.UtcNow, Name = "Peças internas", SystemDefault = true, IconName = "Wrench"  },
+                new SubCategory() { CategoryId = 3, CreatedAt = DateTime.UtcNow, Name = "Peças externas", SystemDefault = true, IconName = "Car"  },
             ];
 
             inventoryDbContext.SubCategory.AddRange(subCategories);
@@ -56,13 +56,13 @@ namespace InventoryRepos
             if (inventoryDbContext.ItemSituation.Count() is not 0) return;
 
             ItemSituation[] itemSituations = [
-                new ItemSituation() { Name = "Em uso", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 1,Type = SituationType.In  },
-                new ItemSituation() { Name = "Guardado", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 2,Type = SituationType.In  },
-                new ItemSituation() { Name = "Dispensado", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 5,Type=SituationType.Out  },
-                new ItemSituation() { Name = "Defeito", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 3,Type=SituationType.Out  },
-                new ItemSituation() { Name = "Revendido", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 4 ,Type = SituationType.Out },
-                new ItemSituation() { Name = "Emprestado", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 6,Type = SituationType.In  },
-                new ItemSituation() { Name = "Doado", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 7,Type = SituationType.Out  },
+                new ItemSituation() { Name = "Em uso", CreatedAt = DateTime.UtcNow, SystemDefault = true, Sequence = 1,Type = SituationType.In  },
+                new ItemSituation() { Name = "Guardado", CreatedAt = DateTime.UtcNow, SystemDefault = true, Sequence = 2,Type = SituationType.In  },
+                new ItemSituation() { Name = "Dispensado", CreatedAt = DateTime.UtcNow, SystemDefault = true, Sequence = 5,Type=SituationType.Out  },
+                new ItemSituation() { Name = "Defeito", CreatedAt = DateTime.UtcNow, SystemDefault = true, Sequence = 3,Type=SituationType.Out  },
+                new ItemSituation() { Name = "Revendido", CreatedAt = DateTime.UtcNow, SystemDefault = true, Sequence = 4 ,Type = SituationType.Out },
+                new ItemSituation() { Name = "Emprestado", CreatedAt = DateTime.UtcNow, SystemDefault = true, Sequence = 6,Type = SituationType.In  },
+                new ItemSituation() { Name = "Doado", CreatedAt = DateTime.UtcNow, SystemDefault = true, Sequence = 7,Type = SituationType.Out  },
             ];
 
             inventoryDbContext.ItemSituation.AddRange(itemSituations);
@@ -73,11 +73,11 @@ namespace InventoryRepos
             if (inventoryDbContext.AcquisitionType.Count() is not 0) return;
 
             AcquisitionType[] acquisitionTypes = [
-                new AcquisitionType() { Name = "Compra", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 1  },
-                new AcquisitionType() { Name = "Emprestimo", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 2  },
-                new AcquisitionType() { Name = "DoaÃ§Ã£o", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 3  },
-                new AcquisitionType() { Name = "Presente", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 4  },
-                new AcquisitionType() { Name = "Troca", CreatedAt = DateTime.Now, SystemDefault = true, Sequence = 5  },
+                new AcquisitionType() { Name = "Compra", CreatedAt = DateTime.UtcNow, SystemDefault = true, Sequence = 1  },
+                new AcquisitionType() { Name = "Emprestimo", CreatedAt = DateTime.UtcNow, SystemDefault = true, Sequence = 2  },
+                new AcquisitionType() { Name = "Doação", CreatedAt = DateTime.UtcNow, SystemDefault = true, Sequence = 3  },
+                new AcquisitionType() { Name = "Presente", CreatedAt = DateTime.UtcNow, SystemDefault = true, Sequence = 4  },
+                new AcquisitionType() { Name = "Troca", CreatedAt = DateTime.UtcNow, SystemDefault = true, Sequence = 5  },
             ];
 
             inventoryDbContext.AcquisitionType.AddRange(acquisitionTypes);

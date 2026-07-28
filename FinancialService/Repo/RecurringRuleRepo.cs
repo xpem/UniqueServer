@@ -29,9 +29,10 @@ namespace FinancialService.Repo
 
         public async Task<List<RecurringRuleDTO>> GetByUpdatedAtAsync(int uid, DateTime updatedAt, int page, int pageSize)
         {
+            DateTime updatedAtUtc = DateTime.SpecifyKind(updatedAt, DateTimeKind.Utc);
             using FinancialDbctx context = await dbCtx.CreateDbContextAsync();
             return await context.RecurringRule
-                .Where(r => r.UserId == uid && r.UpdatedAt > updatedAt)
+                .Where(r => r.UserId == uid && r.UpdatedAt > updatedAtUtc)
                 .OrderBy(r => r.UpdatedAt)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)

@@ -15,6 +15,12 @@ namespace BookshelfRepo
         public virtual DbSet<BookHistoricItemField> BookHistoricItemField => Set<BookHistoricItemField>();
 
         public virtual DbSet<BookHistoricItem> BookHistoricItem => Set<BookHistoricItem>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.UseIdentityByDefaultColumns();
+        }
     }
 
     //migrations

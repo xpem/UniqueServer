@@ -20,7 +20,7 @@ namespace UserManagementService
 
             if (!string.IsNullOrEmpty(validateError)) return new BaseResp(ErrorCode.InvalidObject, validateError);
 
-            User user = new() { Name = reqUser.Name, Email = reqUser.Email, Password = reqUser.Password, CreatedAt = DateTime.Now, IsGoogleAuth = false };
+            User user = new() { Name = reqUser.Name, Email = reqUser.Email, Password = reqUser.Password, CreatedAt = DateTime.UtcNow, IsGoogleAuth = false };
 
             string? existingUserMessage = await ValidateExistingUserAsync(user);
             if (existingUserMessage != null) { return new BaseResp(ErrorCode.TryCreateExistingUser, existingUserMessage); }
@@ -66,7 +66,7 @@ namespace UserManagementService
 
             if (user is null)
             {
-                user = new() { Name = name, Email = email, Password = null, CreatedAt = DateTime.Now, IsGoogleAuth = true };
+                user = new() { Name = name, Email = email, Password = null, CreatedAt = DateTime.UtcNow, IsGoogleAuth = true };
                 await userRepo.CreateAsync(user);
             }
 
@@ -80,7 +80,7 @@ namespace UserManagementService
             user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(90);
             await userRepo.UpdateAsync(user);
 
-            UserHistoric userHistoric = new() { UserHistoricTypeId = UserHistoricTypeValues.SignInGoogleAuth, CreatedAt = DateTime.UtcNow, UserId = user.Id, User = user };
+            UserHistoric userHistoric = new() { UserHistoricTypeId = UserHistoricTypeValues.SignInGoogleAuth, CreatedAt = DateTime.UtcNow, UserId = user.Id };
 
             await userHistoricRepo.AddAsync(userHistoric);
 

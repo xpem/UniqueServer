@@ -1,4 +1,4 @@
-Ôªøusing BaseModels;
+using BaseModels;
 using BookshelfModels;
 using BookshelfModels.Response;
 using BookshelfRepo;
@@ -19,7 +19,7 @@ namespace BookshelfServices
                 BookId = book.Id,
                 BookHistoricTypeId = 2,
                 UserId = book.UserId,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow
             };
 
             await AddAsync(bookHistoric);
@@ -31,7 +31,7 @@ namespace BookshelfServices
                     UpdatedFrom = oldBook.Title,
                     UpdatedTo = book.Title,
                     BookHistoricId = bookHistoric.Id,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.UtcNow
                 });
 
             if (oldBook.Subtitle != book.Subtitle)
@@ -41,7 +41,7 @@ namespace BookshelfServices
                     UpdatedFrom = oldBook.Subtitle ?? "",
                     UpdatedTo = book.Subtitle ?? "",
                     BookHistoricId = bookHistoric.Id,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.UtcNow
                 });
 
             if (oldBook.Authors != book.Authors)
@@ -51,7 +51,7 @@ namespace BookshelfServices
                     UpdatedFrom = oldBook.Authors ?? "",
                     UpdatedTo = book.Authors ?? "",
                     BookHistoricId = bookHistoric.Id,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.UtcNow
                 });
 
             if (oldBook.Volume != book.Volume)
@@ -61,7 +61,7 @@ namespace BookshelfServices
                     UpdatedFrom = oldBook.Volume.ToString() ?? "",
                     UpdatedTo = book.Volume.ToString() ?? "",
                     BookHistoricId = bookHistoric.Id,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.UtcNow
                 });
 
             if (oldBook.Pages != book.Pages)
@@ -71,7 +71,7 @@ namespace BookshelfServices
                     UpdatedFrom = oldBook.Pages.ToString() ?? "",
                     UpdatedTo = book.Pages.ToString() ?? "",
                     BookHistoricId = bookHistoric.Id,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.UtcNow
                 });
 
             if (oldBook.Year != book.Year)
@@ -81,7 +81,7 @@ namespace BookshelfServices
                     UpdatedFrom = oldBook.Year.ToString() ?? "",
                     UpdatedTo = book.Year.ToString() ?? "",
                     BookHistoricId = bookHistoric.Id,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.UtcNow
                 });
 
             if (oldBook.Status != book.Status)
@@ -91,7 +91,7 @@ namespace BookshelfServices
                     UpdatedFrom = oldBook.Status.ToString() ?? "",
                     UpdatedTo = book.Status.ToString() ?? "",
                     BookHistoricId = bookHistoric.Id,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.UtcNow
                 });
 
             if (oldBook.Score != book.Score)
@@ -101,7 +101,7 @@ namespace BookshelfServices
                     UpdatedFrom = oldBook.Score.ToString() ?? "",
                     UpdatedTo = book.Score.ToString() ?? "",
                     BookHistoricId = bookHistoric.Id,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.UtcNow
                 });
 
             if (oldBook.Genre != book.Genre)
@@ -111,7 +111,7 @@ namespace BookshelfServices
                     UpdatedFrom = oldBook.Genre ?? "",
                     UpdatedTo = book.Genre ?? "",
                     BookHistoricId = bookHistoric.Id,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.UtcNow
                 });
 
             if (oldBook.Isbn != book.Isbn)
@@ -121,7 +121,7 @@ namespace BookshelfServices
                     UpdatedFrom = oldBook.Isbn ?? "",
                     UpdatedTo = book.Isbn ?? "",
                     BookHistoricId = bookHistoric.Id,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.UtcNow
                 });
 
             await bookHistoricDAL.AddRangeItemListAsync(bookHistoricItemList);
@@ -137,7 +137,7 @@ namespace BookshelfServices
 
             if (bookId is not null)
                 bookHistorics = await bookHistoricDAL.GetByBookId(bookId.Value, uid);
-            else return new BaseResp("sem parametro v√°lido de busca");
+            else return new BaseResp("sem parametro v·lido de busca");
 
             var resBookHistorics = BuildList(bookHistorics);
 
@@ -150,7 +150,7 @@ namespace BookshelfServices
 
             if (createdAt.HasValue)
                 bookHistorics = await bookHistoricDAL.GetByCreatedAtAsync(createdAt.Value, page, pageSize, uid);
-            else return new BaseResp("sem parametro v√°lido de busca");
+            else return new BaseResp("sem parametro v·lido de busca");
 
             var resBookHistorics = BuildList(bookHistorics);
 

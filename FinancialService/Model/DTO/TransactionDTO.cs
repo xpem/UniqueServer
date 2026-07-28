@@ -10,7 +10,7 @@ namespace FinancialService.Model.DTO
 
         public required DateTime CreatedAt { get; set; }
 
-        public DateTime UpdatedAt { get; set; } = DateTime.Now;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
         [StringLength(100)]
         public required string Description { get; set; }

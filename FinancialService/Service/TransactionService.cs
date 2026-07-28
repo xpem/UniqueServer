@@ -34,7 +34,7 @@ namespace FinancialService.Service
                     existing.UpdatedAt = DateTime.UtcNow;
                     existing.Inactive = req.Inactive;
                     existing.Description = req.Description;
-                    existing.Date = req.Date;
+                    existing.Date = DateTime.SpecifyKind(req.Date, DateTimeKind.Utc);
                     existing.Amount = req.Amount;
                     existing.Repetition = req.Repetition;
                     existing.TotalInstallments = req.TotalInstallments;
@@ -59,7 +59,7 @@ namespace FinancialService.Service
                     UpdatedAt = DateTime.UtcNow,
                     Inactive = req.Inactive,
                     Description = req.Description,
-                    Date = req.Date,
+                    Date = DateTime.SpecifyKind(req.Date, DateTimeKind.Utc),
                     Amount = req.Amount,
                     Repetition = req.Repetition,
                     TotalInstallments = req.TotalInstallments,
@@ -96,7 +96,7 @@ namespace FinancialService.Service
                 UpdatedAt = DateTime.UtcNow,
                 Inactive = req.Inactive,
                 Description = req.Description,
-                Date = req.Date,
+                Date = DateTime.SpecifyKind(req.Date, DateTimeKind.Utc),
                 Amount = req.Amount,
                 Repetition = req.Repetition,
                 TotalInstallments = req.TotalInstallments,
@@ -125,7 +125,7 @@ namespace FinancialService.Service
 
             transaction.UpdatedAt = DateTime.UtcNow;
             transaction.Description = req.Description;
-            transaction.Date = req.Date;
+            transaction.Date = DateTime.SpecifyKind(req.Date, DateTimeKind.Utc);
             transaction.Amount = req.Amount;
             transaction.Type = req.Type;
             transaction.CategoryId = req.CategoryId;

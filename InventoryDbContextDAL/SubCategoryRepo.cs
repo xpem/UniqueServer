@@ -1,4 +1,4 @@
-﻿using InventoryModels.DTOs;
+using InventoryModels.DTOs;
 using InventoryRepos.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,8 +17,9 @@ namespace InventoryRepos
 
         public async Task<List<SubCategory>> GetByAfterUpdatedAtAsync(int uid, DateTime updatedAt, int page, int pageSize)
         {
+            DateTime updatedAtUtc = DateTime.SpecifyKind(updatedAt, DateTimeKind.Utc);
             using var context = dbCtx.CreateDbContext();
-            return await context.SubCategory.Where(x => (x.UserId == uid || x.UserId == null && x.SystemDefault) && x.UpdatedAt > updatedAt).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+            return await context.SubCategory.Where(x => (x.UserId == uid || x.UserId == null && x.SystemDefault) && x.UpdatedAt > updatedAtUtc).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
         }
 
         public async Task<List<SubCategory>?> GetByCategoryIdAsync(int uid, int categoryId)
@@ -44,7 +45,7 @@ namespace InventoryRepos
         public async Task<int> UpdateAsync(SubCategory subCategory)
         {
 
-            subCategory.UpdatedAt = DateTime.Now;
+            subCategory.UpdatedAt = DateTime.UtcNow;
 
             using var context = dbCtx.CreateDbContext();
             context.ChangeTracker?.Clear();

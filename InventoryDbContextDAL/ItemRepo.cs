@@ -1,4 +1,4 @@
-﻿using InventoryModels.DTOs;
+using InventoryModels.DTOs;
 using InventoryModels.Req;
 using InventoryModels.Res.Item;
 using InventoryRepos.Interfaces;
@@ -43,7 +43,7 @@ namespace InventoryRepos
             return context.Item.Where(x => x.UserId == uid && x.Id == id).ExecuteUpdate(y => y
                .SetProperty(z => z.Image1, fileName1)
                .SetProperty(z => z.Image2, fileName2)
-               .SetProperty(z => z.UpdatedAt, DateTime.Now)
+               .SetProperty(z => z.UpdatedAt, DateTime.UtcNow)
                );
         }
 

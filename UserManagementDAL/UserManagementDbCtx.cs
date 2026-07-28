@@ -19,5 +19,20 @@ namespace UserManagementRepo
 
         //to remove last migration snapshot
         //EntityFrameworkCore\Remove-Migration -Context UserManagementDbContext 
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.Property(e => e.Id).UseIdentityByDefaultColumn();
+            });
+
+            modelBuilder.Entity<UserHistoric>(entity =>
+            {
+                entity.Property(e => e.Id).UseIdentityByDefaultColumn();
+            });
+        }
     }
 }

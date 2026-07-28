@@ -23,8 +23,9 @@ namespace BookshelfRepo
 
         public async Task<List<BookHistoric>> GetByCreatedAtAsync(DateTime createdAt, int page, int pageSize, int uid)
         {
+            DateTime createdAtUtc = DateTime.SpecifyKind(createdAt, DateTimeKind.Utc);
             using var context = dbCtx.CreateDbContext();
-            return await context.BookHistoric.Where(x => x.UserId == uid && x.CreatedAt > createdAt)
+            return await context.BookHistoric.Where(x => x.UserId == uid && x.CreatedAt > createdAtUtc)
                                 .Include(x => x.BookHistoricItems)
                                 .ThenInclude(bhi => bhi.BookHistoricItemField)
                                 .Include(x => x.BookHistoricType)

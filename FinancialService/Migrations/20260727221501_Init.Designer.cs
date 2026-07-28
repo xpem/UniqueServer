@@ -3,6 +3,7 @@ using System;
 using FinancialService.Repo;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FinancialService.Migrations
 {
     [DbContext(typeof(FinancialDbctx))]
-    partial class FinancialDbctxModelSnapshot : ModelSnapshot
+    [Migration("20260727221501_Init")]
+    partial class Init
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,8 +40,7 @@ namespace FinancialService.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal>("CurrentBalance")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<bool>("Inactive")
                         .HasColumnType("boolean");
@@ -82,8 +84,7 @@ namespace FinancialService.Migrations
                         .HasColumnType("integer");
 
                     b.Property<decimal>("Amount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<int?>("CategoryId")
                         .HasColumnType("integer");
@@ -190,8 +191,7 @@ namespace FinancialService.Migrations
                         .HasColumnType("integer");
 
                     b.Property<decimal>("Amount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<int?>("CategoryId")
                         .HasColumnType("integer");

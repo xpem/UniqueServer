@@ -1,4 +1,4 @@
-﻿using BaseModels;
+using BaseModels;
 using BookshelfModels;
 using BookshelfModels.Request;
 using BookshelfModels.Response;
@@ -19,9 +19,9 @@ namespace BookshelfServices
 
             if (!string.IsNullOrEmpty(validateError)) return new BaseResp(ErrorCode.InvalidObject, validateError);
 
-            // ═══════════════════════════════════════════════════════════════════════
+            // -----------------------------------------------------------------------
             // UPSERT BY BookId: If provided, use GUID-based deduplication
-            // ═══════════════════════════════════════════════════════════════════════
+            // -----------------------------------------------------------------------
             Guid? bookId = reqBook.BookId is not null && reqBook.BookId.Value != Guid.Empty
                 ? reqBook.BookId.Value
                 : null;
@@ -89,8 +89,8 @@ namespace BookshelfServices
                 Isbn = reqBook.Isbn,
                 GoogleId = reqBook.GoogleId,
                 Inactive = false,
-                CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
                 UserId = uid,
                 BookId = bookId ?? Guid.NewGuid(),
             };
@@ -107,7 +107,7 @@ namespace BookshelfServices
                 BookId = book.Id,
                 BookHistoricTypeId = 1,
                 UserId = book.UserId,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow
             };
 
             await bookHistoricBLL.AddAsync(bookHistoric);
@@ -176,7 +176,7 @@ namespace BookshelfServices
 
             if (NewBookHasChanges(oldBook, newBook))
             {
-                newBook.UpdatedAt = DateTime.Now;
+                newBook.UpdatedAt = DateTime.UtcNow;
 
                 await bookRepo.UpdateAsync(newBook);
 
@@ -235,7 +235,7 @@ namespace BookshelfServices
                     BookId = oldBook.Id,
                     BookHistoricTypeId = 4,
                     UserId = oldBook.UserId,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.UtcNow
                 };
 
                 await bookHistoricBLL.AddAsync(bookHistoric);

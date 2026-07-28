@@ -25,19 +25,24 @@ namespace FinancialService.Repo
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.UseIdentityByDefaultColumns();
+
             modelBuilder.Entity<TransactionDTO>(entity =>
             {
                 entity.HasIndex(e => new { e.TransactionId, e.UserId })
                     .IsUnique()
-                    .HasFilter("`TransactionId` IS NOT NULL")
+                    .HasFilter("\"TransactionId\" IS NOT NULL")
                     .HasDatabaseName("IX_Transaction_TransactionId_UserId");
+
+                entity.Property(e => e.Amount)
+                    .HasPrecision(18, 2);
             });
 
             modelBuilder.Entity<TransactionCategoryDTO>(entity =>
             {
                 entity.HasIndex(e => new { e.CategoryId, e.UserId })
                     .IsUnique()
-                    .HasFilter("`CategoryId` IS NOT NULL")
+                    .HasFilter("\"CategoryId\" IS NOT NULL")
                     .HasDatabaseName("IX_TransactionCategory_CategoryId_UserId");
             });
 
@@ -45,8 +50,17 @@ namespace FinancialService.Repo
             {
                 entity.HasIndex(e => new { e.AccountId, e.UserId })
                     .IsUnique()
-                    .HasFilter("`AccountId` IS NOT NULL")
+                    .HasFilter("\"AccountId\" IS NOT NULL")
                     .HasDatabaseName("IX_Account_AccountId_UserId");
+
+                entity.Property(e => e.CurrentBalance)
+                    .HasPrecision(18, 2);
+            });
+
+            modelBuilder.Entity<RecurringRuleDTO>(entity =>
+            {
+                entity.Property(e => e.Amount)
+                    .HasPrecision(18, 2);
             });
         }
     }
