@@ -6,7 +6,6 @@ using UserManagementModels.Request.User;
 using UserManagementService.Functions;
 using UserManagementService.Interfaces;
 
-
 namespace UniqueServer.Controllers
 {
     [Route("[Controller]")]
@@ -29,6 +28,27 @@ namespace UniqueServer.Controllers
         [Route("Session/Google")]
         [HttpPost]
         public async Task<IActionResult> GoogleSignIn(ReqGoogleSignIn reqGoogleSignIn) => BuildResponse(await userService.GoogleAuthAsync(reqGoogleSignIn.IdToken));
+
+        [Route("Session/Google/Start")]
+        [HttpGet]
+        public async Task<IActionResult> GoogleSignInStart()
+        {
+            string callbackUrl = $"{Request.Scheme}://{Request.Host}{(hostingEnvironment.IsProduction() ? "/api" : "")}/user/session/google/callback";
+            string googleUrl = await userService.GoogleAuthStartAsync(callbackUrl);
+            return Redirect(googleUrl);
+        }
+
+        [Route("Session/Google/Callback")]
+        [HttpGet]
+        public async Task<IActionResult> GoogleSignInCallback([FromQuery] string? code, [FromQuery] string? error)
+        {
+            if (!string.IsNullOrEmpty(error) || string.IsNullOrEmpty(code))
+                return Redirect($"com.xpem.xpemfinancial://oauth2?error={Uri.EscapeDataString(error ?? "cancelled")}");
+
+            string callbackUrl = $"{Request.Scheme}://{Request.Host}{(hostingEnvironment.IsProduction() ? "/api" : "")}/user/session/google/callback";
+            (string appUri, _) = await userService.GoogleAuthCallbackAsync(code, callbackUrl);
+            return Redirect(appUri);
+        }
 
         [Route("")]
         [HttpGet]
