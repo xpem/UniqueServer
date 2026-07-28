@@ -30,35 +30,29 @@ namespace UniqueServer
             string? userManagementfConn = GetConfigValue(Configuration, "ConnectionStrings:UserManagementConn");
             string? financialConn = GetConfigValue(Configuration, "ConnectionStrings:FinancialConn");
 
-            // Use a hardcoded server version instead of ServerVersion.AutoDetect.
-            // AutoDetect opens a real connection to the database at DI registration time,
-            // which causes the entire service to fail to start if the database is temporarily
-            // unreachable during startup.
-            var mysqlVersion = new MySqlServerVersion(new Version(8, 0, 42));
-
-            services.AddDbContextFactory<BookshelfDbCtx>(options => options.UseMySql(bookshelfConn, mysqlVersion,
+            services.AddDbContextFactory<BookshelfDbCtx>(options => options.UseNpgsql(bookshelfConn,
                 options => options.EnableRetryOnFailure(
                     maxRetryCount: 5,
                     maxRetryDelay: System.TimeSpan.FromSeconds(30),
-                    errorNumbersToAdd: null)));
+                    errorCodesToAdd: null)));
 
-            services.AddDbContextFactory<InventoryDbCtx>(options => options.UseMySql(inventoryConn, mysqlVersion,
+            services.AddDbContextFactory<InventoryDbCtx>(options => options.UseNpgsql(inventoryConn,
                 options => options.EnableRetryOnFailure(
                     maxRetryCount: 5,
                     maxRetryDelay: System.TimeSpan.FromSeconds(30),
-                    errorNumbersToAdd: null)));
+                    errorCodesToAdd: null)));
 
-            services.AddDbContextFactory<FinancialDbctx>(options => options.UseMySql(financialConn, mysqlVersion,
+            services.AddDbContextFactory<FinancialDbctx>(options => options.UseNpgsql(financialConn,
                 options => options.EnableRetryOnFailure(
                     maxRetryCount: 5,
                     maxRetryDelay: System.TimeSpan.FromSeconds(30),
-                    errorNumbersToAdd: null)));
+                    errorCodesToAdd: null)));
 
-            services.AddDbContextFactory<UserManagementDbCtx>(options => options.UseMySql(userManagementfConn, mysqlVersion,
+            services.AddDbContextFactory<UserManagementDbCtx>(options => options.UseNpgsql(userManagementfConn,
                 options => options.EnableRetryOnFailure(
                     maxRetryCount: 5,
                     maxRetryDelay: System.TimeSpan.FromSeconds(30),
-                    errorNumbersToAdd: null)));
+                    errorCodesToAdd: null)));
 
             return services;
         }

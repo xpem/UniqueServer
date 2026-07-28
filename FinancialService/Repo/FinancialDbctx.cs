@@ -29,7 +29,7 @@ namespace FinancialService.Repo
             {
                 entity.HasIndex(e => new { e.TransactionId, e.UserId })
                     .IsUnique()
-                    .HasFilter("`TransactionId` IS NOT NULL")
+                    .HasFilter("\"TransactionId\" IS NOT NULL")
                     .HasDatabaseName("IX_Transaction_TransactionId_UserId");
             });
 
@@ -37,7 +37,7 @@ namespace FinancialService.Repo
             {
                 entity.HasIndex(e => new { e.CategoryId, e.UserId })
                     .IsUnique()
-                    .HasFilter("`CategoryId` IS NOT NULL")
+                    .HasFilter("\"CategoryId\" IS NOT NULL")
                     .HasDatabaseName("IX_TransactionCategory_CategoryId_UserId");
             });
 
@@ -45,7 +45,7 @@ namespace FinancialService.Repo
             {
                 entity.HasIndex(e => new { e.AccountId, e.UserId })
                     .IsUnique()
-                    .HasFilter("`AccountId` IS NOT NULL")
+                    .HasFilter("\"AccountId\" IS NOT NULL")
                     .HasDatabaseName("IX_Account_AccountId_UserId");
             });
         }
