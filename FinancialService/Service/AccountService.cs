@@ -60,7 +60,7 @@ namespace FinancialService.Service
                 UpdatedAt = DateTime.UtcNow,
                 Inactive = req.Transaction.Inactive,
                 Description = req.Transaction.Description,
-                Date = req.Transaction.Date,
+                Date = DateTime.SpecifyKind(req.Transaction.Date, DateTimeKind.Utc),
                 Amount = req.Transaction.Amount,
                 Repetition = req.Transaction.Repetition,
                 TotalInstallments = req.Transaction.TotalInstallments,

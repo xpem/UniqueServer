@@ -1,4 +1,4 @@
-ï»¿using BaseModels;
+using BaseModels;
 using InventoryBLL.Interfaces;
 using InventoryModels.DTOs;
 using InventoryModels.Req;
@@ -29,8 +29,8 @@ namespace InventoryBLL
                     IconName = iconName,
                     UserId = uid,
                     CategoryId = reqSubCategory.CategoryId,
-                    CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
                     SystemDefault = false
                 };
 
@@ -49,7 +49,7 @@ namespace InventoryBLL
                     return new BaseResp(resSubCategory);
                 }
                 else
-                    return new BaseResp(ErrorCode.ErrorCreatingObject, "NÃ£o foi possivel adicionar.");
+                    return new BaseResp(ErrorCode.ErrorCreatingObject, "Não foi possivel adicionar.");
             }
             catch { throw; }
         }
@@ -73,7 +73,7 @@ namespace InventoryBLL
                 if (respExec == 1)
                     return new BaseResp(null);
                 else
-                    return new BaseResp(ErrorCode.ErrorDeletingObject, "NÃ£o foi possivel deletar.");
+                    return new BaseResp(ErrorCode.ErrorDeletingObject, "Não foi possivel deletar.");
             }
             catch { throw; }
         }
@@ -127,7 +127,7 @@ namespace InventoryBLL
                     return new BaseResp(resSubCategory);
                 }
                 else
-                    return new BaseResp(ErrorCode.ErrorUpdatingObject, "NÃ£o foi possivel atualizar.");
+                    return new BaseResp(ErrorCode.ErrorUpdatingObject, "Não foi possivel atualizar.");
             }
             catch { throw; }
         }

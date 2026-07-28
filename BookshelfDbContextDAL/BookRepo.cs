@@ -1,4 +1,4 @@
-﻿using BookshelfModels;
+using BookshelfModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookshelfRepo
@@ -31,8 +31,9 @@ namespace BookshelfRepo
 
         public async Task<List<Book>> GetBooksAfterUpdatedAtAsync(DateTime updatedAt, int page, int pageSize, int uid)
         {
+            DateTime updatedAtUtc = DateTime.SpecifyKind(updatedAt, DateTimeKind.Utc);
             using var context = dbCtx.CreateDbContext();
-            return await context.Book.Where(x => x.UpdatedAt > updatedAt && x.UserId == uid).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+            return await context.Book.Where(x => x.UpdatedAt > updatedAtUtc && x.UserId == uid).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
         }
 
         public async Task<int> InactivateAsync(int bookId, int userId)
@@ -42,7 +43,7 @@ namespace BookshelfRepo
 
             context.Book.Where(x => x.UserId == userId && x.Id == bookId).ExecuteUpdate(
                 y => y.SetProperty(z => z.Inactive, true)
-                .SetProperty(z => z.UpdatedAt, DateTime.Now));
+                .SetProperty(z => z.UpdatedAt, DateTime.UtcNow));
 
             return await context.SaveChangesAsync();
         }

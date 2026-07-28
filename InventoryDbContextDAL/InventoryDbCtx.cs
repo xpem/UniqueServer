@@ -5,12 +5,6 @@ namespace InventoryRepos
 {
     public class InventoryDbCtx(DbContextOptions<InventoryDbCtx> options) : DbContext(options)
     {
-        //public InventoryDbContext(DbContextOptions<InventoryDbContext> options)
-        //   : base(options)
-        //{
-        //    ApplyMigrations(this);
-        //}
-
         public virtual DbSet<Category> Category => Set<Category>();
 
         public virtual DbSet<SubCategory> SubCategory => Set<SubCategory>();
@@ -21,13 +15,11 @@ namespace InventoryRepos
 
         public virtual DbSet<Item> Item => Set<Item>();
 
-        //public void ApplyMigrations(InventoryDbContext context)
-        //{
-        //    if (context.Database.GetPendingMigrations().Any())
-        //    {
-        //        context.Database.Migrate();
-        //    }
-        //}
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.UseIdentityByDefaultColumns();
+        }
 
         //migrations
         //no console do gerenciador de pacotes selecione o dal referente:

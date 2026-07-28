@@ -1,4 +1,4 @@
-Ôªøusing BaseModels;
+using BaseModels;
 using InventoryModels.DTOs;
 using InventoryModels.Req;
 using InventoryModels.Res;
@@ -22,7 +22,7 @@ namespace InventoryBLL
                 string? validateError = reqItem.Validate();
                 if (!string.IsNullOrEmpty(validateError)) return new BaseResp(ErrorCode.InvalidObject, validateError);
 
-                //to do, n√£o preciso validar os indices, ser√£o validados pelas foreign keys no banco
+                //to do, n„o preciso validar os indices, ser„o validados pelas foreign keys no banco
                 //string? validateIndexes = await ValidateIndexes(reqItem, uid);
                 //if (!string.IsNullOrEmpty(validateIndexes)) return new BaseResponse(null, validateIndexes);
 
@@ -31,10 +31,10 @@ namespace InventoryBLL
                     AcquisitionDate = reqItem.AcquisitionDate,
                     AcquisitionTypeId = reqItem.AcquisitionType,
                     CategoryId = reqItem.Category.CategoryId,
-                    CreatedAt = DateTime.Now,
+                    CreatedAt = DateTime.UtcNow,
                     ItemSituationId = reqItem.SituationId,
                     Name = reqItem.Name,
-                    UpdatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.UtcNow,
                     UserId = uid,
                     Comment = reqItem.Comment,
                     PurchaseStore = reqItem.PurchaseStore,
@@ -59,10 +59,10 @@ namespace InventoryBLL
 
                             return new BaseResp(resItem);
                         }
-                        else throw new Exception($"N√£o foi possivel recuperar o item de id: {item.Id}");
+                        else throw new Exception($"N„o foi possivel recuperar o item de id: {item.Id}");
                     }
                     else
-                        return new BaseResp(ErrorCode.ErrorCreatingObject, "N√£o foi possivel adicionar.");
+                        return new BaseResp(ErrorCode.ErrorCreatingObject, "N„o foi possivel adicionar.");
                 }
                 catch (Exception ex) { throw ex; }
             }
@@ -112,7 +112,7 @@ namespace InventoryBLL
                 return new BaseResp(1);
             }
             else
-                return new BaseResp(ErrorCode.ErrorDeletingObject, "N√£o foi possivel excluir.");
+                return new BaseResp(ErrorCode.ErrorDeletingObject, "N„o foi possivel excluir.");
         }
 
         public async Task<BaseResp> DeleteItemImage(int uid, int id, string fileName, string filePath)
@@ -146,10 +146,10 @@ namespace InventoryBLL
 
                     return new BaseResp(resItem);
                 }
-                else throw new Exception($"N√£o foi possivel recuperar o item de id: {item.Id}");
+                else throw new Exception($"N„o foi possivel recuperar o item de id: {item.Id}");
             }
             else
-                return new BaseResp(ErrorCode.ErrorUpdatingObject, "N√£o foi possivel atualizar o Item.");
+                return new BaseResp(ErrorCode.ErrorUpdatingObject, "N„o foi possivel atualizar o Item.");
         }
 
         public async Task<BaseResp> GetAsync(int uid, int page)
@@ -301,7 +301,7 @@ namespace InventoryBLL
                 CreatedAt = oldItem.CreatedAt,
                 ItemSituationId = reqItem.SituationId,
                 Name = reqItem.Name,
-                UpdatedAt = DateTime.Now,
+                UpdatedAt = DateTime.UtcNow,
                 UserId = oldItem.UserId,
                 Comment = reqItem.Comment,
                 PurchaseStore = reqItem.PurchaseStore,
@@ -324,10 +324,10 @@ namespace InventoryBLL
 
                     return new BaseResp(resItem);
                 }
-                else throw new Exception($"N√£o foi possivel recuperar o item de id: {item.Id}");
+                else throw new Exception($"N„o foi possivel recuperar o item de id: {item.Id}");
             }
             else
-                return new BaseResp(ErrorCode.ErrorCreatingObject, "N√£o foi possivel adicionar.");
+                return new BaseResp(ErrorCode.ErrorCreatingObject, "N„o foi possivel adicionar.");
         }
 
         public BaseResp UpdateItemFileNames(int uid, int id, string? fileName1, string? fileName2)
@@ -337,7 +337,7 @@ namespace InventoryBLL
             if (respExec == 1)
                 return new BaseResp(new ResItemImages { Image1 = fileName1, Image2 = fileName2 });
             else
-                return new BaseResp(ErrorCode.ErrorUpdatingObject, "N√£o foi possivel atualizar.");
+                return new BaseResp(ErrorCode.ErrorUpdatingObject, "N„o foi possivel atualizar.");
         }
 
         public async Task<bool> CheckItemImageNameAsync(int uid, int id, string imageName) => await itemRepo.CheckItemImageNameAsync(uid, id, imageName);

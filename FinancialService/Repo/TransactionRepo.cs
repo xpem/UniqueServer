@@ -33,9 +33,10 @@ namespace FinancialService.Repo
 
         public async Task<List<TransactionDTO>> GetByUpdatedAtAsync(int uid, DateTime updatedAt, int page, int pageSize)
         {
+            DateTime updatedAtUtc = DateTime.SpecifyKind(updatedAt, DateTimeKind.Utc);
             using FinancialDbctx context = await dbCtx.CreateDbContextAsync();
             return await context.Transaction
-                .Where(t => t.UserId == uid && t.UpdatedAt > updatedAt)
+                .Where(t => t.UserId == uid && t.UpdatedAt > updatedAtUtc)
                 .OrderBy(t => t.UpdatedAt)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)

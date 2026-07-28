@@ -5,7 +5,7 @@ namespace InventoryModels.DTOs
 {
     public class InventoryBaseModel : BaseModel
     {
-        public DateTime UpdatedAt { get; set; } = DateTime.Now;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
         public bool SystemDefault { get; set; } = false;
 

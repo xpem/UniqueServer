@@ -11,7 +11,7 @@ namespace FinancialService.Model.DTO
 
         public required DateTime CreatedAt { get; set; }
 
-        public DateTime UpdatedAt { get; set; } = DateTime.Now;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
         public bool SystemDefault { get; set; } = false;
 

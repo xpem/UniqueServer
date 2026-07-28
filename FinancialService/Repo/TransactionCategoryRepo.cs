@@ -15,9 +15,10 @@ namespace FinancialService.Repo
     {
         public async Task<List<TransactionCategoryDTO>> GetByUid(int uid, DateTime updatedAt, int page, int pageSize)
         {
+            DateTime updatedAtUtc = DateTime.SpecifyKind(updatedAt, DateTimeKind.Utc);
             using FinancialDbctx context = await dbCtx.CreateDbContextAsync();
             List<TransactionCategoryDTO> categories = await context.TransactionCategory
-                .Where(c => (c.UserId == uid || c.SystemDefault) && c.UpdatedAt > updatedAt)
+                .Where(c => (c.UserId == uid || c.SystemDefault) && c.UpdatedAt > updatedAtUtc)
                 .OrderBy(c => c.UpdatedAt)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
