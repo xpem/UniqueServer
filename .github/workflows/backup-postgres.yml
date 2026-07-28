@@ -30,7 +30,7 @@ jobs:
           BACKUP_FILE="${{ env.BACKUP_DIR }}/all_databases_$DATE.sql.gz"
 
           pg_dumpall \
-            -h "${{ secrets.DB_HOST }}" \
+            -h 127.0.0.1 \
             -U "${{ secrets.DB_USER }}" | gzip > "$BACKUP_FILE"
 
           echo "Backup criado: $BACKUP_FILE ($(du -h "$BACKUP_FILE" | cut -f1))"
