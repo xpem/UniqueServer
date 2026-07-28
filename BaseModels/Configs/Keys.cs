@@ -4,5 +4,5 @@
 
     public record EncryptKeys(string passwordHash, string saltKey, string viKey);
 
-    public record GoogleAuthKeys(string clientId);
+    public record GoogleAuthKeys(string clientId, string clientSecret);
 }
