@@ -33,8 +33,7 @@ namespace UniqueServer.Controllers
         [HttpGet]
         public async Task<IActionResult> GoogleSignInStart()
         {
-            string callbackUrl = $"{Request.Scheme}://{Request.Host}{(hostingEnvironment.IsProduction() ? "/api" : "")}/user/session/google/callback";
-            string googleUrl = await userService.GoogleAuthStartAsync(callbackUrl);
+            string googleUrl = await userService.GoogleAuthStartAsync();
             return Redirect(googleUrl);
         }
 
@@ -45,8 +44,7 @@ namespace UniqueServer.Controllers
             if (!string.IsNullOrEmpty(error) || string.IsNullOrEmpty(code))
                 return Redirect($"com.xpem.xpemfinancial://oauth2?error={Uri.EscapeDataString(error ?? "cancelled")}");
 
-            string callbackUrl = $"{Request.Scheme}://{Request.Host}{(hostingEnvironment.IsProduction() ? "/api" : "")}/user/session/google/callback";
-            (string appUri, _) = await userService.GoogleAuthCallbackAsync(code, callbackUrl);
+            (string appUri, _) = await userService.GoogleAuthCallbackAsync(code);
             return Redirect(appUri);
         }
 

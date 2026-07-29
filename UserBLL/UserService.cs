@@ -92,11 +92,11 @@ namespace UserManagementService
             return new BaseResp(resToken);
         }
 
-        public Task<string> GoogleAuthStartAsync(string redirectUri)
+        public Task<string> GoogleAuthStartAsync()
         {
             string url = "https://accounts.google.com/o/oauth2/v2/auth" +
                 $"?client_id={Uri.EscapeDataString(googleAuthKeys.clientId)}" +
-                $"&redirect_uri={Uri.EscapeDataString(redirectUri)}" +
+                $"&redirect_uri={Uri.EscapeDataString(googleAuthKeys.callbackUrl)}" +
                 "&response_type=code" +
                 "&scope=openid%20email%20profile" +
                 "&access_type=offline";
@@ -104,9 +104,8 @@ namespace UserManagementService
             return Task.FromResult(url);
         }
 
-        public async Task<(string appRedirectUri, string? error)> GoogleAuthCallbackAsync(string code, string redirectUri)
+        public async Task<(string appRedirectUri, string? error)> GoogleAuthCallbackAsync(string code)
         {
-            // Troca o authorization code por tokens junto ao Google
             using HttpClient http = new();
             var tokenResp = await http.PostAsync("https://oauth2.googleapis.com/token",
                 new FormUrlEncodedContent(new Dictionary<string, string>
@@ -114,7 +113,7 @@ namespace UserManagementService
                     ["code"]          = code,
                     ["client_id"]     = googleAuthKeys.clientId,
                     ["client_secret"] = googleAuthKeys.clientSecret,
-                    ["redirect_uri"]  = redirectUri,
+                    ["redirect_uri"]  = googleAuthKeys.callbackUrl,
                     ["grant_type"]    = "authorization_code",
                 }));
 
@@ -130,17 +129,15 @@ namespace UserManagementService
 
             string idToken = idTokenElem.GetString()!;
 
-            // Reutiliza a lógica existente de validação e criação/login do usuário
             BaseResp authResp = await GoogleAuthAsync(idToken);
 
             if (!authResp.Success)
                 return ($"com.xpem.xpemfinancial://oauth2?error={Uri.EscapeDataString(authResp.Error?.Message ?? "auth_failed")}", null);
 
-            // authResp.Content é um ResToken — serializa e extrai token + refreshToken
             string json = JsonSerializer.Serialize(authResp.Content);
             JsonDocument resDoc = JsonDocument.Parse(json);
-            string? apiToken      = resDoc.RootElement.TryGetProperty("Token", out var t) ? t.GetString() : null;
-            string? apiRefresh    = resDoc.RootElement.TryGetProperty("RefreshToken", out var r) ? r.GetString() : null;
+            string? apiToken   = resDoc.RootElement.TryGetProperty("Token", out var t) ? t.GetString() : null;
+            string? apiRefresh = resDoc.RootElement.TryGetProperty("RefreshToken", out var r) ? r.GetString() : null;
 
             if (string.IsNullOrWhiteSpace(apiToken))
                 return ($"com.xpem.xpemfinancial://oauth2?error=no_api_token", null);
