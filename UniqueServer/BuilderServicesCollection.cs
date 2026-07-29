@@ -94,7 +94,8 @@ namespace UniqueServer
 
             services.AddSingleton(new BaseModels.Configs.GoogleAuthKeys(
                 GetConfigValue(Configuration, "GoogleAuth:ClientId"),
-                GetConfigValue(Configuration, "GoogleAuth:ClientSecret")));
+                GetConfigValue(Configuration, "GoogleAuth:ClientSecret"),
+                GetConfigValue(Configuration, "GoogleAuth:CallbackUrl")));
 
             services.AddScoped<ISendRecoverPasswordEmailService, SendRecoverPasswordEmailService>(p =>
             new SendRecoverPasswordEmailService(
