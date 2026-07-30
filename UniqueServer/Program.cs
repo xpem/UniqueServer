@@ -2,18 +2,34 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using Serilog;
+using Serilog.Events;
+using Serilog.Sinks.Grafana.Loki;
 using System.Text;
 using UniqueServer;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Error()
     .MinimumLevel.Information()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+    .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Error)
+    .MinimumLevel.Override("System", LogEventLevel.Warning)
     .WriteTo.File(Path.Combine("logs", "uniqueServer.txt"), rollingInterval: RollingInterval.Day)
-    .CreateLogger();
+    .WriteTo.GrafanaLoki(builder.Configuration["Grafana:Url"],
+    restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information,
+    credentials: new LokiCredentials
+    {
+        Login = builder.Configuration["Grafana:User"],
+        Password = builder.Configuration["Grafana:Password"]
+    },
+    labels:
+    [
+        new LokiLabel { Key = "app", Value = builder.Configuration["Grafana:Name"] },
+        new LokiLabel { Key = "env", Value = builder.Environment.EnvironmentName.ToLower() }
+    ])
+.CreateLogger();
 
-builder.Logging.AddSerilog();
+builder.Logging.AddSerilog(dispose: true);
 
 builder.Services.AddControllers();
 
@@ -23,7 +39,7 @@ builder.Services.AddOpenApi("v1", options =>
     {
         document.Info = new()
         {
-            Version = "1.34.3",
+            Version = "1.44.3",
             Title = "Unique Server",
             Description = "Routes of apis for Bookshelf, Users Management and Inventory projects",
         };
@@ -113,4 +129,11 @@ app.UseAuthorization();
 
 app.MapControllers().RequireRateLimiting("fixed");
 
-app.Run();
+try
+{
+    app.Run();
+}
+finally
+{
+    Log.CloseAndFlush();
+}

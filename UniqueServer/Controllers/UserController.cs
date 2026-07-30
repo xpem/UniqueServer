@@ -19,7 +19,17 @@ namespace UniqueServer.Controllers
 
         [Route("Session")]
         [HttpPost]
-        public async Task<IActionResult> SignIn(ReqUserSession reqUserSession) => BuildResponse(await userService.GenerateTokenAsync(reqUserSession));
+        public async Task<IActionResult> SignIn(ReqUserSession reqUserSession)
+        {
+            var result = await userService.GenerateTokenAsync(reqUserSession);
+
+            if (result.Success)
+                logger.LogInformation("SignIn success: {Email}", reqUserSession.Email);
+            else
+                logger.LogWarning("SignIn failed: {Email} — {Error}", reqUserSession.Email, result.Error?.Message);
+
+            return BuildResponse(result);
+        }
 
         [Route("Session/Refresh")]
         [HttpPost]
