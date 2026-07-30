@@ -60,12 +60,9 @@
   <ItemGroup>
     <ProjectReference Include="..\BaseModels\BaseModels.csproj" />
     <ProjectReference Include="..\BookshelfService\BookshelfServices.csproj" />
-    <ProjectReference Include="..\BookshelfDbContextDAL\BookshelfRepo.csproj" />
     <ProjectReference Include="..\FinancialService\FinancialService.csproj" />
-    <ProjectReference Include="..\InventoryDbContextDAL\InventoryRepo.csproj" />
     <ProjectReference Include="..\InventoryService\InventoryServices.csproj" />
     <ProjectReference Include="..\UserService\UserManagementService.csproj" />
-    <ProjectReference Include="..\UserManagementDAL\UserManagementRepo.csproj" />
   </ItemGroup>
 
   <ItemGroup>

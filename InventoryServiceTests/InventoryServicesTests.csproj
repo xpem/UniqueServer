@@ -22,8 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\InventoryDbContextDAL\InventoryRepo.csproj" />
-    <ProjectReference Include="..\InventoryModels\InventoryModels.csproj" />
     <ProjectReference Include="..\InventoryService\InventoryServices.csproj" />
   </ItemGroup>
 

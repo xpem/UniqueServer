@@ -45,7 +45,7 @@ namespace UserManagementRepoTests
             encryptionService.Setup(x => x.Encrypt(It.IsAny<string>())).Returns(encryptedPassword);
             jwtTokenService.Setup(x => x.GenerateToken(userResp.Id, userResp.Email, It.IsAny<DateTime>())).Returns(encryptedtoken);
 
-            UserService userService = new(userDAL.Object, userHistoricDAL.Object, sendRecoverPasswordEmail.Object, encryptionService.Object, jwtTokenService.Object, new GoogleAuthKeys("test-client-id"));
+            UserService userService = new(userDAL.Object, userHistoricDAL.Object, sendRecoverPasswordEmail.Object, encryptionService.Object, jwtTokenService.Object, new GoogleAuthKeys("test-client-id","secret","url"));
 
             var resp = await userService.GenerateTokenAsync(reqUserSession);
 
