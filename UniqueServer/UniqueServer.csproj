@@ -62,6 +62,7 @@
     <ProjectReference Include="..\BookshelfService\BookshelfServices.csproj" />
     <ProjectReference Include="..\FinancialService\FinancialService.csproj" />
     <ProjectReference Include="..\InventoryService\InventoryServices.csproj" />
+    <ProjectReference Include="..\Mob\MobService.csproj" />
     <ProjectReference Include="..\UserService\UserManagementService.csproj" />
   </ItemGroup>
 
