@@ -78,7 +78,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontendOrigins",
         policy => policy
-           .WithOrigins("https://localhost:7223", "https://xpem.vps-kinghost.net")
+           .WithOrigins("https://localhost:7223", "https://xpem.vps-kinghost.net", "http://localhost:5002", "https://localhost:5002", "https://mob.xpem.com.br")
             .AllowAnyHeader()
             .AllowCredentials()
             .AllowAnyMethod());
