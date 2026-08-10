@@ -10,6 +10,9 @@ using InventoryRepos.Interfaces;
 using InventoryServices.Interfaces;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using MobRepo;
+using MobService;
+using MobService.Interfaces;
 using System.Threading.RateLimiting;
 using UserManagementRepo;
 using UserManagementService;
@@ -29,6 +32,7 @@ namespace UniqueServer
             string? bookshelfConn = GetConfigValue(Configuration, "ConnectionStrings:BookshelfConn");
             string? userManagementfConn = GetConfigValue(Configuration, "ConnectionStrings:UserManagementConn");
             string? financialConn = GetConfigValue(Configuration, "ConnectionStrings:FinancialConn");
+            string? mobConn = GetConfigValue(Configuration, "ConnectionStrings:MobConn");
 
             services.AddDbContextFactory<BookshelfDbCtx>(options => options.UseNpgsql(bookshelfConn,
                 options => options.EnableRetryOnFailure(
@@ -54,6 +58,12 @@ namespace UniqueServer
                     maxRetryDelay: System.TimeSpan.FromSeconds(30),
                     errorCodesToAdd: null)));
 
+            services.AddDbContextFactory<MobDbCtx>(options => options.UseNpgsql(mobConn,
+                options => options.EnableRetryOnFailure(
+                    maxRetryCount: 5,
+                    maxRetryDelay: System.TimeSpan.FromSeconds(30),
+                    errorCodesToAdd: null)));
+
             return services;
         }
 
@@ -74,12 +84,14 @@ namespace UniqueServer
             services.AddScoped<IItemSituationRepo, ItemSituationRepo>();
             services.AddScoped<IItemRepo, ItemRepo>();
 
-
             //financial
             services.AddScoped<ITransactionCategoryRepo, TransactionCategoryRepo>();
             services.AddScoped<ITransactionRepo, TransactionRepo>();
             services.AddScoped<IAccountRepo, AccountRepo>();
             services.AddScoped<IRecurringRuleRepo, RecurringRuleRepo>();
+
+            //mob
+            services.AddScoped<IPetRepo, PetRepo>();
 
             return services;
 
@@ -140,6 +152,12 @@ namespace UniqueServer
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<ITransactionService, TransactionService>();
             services.AddScoped<IRecurringRuleService, RecurringRuleService>();
+
+            #endregion
+
+            #region mob
+
+            services.AddScoped<IPetService, PetService>();
 
             #endregion
 

@@ -24,9 +24,9 @@ namespace UniqueServer.Controllers
             var result = await userService.GenerateTokenAsync(reqUserSession);
 
             if (result.Success)
-                logger.LogInformation("SignIn success: {Email}", reqUserSession.Email);
+                logger.LogInformation("SignIn success: {Email} | Source: {Source}", reqUserSession.Email, reqUserSession.Source ?? "unknown");
             else
-                logger.LogWarning("SignIn failed: {Email} — {Error}", reqUserSession.Email, result.Error?.Message);
+                logger.LogWarning("SignIn failed: {Email} | Source: {Source} — {Error}", reqUserSession.Email, reqUserSession.Source ?? "unknown", result.Error?.Message);
 
             return BuildResponse(result);
         }
