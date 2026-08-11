@@ -67,6 +67,17 @@ namespace MobModels.Request
         public required int Joy { get; init; }
 
         /// <summary>
+        /// Nível de doença (0-5)
+        /// </summary>
+        [Range(0, 5)]
+        public int Sickness { get; init; }
+
+        /// <summary>
+        /// Timer acumulado para aumentar nível de doença (ms)
+        /// </summary>
+        public long SicknessTimer { get; init; }
+
+        /// <summary>
         /// Quantidade de cocôs na tela (0-3)
         /// </summary>
         [Range(0, 3)]

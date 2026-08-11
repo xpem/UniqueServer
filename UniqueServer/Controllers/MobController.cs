@@ -35,6 +35,8 @@ namespace UniqueServer.Controllers
                     Energy = req.Energy,
                     Health = req.Health,
                     Joy = req.Joy,
+                    Sickness = req.Sickness,
+                    SicknessTimer = req.SicknessTimer,
                     PoopCount = req.PoopCount,
                     BowlPortions = req.BowlPortions,
                     Toys = req.Toys,

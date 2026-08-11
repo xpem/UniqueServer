@@ -1,0 +1,185 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                   MIGRATION: Sistema de Doença no Pet                        ║
+║                          Passo a Passo Completo                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+PASSO 1: ABRIR O VISUAL STUDIO
+────────────────────────────────────────────────────────────────────────────────
+1. Abra o arquivo: UniqueServer.sln
+2. Aguarde o carregamento completo da solução
+
+
+PASSO 2: ABRIR PACKAGE MANAGER CONSOLE
+────────────────────────────────────────────────────────────────────────────────
+1. Menu: Tools > NuGet Package Manager > Package Manager Console
+2. Aparecerá um painel na parte inferior do Visual Studio
+
+
+PASSO 3: SELECIONAR O PROJETO CORRETO
+────────────────────────────────────────────────────────────────────────────────
+No dropdown "Default project:" selecione: MobService
+
+┌─────────────────────────────────────────────┐
+│ Default project: MobService               ▼ │
+└─────────────────────────────────────────────┘
+
+
+PASSO 4: CRIAR A MIGRATION
+────────────────────────────────────────────────────────────────────────────────
+Cole e execute este comando:
+
+EntityFrameworkCore\Add-Migration "AddPetSickness" -Context MobDbCtx
+
+Pressione ENTER
+
+RESULTADO ESPERADO:
+Build started...
+Build succeeded.
+To undo this action, use Remove-Migration.
+
+
+PASSO 5: REVISAR A MIGRATION GERADA (OPCIONAL)
+────────────────────────────────────────────────────────────────────────────────
+1. No Solution Explorer, expanda: Mob > Migrations
+2. Procure o arquivo: [TIMESTAMP]_AddPetSickness.cs
+3. Verifique o conteúdo:
+
+migrationBuilder.AddColumn<int>(
+    name: "sickness",
+    table: "Pet",
+    type: "integer",
+    nullable: false,
+    defaultValue: 0);
+
+migrationBuilder.AddColumn<long>(
+    name: "sickness_timer",
+    table: "Pet",
+    type: "bigint",
+    nullable: false,
+    defaultValue: 0L);
+
+
+PASSO 6: APLICAR AO BANCO DE DADOS
+────────────────────────────────────────────────────────────────────────────────
+Cole e execute este comando:
+
+EntityFrameworkCore\update-database -Context MobDbCtx
+
+Pressione ENTER
+
+RESULTADO ESPERADO:
+Build started...
+Build succeeded.
+Applying migration '20241211123456_AddPetSickness'.
+Done.
+
+
+PASSO 7: VERIFICAR NO BANCO DE DADOS (OPCIONAL)
+────────────────────────────────────────────────────────────────────────────────
+Conecte ao PostgreSQL e execute:
+
+SELECT column_name, data_type, is_nullable, column_default
+FROM information_schema.columns
+WHERE table_name = 'Pet' 
+  AND column_name IN ('sickness', 'sickness_timer');
+
+RESULTADO ESPERADO:
+┌────────────────┬───────────┬─────────────┬────────────────┐
+│ column_name    │ data_type │ is_nullable │ column_default │
+├────────────────┼───────────┼─────────────┼────────────────┤
+│ sickness       │ integer   │ NO          │ 0              │
+│ sickness_timer │ bigint    │ NO          │ 0              │
+└────────────────┴───────────┴─────────────┴────────────────┘
+
+
+PASSO 8: COMPILAR O PROJETO
+────────────────────────────────────────────────────────────────────────────────
+1. Menu: Build > Build Solution
+   OU pressione: Ctrl+Shift+B
+
+RESULTADO ESPERADO:
+Build succeeded. 0 Warning(s). 0 Error(s).
+
+
+PASSO 9: EXECUTAR O SERVIDOR (SE NECESSÁRIO)
+────────────────────────────────────────────────────────────────────────────────
+1. Pressione F5 para executar em modo debug
+   OU Ctrl+F5 para executar sem debug
+
+2. Aguarde o servidor iniciar
+
+
+PASSO 10: TESTAR NO FRONTEND
+────────────────────────────────────────────────────────────────────────────────
+1. Abra o navegador
+2. Acesse: http://localhost:5002 (ou a URL do XpemMob)
+3. Faça login
+4. Coloque coleira no pet (salvar)
+5. Verifique no console do navegador (F12) se não há erros
+6. Recarregue a página (Ctrl+Shift+R para hard refresh)
+7. Verifique se o pet carrega corretamente
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                              COMANDOS RESUMIDOS                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+# Criar migration
+EntityFrameworkCore\Add-Migration "AddPetSickness" -Context MobDbCtx
+
+# Aplicar ao banco
+EntityFrameworkCore\update-database -Context MobDbCtx
+
+# Ver histórico de migrations
+EntityFrameworkCore\Get-Migration -Context MobDbCtx
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                          TROUBLESHOOTING COMUM                               ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+PROBLEMA: "Unable to resolve service for type DbContextOptions"
+SOLUÇÃO: Verifique se a connection string está correta no appsettings.json
+
+PROBLEMA: "Build failed"
+SOLUÇÃO: Verifique erros de compilação no Output window
+
+PROBLEMA: "Column already exists"
+SOLUÇÃO: A migration já foi aplicada antes
+         Execute: EntityFrameworkCore\Get-Migration -Context MobDbCtx
+         Para ver o histórico
+
+PROBLEMA: Migration gerada vazia
+SOLUÇÃO: As mudanças no modelo já estão no banco
+         Não é necessário fazer nada
+
+PROBLEMA: Erro de conexão ao banco
+SOLUÇÃO: 1. Verifique se o PostgreSQL está rodando
+         2. Verifique a connection string
+         3. Teste a conexão manualmente
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                            ROLLBACK (SE NECESSÁRIO)                          ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Se precisar DESFAZER a migration:
+
+# Reverter banco para migration anterior
+EntityFrameworkCore\Update-Database -Migration <NomeMigrationAnterior> -Context MobDbCtx
+
+# Remover arquivo de migration
+EntityFrameworkCore\Remove-Migration -Context MobDbCtx
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                   CONCLUÍDO                                  ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Após seguir todos os passos:
+✓ Banco de dados atualizado
+✓ Backend compilado
+✓ Sistema de doença ativo
+✓ Pronto para testes
+
+Bom jogo! 🎮

@@ -28,6 +28,8 @@ namespace MobService
                     existingPet.Energy = pet.Energy;
                     existingPet.Health = pet.Health;
                     existingPet.Joy = pet.Joy;
+                    existingPet.Sickness = pet.Sickness;
+                    existingPet.SicknessTimer = pet.SicknessTimer;
                     existingPet.PoopCount = pet.PoopCount;
                     existingPet.BowlPortions = pet.BowlPortions;
                     existingPet.Toys = pet.Toys;

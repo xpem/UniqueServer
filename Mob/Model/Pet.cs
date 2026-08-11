@@ -59,6 +59,16 @@ namespace MobModels
         public required int Joy { get; set; }
 
         /// <summary>
+        /// Nível de doença (0-5)
+        /// </summary>
+        public int Sickness { get; set; }
+
+        /// <summary>
+        /// Timer acumulado para aumentar nível de doença (ms)
+        /// </summary>
+        public long SicknessTimer { get; set; }
+
+        /// <summary>
         /// Quantidade de cocôs na tela (0-3)
         /// </summary>
         public int PoopCount { get; set; }
