@@ -91,5 +91,52 @@ namespace UniqueServer.Controllers
                 return StatusCode(500, new { error = new { message = ex.Message } });
             }
         }
+
+        /// <summary>
+        /// Registra uma ação feita no pet
+        /// </summary>
+        [Route("Pet/Action")]
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> LogAction(ReqPetAction req)
+        {
+            try
+            {
+                logger.LogInformation("LogAction: UserId={UserId}, ActionType={ActionType}", Uid, req.ActionType);
+                
+                if (!Enum.IsDefined(typeof(PetActionType), req.ActionType))
+                {
+                    return BadRequest(new { error = new { message = "Tipo de ação inválido" } });
+                }
+
+                var actionType = (PetActionType)req.ActionType;
+                return BuildResponse(await petService.LogActionAsync(Uid, actionType, req.Details));
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "LogAction EXCEPTION: UserId={UserId}", Uid);
+                return StatusCode(500, new { error = new { message = ex.Message } });
+            }
+        }
+
+        /// <summary>
+        /// Lista histórico de ações do pet
+        /// </summary>
+        [Route("Pet/Actions")]
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetActions([FromQuery] int limit = 50)
+        {
+            try
+            {
+                logger.LogInformation("GetActions: UserId={UserId}, Limit={Limit}", Uid, limit);
+                return BuildResponse(await petService.GetActionsAsync(Uid, limit));
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "GetActions EXCEPTION: UserId={UserId}", Uid);
+                return StatusCode(500, new { error = new { message = ex.Message } });
+            }
+        }
     }
 }
