@@ -40,6 +40,7 @@ namespace UniqueServer.Controllers
                     PoopCount = req.PoopCount,
                     BowlPortions = req.BowlPortions,
                     Toys = req.Toys,
+                    HouseCharges = req.HouseCharges,
                     IsDead = req.IsDead,
                     DeathCause = req.DeathCause,
                     CreatedAt = DateTime.UtcNow

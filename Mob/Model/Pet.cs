@@ -84,6 +84,11 @@ namespace MobModels
         public int Toys { get; set; }
 
         /// <summary>
+        /// Cargas de sono na casinha (0-2)
+        /// </summary>
+        public int HouseCharges { get; set; }
+
+        /// <summary>
         /// Pet está morto?
         /// </summary>
         public bool IsDead { get; set; }
