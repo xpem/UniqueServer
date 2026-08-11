@@ -92,6 +92,7 @@ namespace UniqueServer
 
             //mob
             services.AddScoped<IPetRepo, PetRepo>();
+            services.AddScoped<IPetActionRepo, PetActionRepo>();
 
             return services;
 
