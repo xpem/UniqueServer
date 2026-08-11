@@ -96,6 +96,12 @@ namespace MobModels.Request
         public int Toys { get; init; }
 
         /// <summary>
+        /// Cargas de sono na casinha (0-2)
+        /// </summary>
+        [Range(0, 2)]
+        public int HouseCharges { get; init; }
+
+        /// <summary>
         /// Pet está morto?
         /// </summary>
         public bool IsDead { get; init; }

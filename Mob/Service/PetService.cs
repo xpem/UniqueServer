@@ -33,6 +33,7 @@ namespace MobService
                     existingPet.PoopCount = pet.PoopCount;
                     existingPet.BowlPortions = pet.BowlPortions;
                     existingPet.Toys = pet.Toys;
+                    existingPet.HouseCharges = pet.HouseCharges;
                     existingPet.IsDead = pet.IsDead;
                     existingPet.DeathCause = pet.DeathCause;
                     existingPet.Name = pet.Name;
