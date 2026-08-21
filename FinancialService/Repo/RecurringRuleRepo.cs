@@ -8,6 +8,7 @@ namespace FinancialService.Repo
         Task<RecurringRuleDTO> AddAsync(RecurringRuleDTO rule);
         Task UpdateAsync(RecurringRuleDTO rule);
         Task<List<RecurringRuleDTO>> GetByUpdatedAtAsync(int uid, DateTime updatedAt, int page, int pageSize);
+        Task<RecurringRuleDTO?> GetByRecurringRuleIdAsync(Guid recurringRuleId, int uid);
     }
 
     public class RecurringRuleRepo(IDbContextFactory<FinancialDbctx> dbCtx) : IRecurringRuleRepo
@@ -37,6 +38,13 @@ namespace FinancialService.Repo
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
+        }
+
+        public async Task<RecurringRuleDTO?> GetByRecurringRuleIdAsync(Guid recurringRuleId, int uid)
+        {
+            using FinancialDbctx context = await dbCtx.CreateDbContextAsync();
+            return await context.RecurringRule
+                .FirstOrDefaultAsync(r => r.RecurringRuleId == recurringRuleId && r.UserId == uid);
         }
     }
 }
