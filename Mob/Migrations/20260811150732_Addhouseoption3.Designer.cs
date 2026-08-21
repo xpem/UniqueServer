@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MobService.Migrations
 {
     [DbContext(typeof(MobDbCtx))]
-    [Migration("20260811144858_Addhouseoption")]
-    partial class Addhouseoption
+    [Migration("20260811150732_Addhouseoption3")]
+    partial class Addhouseoption3
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -52,7 +52,7 @@ namespace MobService.Migrations
                     b.Property<int>("Health")
                         .HasColumnType("integer");
 
-                    b.Property<int>("HouseCharges")
+                    b.Property<int>("HouseCharges2")
                         .HasColumnType("integer");
 
                     b.Property<int>("Hunger")

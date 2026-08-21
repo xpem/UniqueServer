@@ -22,26 +22,55 @@ namespace FinancialService.Service
             if (req.EndDate.HasValue && req.EndDate.Value < req.StartDate)
                 throw new ArgumentException("End date must be on or after the start date.");
 
-            RecurringRuleDTO dto = new()
+            // Check if the rule already exists by RecurringRuleId
+            var existing = await recurringRuleRepo.GetByRecurringRuleIdAsync(req.RecurringRuleId, uid);
+
+            if (existing != null)
             {
-                RecurringRuleId = req.RecurringRuleId,
-                Description = req.Description,
-                Amount = req.Amount,
-                Type = req.Type,
-                CategoryId = req.CategoryId,
-                AccountId = req.AccountId,
-                Frequency = req.Frequency,
-                StartDate = DateTime.SpecifyKind(req.StartDate, DateTimeKind.Utc),
-                EndDate = req.EndDate.HasValue ? DateTime.SpecifyKind(req.EndDate.Value, DateTimeKind.Utc) : null,
-                Inactive = req.Inactive,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
-                UserId = uid,
-            };
+                // Update existing rule
+                existing.Description = req.Description;
+                existing.Amount = req.Amount;
+                existing.Type = req.Type;
+                existing.CategoryId = req.CategoryId;
+                existing.AccountId = req.AccountId;
+                existing.Frequency = req.Frequency;
+                existing.StartDate = DateTime.SpecifyKind(req.StartDate, DateTimeKind.Utc);
+                existing.EndDate = req.EndDate.HasValue ? DateTime.SpecifyKind(req.EndDate.Value, DateTimeKind.Utc) : null;
+                existing.Inactive = req.Inactive;
+                // Preserve CreatedAt from the existing record
+                // Use UpdatedAt from the request to maintain sync consistency
+                existing.UpdatedAt = req.UpdatedAt != default 
+                    ? DateTime.SpecifyKind(req.UpdatedAt, DateTimeKind.Utc) 
+                    : DateTime.UtcNow;
 
-            await recurringRuleRepo.AddAsync(dto);
+                await recurringRuleRepo.UpdateAsync(existing);
+                return ToRes(existing);
+            }
+            else
+            {
+                // Create new rule
+                RecurringRuleDTO dto = new()
+                {
+                    RecurringRuleId = req.RecurringRuleId,
+                    Description = req.Description,
+                    Amount = req.Amount,
+                    Type = req.Type,
+                    CategoryId = req.CategoryId,
+                    AccountId = req.AccountId,
+                    Frequency = req.Frequency,
+                    StartDate = DateTime.SpecifyKind(req.StartDate, DateTimeKind.Utc),
+                    EndDate = req.EndDate.HasValue ? DateTime.SpecifyKind(req.EndDate.Value, DateTimeKind.Utc) : null,
+                    Inactive = req.Inactive,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = req.UpdatedAt != default 
+                        ? DateTime.SpecifyKind(req.UpdatedAt, DateTimeKind.Utc) 
+                        : DateTime.UtcNow,
+                    UserId = uid,
+                };
 
-            return ToRes(dto);
+                await recurringRuleRepo.AddAsync(dto);
+                return ToRes(dto);
+            }
         }
 
         public async Task<List<RecurringRuleRes>> GetByUpdatedAtAsync(int uid, DateTime updatedAt, int page)
