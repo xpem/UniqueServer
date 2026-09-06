@@ -230,7 +230,9 @@ namespace UniqueServer.Controllers
             {
                 {".png", "image/png"},
                 {".jpg", "image/jpeg"},
-                {".gif", "image/gif"}
+                {".jpeg", "image/jpeg"},
+                {".gif", "image/gif"},
+                {".webp", "image/webp"}
             };
 
         private static bool ValidateFileExtension(IFormFile file)
