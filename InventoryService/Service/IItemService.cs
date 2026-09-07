@@ -8,6 +8,8 @@ namespace InventoryServices.Interfaces
     {
         Task<BaseResp> CreateItem(ReqItem reqItem, int uid);
 
+        Task<BaseResp> CreateItemBulk(ReqItemBulk reqItemBulk, int uid);
+
         Task<BaseResp> UpdateItem(ReqItem reqItem, int uid, int id);
 
         Task<BaseResp> DeleteItem(int uid, int id, string filePath);

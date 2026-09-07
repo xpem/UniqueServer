@@ -94,6 +94,10 @@ namespace UniqueServer.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateItem(ReqItem reqItem) => BuildResponse(await itemService.CreateItem(reqItem, Uid));
 
+        [Route("item/bulk")]
+        [HttpPost]
+        public async Task<IActionResult> CreateItemBulk(ReqItemBulk reqItemBulk) => BuildResponse(await itemService.CreateItemBulk(reqItemBulk, Uid));
+
         [Route("item/{id:int:min(1)}")]
         [HttpPut]
         public async Task<IActionResult> UpdateItem(ReqItem reqItem, int id) => BuildResponse(await itemService.UpdateItem(reqItem, Uid, id));

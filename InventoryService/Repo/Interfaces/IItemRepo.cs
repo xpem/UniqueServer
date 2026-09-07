@@ -8,6 +8,8 @@ namespace InventoryRepos.Interfaces
     {
         int Create(Item item);
 
+        int CreateBulk(List<Item> items);
+
         int Delete(Item item);
 
         int Update(Item item);
