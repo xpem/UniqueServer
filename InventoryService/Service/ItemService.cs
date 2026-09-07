@@ -22,7 +22,7 @@ namespace InventoryBLL
                 string? validateError = reqItem.Validate();
                 if (!string.IsNullOrEmpty(validateError)) return new BaseResp(ErrorCode.InvalidObject, validateError);
 
-                //to do, não preciso validar os indices, serão validados pelas foreign keys no banco
+                //to do, nï¿½o preciso validar os indices, serï¿½o validados pelas foreign keys no banco
                 //string? validateIndexes = await ValidateIndexes(reqItem, uid);
                 //if (!string.IsNullOrEmpty(validateIndexes)) return new BaseResponse(null, validateIndexes);
 
@@ -59,10 +59,10 @@ namespace InventoryBLL
 
                             return new BaseResp(resItem);
                         }
-                        else throw new Exception($"Não foi possivel recuperar o item de id: {item.Id}");
+                        else throw new Exception($"Nï¿½o foi possivel recuperar o item de id: {item.Id}");
                     }
                     else
-                        return new BaseResp(ErrorCode.ErrorCreatingObject, "Não foi possivel adicionar.");
+                        return new BaseResp(ErrorCode.ErrorCreatingObject, "Nï¿½o foi possivel adicionar.");
                 }
                 catch (Exception ex) { throw ex; }
             }
@@ -86,6 +86,39 @@ namespace InventoryBLL
         //    }
         //    catch (Exception) { throw; }
         //}
+
+        public async Task<BaseResp> CreateItemBulk(ReqItemBulk reqItemBulk, int uid)
+        {
+            string? validateError = reqItemBulk.Validate();
+            if (!string.IsNullOrEmpty(validateError)) return new BaseResp(ErrorCode.InvalidObject, validateError);
+
+            var now = DateTime.UtcNow;
+            var items = Enumerable.Range(0, reqItemBulk.Quantity).Select(_ => new Item
+            {
+                AcquisitionDate = reqItemBulk.AcquisitionDate,
+                AcquisitionTypeId = reqItemBulk.AcquisitionType,
+                CategoryId = reqItemBulk.Category.CategoryId,
+                CreatedAt = now,
+                ItemSituationId = reqItemBulk.SituationId,
+                Name = reqItemBulk.Name,
+                UpdatedAt = now,
+                UserId = uid,
+                Comment = reqItemBulk.Comment,
+                PurchaseStore = reqItemBulk.PurchaseStore,
+                PurchaseValue = reqItemBulk.PurchaseValue,
+                ResaleValue = reqItemBulk.ResaleValue,
+                SubCategoryId = reqItemBulk.Category.SubCategoryId,
+                TechnicalDescription = reqItemBulk.TechnicalDescription,
+                WithdrawalDate = reqItemBulk.WithdrawalDate,
+            }).ToList();
+
+            int created = itemRepo.CreateBulk(items);
+
+            if (created == reqItemBulk.Quantity)
+                return new BaseResp(new { count = created });
+            else
+                return new BaseResp(ErrorCode.ErrorCreatingObject, "NÃ£o foi possÃ­vel cadastrar todos os itens.");
+        }
 
         public async Task<BaseResp> DeleteItem(int uid, int id, string filePath)
         {
@@ -112,7 +145,7 @@ namespace InventoryBLL
                 return new BaseResp(1);
             }
             else
-                return new BaseResp(ErrorCode.ErrorDeletingObject, "Não foi possivel excluir.");
+                return new BaseResp(ErrorCode.ErrorDeletingObject, "Nï¿½o foi possivel excluir.");
         }
 
         public async Task<BaseResp> DeleteItemImage(int uid, int id, string fileName, string filePath)
@@ -146,10 +179,10 @@ namespace InventoryBLL
 
                     return new BaseResp(resItem);
                 }
-                else throw new Exception($"Não foi possivel recuperar o item de id: {item.Id}");
+                else throw new Exception($"Nï¿½o foi possivel recuperar o item de id: {item.Id}");
             }
             else
-                return new BaseResp(ErrorCode.ErrorUpdatingObject, "Não foi possivel atualizar o Item.");
+                return new BaseResp(ErrorCode.ErrorUpdatingObject, "Nï¿½o foi possivel atualizar o Item.");
         }
 
         public async Task<BaseResp> GetAsync(int uid, int page)
@@ -324,10 +357,10 @@ namespace InventoryBLL
 
                     return new BaseResp(resItem);
                 }
-                else throw new Exception($"Não foi possivel recuperar o item de id: {item.Id}");
+                else throw new Exception($"Nï¿½o foi possivel recuperar o item de id: {item.Id}");
             }
             else
-                return new BaseResp(ErrorCode.ErrorCreatingObject, "Não foi possivel adicionar.");
+                return new BaseResp(ErrorCode.ErrorCreatingObject, "Nï¿½o foi possivel adicionar.");
         }
 
         public BaseResp UpdateItemFileNames(int uid, int id, string? fileName1, string? fileName2)
@@ -337,7 +370,7 @@ namespace InventoryBLL
             if (respExec == 1)
                 return new BaseResp(new ResItemImages { Image1 = fileName1, Image2 = fileName2 });
             else
-                return new BaseResp(ErrorCode.ErrorUpdatingObject, "Não foi possivel atualizar.");
+                return new BaseResp(ErrorCode.ErrorUpdatingObject, "Nï¿½o foi possivel atualizar.");
         }
 
         public async Task<bool> CheckItemImageNameAsync(int uid, int id, string imageName) => await itemRepo.CheckItemImageNameAsync(uid, id, imageName);

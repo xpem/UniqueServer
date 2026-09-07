@@ -27,6 +27,14 @@ namespace InventoryRepos
             return context.SaveChanges();
         }
 
+        public int CreateBulk(List<Item> items)
+        {
+            using var context = dbCtx.CreateDbContext();
+            context.ChangeTracker?.Clear();
+            context.Item.AddRange(items);
+            return context.SaveChanges();
+        }
+
         public int Update(Item item)
         {
             using var context = dbCtx.CreateDbContext();
