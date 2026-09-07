@@ -170,6 +170,12 @@ namespace InventoryRepo.Migrations
 
                     b.HasIndex("SubCategoryId");
 
+                    b.HasIndex("UserId", "CreatedAt")
+                        .HasDatabaseName("IX_Item_UserId_CreatedAt");
+
+                    b.HasIndex("UserId", "ItemSituationId")
+                        .HasDatabaseName("IX_Item_UserId_ItemSituationId");
+
                     b.ToTable("Item");
                 });
 

@@ -19,6 +19,15 @@ namespace InventoryRepos
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.UseIdentityByDefaultColumns();
+
+            modelBuilder.Entity<Item>(b =>
+            {
+                b.HasIndex(x => new { x.UserId, x.CreatedAt })
+                    .HasDatabaseName("IX_Item_UserId_CreatedAt");
+
+                b.HasIndex(x => new { x.UserId, x.ItemSituationId })
+                    .HasDatabaseName("IX_Item_UserId_ItemSituationId");
+            });
         }
 
         //migrations
