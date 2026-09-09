@@ -1,7 +1,7 @@
-﻿using InventoryBLL;
-using InventoryBLLTests.DbContextMocks;
+﻿using InventoryBLLTests.DbContextMocks;
 using InventoryModels.Req;
 using InventoryModels.Res.Item;
+using InventoryServices.Service;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
 

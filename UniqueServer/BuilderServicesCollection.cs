@@ -1,5 +1,6 @@
 ﻿using BookshelfRepo;
 using BookshelfServices;
+using BookshelfServices.Service;
 using FinancialService.Repo;
 using FinancialService.Service;
 using InventoryBLL;
@@ -7,7 +8,7 @@ using InventoryBLL.Interfaces;
 using InventoryRepo;
 using InventoryRepos;
 using InventoryRepos.Interfaces;
-using InventoryServices.Interfaces;
+using InventoryServices.Service;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using MobRepo;

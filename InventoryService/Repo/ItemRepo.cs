@@ -11,7 +11,7 @@ namespace InventoryRepos
         public async Task<Item?> GetById(int uid, int id)
         {
             using var context = dbCtx.CreateDbContext();
-            return await context.Item.Where(x => x.Id == id && x.UserId == uid)
+            return await context.Item.Where(x => x.Id == id && x.UserId == uid && !x.Inactive)
                 .Include(x => x.Category)
                 .Include(x => x.SubCategory)
                 .Include(x => x.ItemSituation)
@@ -58,27 +58,28 @@ namespace InventoryRepos
         public async Task<bool> CheckItemImageNameAsync(int uid, int id, string imageName)
         {
             using var context = dbCtx.CreateDbContext();
-            return await context.Item.AnyAsync(x => x.Id == id && x.UserId == uid && (x.Image1 == imageName || x.Image2 == imageName));
+            return await context.Item.AnyAsync(x => x.Id == id && x.UserId == uid && !x.Inactive && (x.Image1 == imageName || x.Image2 == imageName));
         }
 
-        public int Delete(Item item)
+        public int Inactivate(int uid, int id)
         {
             using var context = dbCtx.CreateDbContext();
-            context.ChangeTracker?.Clear();
-            context.Item.Remove(item);
-            return context.SaveChanges();
+            return context.Item.Where(x => x.UserId == uid && x.Id == id)
+                .ExecuteUpdate(y => y
+                    .SetProperty(z => z.Inactive, true)
+                    .SetProperty(z => z.UpdatedAt, DateTime.UtcNow));
         }
 
         public async Task<int> GetTotalAsync(int uid)
         {
             using var context = dbCtx.CreateDbContext();
-            return await context.Item.CountAsync(x => x.UserId == uid);
+            return await context.Item.CountAsync(x => x.UserId == uid && !x.Inactive);
         }
 
         public async Task<int> GetTotalBySearchAsync(int uid, ReqSearchItem reqSearchItem)
         {
             using var context = dbCtx.CreateDbContext();
-            var query = context.Item.AsNoTracking().Where(x => x.UserId == uid);
+            var query = context.Item.AsNoTracking().Where(x => x.UserId == uid && !x.Inactive);
 
             if (reqSearchItem is not null)
             {
@@ -99,7 +100,7 @@ namespace InventoryRepos
         public async Task<List<Item>?> GetAsync(int uid, int page, int pageSize)
         {
             using var context = dbCtx.CreateDbContext();
-            return await context.Item.AsNoTracking().Where(x => x.UserId == uid)
+            return await context.Item.AsNoTracking().Where(x => x.UserId == uid && !x.Inactive)
             .Include(x => x.Category)
             .Include(x => x.SubCategory)
             .Include(x => x.ItemSituation)
@@ -112,7 +113,7 @@ namespace InventoryRepos
         public async Task<List<Item>?> GetBySearchAsync(int uid, int page, int pageSize, ReqSearchItem reqSearchItem)
         {
             using var context = dbCtx.CreateDbContext();
-            var query = context.Item.AsNoTracking().Where(x => x.UserId == uid);
+            var query = context.Item.AsNoTracking().Where(x => x.UserId == uid && !x.Inactive);
 
             if (reqSearchItem is not null)
             {
@@ -154,7 +155,7 @@ namespace InventoryRepos
         {
             using var context = dbCtx.CreateDbContext();
             return await context.Item.AsNoTracking()
-                .Where(x => x.UserId == uid && !string.IsNullOrEmpty(x.PurchaseStore))
+                .Where(x => x.UserId == uid && !x.Inactive && !string.IsNullOrEmpty(x.PurchaseStore))
                 .OrderByDescending(x => x.CreatedAt)
                 .ThenBy(x => x.PurchaseStore)
                 .Select(x => x.PurchaseStore!)
@@ -168,7 +169,7 @@ namespace InventoryRepos
             using var context = dbCtx.CreateDbContext();
             return await context.Item
                 .AsNoTracking()
-                .Where(i => i.UserId == uid)
+                .Where(i => i.UserId == uid && !i.Inactive)
                 .Join(
                     context.ItemSituation,
                     i => i.ItemSituationId,

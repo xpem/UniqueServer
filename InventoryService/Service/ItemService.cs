@@ -1,13 +1,13 @@
 using BaseModels;
+using InventoryBLL;
 using InventoryModels.DTOs;
 using InventoryModels.Req;
 using InventoryModels.Res;
 using InventoryModels.Res.Item;
 using InventoryRepos.Interfaces;
-using InventoryServices.Interfaces;
 using System.Threading.Tasks;
 
-namespace InventoryBLL
+namespace InventoryServices.Service
 {
     public class ItemService(IItemSituationRepo itemSituationRepo, ICategoryRepo categoryDAL,
         ISubCategoryRepo subCategoryDAL, IAcquisitionTypeRepo acquisitionTypeRepo,
@@ -127,12 +127,10 @@ namespace InventoryBLL
             if (item == null)
                 return new BaseResp(ErrorCode.InvalidId, "Invalid id");
 
-            string? fileName1 = null, fileName2 = null;
+            string? fileName1 = item.Image1;
+            string? fileName2 = item.Image2;
 
-            if (item.Image1 != null) fileName1 = item.Image1;
-            if (item.Image2 != null) fileName2 = item.Image2;
-
-            int respExec = itemRepo.Delete(item);
+            int respExec = itemRepo.Inactivate(uid, id);
 
             if (respExec == 1)
             {
@@ -145,7 +143,7 @@ namespace InventoryBLL
                 return new BaseResp(1);
             }
             else
-                return new BaseResp(ErrorCode.ErrorDeletingObject, "N�o foi possivel excluir.");
+                return new BaseResp(ErrorCode.ErrorDeletingObject, "Não foi possivel excluir.");
         }
 
         public async Task<BaseResp> DeleteItemImage(int uid, int id, string fileName, string filePath)

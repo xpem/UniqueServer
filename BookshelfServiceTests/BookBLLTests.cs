@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using BookshelfRepo;
+using BookshelfServices.Service;
 
 namespace BookshelfServicesTests
 {

@@ -2,7 +2,7 @@
 using InventoryBLL.Interfaces;
 using InventoryModels.Req;
 using InventoryModels.Res.Item;
-using InventoryServices.Interfaces;
+using InventoryServices.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
