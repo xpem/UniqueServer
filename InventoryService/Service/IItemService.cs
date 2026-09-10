@@ -2,7 +2,7 @@
 using InventoryModels.Req;
 using InventoryModels.Res.Item;
 
-namespace InventoryServices.Interfaces
+namespace InventoryServices.Service
 {
     public interface IItemService
     {

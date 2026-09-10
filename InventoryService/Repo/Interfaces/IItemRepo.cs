@@ -10,7 +10,7 @@ namespace InventoryRepos.Interfaces
 
         int CreateBulk(List<Item> items);
 
-        int Delete(Item item);
+        int Inactivate(int uid, int id);
 
         int Update(Item item);
 

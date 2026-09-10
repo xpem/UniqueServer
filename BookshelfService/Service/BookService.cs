@@ -4,7 +4,7 @@ using BookshelfModels.Request;
 using BookshelfModels.Response;
 using BookshelfRepo;
 
-namespace BookshelfServices
+namespace BookshelfServices.Service
 {
     public class BookService(IBookHistoricService bookHistoricBLL, IBookRepo bookRepo) : IBookService
     {

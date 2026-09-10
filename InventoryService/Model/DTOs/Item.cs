@@ -57,5 +57,7 @@ namespace InventoryModels.DTOs
         public required DateTime UpdatedAt { get; set; }
 
         public DateOnly? WithdrawalDate { get; set; }
+
+        public bool Inactive { get; set; } = false;
     }
 }

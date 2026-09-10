@@ -1,5 +1,6 @@
 ﻿using BookshelfRepo;
 using BookshelfServices;
+using BookshelfServices.Service;
 using FinancialService.Repo;
 using FinancialService.Service;
 using InventoryBLL;
@@ -7,7 +8,7 @@ using InventoryBLL.Interfaces;
 using InventoryRepo;
 using InventoryRepos;
 using InventoryRepos.Interfaces;
-using InventoryServices.Interfaces;
+using InventoryServices.Service;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using MobRepo;
@@ -83,6 +84,7 @@ namespace UniqueServer
             services.AddScoped<IAcquisitionTypeRepo, AcquisitionTypeRepo>();
             services.AddScoped<IItemSituationRepo, ItemSituationRepo>();
             services.AddScoped<IItemRepo, ItemRepo>();
+            services.AddScoped<IItemHistoricRepo, ItemHistoricRepo>();
 
             //financial
             services.AddScoped<ITransactionCategoryRepo, TransactionCategoryRepo>();
@@ -143,6 +145,7 @@ namespace UniqueServer
             services.AddScoped<IAcquisitionTypeService, AcquisitionTypeService>();
             services.AddScoped<IItemSituationService, ItemSituationService>();
             services.AddScoped<IItemService, ItemService>();
+            services.AddScoped<IItemHistoricService, ItemHistoricService>();
             services.AddScoped<ITransactionCategoryService, TransactionCategoryService>();
 
             #endregion

@@ -37,7 +37,17 @@ namespace UniqueServer.Controllers
 
         [Route("Session/Google")]
         [HttpPost]
-        public async Task<IActionResult> GoogleSignIn(ReqGoogleSignIn reqGoogleSignIn) => BuildResponse(await userService.GoogleAuthAsync(reqGoogleSignIn.IdToken));
+        public async Task<IActionResult> GoogleSignIn(ReqGoogleSignIn reqGoogleSignIn)
+        {
+            var result = await userService.GoogleAuthAsync(reqGoogleSignIn.IdToken);
+
+            if (result.Success)
+                logger.LogInformation("GoogleSignIn success");
+            else
+                logger.LogWarning("GoogleSignIn failed — {Error}", result.Error?.Message);
+
+            return BuildResponse(result);
+        }
 
         [Route("Session/Google/Start")]
         [HttpGet]
@@ -52,9 +62,18 @@ namespace UniqueServer.Controllers
         public async Task<IActionResult> GoogleSignInCallback([FromQuery] string? code, [FromQuery] string? error)
         {
             if (!string.IsNullOrEmpty(error) || string.IsNullOrEmpty(code))
+            {
+                logger.LogWarning("GoogleSignIn callback failed — {Error}", error ?? "cancelled");
                 return Redirect($"com.xpem.xpemfinancial://oauth2?error={Uri.EscapeDataString(error ?? "cancelled")}");
+            }
 
             (string appUri, _) = await userService.GoogleAuthCallbackAsync(code);
+
+            if (appUri.Contains("error="))
+                logger.LogWarning("GoogleSignIn callback failed — {AppUri}", appUri);
+            else
+                logger.LogInformation("GoogleSignIn callback success");
+
             return Redirect(appUri);
         }
 

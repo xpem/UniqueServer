@@ -92,6 +92,8 @@ builder.Services.AddLimiterRules();
 
 WebApplication app = builder.Build();
 
+//InventoryInitializeDB.CreateInitiaValues(app.Services.GetRequiredService<IDbContextFactory<InventoryDbCtx>>());
+
 if (!app.Environment.IsDevelopment())
 {
     // Força a API inteira a escutar embaixo de /api em produção

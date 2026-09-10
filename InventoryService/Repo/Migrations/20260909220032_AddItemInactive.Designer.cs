@@ -3,6 +3,7 @@ using System;
 using InventoryRepos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace InventoryRepo.Migrations
 {
     [DbContext(typeof(InventoryDbCtx))]
-    partial class InventoryDbCtxModelSnapshot : ModelSnapshot
+    [Migration("20260909220032_AddItemInactive")]
+    partial class AddItemInactive
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -182,109 +185,6 @@ namespace InventoryRepo.Migrations
                     b.ToTable("Item");
                 });
 
-            modelBuilder.Entity("InventoryModels.DTOs.ItemHistoric", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("ItemHistoricTypeId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ItemId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ItemHistoricTypeId");
-
-                    b.HasIndex("ItemId");
-
-                    b.HasIndex("CreatedAt", "UserId");
-
-                    b.ToTable("ItemHistoric");
-                });
-
-            modelBuilder.Entity("InventoryModels.DTOs.ItemHistoricItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("ItemHistoricId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ItemHistoricItemFieldId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("UpdatedFrom")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)");
-
-                    b.Property<string>("UpdatedTo")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ItemHistoricId");
-
-                    b.HasIndex("ItemHistoricItemFieldId");
-
-                    b.ToTable("ItemHistoricItem");
-                });
-
-            modelBuilder.Entity("InventoryModels.DTOs.ItemHistoricItemField", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ItemHistoricItemField");
-                });
-
-            modelBuilder.Entity("InventoryModels.DTOs.ItemHistoricType", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ItemHistoricType");
-                });
-
             modelBuilder.Entity("InventoryModels.DTOs.ItemSituation", b =>
                 {
                     b.Property<int>("Id")
@@ -399,42 +299,6 @@ namespace InventoryRepo.Migrations
                     b.Navigation("SubCategory");
                 });
 
-            modelBuilder.Entity("InventoryModels.DTOs.ItemHistoric", b =>
-                {
-                    b.HasOne("InventoryModels.DTOs.ItemHistoricType", "ItemHistoricType")
-                        .WithMany()
-                        .HasForeignKey("ItemHistoricTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("InventoryModels.DTOs.Item", "Item")
-                        .WithMany()
-                        .HasForeignKey("ItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Item");
-
-                    b.Navigation("ItemHistoricType");
-                });
-
-            modelBuilder.Entity("InventoryModels.DTOs.ItemHistoricItem", b =>
-                {
-                    b.HasOne("InventoryModels.DTOs.ItemHistoric", null)
-                        .WithMany("ItemHistoricItems")
-                        .HasForeignKey("ItemHistoricId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("InventoryModels.DTOs.ItemHistoricItemField", "ItemHistoricItemField")
-                        .WithMany()
-                        .HasForeignKey("ItemHistoricItemFieldId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ItemHistoricItemField");
-                });
-
             modelBuilder.Entity("InventoryModels.DTOs.SubCategory", b =>
                 {
                     b.HasOne("InventoryModels.DTOs.Category", "Category")
@@ -449,11 +313,6 @@ namespace InventoryRepo.Migrations
             modelBuilder.Entity("InventoryModels.DTOs.Category", b =>
                 {
                     b.Navigation("SubCategories");
-                });
-
-            modelBuilder.Entity("InventoryModels.DTOs.ItemHistoric", b =>
-                {
-                    b.Navigation("ItemHistoricItems");
                 });
 #pragma warning restore 612, 618
         }

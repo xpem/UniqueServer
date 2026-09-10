@@ -1,6 +1,6 @@
-﻿using InventoryBLL;
-using InventoryModels.DTOs;
+﻿using InventoryModels.DTOs;
 using InventoryRepos.Interfaces;
+using InventoryServices.Service;
 using Moq;
 
 namespace InventoryBLLTests.DbContextMocks
