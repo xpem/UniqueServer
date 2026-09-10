@@ -5,13 +5,12 @@ using InventoryModels.Req;
 using InventoryModels.Res;
 using InventoryModels.Res.Item;
 using InventoryRepos.Interfaces;
-using System.Threading.Tasks;
 
 namespace InventoryServices.Service
 {
     public class ItemService(IItemSituationRepo itemSituationRepo, ICategoryRepo categoryDAL,
         ISubCategoryRepo subCategoryDAL, IAcquisitionTypeRepo acquisitionTypeRepo,
-        IItemRepo itemRepo) : IItemService
+        IItemRepo itemRepo, IItemHistoricService itemHistoricService) : IItemService
     {
         readonly int pageSize = 20;
 
@@ -55,6 +54,14 @@ namespace InventoryServices.Service
 
                         if (createdCompleteItem != null)
                         {
+                            await itemHistoricService.AddAsync(new ItemHistoric
+                            {
+                                ItemId = createdCompleteItem.Id,
+                                ItemHistoricTypeId = 1,
+                                UserId = uid,
+                                CreatedAt = DateTime.UtcNow
+                            });
+
                             ResItem? resItem = BuildResItem(createdCompleteItem);
 
                             return new BaseResp(resItem);
@@ -115,7 +122,19 @@ namespace InventoryServices.Service
             int created = itemRepo.CreateBulk(items);
 
             if (created == reqItemBulk.Quantity)
+            {
+                var historics = items.Select(i => new ItemHistoric
+                {
+                    ItemId = i.Id,
+                    ItemHistoricTypeId = 1,
+                    UserId = uid,
+                    CreatedAt = DateTime.UtcNow
+                }).ToList();
+
+                await itemHistoricService.AddRangeAsync(historics);
+
                 return new BaseResp(new { count = created });
+            }
             else
                 return new BaseResp(ErrorCode.ErrorCreatingObject, "Não foi possível cadastrar todos os itens.");
         }
@@ -139,6 +158,14 @@ namespace InventoryServices.Service
 
                 if (fileName2 != null)
                     System.IO.File.Delete(Path.Combine(filePath, fileName2));
+
+                await itemHistoricService.AddAsync(new ItemHistoric
+                {
+                    ItemId = id,
+                    ItemHistoricTypeId = 3,
+                    UserId = uid,
+                    CreatedAt = DateTime.UtcNow
+                });
 
                 return new BaseResp(1);
             }
@@ -351,14 +378,16 @@ namespace InventoryServices.Service
 
                 if (createdCompleteItem != null)
                 {
+                    await itemHistoricService.BuildAndCreateItemUpdateHistoricAsync(oldItem, createdCompleteItem);
+
                     ResItem? resItem = BuildResItem(createdCompleteItem);
 
                     return new BaseResp(resItem);
                 }
-                else throw new Exception($"N�o foi possivel recuperar o item de id: {item.Id}");
+                else throw new Exception($"Não foi possivel recuperar o item de id: {item.Id}");
             }
             else
-                return new BaseResp(ErrorCode.ErrorCreatingObject, "N�o foi possivel adicionar.");
+                return new BaseResp(ErrorCode.ErrorCreatingObject, "Não foi possivel adicionar.");
         }
 
         public BaseResp UpdateItemFileNames(int uid, int id, string? fileName1, string? fileName2)

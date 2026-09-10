@@ -15,6 +15,14 @@ namespace InventoryRepos
 
         public virtual DbSet<Item> Item => Set<Item>();
 
+        public virtual DbSet<ItemHistoric> ItemHistoric => Set<ItemHistoric>();
+
+        public virtual DbSet<ItemHistoricItem> ItemHistoricItem => Set<ItemHistoricItem>();
+
+        public virtual DbSet<ItemHistoricType> ItemHistoricType => Set<ItemHistoricType>();
+
+        public virtual DbSet<ItemHistoricItemField> ItemHistoricItemField => Set<ItemHistoricItemField>();
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

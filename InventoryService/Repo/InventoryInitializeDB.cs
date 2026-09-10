@@ -15,6 +15,8 @@ namespace InventoryRepos
             CreateBaseSubCategories(context);
             CreateBaseItemSituation(context);
             CreateBaseAcquisitionType(context);
+            CreateBaseItemHistoricTypes(context);
+            CreateBaseItemHistoricItemFields(context);
 
             context.SaveChanges();
         }
@@ -37,15 +39,15 @@ namespace InventoryRepos
             if (inventoryDbContext.SubCategory.Count() is not 0) return;
 
             SubCategory[] subCategories = [
-                new SubCategory() { CategoryId = 1, CreatedAt = DateTime.UtcNow, Name = "Móveis", SystemDefault = true, IconName = "Car"  },
-                new SubCategory() { CategoryId = 1, CreatedAt = DateTime.UtcNow, Name = "Eletrodomésticos", SystemDefault = true, IconName = "Tv"  },
+                new SubCategory() { CategoryId = 1, CreatedAt = DateTime.UtcNow, Name = "Mï¿½veis", SystemDefault = true, IconName = "Car"  },
+                new SubCategory() { CategoryId = 1, CreatedAt = DateTime.UtcNow, Name = "Eletrodomï¿½sticos", SystemDefault = true, IconName = "Tv"  },
                 new SubCategory() { CategoryId = 1, CreatedAt = DateTime.UtcNow, Name = "Computadores", SystemDefault = true, IconName = "Computer"  },
-                new SubCategory() { CategoryId = 2, CreatedAt = DateTime.UtcNow, Name = "Eletrônicos", SystemDefault = true, IconName = "Mobile"  },
-                new SubCategory() { CategoryId = 2, CreatedAt = DateTime.UtcNow, Name = "Calçados", SystemDefault = true, IconName = "ShoePrints"  },
+                new SubCategory() { CategoryId = 2, CreatedAt = DateTime.UtcNow, Name = "Eletrï¿½nicos", SystemDefault = true, IconName = "Mobile"  },
+                new SubCategory() { CategoryId = 2, CreatedAt = DateTime.UtcNow, Name = "Calï¿½ados", SystemDefault = true, IconName = "ShoePrints"  },
                 new SubCategory() { CategoryId = 2, CreatedAt = DateTime.UtcNow, Name = "Roupas", SystemDefault = true, IconName = "Tshirt"  },
-                new SubCategory() { CategoryId = 3, CreatedAt = DateTime.UtcNow, Name = "Utensílios", SystemDefault = true, IconName = "AirFreshener"  },
-                new SubCategory() { CategoryId = 3, CreatedAt = DateTime.UtcNow, Name = "Peças internas", SystemDefault = true, IconName = "Wrench"  },
-                new SubCategory() { CategoryId = 3, CreatedAt = DateTime.UtcNow, Name = "Peças externas", SystemDefault = true, IconName = "Car"  },
+                new SubCategory() { CategoryId = 3, CreatedAt = DateTime.UtcNow, Name = "Utensï¿½lios", SystemDefault = true, IconName = "AirFreshener"  },
+                new SubCategory() { CategoryId = 3, CreatedAt = DateTime.UtcNow, Name = "Peï¿½as internas", SystemDefault = true, IconName = "Wrench"  },
+                new SubCategory() { CategoryId = 3, CreatedAt = DateTime.UtcNow, Name = "Peï¿½as externas", SystemDefault = true, IconName = "Car"  },
             ];
 
             inventoryDbContext.SubCategory.AddRange(subCategories);
@@ -75,12 +77,44 @@ namespace InventoryRepos
             AcquisitionType[] acquisitionTypes = [
                 new AcquisitionType() { Name = "Compra", CreatedAt = DateTime.UtcNow, SystemDefault = true, Sequence = 1  },
                 new AcquisitionType() { Name = "Emprestimo", CreatedAt = DateTime.UtcNow, SystemDefault = true, Sequence = 2  },
-                new AcquisitionType() { Name = "Doação", CreatedAt = DateTime.UtcNow, SystemDefault = true, Sequence = 3  },
+                new AcquisitionType() { Name = "Doaï¿½ï¿½o", CreatedAt = DateTime.UtcNow, SystemDefault = true, Sequence = 3  },
                 new AcquisitionType() { Name = "Presente", CreatedAt = DateTime.UtcNow, SystemDefault = true, Sequence = 4  },
                 new AcquisitionType() { Name = "Troca", CreatedAt = DateTime.UtcNow, SystemDefault = true, Sequence = 5  },
             ];
 
             inventoryDbContext.AcquisitionType.AddRange(acquisitionTypes);
+        }
+
+        public static void CreateBaseItemHistoricTypes(InventoryDbCtx inventoryDbContext)
+        {
+            if (inventoryDbContext.ItemHistoricType.Count() is not 0) return;
+
+            ItemHistoricType[] types = [
+                new() { Name = "CriaÃ§Ã£o" },
+                new() { Name = "AtualizaÃ§Ã£o" },
+                new() { Name = "InativaÃ§Ã£o" },
+            ];
+
+            inventoryDbContext.ItemHistoricType.AddRange(types);
+        }
+
+        public static void CreateBaseItemHistoricItemFields(InventoryDbCtx inventoryDbContext)
+        {
+            if (inventoryDbContext.ItemHistoricItemField.Count() is not 0) return;
+
+            ItemHistoricItemField[] fields = [
+                new() { Name = "Nome" },
+                new() { Name = "Categoria" },
+                new() { Name = "SubCategoria" },
+                new() { Name = "SituaÃ§Ã£o" },
+                new() { Name = "Tipo de AquisiÃ§Ã£o" },
+                new() { Name = "Data de AquisiÃ§Ã£o" },
+                new() { Name = "Data de Retirada" },
+                new() { Name = "Valor de Compra" },
+                new() { Name = "Valor de Revenda" },
+            ];
+
+            inventoryDbContext.ItemHistoricItemField.AddRange(fields);
         }
     }
 }
