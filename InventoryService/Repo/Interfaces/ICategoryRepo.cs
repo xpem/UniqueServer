@@ -5,7 +5,7 @@ namespace InventoryRepos.Interfaces
     public interface ICategoryRepo
     {
         Task<int> CreateAsync(Category category);
-        Task<int> DeleteAsync(Category category);
+        Task<int> InactivateAsync(int uid, int id);
         Task<List<Category>?> GetAsync(int uid);
         Task<Category?> GetByIdAsync(int uid, int id);
         Task<List<Category>?> GetByIdWithSubCategoriesAsync(int uid, int? id = null);

@@ -1,4 +1,6 @@
+using InventoryRepos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using Serilog;
@@ -92,7 +94,7 @@ builder.Services.AddLimiterRules();
 
 WebApplication app = builder.Build();
 
-//InventoryInitializeDB.CreateInitiaValues(app.Services.GetRequiredService<IDbContextFactory<InventoryDbCtx>>());
+InventoryInitializeDB.CreateInitiaValues(app.Services.GetRequiredService<IDbContextFactory<InventoryDbCtx>>());
 
 if (!app.Environment.IsDevelopment())
 {

@@ -4,6 +4,7 @@ using InventoryModels.DTOs;
 using InventoryModels.Req;
 using InventoryModels.Res;
 using InventoryRepos.Interfaces;
+using InventoryServices.Service;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System.Threading.Tasks;
@@ -150,12 +151,13 @@ namespace InventoryBLLTests
                 }
                 ];
 
-            Mock<ICategoryRepo> categoryDAL = new();
-            Mock<ISubCategoryRepo> subCategoryDAL = new();
+            Mock<ICategoryRepo> categoryRepo = new();
+            Mock<ISubCategoryRepo> subCategoryRepo = new();
+            Mock<ICategoryHistoricService> categoryHistoricService = new();
 
-            CategoryService categoryBLL = new(categoryDAL.Object, subCategoryDAL.Object);
+            CategoryService categoryBLL = new(categoryRepo.Object, subCategoryRepo.Object, categoryHistoricService.Object);
 
-            categoryDAL.Setup(x => x.GetAsync(1)).ReturnsAsync(categories);
+            categoryRepo.Setup(x => x.GetAsync(1)).ReturnsAsync(categories);
 
             BaseResp bLLResponse = await categoryBLL.Get(1);
 
@@ -175,8 +177,8 @@ namespace InventoryBLLTests
         {
             Mock<ICategoryRepo> categoryDAL = new();
             Mock<ISubCategoryRepo> subCategoryDAL = new();
-
-            CategoryService categoryBLL = new(categoryDAL.Object, subCategoryDAL.Object);
+            Mock<ICategoryHistoricService> categoryHistoricService = new();
+            CategoryService categoryBLL = new(categoryDAL.Object, subCategoryDAL.Object, categoryHistoricService.Object);
 
             var category = new Category()
             {
@@ -252,8 +254,8 @@ namespace InventoryBLLTests
             ReqCategory reqCategory = new() { Name = "Vestimenta" };
 
             Mock<ICategoryRepo> categoryDAL = new();
-            Mock<ISubCategoryRepo> subCategoryDAL = new();
-
+            Mock<ISubCategoryRepo> subCategoryRepo = new();
+            Mock<ICategoryHistoricService> categoryHistoricService = new();
             var category = new Category()
             {
                 Id = 3,
@@ -347,7 +349,7 @@ namespace InventoryBLLTests
             categoryDAL.Setup(x => x.GetByIdAsync(1, 3)).ReturnsAsync(category);
             categoryDAL.Setup(x => x.GetByNameAsync(1, "Vestimenta")).ReturnsAsync(categoryByName);
 
-            CategoryService categoryBLL = new(categoryDAL.Object, subCategoryDAL.Object);
+            CategoryService categoryBLL = new(categoryDAL.Object, subCategoryRepo.Object, categoryHistoricService.Object);
 
             BaseResp bLLResponse = await categoryBLL.UpdateCategory(reqCategory, 1, 3);
 

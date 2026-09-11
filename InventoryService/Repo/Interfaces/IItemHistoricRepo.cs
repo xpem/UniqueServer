@@ -7,5 +7,6 @@ namespace InventoryRepos.Interfaces
         Task<int> AddAsync(ItemHistoric itemHistoric);
         Task AddRangeAsync(List<ItemHistoric> itemHistorics);
         Task<int> AddRangeItemListAsync(List<ItemHistoricItem> itemHistoricItems);
+        Task<List<ItemHistoric>> GetByItemIdAsync(int itemId, int uid);
     }
 }

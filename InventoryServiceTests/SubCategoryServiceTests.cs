@@ -4,6 +4,7 @@ using InventoryModels.DTOs;
 using InventoryModels.Req;
 using InventoryModels.Res;
 using InventoryRepos.Interfaces;
+using InventoryServices.Service;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -91,7 +92,9 @@ namespace InventoryBLLTests
 
             //Mock<InventoryDbContext> mockContext = BuildMockInventoryContext();
 
-            SubCategoryService subCategoryBLL = new(subCategoryDAL.Object);
+            Mock<ICategoryHistoricService> categoryHistoricService = new();
+            Mock<ISubCategoryHistoricService> subCategoryHistoricService = new();
+            SubCategoryService subCategoryBLL = new(subCategoryDAL.Object, subCategoryHistoricService.Object);
 
             BaseResp bLLResponse = await subCategoryBLL.GetByIdAsync(1, 2);
 
@@ -117,9 +120,10 @@ namespace InventoryBLLTests
                   IconName = "Cat",
               };
             Mock<ISubCategoryRepo> subCategoryDAL = new Mock<ISubCategoryRepo>();
+            Mock<ISubCategoryHistoricService> subCategoryHistoricService = new();
             subCategoryDAL.Setup(x => x.GetById(1, 2)).ReturnsAsync(subCategory);
 
-            SubCategoryService subCategoryBLL = new(subCategoryDAL.Object);
+            SubCategoryService subCategoryBLL = new(subCategoryDAL.Object, subCategoryHistoricService.Object);
 
             BaseResp bLLResponse = await subCategoryBLL.GetByIdAsync(1, 3);
 
@@ -166,9 +170,10 @@ namespace InventoryBLLTests
                 }];
 
             Mock<ISubCategoryRepo> subCategoryDAL = new Mock<ISubCategoryRepo>();
+            Mock<ISubCategoryHistoricService> subCategoryHistoricService = new();
             subCategoryDAL.Setup(x => x.GetByCategoryIdAsync(1, 1)).ReturnsAsync(SubCategories);
 
-            SubCategoryService subCategoryBLL = new(subCategoryDAL.Object);
+            SubCategoryService subCategoryBLL = new(subCategoryDAL.Object, subCategoryHistoricService.Object);
 
             BaseResp bLLResponse = await subCategoryBLL.GetByCategoryIdAsync(1, 1);
 
@@ -189,8 +194,8 @@ namespace InventoryBLLTests
             //Mock<InventoryDbContext> mockContext = BuildMockInventoryContext();
 
             Mock<ISubCategoryRepo> mockSubCategoryDAL = new();
-
-            SubCategoryService subCategoryBLL = new(mockSubCategoryDAL.Object);
+            Mock<ISubCategoryHistoricService> subCategoryHistoricService = new();
+            SubCategoryService subCategoryBLL = new(mockSubCategoryDAL.Object, subCategoryHistoricService.Object);
 
             ReqSubCategory reqSubCategory = new()
             {
@@ -238,8 +243,8 @@ namespace InventoryBLLTests
             mockSubCategoryDAL.Setup(x => x.GetById(2, 6)).ReturnsAsync(subCategory);
             mockSubCategoryDAL.Setup(x => x.GetByCategoryIdAndNameAsync(2, 2, "Teste de título alterado")).ReturnsAsync(subCategoryGetByCategoryIdAndName);
             mockSubCategoryDAL.Setup(x => x.UpdateAsync(It.IsAny<SubCategory>())).ReturnsAsync(1);
-
-            SubCategoryService subCategoryBLL = new(mockSubCategoryDAL.Object);
+            Mock<ISubCategoryHistoricService> subCategoryHistoricService = new();
+            SubCategoryService subCategoryBLL = new(mockSubCategoryDAL.Object, subCategoryHistoricService.Object);
 
 
             ReqSubCategory reqSubCategory = new()
@@ -292,11 +297,12 @@ namespace InventoryBLLTests
             };
 
             Mock<ISubCategoryRepo> mockSubCategoryDAL = new();
+            Mock<ISubCategoryHistoricService> subCategoryHistoricService = new();
             mockSubCategoryDAL.Setup(x => x.GetById(2, 6)).ReturnsAsync(subCategory);
             mockSubCategoryDAL.Setup(x => x.GetByCategoryIdAndNameAsync(2, 2, "Teste de título 4")).ReturnsAsync(subCategoryWithSameName);
 
 
-            SubCategoryService subCategoryBLL = new(mockSubCategoryDAL.Object);
+            SubCategoryService subCategoryBLL = new(mockSubCategoryDAL.Object, subCategoryHistoricService.Object);
 
             ReqSubCategory reqSubCategory = new()
             {
@@ -332,10 +338,10 @@ namespace InventoryBLLTests
             };
 
             Mock<ISubCategoryRepo> mockSubCategoryDAL = new();
-
+            Mock<ISubCategoryHistoricService> subCategoryHistoricService = new();
             mockSubCategoryDAL.Setup(x => x.GetById(2, 5)).ReturnsAsync(subCategory);
 
-            SubCategoryService subCategoryBLL = new(mockSubCategoryDAL.Object);
+            SubCategoryService subCategoryBLL = new(mockSubCategoryDAL.Object, subCategoryHistoricService.Object);
 
             ReqSubCategory reqSubCategory = new()
             {
@@ -371,10 +377,10 @@ namespace InventoryBLLTests
             };
 
             Mock<ISubCategoryRepo> subCategoryDAL = new();
-
+            Mock<ISubCategoryHistoricService> subCategoryHistoricService = new();
             subCategoryDAL.Setup(x => x.GetById(2, 6)).ReturnsAsync(subcategory);
             subCategoryDAL.Setup(x => x.UpdateAsync(It.IsAny<SubCategory>())).ReturnsAsync(1);
-            SubCategoryService subCategoryBLL = new(subCategoryDAL.Object);
+            SubCategoryService subCategoryBLL = new(subCategoryDAL.Object, subCategoryHistoricService.Object);
 
             BaseResp bLLResponse = await subCategoryBLL.InactiveSubCategoryAsync(2, 6);
 
@@ -387,7 +393,7 @@ namespace InventoryBLLTests
         public async Task Try_Delete_SystemDefault_SubCategoryTest()
         {
             Mock<ISubCategoryRepo> subCategoryDAL = new();
-
+            Mock<ISubCategoryHistoricService> subCategoryHistoricService = new();
             var subCategoryById = new SubCategory()
             {
                 Id = 5,
@@ -400,7 +406,7 @@ namespace InventoryBLLTests
 
             subCategoryDAL.Setup(x => x.GetById(2, 5)).ReturnsAsync(subCategoryById);
 
-            SubCategoryService subCategoryBLL = new(subCategoryDAL.Object);
+            SubCategoryService subCategoryBLL = new(subCategoryDAL.Object, subCategoryHistoricService.Object);
 
             BaseResp bLLResponse = await subCategoryBLL.InactiveSubCategoryAsync(2, 5);
 

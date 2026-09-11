@@ -4,10 +4,11 @@ using InventoryModels.DTOs;
 using InventoryModels.Req;
 using InventoryModels.Res;
 using InventoryRepos.Interfaces;
+using InventoryServices.Service;
 
 namespace InventoryBLL
 {
-    public class SubCategoryService(ISubCategoryRepo subCategoryRepo) : ISubCategoryService
+    public class SubCategoryService(ISubCategoryRepo subCategoryRepo, ISubCategoryHistoricService subCategoryHistoricService) : ISubCategoryService
     {
         readonly int pageSize = 50;
 
@@ -45,11 +46,19 @@ namespace InventoryBLL
 
                 if (respExec == 1)
                 {
+                    await subCategoryHistoricService.AddAsync(new SubCategoryHistoric
+                    {
+                        SubCategoryId = subCategory.Id,
+                        SubCategoryHistoricTypeId = 1,
+                        UserId = uid,
+                        CreatedAt = DateTime.UtcNow
+                    });
+
                     ResSubCategory resSubCategory = new() { Id = subCategory.Id, Name = subCategory.Name, IconName = subCategory.IconName, CategoryId = subCategory.CategoryId, SystemDefault = subCategory.SystemDefault };
                     return new BaseResp(resSubCategory);
                 }
                 else
-                    return new BaseResp(ErrorCode.ErrorCreatingObject, "Não foi possivel adicionar.");
+                    return new BaseResp(ErrorCode.ErrorCreatingObject, "Nï¿½o foi possivel adicionar.");
             }
             catch { throw; }
         }
@@ -71,9 +80,19 @@ namespace InventoryBLL
                 int respExec = await subCategoryRepo.UpdateAsync(subCategory);
 
                 if (respExec == 1)
+                {
+                    await subCategoryHistoricService.AddAsync(new SubCategoryHistoric
+                    {
+                        SubCategoryId = id,
+                        SubCategoryHistoricTypeId = 3,
+                        UserId = uid,
+                        CreatedAt = DateTime.UtcNow
+                    });
+
                     return new BaseResp(null);
+                }
                 else
-                    return new BaseResp(ErrorCode.ErrorDeletingObject, "Não foi possivel deletar.");
+                    return new BaseResp(ErrorCode.ErrorDeletingObject, "Nï¿½o foi possivel deletar.");
             }
             catch { throw; }
         }
@@ -123,11 +142,13 @@ namespace InventoryBLL
 
                 if (respExec == 1)
                 {
+                    await subCategoryHistoricService.BuildAndCreateSubCategoryUpdateHistoricAsync(oldSubCategory, subCategory, uid);
+
                     ResSubCategory resSubCategory = new() { Id = subCategory.Id, Name = subCategory.Name, IconName = subCategory.IconName, CategoryId = subCategory.CategoryId, SystemDefault = subCategory.SystemDefault };
                     return new BaseResp(resSubCategory);
                 }
                 else
-                    return new BaseResp(ErrorCode.ErrorUpdatingObject, "Não foi possivel atualizar.");
+                    return new BaseResp(ErrorCode.ErrorUpdatingObject, "Nï¿½o foi possivel atualizar.");
             }
             catch { throw; }
         }

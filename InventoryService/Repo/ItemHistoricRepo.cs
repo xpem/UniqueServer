@@ -26,5 +26,17 @@ namespace InventoryRepos
             await context.ItemHistoricItem.AddRangeAsync(itemHistoricItems);
             return await context.SaveChangesAsync();
         }
+
+        public async Task<List<ItemHistoric>> GetByItemIdAsync(int itemId, int uid)
+        {
+            using var context = dbCtx.CreateDbContext();
+            return await context.ItemHistoric
+                .Where(x => x.ItemId == itemId && x.UserId == uid)
+                .Include(x => x.ItemHistoricType)
+                .Include(x => x.ItemHistoricItems)
+                    .ThenInclude(i => i.ItemHistoricItemField)
+                .OrderByDescending(x => x.CreatedAt)
+                .ToListAsync();
+        }
     }
 }

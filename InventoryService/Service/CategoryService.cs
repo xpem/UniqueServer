@@ -4,11 +4,12 @@ using InventoryModels.DTOs;
 using InventoryModels.Req;
 using InventoryModels.Res;
 using InventoryRepos.Interfaces;
+using InventoryServices.Service;
 using System.Threading.Tasks;
 
 namespace InventoryBLL
 {
-    public class CategoryService(ICategoryRepo categoryRepo, ISubCategoryRepo subCategoryDAL) : ICategoryService
+    public class CategoryService(ICategoryRepo categoryRepo, ISubCategoryRepo subCategoryDAL, ICategoryHistoricService categoryHistoricService) : ICategoryService
     {
         public async Task<BaseResp> Create(ReqCategory reqCategory, int uid)
         {
@@ -35,6 +36,14 @@ namespace InventoryBLL
 
                 if (respExec == 1)
                 {
+                    await categoryHistoricService.AddAsync(new CategoryHistoric
+                    {
+                        CategoryId = category.Id,
+                        CategoryHistoricTypeId = 1,
+                        UserId = uid,
+                        CreatedAt = DateTime.UtcNow
+                    });
+
                     ResCategory resCategory = new()
                     {
                         Name = category.Name,
@@ -45,7 +54,7 @@ namespace InventoryBLL
                     return new BaseResp(resCategory);
                 }
                 else
-                    return new BaseResp(ErrorCode.ErrorCreatingObject, "Não foi possivel adicionar.");
+                    return new BaseResp(ErrorCode.ErrorCreatingObject, "Nï¿½o foi possivel adicionar.");
             }
             catch { throw; }
         }
@@ -65,14 +74,24 @@ namespace InventoryBLL
                 List<SubCategory>? subCategories = await subCategoryDAL.GetByCategoryIdAsync(uid, category.Id);
 
                 if (subCategories != null && subCategories.Count > 0)
-                    return new BaseResp(ErrorCode.TryDeleteObjectWithDependencies, "It's not possible delete a Category with Sub Categories");
+                    return new BaseResp(ErrorCode.TryDeleteObjectWithDependencies, "It's not possible inactivate a Category with active Sub Categories");
 
-                int respExec = await categoryRepo.DeleteAsync(category);
+                int respExec = await categoryRepo.InactivateAsync(uid, id);
 
                 if (respExec == 1)
+                {
+                    await categoryHistoricService.AddAsync(new CategoryHistoric
+                    {
+                        CategoryId = id,
+                        CategoryHistoricTypeId = 3,
+                        UserId = uid,
+                        CreatedAt = DateTime.UtcNow
+                    });
+
                     return new BaseResp(1);
+                }
                 else
-                    return new BaseResp(ErrorCode.ErrorUpdatingObject, "Não foi possivel atualizar.");
+                    return new BaseResp(ErrorCode.ErrorUpdatingObject, "NÃ£o foi possivel inativar.");
             }
             catch { throw; }
         }
@@ -190,6 +209,8 @@ namespace InventoryBLL
 
                 if (respExec == 1)
                 {
+                    await categoryHistoricService.BuildAndCreateCategoryUpdateHistoricAsync(oldCategory, category, uid);
+
                     List<SubCategory>? subCategories = await subCategoryDAL.GetByCategoryIdAsync(uid, category.Id);
                     List<ResSubCategory>? resSubCategories = [];
 
@@ -216,7 +237,7 @@ namespace InventoryBLL
                     return new BaseResp(resCategoryWithSubCategories);
                 }
                 else
-                    return new BaseResp("Não foi possivel atualizar.");
+                    return new BaseResp("Nï¿½o foi possivel atualizar.");
             }
             catch { throw; }
         }

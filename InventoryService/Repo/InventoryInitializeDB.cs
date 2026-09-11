@@ -17,6 +17,10 @@ namespace InventoryRepos
             CreateBaseAcquisitionType(context);
             CreateBaseItemHistoricTypes(context);
             CreateBaseItemHistoricItemFields(context);
+            CreateBaseCategoryHistoricTypes(context);
+            CreateBaseCategoryHistoricItemFields(context);
+            CreateBaseSubCategoryHistoricTypes(context);
+            CreateBaseSubCategoryHistoricItemFields(context);
 
             context.SaveChanges();
         }
@@ -115,6 +119,56 @@ namespace InventoryRepos
             ];
 
             inventoryDbContext.ItemHistoricItemField.AddRange(fields);
+        }
+
+        public static void CreateBaseCategoryHistoricTypes(InventoryDbCtx inventoryDbContext)
+        {
+            if (inventoryDbContext.CategoryHistoricType.Count() is not 0) return;
+
+            CategoryHistoricType[] types = [
+                new() { Name = "Criação" },
+                new() { Name = "Atualização" },
+                new() { Name = "Inativação" },
+            ];
+
+            inventoryDbContext.CategoryHistoricType.AddRange(types);
+        }
+
+        public static void CreateBaseCategoryHistoricItemFields(InventoryDbCtx inventoryDbContext)
+        {
+            if (inventoryDbContext.CategoryHistoricItemField.Count() is not 0) return;
+
+            CategoryHistoricItemField[] fields = [
+                new() { Name = "Nome" },
+                new() { Name = "Cor" },
+            ];
+
+            inventoryDbContext.CategoryHistoricItemField.AddRange(fields);
+        }
+
+        public static void CreateBaseSubCategoryHistoricTypes(InventoryDbCtx inventoryDbContext)
+        {
+            if (inventoryDbContext.SubCategoryHistoricType.Count() is not 0) return;
+
+            SubCategoryHistoricType[] types = [
+                new() { Name = "Criação" },
+                new() { Name = "Atualização" },
+                new() { Name = "Inativação" },
+            ];
+
+            inventoryDbContext.SubCategoryHistoricType.AddRange(types);
+        }
+
+        public static void CreateBaseSubCategoryHistoricItemFields(InventoryDbCtx inventoryDbContext)
+        {
+            if (inventoryDbContext.SubCategoryHistoricItemField.Count() is not 0) return;
+
+            SubCategoryHistoricItemField[] fields = [
+                new() { Name = "Nome" },
+                new() { Name = "Ícone" },
+            ];
+
+            inventoryDbContext.SubCategoryHistoricItemField.AddRange(fields);
         }
     }
 }

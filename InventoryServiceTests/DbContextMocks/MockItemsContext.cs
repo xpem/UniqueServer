@@ -124,7 +124,7 @@ namespace InventoryBLLTests.DbContextMocks
             Mock<ICategoryRepo> mockCategoryDAL = new();
             Mock<ISubCategoryRepo> mockSubCategoryDAL = new();
             Mock<IAcquisitionTypeRepo> mockAcquisitionTypeDAL = new();
-
+            Mock<IItemHistoricService> mockItemHistoricService = new();
             mockSubCategoryDAL.Setup(x => x.GetById(1, 1)).ReturnsAsync(subCategory);
             mockCategoryDAL.Setup(x => x.GetByIdAsync(1, 1)).ReturnsAsync(category);
             mockAcquisitionTypeDAL.Setup(x => x.GetById(1, 1)).ReturnsAsync(acquisitionType);
@@ -139,7 +139,7 @@ namespace InventoryBLLTests.DbContextMocks
             mockItemDAL.Setup(x => x.Create(It.IsAny<Item>())).Returns(1);
             mockItemDAL.Setup(x => x.Update(It.IsAny<Item>())).Returns(1);
             return new ItemService(mockItemSituationDAL.Object, mockCategoryDAL.Object,
-                mockSubCategoryDAL.Object, mockAcquisitionTypeDAL.Object, mockItemDAL.Object);
+                mockSubCategoryDAL.Object, mockAcquisitionTypeDAL.Object, mockItemDAL.Object, mockItemHistoricService.Object);
         }
 
 
