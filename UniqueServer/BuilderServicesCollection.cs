@@ -85,6 +85,8 @@ namespace UniqueServer
             services.AddScoped<IItemSituationRepo, ItemSituationRepo>();
             services.AddScoped<IItemRepo, ItemRepo>();
             services.AddScoped<IItemHistoricRepo, ItemHistoricRepo>();
+            services.AddScoped<ICategoryHistoricRepo, CategoryHistoricRepo>();
+            services.AddScoped<ISubCategoryHistoricRepo, SubCategoryHistoricRepo>();
 
             //financial
             services.AddScoped<ITransactionCategoryRepo, TransactionCategoryRepo>();
@@ -146,6 +148,8 @@ namespace UniqueServer
             services.AddScoped<IItemSituationService, ItemSituationService>();
             services.AddScoped<IItemService, ItemService>();
             services.AddScoped<IItemHistoricService, ItemHistoricService>();
+            services.AddScoped<ICategoryHistoricService, CategoryHistoricService>();
+            services.AddScoped<ISubCategoryHistoricService, SubCategoryHistoricService>();
             services.AddScoped<ITransactionCategoryService, TransactionCategoryService>();
 
             #endregion

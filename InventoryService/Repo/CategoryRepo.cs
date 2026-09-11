@@ -15,19 +15,21 @@ namespace InventoryRepo
             return await context.SaveChangesAsync();
         }
 
-        public async Task<int> DeleteAsync(Category category)
+        public async Task<int> InactivateAsync(int uid, int id)
         {
             using var context = dbCtx.CreateDbContext();
-            context.ChangeTracker?.Clear();
-            context.Category.Remove(category);
-            return await context.SaveChangesAsync();
+            return await context.Category
+                .Where(x => x.UserId == uid && x.Id == id)
+                .ExecuteUpdateAsync(y => y
+                    .SetProperty(z => z.Inactive, true)
+                    .SetProperty(z => z.UpdatedAt, DateTime.UtcNow));
         }
 
         public async Task<List<Category>?> GetAsync(int uid)
         {
             using var context = dbCtx.CreateDbContext();
             return await context.Category
-                .Where(x => x.UserId == uid || (x.UserId == null && x.SystemDefault))
+                .Where(x => !x.Inactive && (x.UserId == uid || (x.UserId == null && x.SystemDefault)))
                 .ToListAsync();
         }
 
@@ -35,7 +37,7 @@ namespace InventoryRepo
         {
             using var context = dbCtx.CreateDbContext();
             return await context.Category
-                .Where(x => (x.UserId == uid || (x.UserId == null && x.SystemDefault)) && x.Id == id)
+                .Where(x => !x.Inactive && (x.UserId == uid || (x.UserId == null && x.SystemDefault)) && x.Id == id)
                 .FirstOrDefaultAsync();
         }
 
@@ -43,7 +45,7 @@ namespace InventoryRepo
         {
             using var context = dbCtx.CreateDbContext();
             return await context.Category
-                .Where(x => (x.UserId == uid || (x.UserId == null && x.SystemDefault)) && x.Name == name)
+                .Where(x => !x.Inactive && (x.UserId == uid || (x.UserId == null && x.SystemDefault)) && x.Name == name)
                 .FirstOrDefaultAsync();
         }
 
@@ -52,13 +54,13 @@ namespace InventoryRepo
             using var context = dbCtx.CreateDbContext();
             if (id is null)
                 return await context.Category
-                    .Where(x => x.UserId == uid || (x.UserId == null && x.SystemDefault))
+                    .Where(x => !x.Inactive && (x.UserId == uid || (x.UserId == null && x.SystemDefault)))
                     .Include(x => x.SubCategories!.Where(sc => !sc.Inactive && (sc.UserId == uid || (sc.UserId == null && sc.SystemDefault))))
                     .OrderBy(x => x.Id)
                     .ToListAsync();
             else
                 return await context.Category
-                    .Where(x => (x.UserId == uid || (x.UserId == null && x.SystemDefault)) && x.Id == id)
+                    .Where(x => !x.Inactive && (x.UserId == uid || (x.UserId == null && x.SystemDefault)) && x.Id == id)
                     .Include(x => x.SubCategories!.Where(sc => !sc.Inactive && (sc.UserId == uid || (sc.UserId == null && sc.SystemDefault))))
                     .OrderBy(x => x.Id)
                     .ToListAsync();

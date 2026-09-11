@@ -15,7 +15,8 @@ namespace UniqueServer.Controllers
     [Authorize]
     public class InventoryController(ISubCategoryService subCategoryService, ICategoryService categoryService,
         IItemSituationService itemSituationService, IAcquisitionTypeService acquisitionTypeService, IItemService itemService,
-        IHostEnvironment hostingEnvironment) : BaseController
+        IHostEnvironment hostingEnvironment, IItemHistoricService itemHistoricService,
+        ICategoryHistoricService categoryHistoricService, ISubCategoryHistoricService subCategoryHistoricService) : BaseController
     {
         #region subcategory
 
@@ -38,6 +39,10 @@ namespace UniqueServer.Controllers
         [Route("subcategory/category/{categoryId}")]
         [HttpGet]
         public async Task<IActionResult> GetSubCategoriesByCategoryId(int categoryId) => BuildResponse(await subCategoryService.GetByCategoryIdAsync(Uid, categoryId));
+
+        [Route("subcategory/{id}/historic")]
+        [HttpGet]
+        public async Task<IActionResult> GetSubCategoryHistoric(int id) => BuildResponse(await subCategoryHistoricService.GetBySubCategoryIdAsync(id, Uid));
 
         [Route("subCategory/byAfterUpdatedAt/{updatedAt}/{page}")]
         [HttpGet]
@@ -69,6 +74,10 @@ namespace UniqueServer.Controllers
         [Route("category/{id}")]
         [HttpDelete]
         public async Task<IActionResult> DeleteCategory(int id) => BuildResponse(await categoryService.DeleteCategory(Uid, id));
+
+        [Route("category/{id}/historic")]
+        [HttpGet]
+        public async Task<IActionResult> GetCategoryHistoric(int id) => BuildResponse(await categoryHistoricService.GetByCategoryIdAsync(id, Uid));
 
         [Route("category/subcategory")]
         [HttpGet]
@@ -139,6 +148,10 @@ namespace UniqueServer.Controllers
         [Route("item/{id}")]
         [HttpDelete]
         public async Task<IActionResult> DeleteItem(int id) => BuildResponse(await itemService.DeleteItem(Uid, id, ReturnPath()));
+
+        [Route("item/{id}/historic")]
+        [HttpGet]
+        public async Task<IActionResult> GetItemHistoric(int id) => BuildResponse(await itemHistoricService.GetByItemIdAsync(id, Uid));
 
         [Route("item/{id}/image")]
         [HttpPut]

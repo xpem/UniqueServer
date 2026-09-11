@@ -19,7 +19,7 @@ namespace InventoryRepos
         {
             DateTime updatedAtUtc = DateTime.SpecifyKind(updatedAt, DateTimeKind.Utc);
             using var context = dbCtx.CreateDbContext();
-            return await context.SubCategory.Where(x => (x.UserId == uid || x.UserId == null && x.SystemDefault) && x.UpdatedAt > updatedAtUtc).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+            return await context.SubCategory.Where(x => !x.Inactive && (x.UserId == uid || x.UserId == null && x.SystemDefault) && x.UpdatedAt > updatedAtUtc).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
         }
 
         public async Task<List<SubCategory>?> GetByCategoryIdAsync(int uid, int categoryId)

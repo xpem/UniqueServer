@@ -1,4 +1,6 @@
+using BaseModels;
 using InventoryModels.DTOs;
+using InventoryModels.Res.Item;
 using InventoryRepos.Interfaces;
 
 namespace InventoryServices.Service
@@ -8,6 +10,30 @@ namespace InventoryServices.Service
         public Task<int> AddAsync(ItemHistoric itemHistoric) => itemHistoricRepo.AddAsync(itemHistoric);
 
         public Task AddRangeAsync(List<ItemHistoric> itemHistorics) => itemHistoricRepo.AddRangeAsync(itemHistorics);
+
+        public async Task<BaseResp> GetByItemIdAsync(int itemId, int uid)
+        {
+            List<ItemHistoric> historics = await itemHistoricRepo.GetByItemIdAsync(itemId, uid);
+
+            List<ResItemHistoric> result = historics.Select(h => new ResItemHistoric
+            {
+                Id = h.Id,
+                CreatedAt = h.CreatedAt,
+                ItemId = h.ItemId,
+                TypeId = h.ItemHistoricTypeId,
+                TypeName = h.ItemHistoricType?.Name,
+                Fields = h.ItemHistoricItems.Select(f => new ResItemHistoricField
+                {
+                    Id = f.Id,
+                    FieldId = f.ItemHistoricItemFieldId,
+                    FieldName = f.ItemHistoricItemField?.Name,
+                    UpdatedFrom = f.UpdatedFrom,
+                    UpdatedTo = f.UpdatedTo
+                }).ToList()
+            }).ToList();
+
+            return new BaseResp(result);
+        }
 
         public async Task BuildAndCreateItemUpdateHistoricAsync(Item oldItem, Item newItem)
         {

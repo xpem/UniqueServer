@@ -23,6 +23,22 @@ namespace InventoryRepos
 
         public virtual DbSet<ItemHistoricItemField> ItemHistoricItemField => Set<ItemHistoricItemField>();
 
+        public virtual DbSet<CategoryHistoric> CategoryHistoric => Set<CategoryHistoric>();
+
+        public virtual DbSet<CategoryHistoricItem> CategoryHistoricItem => Set<CategoryHistoricItem>();
+
+        public virtual DbSet<CategoryHistoricType> CategoryHistoricType => Set<CategoryHistoricType>();
+
+        public virtual DbSet<CategoryHistoricItemField> CategoryHistoricItemField => Set<CategoryHistoricItemField>();
+
+        public virtual DbSet<SubCategoryHistoric> SubCategoryHistoric => Set<SubCategoryHistoric>();
+
+        public virtual DbSet<SubCategoryHistoricItem> SubCategoryHistoricItem => Set<SubCategoryHistoricItem>();
+
+        public virtual DbSet<SubCategoryHistoricType> SubCategoryHistoricType => Set<SubCategoryHistoricType>();
+
+        public virtual DbSet<SubCategoryHistoricItemField> SubCategoryHistoricItemField => Set<SubCategoryHistoricItemField>();
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -40,10 +56,10 @@ namespace InventoryRepos
 
         //migrations
         //no console do gerenciador de pacotes selecione o dal referente:
-        //EntityFrameworkCore\Add-Migration "Init" -Context InventoryDbContext
-        //EntityFrameworkCore\update-database -Context InventoryDbContext
+        //EntityFrameworkCore\Add-Migration "10092026" -Context InventoryDbCtx
+        //EntityFrameworkCore\update-database -Context InventoryDbCtx
 
         //to remove last migration snapshot
-        //Remove-Migration -Context InventoryDbContext 
+        //Remove-Migration -Context InventoryDbCtx 
     }
 }
