@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace InventoryModels.DTOs
 {
-    [Index(nameof(CreatedAt), nameof(UserId))]
+    [Index(nameof(SubCategoryId), nameof(UserId), nameof(CreatedAt))]
     public class SubCategoryHistoric
     {
         public int Id { get; set; }

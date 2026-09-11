@@ -56,7 +56,7 @@ namespace InventoryRepos
 
         //migrations
         //no console do gerenciador de pacotes selecione o dal referente:
-        //EntityFrameworkCore\Add-Migration "10092026" -Context InventoryDbCtx
+        //EntityFrameworkCore\Add-Migration "11092026" -Context InventoryDbCtx
         //EntityFrameworkCore\update-database -Context InventoryDbCtx
 
         //to remove last migration snapshot
