@@ -42,6 +42,8 @@ namespace InventoryModels.DTOs
 
         public string? Image2 { get; set; }
 
+        public int? ParentItemId { get; set; }
+
         [JsonIgnore]
         public ItemSituation? ItemSituation { get; set; }
 
@@ -53,6 +55,12 @@ namespace InventoryModels.DTOs
 
         [JsonIgnore]
         public AcquisitionType? AcquisitionType { get; set; }
+
+        [JsonIgnore]
+        public Item? ParentItem { get; set; }
+
+        [JsonIgnore]
+        public ICollection<Item>? ChildItems { get; set; }
 
         public required DateTime UpdatedAt { get; set; }
 

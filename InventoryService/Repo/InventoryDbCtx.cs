@@ -51,6 +51,14 @@ namespace InventoryRepos
 
                 b.HasIndex(x => new { x.UserId, x.ItemSituationId })
                     .HasDatabaseName("IX_Item_UserId_ItemSituationId");
+
+                b.HasIndex(x => new { x.UserId, x.ParentItemId })
+                    .HasDatabaseName("IX_Item_UserId_ParentItemId");
+
+                b.HasOne(x => x.ParentItem)
+                    .WithMany(x => x.ChildItems)
+                    .HasForeignKey(x => x.ParentItemId)
+                    .OnDelete(DeleteBehavior.SetNull);
             });
         }
 

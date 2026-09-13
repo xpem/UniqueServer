@@ -38,6 +38,8 @@ namespace InventoryModels.Req
 
         public DateOnly? WithdrawalDate { get; init; }
 
+        public int? ParentItemId { get; init; }
+
     }
 
     public record ReqItemCategory
@@ -47,5 +49,9 @@ namespace InventoryModels.Req
         public int? SubCategoryId { get; init; }
     }
 
+    public record ReqItemParent
+    {
+        public int? ParentItemId { get; init; }
+    }
 
 }

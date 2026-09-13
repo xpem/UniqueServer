@@ -123,6 +123,20 @@ namespace UniqueServer.Controllers
         [HttpGet]
         public async Task<IActionResult> GetItemById(int id) => BuildResponse(await itemService.GetById(Uid, id));
 
+        [Route("item/exists-by-name")]
+        [HttpGet]
+        public async Task<IActionResult> CheckItemNameExists([FromQuery] string name, [FromQuery] int? excludeId)
+            => BuildResponse(await itemService.CheckItemNameExistsAsync(Uid, name, excludeId));
+
+        [Route("item/{id:int:min(1)}/children")]
+        [HttpGet]
+        public async Task<IActionResult> GetItemChildren(int id) => BuildResponse(await itemService.GetChildrenAsync(Uid, id));
+
+        [Route("item/{id:int:min(1)}/parent")]
+        [HttpPut]
+        public async Task<IActionResult> SetItemParent(int id, [FromBody] ReqItemParent reqItemParent)
+            => BuildResponse(await itemService.SetParentItemAsync(Uid, id, reqItemParent.ParentItemId));
+
         [Route("item/totals")]
         [HttpGet]
         public IActionResult GetTotalItems() => BuildResponse(itemService.GetTotalItemsPagesAsync(Uid).Result);

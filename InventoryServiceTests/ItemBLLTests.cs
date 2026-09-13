@@ -1,8 +1,12 @@
 ﻿using InventoryBLLTests.DbContextMocks;
+using InventoryModels.DTOs;
 using InventoryModels.Req;
 using InventoryModels.Res.Item;
+using InventoryRepos.Interfaces;
 using InventoryServices.Service;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using System;
 using System.Threading.Tasks;
 
 namespace InventoryBLLTests
@@ -177,6 +181,77 @@ namespace InventoryBLLTests
             }
 
             Assert.Fail();
+        }
+
+        [TestMethod()]
+        public async Task UpdateItem_Preserves_Existing_Image1_And_Image2()
+        {
+            int uid = 1;
+
+            Item oldItem = new()
+            {
+                Id = 1,
+                UserId = uid,
+                Name = "Notebook",
+                AcquisitionDate = new DateOnly(2023, 01, 01),
+                ItemSituationId = 1,
+                CategoryId = 1,
+                AcquisitionTypeId = 1,
+                UpdatedAt = DateTime.Now,
+                CreatedAt = DateTime.Now,
+                Image1 = "foto1.jpg",
+                Image2 = "foto2.jpg",
+            };
+
+            Item updatedItem = new()
+            {
+                Id = 1,
+                UserId = uid,
+                Name = "Notebook Atualizado",
+                AcquisitionDate = new DateOnly(2023, 01, 01),
+                ItemSituationId = 1,
+                CategoryId = 1,
+                AcquisitionTypeId = 1,
+                UpdatedAt = DateTime.Now,
+                CreatedAt = oldItem.CreatedAt,
+                Image1 = "foto1.jpg",
+                Image2 = "foto2.jpg",
+            };
+
+            Item? capturedItem = null;
+
+            Mock<IItemRepo> mockItemDAL = new();
+            mockItemDAL.SetupSequence(x => x.GetById(uid, 1))
+                .ReturnsAsync(oldItem)
+                .ReturnsAsync(updatedItem);
+            mockItemDAL.Setup(x => x.Update(It.IsAny<Item>()))
+                .Callback<Item>(item => capturedItem = item)
+                .Returns(1);
+
+            Mock<IItemSituationRepo> mockItemSituationDAL = new();
+            Mock<ICategoryRepo> mockCategoryDAL = new();
+            Mock<ISubCategoryRepo> mockSubCategoryDAL = new();
+            Mock<IAcquisitionTypeRepo> mockAcquisitionTypeDAL = new();
+            Mock<IItemHistoricService> mockItemHistoricService = new();
+
+            ItemService itemBLL = new(mockItemSituationDAL.Object, mockCategoryDAL.Object,
+                mockSubCategoryDAL.Object, mockAcquisitionTypeDAL.Object, mockItemDAL.Object, mockItemHistoricService.Object);
+
+            ReqItem reqItem = new()
+            {
+                Name = "Notebook Atualizado",
+                AcquisitionDate = new DateOnly(2023, 01, 01),
+                SituationId = 1,
+                AcquisitionType = 1,
+                Category = new ReqItemCategory { CategoryId = 1 },
+            };
+
+            BaseModels.BaseResp resp = await itemBLL.UpdateItem(reqItem, uid, 1);
+
+            Assert.IsTrue(resp.Success);
+            Assert.IsNotNull(capturedItem);
+            Assert.AreEqual("foto1.jpg", capturedItem!.Image1);
+            Assert.AreEqual("foto2.jpg", capturedItem.Image2);
         }
     }
 }
