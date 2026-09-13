@@ -116,6 +116,7 @@ namespace InventoryRepos
                 new() { Name = "Data de Retirada" },
                 new() { Name = "Valor de Compra" },
                 new() { Name = "Valor de Revenda" },
+                new() { Name = "Item Associado" },
             ];
 
             inventoryDbContext.ItemHistoricItemField.AddRange(fields);

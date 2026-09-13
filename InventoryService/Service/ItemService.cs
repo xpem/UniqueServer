@@ -21,6 +21,9 @@ namespace InventoryServices.Service
                 string? validateError = reqItem.Validate();
                 if (!string.IsNullOrEmpty(validateError)) return new BaseResp(ErrorCode.InvalidObject, validateError);
 
+                string? parentValidateError = await ValidateParentItemAsync(uid, reqItem.ParentItemId, null);
+                if (!string.IsNullOrEmpty(parentValidateError)) return new BaseResp(ErrorCode.InvalidObject, parentValidateError);
+
                 //to do, n�o preciso validar os indices, ser�o validados pelas foreign keys no banco
                 //string? validateIndexes = await ValidateIndexes(reqItem, uid);
                 //if (!string.IsNullOrEmpty(validateIndexes)) return new BaseResponse(null, validateIndexes);
@@ -42,6 +45,7 @@ namespace InventoryServices.Service
                     SubCategoryId = reqItem.Category.SubCategoryId,
                     TechnicalDescription = reqItem.TechnicalDescription,
                     WithdrawalDate = reqItem.WithdrawalDate,
+                    ParentItemId = reqItem.ParentItemId,
                 };
 
                 try
@@ -153,6 +157,9 @@ namespace InventoryServices.Service
 
             if (respExec == 1)
             {
+                // Itens associados a este perdem a referência ao pai excluído
+                await itemRepo.DetachChildrenAsync(uid, id);
+
                 if (fileName1 != null)
                     System.IO.File.Delete(Path.Combine(filePath, fileName1));
 
@@ -292,6 +299,18 @@ namespace InventoryServices.Service
             return new BaseResp(resItem);
         }
 
+        public async Task<BaseResp> CheckItemNameExistsAsync(int uid, string name, int? excludeId)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return new BaseResp(new { exists = false });
+
+            Item? existingItem = await itemRepo.GetByNameAsync(uid, name.Trim());
+
+            bool exists = existingItem is not null && (excludeId is null || existingItem.Id != excludeId);
+
+            return new BaseResp(new { exists });
+        }
+
         protected static ResItem? BuildResItem(Item? item)
         {
             ResItem? resItem = null;
@@ -331,6 +350,11 @@ namespace InventoryServices.Service
                     TechnicalDescription = item.TechnicalDescription,
                     UpdatedAt = item.UpdatedAt,
                     WithdrawalDate = item.WithdrawalDate,
+                    ParentItem = (item.ParentItem is not null) ? new ResItemParent
+                    {
+                        Id = item.ParentItem.Id,
+                        Name = item.ParentItem.Name,
+                    } : null,
                 };
             }
 
@@ -345,6 +369,9 @@ namespace InventoryServices.Service
             Item? oldItem = await itemRepo.GetById(uid, id);
 
             if (oldItem == null) return new BaseResp(ErrorCode.InvalidId, "Invalid id");
+
+            string? parentValidateError = await ValidateParentItemAsync(uid, reqItem.ParentItemId, id);
+            if (!string.IsNullOrEmpty(parentValidateError)) return new BaseResp(ErrorCode.InvalidObject, parentValidateError);
 
             //string? validateIndexes = await ValidateIndexes(reqItem, uid);
 
@@ -368,6 +395,9 @@ namespace InventoryServices.Service
                 SubCategoryId = reqItem.Category.SubCategoryId,
                 TechnicalDescription = reqItem.TechnicalDescription,
                 WithdrawalDate = reqItem.WithdrawalDate,
+                ParentItemId = reqItem.ParentItemId,
+                Image1 = oldItem.Image1,
+                Image2 = oldItem.Image2,
             };
 
             int respExec = itemRepo.Update(item);
@@ -401,6 +431,106 @@ namespace InventoryServices.Service
         }
 
         public async Task<bool> CheckItemImageNameAsync(int uid, int id, string imageName) => await itemRepo.CheckItemImageNameAsync(uid, id, imageName);
+
+        public async Task<BaseResp> GetChildrenAsync(int uid, int id)
+        {
+            List<Item>? children = await itemRepo.GetChildrenAsync(uid, id);
+            List<ResItem> resItems = [];
+
+            if (children != null && children.Count > 0)
+                foreach (Item child in children)
+                {
+                    ResItem? builtResItem = BuildResItem(child);
+
+                    if (builtResItem != null)
+                        resItems.Add(builtResItem);
+                }
+
+            return new BaseResp(resItems);
+        }
+
+        /// <summary>
+        /// Associa (ou remove a associação de) um item a um item pai, sem exigir o payload completo do item —
+        /// usado pela tela do item pai, ao associar/desassociar um item filho já existente.
+        /// </summary>
+        public async Task<BaseResp> SetParentItemAsync(int uid, int id, int? parentItemId)
+        {
+            Item? oldItem = await itemRepo.GetById(uid, id);
+
+            if (oldItem == null) return new BaseResp(ErrorCode.InvalidId, "Invalid id");
+
+            string? parentValidateError = await ValidateParentItemAsync(uid, parentItemId, id);
+            if (!string.IsNullOrEmpty(parentValidateError)) return new BaseResp(ErrorCode.InvalidObject, parentValidateError);
+
+            Item item = new()
+            {
+                Id = id,
+                AcquisitionDate = oldItem.AcquisitionDate,
+                AcquisitionTypeId = oldItem.AcquisitionTypeId,
+                CategoryId = oldItem.CategoryId,
+                CreatedAt = oldItem.CreatedAt,
+                ItemSituationId = oldItem.ItemSituationId,
+                Name = oldItem.Name,
+                UpdatedAt = DateTime.UtcNow,
+                UserId = oldItem.UserId,
+                Comment = oldItem.Comment,
+                PurchaseStore = oldItem.PurchaseStore,
+                PurchaseValue = oldItem.PurchaseValue,
+                ResaleValue = oldItem.ResaleValue,
+                SubCategoryId = oldItem.SubCategoryId,
+                TechnicalDescription = oldItem.TechnicalDescription,
+                WithdrawalDate = oldItem.WithdrawalDate,
+                Image1 = oldItem.Image1,
+                Image2 = oldItem.Image2,
+                ParentItemId = parentItemId,
+            };
+
+            int respExec = itemRepo.Update(item);
+
+            if (respExec != 1)
+                return new BaseResp(ErrorCode.ErrorUpdatingObject, "Não foi possivel atualizar o Item.");
+
+            Item? updatedItem = await itemRepo.GetById(uid, id);
+
+            if (updatedItem == null)
+                throw new Exception($"Não foi possivel recuperar o item de id: {id}");
+
+            await itemHistoricService.BuildAndCreateItemUpdateHistoricAsync(oldItem, updatedItem);
+
+            ResItem? resItem = BuildResItem(updatedItem);
+
+            return new BaseResp(resItem);
+        }
+
+        /// <summary>
+        /// Valida a associação de um item pai: precisa existir, pertencer ao usuário, estar ativo,
+        /// não ser o próprio item, não ter pai (limite de 2 níveis) e o item atual não pode já ter filhos.
+        /// </summary>
+        private async Task<string?> ValidateParentItemAsync(int uid, int? parentItemId, int? currentItemId)
+        {
+            if (parentItemId is null) return null;
+
+            if (currentItemId is not null && parentItemId == currentItemId)
+                return "Um item não pode ser associado a si mesmo.";
+
+            Item? parent = await itemRepo.GetById(uid, parentItemId.Value);
+
+            if (parent is null)
+                return "Item pai inválido ou inexistente.";
+
+            if (parent.ParentItemId is not null)
+                return "Não é possível associar a um item que já está associado a outro item.";
+
+            if (currentItemId is not null)
+            {
+                List<Item>? children = await itemRepo.GetChildrenAsync(uid, currentItemId.Value);
+
+                if (children is { Count: > 0 })
+                    return "Este item já possui itens associados a ele e não pode ser associado a outro item.";
+            }
+
+            return null;
+        }
 
         //private async Task<string?> ValidateIndexes(ReqItem reqItem, int uid)
         //{

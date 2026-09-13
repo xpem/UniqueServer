@@ -99,6 +99,12 @@ namespace InventoryServices.Service
                     newItem.ResaleValue?.ToString() ?? "",
                     itemHistoric.Id));
 
+            if (oldItem.ParentItemId != newItem.ParentItemId)
+                items.Add(Field(10,
+                    oldItem.ParentItem?.Name ?? oldItem.ParentItemId?.ToString() ?? "",
+                    newItem.ParentItem?.Name ?? newItem.ParentItemId?.ToString() ?? "",
+                    itemHistoric.Id));
+
             await itemHistoricRepo.AddRangeItemListAsync(items);
         }
 
@@ -111,7 +117,8 @@ namespace InventoryServices.Service
             oldItem.AcquisitionDate != newItem.AcquisitionDate ||
             oldItem.WithdrawalDate != newItem.WithdrawalDate ||
             oldItem.PurchaseValue != newItem.PurchaseValue ||
-            oldItem.ResaleValue != newItem.ResaleValue;
+            oldItem.ResaleValue != newItem.ResaleValue ||
+            oldItem.ParentItemId != newItem.ParentItemId;
 
         private static ItemHistoricItem Field(int fieldId, string from, string to, int historicId) =>
             new()

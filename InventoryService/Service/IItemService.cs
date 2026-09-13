@@ -16,6 +16,12 @@ namespace InventoryServices.Service
 
         Task<BaseResp> GetById(int uid, int id);
 
+        Task<BaseResp> CheckItemNameExistsAsync(int uid, string name, int? excludeId);
+
+        Task<BaseResp> GetChildrenAsync(int uid, int id);
+
+        Task<BaseResp> SetParentItemAsync(int uid, int id, int? parentItemId);
+
         Task<BaseResp> GetAsync(int uid, int page);
 
         BaseResp UpdateItemFileNames(int uid, int id, string? fileName1, string? fileName2);

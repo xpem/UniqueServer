@@ -16,6 +16,12 @@ namespace InventoryRepos.Interfaces
 
         Task<Item?> GetById(int uid, int id);
 
+        Task<Item?> GetByNameAsync(int uid, string name);
+
+        Task<List<Item>?> GetChildrenAsync(int uid, int parentItemId);
+
+        Task<int> DetachChildrenAsync(int uid, int parentItemId);
+
         int UpdateFileNames(int uid, int id, string? fileName1, string? fileName2);
 
         Task<bool> CheckItemImageNameAsync(int uid, int id, string imageName);

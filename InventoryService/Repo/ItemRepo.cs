@@ -16,6 +16,37 @@ namespace InventoryRepos
                 .Include(x => x.SubCategory)
                 .Include(x => x.ItemSituation)
                 .Include(x => x.AcquisitionType)
+                .Include(x => x.ParentItem)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<List<Item>?> GetChildrenAsync(int uid, int parentItemId)
+        {
+            using var context = dbCtx.CreateDbContext();
+            return await context.Item.AsNoTracking()
+                .Where(x => x.UserId == uid && !x.Inactive && x.ParentItemId == parentItemId)
+                .Include(x => x.Category)
+                .Include(x => x.SubCategory)
+                .Include(x => x.ItemSituation)
+                .Include(x => x.AcquisitionType)
+                .OrderByDescending(x => x.CreatedAt)
+                .ToListAsync();
+        }
+
+        public async Task<int> DetachChildrenAsync(int uid, int parentItemId)
+        {
+            using var context = dbCtx.CreateDbContext();
+            return await context.Item.Where(x => x.UserId == uid && x.ParentItemId == parentItemId)
+                .ExecuteUpdateAsync(y => y
+                    .SetProperty(z => z.ParentItemId, (int?)null)
+                    .SetProperty(z => z.UpdatedAt, DateTime.UtcNow));
+        }
+
+        public async Task<Item?> GetByNameAsync(int uid, string name)
+        {
+            using var context = dbCtx.CreateDbContext();
+            return await context.Item.AsNoTracking()
+                .Where(x => x.UserId == uid && !x.Inactive && x.Name.ToLower() == name.ToLower())
                 .FirstOrDefaultAsync();
         }
 
@@ -105,6 +136,7 @@ namespace InventoryRepos
             .Include(x => x.SubCategory)
             .Include(x => x.ItemSituation)
             .Include(x => x.AcquisitionType)
+            .Include(x => x.ParentItem)
             .OrderByDescending(x => x.CreatedAt)
             .Skip((page - 1) * pageSize).Take(pageSize)
             .ToListAsync();
@@ -132,7 +164,8 @@ namespace InventoryRepos
                   .Include(x => x.Category)
                   .Include(x => x.SubCategory)
                   .Include(x => x.ItemSituation)
-                  .Include(x => x.AcquisitionType);
+                  .Include(x => x.AcquisitionType)
+                  .Include(x => x.ParentItem);
 
             if (reqSearchItem is not null)
             {

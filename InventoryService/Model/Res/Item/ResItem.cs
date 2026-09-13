@@ -33,6 +33,14 @@
         public ResItemAcquisitionType? AcquisitionType { get; init; }
 
         public DateOnly? WithdrawalDate { get; init; }
+
+        public ResItemParent? ParentItem { get; init; }
+    }
+
+    public record ResItemParent
+    {
+        public int Id { get; init; }
+        public string? Name { get; init; }
     }
 
     public record ResItemCategory
