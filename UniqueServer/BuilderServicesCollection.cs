@@ -11,9 +11,6 @@ using InventoryRepos.Interfaces;
 using InventoryServices.Service;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
-using MobRepo;
-using MobService;
-using MobService.Interfaces;
 using System.Threading.RateLimiting;
 using UserManagementService.Repo;
 using UserManagementService.Service;
@@ -31,7 +28,6 @@ namespace UniqueServer
             string? bookshelfConn = GetConfigValue(Configuration, "ConnectionStrings:BookshelfConn");
             string? userManagementfConn = GetConfigValue(Configuration, "ConnectionStrings:UserManagementConn");
             string? financialConn = GetConfigValue(Configuration, "ConnectionStrings:FinancialConn");
-            string? mobConn = GetConfigValue(Configuration, "ConnectionStrings:MobConn");
 
             services.AddDbContextFactory<BookshelfDbCtx>(options => options.UseNpgsql(bookshelfConn,
                 options => options.EnableRetryOnFailure(
@@ -52,12 +48,6 @@ namespace UniqueServer
                     errorCodesToAdd: null)));
 
             services.AddDbContextFactory<UserManagementDbCtx>(options => options.UseNpgsql(userManagementfConn,
-                options => options.EnableRetryOnFailure(
-                    maxRetryCount: 5,
-                    maxRetryDelay: System.TimeSpan.FromSeconds(30),
-                    errorCodesToAdd: null)));
-
-            services.AddDbContextFactory<MobDbCtx>(options => options.UseNpgsql(mobConn,
                 options => options.EnableRetryOnFailure(
                     maxRetryCount: 5,
                     maxRetryDelay: System.TimeSpan.FromSeconds(30),
@@ -93,8 +83,6 @@ namespace UniqueServer
             services.AddScoped<IRecurringRuleRepo, RecurringRuleRepo>();
 
             //mob
-            services.AddScoped<IPetRepo, PetRepo>();
-            services.AddScoped<IPetActionRepo, PetActionRepo>();
 
             return services;
 
@@ -165,7 +153,6 @@ namespace UniqueServer
 
             #region mob
 
-            services.AddScoped<IPetService, PetService>();
 
             #endregion
 

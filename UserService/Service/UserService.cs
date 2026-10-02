@@ -1,12 +1,10 @@
 ﻿using BaseModels;
 using BaseModels.Configs;
 using Google.Apis.Auth;
-using System.Net.Http.Headers;
 using System.Text.Json;
-using System.Web;
+using UserManagementService.Model;
 using UserManagementService.Model.Request.User;
 using UserManagementService.Model.Response;
-using UserManagementService.Model;
 using UserManagementService.Repo;
 
 namespace UserManagementService.Service
