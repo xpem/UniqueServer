@@ -5,22 +5,21 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using UserManagementService.Repo;
 
 #nullable disable
 
-namespace UserManagementRepo.Migrations
+namespace UserManagementService.Repo.Migrations
 {
     [DbContext(typeof(UserManagementDbCtx))]
-    [Migration("20260727220421_Init")]
-    partial class Init
+    [Migration("20261001222313_AddPasswordAlgoToUser")]
+    partial class AddPasswordAlgoToUser
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.18")
+                .HasAnnotation("ProductVersion", "10.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -52,6 +51,9 @@ namespace UserManagementRepo.Migrations
                     b.Property<string>("Password")
                         .HasMaxLength(350)
                         .HasColumnType("character varying(350)");
+
+                    b.Property<int>("PasswordAlgo")
+                        .HasColumnType("integer");
 
                     b.Property<string>("RefreshToken")
                         .HasMaxLength(128)

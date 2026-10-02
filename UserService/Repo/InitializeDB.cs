@@ -1,4 +1,4 @@
-﻿namespace UserManagementRepo
+﻿namespace UserManagementService.Repo
 {
     public class InitializeDB
     {

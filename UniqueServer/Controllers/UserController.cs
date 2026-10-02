@@ -2,9 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using UserManagementModels.Request.User;
-using UserManagementService.Functions;
-using UserManagementService.Interfaces;
+using UserManagementService.Model.Request.User;
+using UserManagementService.Service;
 
 namespace UniqueServer.Controllers
 {

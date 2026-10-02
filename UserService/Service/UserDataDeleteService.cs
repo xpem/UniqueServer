@@ -1,14 +1,12 @@
 ﻿using BaseModels;
 using BookshelfServices;
-using UserManagementModels;
-using UserManagementModels.Request.User;
-using UserManagementRepo;
-using UserManagementService.Functions;
-using UserManagementService.Interfaces;
+using UserManagementService.Model;
+using UserManagementService.Model.Request.User;
+using UserManagementService.Repo;
 
-namespace UserManagementService
+namespace UserManagementService.Service
 {
-    public class UserDataDeleteService(IUserRepo userRepo, IEncryptionService encryptionService,
+    public class UserDataDeleteService(IUserRepo userRepo, IUserService userService,
         IBookService bookService, IBookHistoricService bookHistoricService, IUserHistoricRepo userHistoricRepo) : IUserDataDeleteService
     {
         public async Task<BaseResp> DeleteAsync(ReqUserDataExclusion reqUserDataExclusion)
@@ -16,7 +14,7 @@ namespace UserManagementService
             string? validateError = reqUserDataExclusion.Validate();
             if (!string.IsNullOrEmpty(validateError)) return new BaseResp(ErrorCode.InvalidObject, validateError);
 
-            User? userResp = await userRepo.GetByEmailAndPasswordAsync(reqUserDataExclusion.Email, encryptionService.Encrypt(reqUserDataExclusion.Password));
+            User? userResp = await userService.VerifyPasswordAsync(reqUserDataExclusion.Email, reqUserDataExclusion.Password);
 
             if (userResp is null) return new BaseResp(ErrorCode.InvalidUserPasswordLogin, "User/Password incorrect");
 

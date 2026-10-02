@@ -1,13 +1,20 @@
 ﻿using BaseModels;
-using UserManagementModels.Request.User;
+using UserManagementService.Model;
+using UserManagementService.Model.Request.User;
 
-namespace UserManagementService.Interfaces
+namespace UserManagementService.Service
 {
     public interface IUserService
     {
         Task<BaseResp> CreateAsync(ReqUser reqUser);
 
         Task<BaseResp> GenerateTokenAsync(ReqUserSession reqUserSession);
+
+        /// <summary>
+        /// Verifica email/senha (suporta migração transparente de senhas no formato legado).
+        /// Usado também por fluxos que precisam reautenticar o usuário (ex: exclusão de dados).
+        /// </summary>
+        Task<User?> VerifyPasswordAsync(string email, string password);
 
         Task<BaseResp> RefreshTokenAsync(ReqRefreshToken reqRefreshToken);
 

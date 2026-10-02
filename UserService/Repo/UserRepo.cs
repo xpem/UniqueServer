@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using UserManagementModels;
+using UserManagementService.Model;
 
-namespace UserManagementRepo
+namespace UserManagementService.Repo
 {
     public class UserRepo(IDbContextFactory<UserManagementDbCtx> dbCtx) : IUserRepo
     {
@@ -40,11 +40,6 @@ namespace UserManagementRepo
         public async Task<User?> GetByEmailAsync(string email) {
             await using var dbContext = await dbCtx.CreateDbContextAsync();
             return await dbContext.User.FirstOrDefaultAsync(x => x.Email.Equals(email));
-        }
-
-        public async Task<User?> GetByEmailAndPasswordAsync(string email, string encryptedPassword) {
-            await using var dbContext = await dbCtx.CreateDbContextAsync();
-            return await dbContext.User.FirstOrDefaultAsync(x => x.Email == email && x.Password == encryptedPassword);
         }
 
         public async Task<User?> GetByRefreshTokenAsync(string refreshToken)

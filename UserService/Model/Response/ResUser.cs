@@ -1,4 +1,4 @@
-﻿namespace UserManagementModels.Response
+﻿namespace UserManagementService.Model.Response
 {
     public record ResUser
     {

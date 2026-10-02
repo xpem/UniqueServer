@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace UserManagementService.Functions
+namespace UserManagementService.Service
 {
     public interface IEncryptionService
     {

@@ -2,7 +2,7 @@
 using System.Net;
 using System.Net.Mail;
 
-namespace UserManagementService.Functions
+namespace UserManagementService.Service
 {
     public interface ISendRecoverPasswordEmailService
     {

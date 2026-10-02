@@ -1,7 +1,7 @@
 using BaseModels.Request;
 using System.ComponentModel.DataAnnotations;
 
-namespace UserManagementModels.Request.User
+namespace UserManagementService.Model.Request.User
 {
     public record ReqRefreshToken : ReqBaseModel
     {
