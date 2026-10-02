@@ -1,21 +1,19 @@
 ﻿using BaseModels;
 using BaseModels.Configs;
-using UserManagementModels.Response;
-using UserManagementService.Functions;
-using UserManagementModels.Request.User;
-using UserManagementModels;
-using UserManagementRepo;
-using UserManagementService.Interfaces;
 using Google.Apis.Auth;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Web;
+using UserManagementService.Model.Request.User;
+using UserManagementService.Model.Response;
+using UserManagementService.Model;
+using UserManagementService.Repo;
 
-namespace UserManagementService
+namespace UserManagementService.Service
 {
     public class UserService(IUserRepo userRepo, IUserHistoricRepo userHistoricRepo,
         ISendRecoverPasswordEmailService sendRecoverPasswordEmailService, IEncryptionService encryptionService,
-        IJwtTokenService jwtTokenService, GoogleAuthKeys googleAuthKeys) : IUserService
+        IJwtTokenService jwtTokenService, GoogleAuthKeys googleAuthKeys, IPasswordHashService passwordHashService) : IUserService
     {
         public async Task<BaseResp> CreateAsync(ReqUser reqUser)
         {
@@ -29,7 +27,10 @@ namespace UserManagementService
             if (existingUserMessage != null) { return new BaseResp(ErrorCode.TryCreateExistingUser, existingUserMessage); }
 
             if (user.Password != null)
-                user.Password = encryptionService.Encrypt(user.Password);
+            {
+                user.Password = passwordHashService.Hash(user.Password);
+                user.PasswordAlgo = PasswordAlgo.Pbkdf2;
+            }
             else throw new NullReferenceException("Password do usuario nulo");
 
             await userRepo.CreateAsync(user);
@@ -191,7 +192,7 @@ namespace UserManagementService
 
             if (!string.IsNullOrEmpty(validateError)) return new BaseResp(ErrorCode.InvalidObject, validateError);
 
-            User? userResp = await userRepo.GetByEmailAndPasswordAsync(reqUserSession.Email, encryptionService.Encrypt(reqUserSession.Password));
+            User? userResp = await VerifyPasswordAsync(reqUserSession.Email, reqUserSession.Password);
 
             if (userResp is null) return new BaseResp(ErrorCode.InvalidUserPasswordLogin, "User/Password incorrect");
 
@@ -249,7 +250,8 @@ namespace UserManagementService
 
                 if (user != null)
                 {
-                    user.Password = encryptionService.Encrypt(reqRecoverPassword.Password);
+                    user.Password = passwordHashService.Hash(reqRecoverPassword.Password);
+                    user.PasswordAlgo = PasswordAlgo.Pbkdf2;
 
                     await userRepo.UpdateAsync(user);
 
@@ -262,6 +264,42 @@ namespace UserManagementService
                 else throw new Exception("Invalid User, uid:" + uid);
             }
             catch { throw; }
+        }
+
+        /// <summary>
+        /// Verifica email/senha suportando dois formatos: o hash novo (Pbkdf2) e o
+        /// legado reversível (AES). Login legado bem-sucedido migra a senha para o
+        /// hash novo nesse mesmo momento — transparente para o usuário, sem reset forçado.
+        /// </summary>
+        public async Task<User?> VerifyPasswordAsync(string email, string password)
+        {
+            User? user = await userRepo.GetByEmailAsync(email);
+
+            if (user is null || string.IsNullOrEmpty(user.Password))
+                return null;
+
+            if (user.PasswordAlgo == PasswordAlgo.Pbkdf2)
+                return passwordHashService.Verify(password, user.Password) ? user : null;
+
+            string decryptedLegacyPassword;
+            try
+            {
+                decryptedLegacyPassword = encryptionService.Decrypt(user.Password);
+            }
+            catch
+            {
+                return null;
+            }
+
+            if (decryptedLegacyPassword != password)
+                return null;
+
+            // Migração transparente: a senha legada confere, então já troca para o hash novo.
+            user.Password = passwordHashService.Hash(password);
+            user.PasswordAlgo = PasswordAlgo.Pbkdf2;
+            await userRepo.UpdateAsync(user);
+
+            return user;
         }
 
         protected async Task<string?> ValidateExistingUserAsync(User user)

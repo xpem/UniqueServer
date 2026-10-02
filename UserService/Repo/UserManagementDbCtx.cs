@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using UserManagementModels;
+using UserManagementService.Model;
 
-namespace UserManagementRepo
+namespace UserManagementService.Repo
 {
     public class UserManagementDbCtx(DbContextOptions<UserManagementDbCtx> options) : DbContext(options)
     {

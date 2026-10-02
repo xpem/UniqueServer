@@ -27,7 +27,8 @@ namespace UniqueServer.Controllers
             if (!string.IsNullOrEmpty(auth))
             {
                 int? uid = RecoverUidSession();
-                Uid = uid.Value;
+                if (uid.HasValue)
+                    Uid = uid.Value;
             }
 
             base.OnActionExecuting(context);

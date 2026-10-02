@@ -1,12 +1,11 @@
 ﻿using BaseModels.Configs;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using UserManagementModels.Response;
-using UserManagementService.Functions;
-using UserManagementModels;
-using UserManagementModels.Request.User;
-using UserManagementService;
-using UserManagementRepo;
+using UserManagementService.Model.Request.User;
+using UserManagementService.Model.Response;
+using UserManagementService.Model;
+using UserManagementService.Repo;
+using UserManagementService.Service;
 
 namespace UserManagementRepoTests
 {
@@ -21,8 +20,8 @@ namespace UserManagementRepoTests
             Mock<ISendRecoverPasswordEmailService> sendRecoverPasswordEmail = new();
             Mock<IEncryptionService> encryptionService = new();
             Mock<IJwtTokenService> jwtTokenService = new();
+            Mock<IPasswordHashService> passwordHashService = new();
 
-            string encryptedPassword = "test";
             string encryptedtoken = "test";
             ReqUserSession reqUserSession = new()
             {
@@ -35,17 +34,19 @@ namespace UserManagementRepoTests
                 CreatedAt = DateTime.Now,
                 Email = "emanuel_teste@email.com",
                 Name = "emanuel",
-                Password = "121212",
+                Password = "hashed-121212",
+                PasswordAlgo = PasswordAlgo.Pbkdf2,
                 Id = 1,
                 IsGoogleAuth = false,
             };
 
-            userDAL.Setup(x => x.GetByEmailAndPasswordAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(userResp);
+            userDAL.Setup(x => x.GetByEmailAsync(It.IsAny<string>())).ReturnsAsync(userResp);
+            userDAL.Setup(x => x.UpdateAsync(It.IsAny<User>())).ReturnsAsync(1);
             userHistoricDAL.Setup(x => x.AddAsync(It.IsAny<UserHistoric>())).ReturnsAsync(1);
-            encryptionService.Setup(x => x.Encrypt(It.IsAny<string>())).Returns(encryptedPassword);
+            passwordHashService.Setup(x => x.Verify("121212", userResp.Password)).Returns(true);
             jwtTokenService.Setup(x => x.GenerateToken(userResp.Id, userResp.Email, It.IsAny<DateTime>())).Returns(encryptedtoken);
 
-            UserService userService = new(userDAL.Object, userHistoricDAL.Object, sendRecoverPasswordEmail.Object, encryptionService.Object, jwtTokenService.Object, new GoogleAuthKeys("test-client-id","secret","url"));
+            UserService userService = new(userDAL.Object, userHistoricDAL.Object, sendRecoverPasswordEmail.Object, encryptionService.Object, jwtTokenService.Object, new GoogleAuthKeys("test-client-id","secret","url"), passwordHashService.Object);
 
             var resp = await userService.GenerateTokenAsync(reqUserSession);
 

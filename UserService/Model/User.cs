@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace UserManagementModels
+namespace UserManagementService.Model
 {
     public class User() : BaseModels.BaseModel
     {
@@ -12,6 +12,8 @@ namespace UserManagementModels
 
         [MaxLength(350)]
         public required string? Password { get; set; }
+
+        public PasswordAlgo PasswordAlgo { get; set; } = PasswordAlgo.Legacy;
 
         public required bool IsGoogleAuth { get; set; } = false;
 

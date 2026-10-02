@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-namespace UserManagementModels
+namespace UserManagementService.Model
 {
     [Table("UserHistoric")]
     [Index(nameof(UserId), IsUnique = false)]

@@ -1,6 +1,6 @@
-﻿using UserManagementModels;
+﻿using UserManagementService.Model;
 
-namespace UserManagementRepo
+namespace UserManagementService.Repo
 {
     public interface IUserHistoricRepo
     {

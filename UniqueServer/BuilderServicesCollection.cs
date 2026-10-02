@@ -15,10 +15,8 @@ using MobRepo;
 using MobService;
 using MobService.Interfaces;
 using System.Threading.RateLimiting;
-using UserManagementRepo;
-using UserManagementService;
-using UserManagementService.Functions;
-using UserManagementService.Interfaces;
+using UserManagementService.Repo;
+using UserManagementService.Service;
 
 namespace UniqueServer
 {
@@ -75,7 +73,7 @@ namespace UniqueServer
             services.AddScoped<IBookHistoricRepo, BookHistoricRepo>();
 
             //usermanagement
-            services.AddScoped<IUserRepo, UserManagementRepo.UserRepo>();
+            services.AddScoped<IUserRepo, UserRepo>();
             services.AddScoped<IUserHistoricRepo, UserHistoricRepo>();
 
             //inventory
@@ -130,6 +128,8 @@ namespace UniqueServer
                 ));
 
             services.AddScoped<IJwtTokenService, JwtTokenService>(p => new JwtTokenService(GetConfigValue(Configuration, "JwtKey")));
+
+            services.AddSingleton<IPasswordHashService, PasswordHashService>();
 
             #endregion
 
