@@ -11,6 +11,10 @@ using InventoryRepos.Interfaces;
 using InventoryServices.Service;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using Shards.Config;
+using Shards.Repo;
+using Shards.Rules;
+using Shards.Service;
 using System.Threading.RateLimiting;
 using UserManagementService.Repo;
 using UserManagementService.Service;
@@ -28,6 +32,7 @@ namespace UniqueServer
             string? bookshelfConn = GetConfigValue(Configuration, "ConnectionStrings:BookshelfConn");
             string? userManagementfConn = GetConfigValue(Configuration, "ConnectionStrings:UserManagementConn");
             string? financialConn = GetConfigValue(Configuration, "ConnectionStrings:FinancialConn");
+            string? shardsConn = GetConfigValue(Configuration, "ConnectionStrings:ShardsConn");
 
             services.AddDbContextFactory<BookshelfDbCtx>(options => options.UseNpgsql(bookshelfConn,
                 options => options.EnableRetryOnFailure(
@@ -42,6 +47,12 @@ namespace UniqueServer
                     errorCodesToAdd: null)));
 
             services.AddDbContextFactory<FinancialDbctx>(options => options.UseNpgsql(financialConn,
+                options => options.EnableRetryOnFailure(
+                    maxRetryCount: 5,
+                    maxRetryDelay: System.TimeSpan.FromSeconds(30),
+                    errorCodesToAdd: null)));
+
+            services.AddDbContextFactory<ShardsDbctx>(options => options.UseNpgsql(shardsConn,
                 options => options.EnableRetryOnFailure(
                     maxRetryCount: 5,
                     maxRetryDelay: System.TimeSpan.FromSeconds(30),
@@ -81,6 +92,8 @@ namespace UniqueServer
             services.AddScoped<ITransactionRepo, TransactionRepo>();
             services.AddScoped<IAccountRepo, AccountRepo>();
             services.AddScoped<IRecurringRuleRepo, RecurringRuleRepo>();
+
+            //shards
 
             //mob
 
@@ -151,6 +164,21 @@ namespace UniqueServer
 
             #endregion
 
+            #region shards
+
+            services.AddOptions<GameBalanceOptions>().Bind(Configuration.GetSection(GameBalanceOptions.SectionName)).ValidateOnStart();
+            services.AddSingleton<Microsoft.Extensions.Options.IValidateOptions<GameBalanceOptions>, GameBalanceOptionsValidator>();
+            services.AddSingleton(TimeProvider.System);
+            services.AddSingleton(Random.Shared);
+            services.AddSingleton<GameRules>();
+            services.AddSingleton<ShardsMapper>();
+            services.AddScoped<IPlayerService, PlayerService>();
+            services.AddScoped<IMineService, MineService>();
+            services.AddScoped<IPlayerSkillService, PlayerSkillService>();
+            services.AddScoped<IPlayerMissionService, PlayerMissionService>();
+
+            #endregion
+
             #region mob
 
 
@@ -161,7 +189,7 @@ namespace UniqueServer
 
         public static IServiceCollection AddLimiterRules(this IServiceCollection services)
         {
-            services.AddRateLimiter(options => options.AddFixedWindowLimiter(policyName: "fixed", options =>
+            services.AddRateLimiter(options => options.AddShardsPolicy().AddFixedWindowLimiter(policyName: "fixed", options =>
             {
                 options.PermitLimit = 8;
                 options.Window = TimeSpan.FromSeconds(12);
