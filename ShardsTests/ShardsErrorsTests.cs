@@ -98,12 +98,12 @@ namespace ShardsTests
         [TestMethod]
         public void Enums_SerializeAsNames()
         {
-            var res = new OreAmountRes { OreType = OreType.Silver, Quantity = 3 };
+            var res = new OreAmountRes { OreType = OreType.Quartz, Quantity = 3 };
 
             string json = JsonSerializer.Serialize(res, new JsonSerializerOptions(JsonSerializerDefaults.Web));
 
             using var doc = JsonDocument.Parse(json);
-            Assert.AreEqual("Silver", doc.RootElement.GetProperty("oreType").GetString());
+            Assert.AreEqual("Quartz", doc.RootElement.GetProperty("oreType").GetString());
         }
     }
 }

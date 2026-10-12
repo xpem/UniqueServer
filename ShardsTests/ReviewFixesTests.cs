@@ -76,7 +76,7 @@ namespace ShardsTests
         [TestMethod]
         public void DuplicatedMineNumber_IsInvalid()
         {
-            Balance.Mines.Add(new MineOptions { MineNumber = 2, Drops = [new DropOptions { Ore = OreType.Bronze, Chance = 1 }] });
+            Balance.Mines.Add(new MineOptions { MineNumber = 2, Drops = [new DropOptions { Ore = OreType.Quartz, Chance = 1 }] });
 
             Assert.IsTrue(_validator.Validate(null, Balance).Failures!.Any(f => f.Contains("repetido")));
         }

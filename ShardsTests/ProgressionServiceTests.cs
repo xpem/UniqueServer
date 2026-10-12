@@ -208,14 +208,12 @@ namespace ShardsTests
             await SeedPlayerAsync();
             await CompleteAndClaimFirstMissionAsync();
             await Skills.DistributeAsync(7, "DoubleDrop");
-            int bronzeBefore = await InventoryOf(OreType.Bronze);
+            int quartzBefore = await InventoryOf(OreType.Quartz);
 
             var res = await Missions.ClaimAsync(7, "Specialization");
 
-            Assert.AreEqual(20, res.Rewards.Ores.Single(o => o.OreType == OreType.Bronze).Quantity);
-            Assert.AreEqual(5, res.Rewards.Ores.Single(o => o.OreType == OreType.Silver).Quantity);
-            Assert.AreEqual(bronzeBefore + 20, res.Inventory.Single(i => i.OreType == OreType.Bronze).Quantity);
-            Assert.AreEqual(5, res.Inventory.Single(i => i.OreType == OreType.Silver).Quantity);
+            Assert.AreEqual(25, res.Rewards.Ores.Single(o => o.OreType == OreType.Quartz).Quantity);
+            Assert.AreEqual(quartzBefore + 25, res.Inventory.Single(i => i.OreType == OreType.Quartz).Quantity);
             Assert.AreEqual(MissionStatus.Active, res.Missions.Single(m => m.Type == MissionType.OperationalExpansion).Status);
         }
 
@@ -226,8 +224,7 @@ namespace ShardsTests
             await CompleteAndClaimFirstMissionAsync();
             await Skills.DistributeAsync(7, "DoubleDrop");
             await Missions.ClaimAsync(7, "Specialization");
-            await GiveOresAsync(OreType.Bronze, 150);
-            await GiveOresAsync(OreType.Silver, 30);
+            await GiveOresAsync(OreType.Quartz, 200);
             await Mines.UnlockNextAsync(7);
 
             var res = await Missions.ClaimAsync(7, "OperationalExpansion");
@@ -243,8 +240,7 @@ namespace ShardsTests
             await SeedPlayerAsync();
             await CompleteAndClaimFirstMissionAsync();
             await Skills.DistributeAsync(7, "DoubleDrop");
-            await GiveOresAsync(OreType.Bronze, 150);
-            await GiveOresAsync(OreType.Silver, 30);
+            await GiveOresAsync(OreType.Quartz, 200);
             await Mines.UnlockNextAsync(7); // compra antes de a Missão 3 ser liberada
 
             var res = await Missions.ClaimAsync(7, "Specialization");
@@ -260,14 +256,12 @@ namespace ShardsTests
         public async Task WithoutResources_IsNotEnoughResources_AndChangesNothing()
         {
             await SeedPlayerAsync();
-            await GiveOresAsync(OreType.Bronze, 150);
-            await GiveOresAsync(OreType.Silver, 29);
+            await GiveOresAsync(OreType.Quartz, 199);
 
             var ex = await Assert.ThrowsExactlyAsync<ShardsException>(() => Mines.UnlockNextAsync(7));
 
             Assert.AreEqual(ShardsErrorCode.NotEnoughResources, ex.Code);
-            Assert.AreEqual(150, await InventoryOf(OreType.Bronze));
-            Assert.AreEqual(29, await InventoryOf(OreType.Silver));
+            Assert.AreEqual(199, await InventoryOf(OreType.Quartz));
             await using var ctx = Db.CreateDbContext();
             Assert.AreEqual(1, await ctx.Mine.CountAsync());
         }
@@ -276,8 +270,7 @@ namespace ShardsTests
         public async Task WithResources_DebitsTheCost_AndCreatesMineTwo()
         {
             await SeedPlayerAsync();
-            await GiveOresAsync(OreType.Bronze, 160);
-            await GiveOresAsync(OreType.Silver, 30);
+            await GiveOresAsync(OreType.Quartz, 210);
             Time.Advance(TimeSpan.FromMinutes(5));
 
             var res = await Mines.UnlockNextAsync(7);
@@ -286,22 +279,21 @@ namespace ShardsTests
             Assert.AreEqual(100, res.Mine.CartCapacity);
             Assert.AreEqual(0.33, res.Mine.OresPerMinute, 1e-9);
             Assert.AreEqual(0, res.Mine.CartAmount, "o vagonete da mina nova começa vazio");
-            Assert.AreEqual(10, res.Inventory.Single().Quantity, "sobra 10 de bronze; a prata zerada some da lista");
-            Assert.AreEqual(0, await InventoryOf(OreType.Silver));
+            Assert.AreEqual(10, res.Inventory.Single().Quantity, "sobram 10 de quartzo depois de pagar 200");
+            Assert.AreEqual(10, await InventoryOf(OreType.Quartz));
         }
 
         [TestMethod]
         public async Task SecondUnlock_IsNoMoreMines()
         {
             await SeedPlayerAsync();
-            await GiveOresAsync(OreType.Bronze, 300);
-            await GiveOresAsync(OreType.Silver, 60);
+            await GiveOresAsync(OreType.Quartz, 400);
             await Mines.UnlockNextAsync(7);
 
             var ex = await Assert.ThrowsExactlyAsync<ShardsException>(() => Mines.UnlockNextAsync(7));
 
             Assert.AreEqual(ShardsErrorCode.NoMoreMines, ex.Code);
-            Assert.AreEqual(150, await InventoryOf(OreType.Bronze));
+            Assert.AreEqual(200, await InventoryOf(OreType.Quartz), "só a primeira compra (200) foi debitada dos 400");
         }
 
         [TestMethod]
@@ -319,8 +311,7 @@ namespace ShardsTests
             await CompleteAndClaimFirstMissionAsync();
             await Skills.DistributeAsync(7, "DoubleDrop");
             await Missions.ClaimAsync(7, "Specialization");
-            await GiveOresAsync(OreType.Bronze, 150);
-            await GiveOresAsync(OreType.Silver, 30);
+            await GiveOresAsync(OreType.Quartz, 200);
 
             var res = await Mines.UnlockNextAsync(7);
 
@@ -333,8 +324,7 @@ namespace ShardsTests
         public async Task NewMine_CanBeMinedAndCollectedIndependently()
         {
             await SeedPlayerAsync();
-            await GiveOresAsync(OreType.Bronze, 150);
-            await GiveOresAsync(OreType.Silver, 30);
+            await GiveOresAsync(OreType.Quartz, 200);
             await Mines.UnlockNextAsync(7);
             Time.Advance(TimeSpan.FromMinutes(10));
             Random.Value = 0.0;
@@ -352,8 +342,7 @@ namespace ShardsTests
         public async Task StateAfterUnlock_HasNoNextMine()
         {
             await SeedPlayerAsync();
-            await GiveOresAsync(OreType.Bronze, 150);
-            await GiveOresAsync(OreType.Silver, 30);
+            await GiveOresAsync(OreType.Quartz, 200);
 
             await Mines.UnlockNextAsync(7);
 
@@ -382,7 +371,7 @@ namespace ShardsTests
             Assert.AreEqual(1, state.Player.SkillPoints);
             Assert.AreEqual(MissionType.Specialization, state.Missions.Single().Type);
 
-            // 3) distribui o ponto e resgata: 20 bronze + 5 prata e Missão 3
+            // 3) distribui o ponto e resgata: 25 quartzo e Missão 3
             await Skills.DistributeAsync(7, "DoubleDrop");
             await Missions.ClaimAsync(7, "Specialization");
             state = await Players.GetStateAsync(7);
@@ -391,8 +380,7 @@ namespace ShardsTests
             Assert.IsFalse(state.NextMine!.CanAfford);
 
             // 4) junta os recursos (mineração + vagonete ao longo do tempo), compra a Mina 2 e resgata a Missão 3
-            await GiveOresAsync(OreType.Bronze, 150);
-            await GiveOresAsync(OreType.Silver, 30);
+            await GiveOresAsync(OreType.Quartz, 200);
             state = await Players.GetStateAsync(7);
             Assert.IsTrue(state.NextMine!.CanAfford);
 

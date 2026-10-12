@@ -19,9 +19,9 @@ namespace Shards.Rules
                 new MissionReward(15, [])),
 
             new(MissionType.Specialization, "Especialização", "Abra o perfil e distribua seu primeiro ponto de habilidade.", 1,
-                new MissionReward(0, [new OreAmount { Ore = OreType.Bronze, Quantity = 20 }, new OreAmount { Ore = OreType.Silver, Quantity = 5 }])),
+                new MissionReward(0, [new OreAmount { Ore = OreType.Quartz, Quantity = 25 }])),
 
-            new(MissionType.OperationalExpansion, "Expansão Operacional", "Junte 150 Bronze e 30 Prata e desbloqueie a segunda mina.", 1,
+            new(MissionType.OperationalExpansion, "Expansão Operacional", "Junte 200 Quartzo e desbloqueie a segunda mina.", 1,
                 new MissionReward(0, [])),
         ];
 

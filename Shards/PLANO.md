@@ -1,8 +1,15 @@
 # Ancestral Shards — Plano do MVP (módulo `Shards`)
 
-Jogo idle web de mineração de minérios (Bronze, Prata, Ouro, Rubi, Safira, Esmeralda...). Este documento consolida as decisões de planejamento do backend e serve de contexto para a implementação.
+Jogo idle web de mineração (quartzo como moeda básica; gemas como Rubi, Safira e Esmeralda nas próximas etapas). Este documento consolida as decisões de planejamento do backend e serve de contexto para a implementação.
 
 **Decisão de arquitetura:** o jogo entra como **novo módulo dentro do UniqueServer** (não é um projeto de backend separado), seguindo o padrão do `FinancialService`. Reaproveita JWT/`uid`, `BaseController`, `BaseModels`, rate limiter, CORS, Serilog, Scalar/OpenAPI, Postgres e o deploy atual. Para facilitar uma separação futura: `DbContext` e connection string próprios, **sem FK para tabelas de outros módulos**, e vínculo com o usuário apenas por `UserId` (int, claim `uid`).
+
+> **Refactor dos recursos (2026-10):** Bronze, Prata e Ouro foram substituídos por um único **Quartzo**, a moeda básica do jogo.
+> Metais não fazem parte do caminho "quartzo (moeda) -> gemas brutas -> lapidação". Números mantidos no mesmo ritmo:
+> 200 Quartzo para a Mina 2 (antes a Prata, no 15%, limitava a compra a ~200 minérios) e 25 Quartzo de recompensa na Missão 2.
+> **Visão de longo prazo (fora do MVP):** quartzo compra minas e desbloqueia gemas brutas; a Oficina de Lapidação (bruto -> polido -> facetado)
+> custa quartzo e tempo; gemas polidas terão elemento e ataque. O inventário vai precisar de um estágio por item (ex.: Rubi polido) e
+> existirá venda de minérios. Nada disso está implementado.
 
 ---
 
@@ -42,7 +49,7 @@ Todas com `int Id` identity e token de concorrência `xmin` (Postgres) nas entid
 - `PlayerId`, `MissionType` (único junto com `PlayerId`), `Status` (Active/Completed/Claimed)
 - `Progress`, `CompletedAt`, `ClaimedAt`
 
-**Enums:** `OreType` (Bronze=1, Silver=2, Gold=3, Ruby=4, Sapphire=5, Emerald=6), `SkillType` (`DoubleDrop`), `MissionType` (`FirstPickaxe`, `Specialization`, `OperationalExpansion`), `MissionStatus`.
+**Enums:** `OreType` (Quartz=1, Ruby=4, Sapphire=5, Emerald=6; os valores 2 e 3 ficam sem uso para não alterar dados já gravados), `SkillType` (`DoubleDrop`), `MissionType` (`FirstPickaxe`, `Specialization`, `OperationalExpansion`), `MissionStatus`.
 
 ### Fora do MVP
 Upgrade de vagonete e de auto-mineração (campos existem, mecanismo não), minas além da 2, outras skills, títulos/conquistas, catálogo de minérios em banco.
@@ -53,8 +60,8 @@ Upgrade de vagonete e de auto-mineração (campos existem, mecanismo não), mina
 
 ### Configuração (`GameBalanceOptions`, seção `Shards:Balance` em `appsettings`)
 - Energia: máximo 100, custo 1 por mineração, 216 s por ponto (100 em 6 h).
-- Drop da Mina 1: Bronze 85% (+1 XP), Prata 15% (+3 XP).
-- Mina 2: custo 150 Bronze + 30 Prata. Vagonete 100, 0.33 min/min na Mina 1.
+- Drop da Mina 1: Quartzo 100% (+1 XP). A regra de sorteio continua aceitando tabelas com vários drops (minas futuras).
+- Mina 2: custo 200 Quartzo. Vagonete 100, 0.33 min/min na Mina 1.
 - Skill `DoubleDrop`: +15% de chance por nível, com nível máximo configurável. Vale só na mineração ativa.
 
 ### Curva de XP
@@ -66,8 +73,8 @@ Catálogo estático `MissionCatalog` (nome, meta, recompensa, ordem). Missão no
 | Missão | Objetivo | Conclui quando | Recompensa |
 |---|---|---|---|
 | 1 `FirstPickaxe` "Primeira Picaretagem" | Gastar 10 de energia minerando | `Progress` chega a 10 | +15 XP |
-| 2 `Specialization` "Especialização" | Alocar o 1º ponto de habilidade | Primeira distribuição de skill | 20 Bronze + 5 Prata |
-| 3 `OperationalExpansion` "Expansão Operacional" | Desbloquear a 2ª mina (150 Bronze + 30 Prata) | Compra da Mina 2 | Título/conquista (futuro) |
+| 2 `Specialization` "Especialização" | Alocar o 1º ponto de habilidade | Primeira distribuição de skill | 25 Quartzo |
+| 3 `OperationalExpansion` "Expansão Operacional" | Desbloquear a 2ª mina (200 Quartzo) | Compra da Mina 2 | Título/conquista (futuro) |
 
 - A Missão 1 nasce ativa com o `Player`. A seguinte é criada como `Active` ao resgatar a anterior.
 - **Claim manual:** o objetivo marca `Completed`; um endpoint de claim paga e marca `Claimed`. Idempotente (o status só passa de `Completed` a `Claimed` uma vez).

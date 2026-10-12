@@ -80,8 +80,7 @@ namespace ShardsTests
             Assert.IsNotNull(state.NextMine);
             Assert.AreEqual(2, state.NextMine.MineNumber);
             Assert.IsFalse(state.NextMine.CanAfford);
-            Assert.AreEqual(150, state.NextMine.Cost.Single(c => c.OreType == OreType.Bronze).Quantity);
-            Assert.AreEqual(30, state.NextMine.Cost.Single(c => c.OreType == OreType.Silver).Quantity);
+            Assert.AreEqual(200, state.NextMine.Cost.Single(c => c.OreType == OreType.Quartz).Quantity);
         }
 
         [TestMethod]
@@ -160,25 +159,23 @@ namespace ShardsTests
             int playerId = await SeedPlayerAsync(uid: 7, energy: 100, lastEnergyUpdate: Start);
             await using (var ctx = _db.CreateDbContext())
             {
-                ctx.InventoryItem.Add(new InventoryItemDTO { PlayerId = playerId, OreType = OreType.Bronze, Quantity = 150 });
-                ctx.InventoryItem.Add(new InventoryItemDTO { PlayerId = playerId, OreType = OreType.Silver, Quantity = 30 });
+                ctx.InventoryItem.Add(new InventoryItemDTO { PlayerId = playerId, OreType = OreType.Quartz, Quantity = 200 });
                 await ctx.SaveChangesAsync();
             }
 
             var state = await _service.GetStateAsync(7);
 
             Assert.IsTrue(state.NextMine!.CanAfford);
-            Assert.AreEqual(2, state.Inventory.Count);
+            Assert.AreEqual(1, state.Inventory.Count);
         }
 
         [TestMethod]
-        public async Task NextMine_NotAffordable_WhenOneOreIsShort()
+        public async Task NextMine_NotAffordable_WhenQuartzIsShort()
         {
             int playerId = await SeedPlayerAsync(uid: 7, energy: 100, lastEnergyUpdate: Start);
             await using (var ctx = _db.CreateDbContext())
             {
-                ctx.InventoryItem.Add(new InventoryItemDTO { PlayerId = playerId, OreType = OreType.Bronze, Quantity = 150 });
-                ctx.InventoryItem.Add(new InventoryItemDTO { PlayerId = playerId, OreType = OreType.Silver, Quantity = 29 });
+                ctx.InventoryItem.Add(new InventoryItemDTO { PlayerId = playerId, OreType = OreType.Quartz, Quantity = 199 });
                 await ctx.SaveChangesAsync();
             }
 
@@ -224,7 +221,7 @@ namespace ShardsTests
 
             Assert.AreEqual(MissionType.Specialization, mission.Type);
             Assert.AreEqual(MissionStatus.Completed, mission.Status);
-            Assert.AreEqual(20, mission.Reward.Ores.Single(o => o.OreType == OreType.Bronze).Quantity);
+            Assert.AreEqual(25, mission.Reward.Ores.Single(o => o.OreType == OreType.Quartz).Quantity);
         }
 
         [TestMethod]
@@ -233,14 +230,14 @@ namespace ShardsTests
             int playerId = await SeedPlayerAsync(uid: 7, energy: 100, lastEnergyUpdate: Start);
             await using (var ctx = _db.CreateDbContext())
             {
-                ctx.InventoryItem.Add(new InventoryItemDTO { PlayerId = playerId, OreType = OreType.Gold, Quantity = 0 });
-                ctx.InventoryItem.Add(new InventoryItemDTO { PlayerId = playerId, OreType = OreType.Silver, Quantity = 4 });
+                ctx.InventoryItem.Add(new InventoryItemDTO { PlayerId = playerId, OreType = OreType.Ruby, Quantity = 0 });
+                ctx.InventoryItem.Add(new InventoryItemDTO { PlayerId = playerId, OreType = OreType.Quartz, Quantity = 4 });
                 await ctx.SaveChangesAsync();
             }
 
             var inventory = (await _service.GetStateAsync(7)).Inventory;
 
-            Assert.AreEqual(OreType.Silver, inventory.Single().OreType);
+            Assert.AreEqual(OreType.Quartz, inventory.Single().OreType);
         }
 
         /// <summary>Cria o jogador pelo próprio serviço (Mina 1 e Missão 1) e ajusta a energia, devolvendo o Id.</summary>

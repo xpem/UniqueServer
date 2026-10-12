@@ -37,7 +37,7 @@ namespace ShardsTests
             await ctx.SaveChangesAsync();
         }
 
-        /// <summary>Minera 10 vezes (bronze) para completar a Missão 1 e resgata a recompensa. Deixa a Missão 2 ativa.</summary>
+        /// <summary>Minera 10 vezes (quartzo) para completar a Missão 1 e resgata a recompensa. Deixa a Missão 2 ativa.</summary>
         protected async Task CompleteAndClaimFirstMissionAsync(int uid = 7)
         {
             Random.Value = 0.0;
@@ -77,33 +77,20 @@ namespace ShardsTests
     public class MineActiveTests : ShardsServiceTestBase
     {
         [TestMethod]
-        public async Task SingleMine_Bronze_SpendsEnergyAndGivesOreAndXp()
+        public async Task SingleMine_SpendsEnergyAndGivesQuartzAndXp()
         {
             await SeedPlayerAsync();
             Random.Value = 0.0;
 
             var res = await Mines.MineAsync(7, 1, 1);
 
-            Assert.AreEqual(OreType.Bronze, res.Drops.Single().OreType);
+            Assert.AreEqual(OreType.Quartz, res.Drops.Single().OreType);
             Assert.AreEqual(1, res.Drops.Single().Quantity);
             Assert.AreEqual(1, res.XpGained);
             Assert.IsFalse(res.LevelUp);
             Assert.AreEqual(99, res.Player.Energy);
             Assert.AreEqual(Start.AddSeconds(216), res.Player.NextEnergyAtUtc, "gastar com a energia cheia recomeça a contagem agora");
-            Assert.AreEqual(1, await InventoryOf(OreType.Bronze));
-        }
-
-        [TestMethod]
-        public async Task SingleMine_Silver_GivesThreeXp()
-        {
-            await SeedPlayerAsync();
-            Random.Value = 0.9;
-
-            var res = await Mines.MineAsync(7, 1, 1);
-
-            Assert.AreEqual(OreType.Silver, res.Drops.Single().OreType);
-            Assert.AreEqual(3, res.XpGained);
-            Assert.AreEqual(1, await InventoryOf(OreType.Silver));
+            Assert.AreEqual(1, await InventoryOf(OreType.Quartz));
         }
 
         [TestMethod]
@@ -117,7 +104,7 @@ namespace ShardsTests
             Assert.AreEqual(10, res.Drops.Single().Quantity);
             Assert.AreEqual(10, res.XpGained);
             Assert.AreEqual(90, res.Player.Energy);
-            Assert.AreEqual(10, await InventoryOf(OreType.Bronze));
+            Assert.AreEqual(10, await InventoryOf(OreType.Quartz));
         }
 
         [TestMethod]
@@ -129,7 +116,7 @@ namespace ShardsTests
             var res = await Mines.MineAsync(7, 1, 100);
 
             Assert.AreEqual(0, res.Player.Energy);
-            Assert.AreEqual(100, await InventoryOf(OreType.Bronze));
+            Assert.AreEqual(100, await InventoryOf(OreType.Quartz));
         }
 
         [TestMethod]
@@ -150,9 +137,9 @@ namespace ShardsTests
         public async Task LevelUp_CanGainSeveralLevelsAtOnce()
         {
             await SeedPlayerAsync();
-            Random.Value = 0.9; // só prata: 3 XP cada
+            Random.Value = 0.0; // 1 XP por mineração
 
-            var res = await Mines.MineAsync(7, 1, 30); // 90 XP = nível 3
+            var res = await Mines.MineAsync(7, 1, 90); // 90 XP = nível 3
 
             Assert.AreEqual(90, res.XpGained);
             Assert.AreEqual(3, res.Player.Level);
@@ -170,7 +157,7 @@ namespace ShardsTests
             var player = await PlayerRow();
             Assert.AreEqual(5, player.Energy);
             Assert.AreEqual(0, player.Experience);
-            Assert.AreEqual(0, await InventoryOf(OreType.Bronze));
+            Assert.AreEqual(0, await InventoryOf(OreType.Quartz));
         }
 
         [TestMethod]
@@ -240,7 +227,7 @@ namespace ShardsTests
             await Mines.MineAsync(7, 1, 3);
             await Mines.MineAsync(7, 1, 4);
 
-            Assert.AreEqual(7, await InventoryOf(OreType.Bronze));
+            Assert.AreEqual(7, await InventoryOf(OreType.Quartz));
             await using var ctx = Db.CreateDbContext();
             Assert.AreEqual(1, await ctx.InventoryItem.CountAsync(), "uma linha por tipo de minério");
         }
@@ -250,7 +237,7 @@ namespace ShardsTests
         {
             int playerId = await SeedPlayerAsync();
             await AddSkillAsync(playerId, level: 1); // 15%
-            Random.Value = 0.10;                     // < 0,15: aciona; bronze
+            Random.Value = 0.10;                     // < 0,15: aciona; quartzo
 
             var res = await Mines.MineAsync(7, 1, 1);
 
@@ -350,7 +337,7 @@ namespace ShardsTests
             var res = await Mines.CollectCartAsync(7, 1);
 
             Assert.AreEqual(3, res.Total);
-            Assert.AreEqual(OreType.Bronze, res.Collected.Single().OreType);
+            Assert.AreEqual(OreType.Quartz, res.Collected.Single().OreType);
             Assert.AreEqual(3, res.Inventory.Single().Quantity);
             Assert.AreEqual(0, res.Cart.CartAmount);
 
@@ -382,19 +369,6 @@ namespace ShardsTests
         }
 
         [TestMethod]
-        public async Task Collect_RollsTheDropTable()
-        {
-            await SeedPlayerAsync();
-            Time.Advance(TimeSpan.FromMinutes(10));
-            Random.Value = 0.9;
-
-            var res = await Mines.CollectCartAsync(7, 1);
-
-            Assert.AreEqual(OreType.Silver, res.Collected.Single().OreType);
-            Assert.AreEqual(3, await InventoryOf(OreType.Silver));
-        }
-
-        [TestMethod]
         public async Task Collect_GivesNoXp_AndDoesNotTouchEnergy()
         {
             await SeedPlayerAsync();
@@ -417,7 +391,7 @@ namespace ShardsTests
 
             await Mines.CollectCartAsync(7, 1);
 
-            Assert.AreEqual(8, await InventoryOf(OreType.Bronze));
+            Assert.AreEqual(8, await InventoryOf(OreType.Quartz));
         }
 
         [TestMethod]
