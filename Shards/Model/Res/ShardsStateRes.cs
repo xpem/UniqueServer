@@ -23,6 +23,9 @@ namespace Shards.Model.Res
 
         public int MaxEnergy { get; set; }
 
+        /// <summary>Segundos para regenerar 1 ponto de energia (vem da configuração; o cliente usa para a barra ao vivo).</summary>
+        public int SecondsPerEnergy { get; set; }
+
         /// <summary>Quando o próximo ponto de energia chega; nulo com a energia cheia.</summary>
         public DateTime? NextEnergyAtUtc { get; set; }
     }

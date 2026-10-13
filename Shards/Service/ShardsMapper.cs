@@ -15,6 +15,7 @@ namespace Shards.Service
             SkillPoints = player.SkillPoints,
             Energy = player.Energy,
             MaxEnergy = player.MaxEnergy,
+            SecondsPerEnergy = rules.Balance.Energy.SecondsPerPoint,
             NextEnergyAtUtc = rules.NextEnergyAtUtc(player.Energy, player.MaxEnergy, player.LastEnergyUpdateUtc),
         };
 

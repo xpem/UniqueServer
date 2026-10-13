@@ -90,6 +90,7 @@ namespace ShardsTests
             Assert.IsFalse(res.LevelUp);
             Assert.AreEqual(99, res.Player.Energy);
             Assert.AreEqual(Start.AddSeconds(216), res.Player.NextEnergyAtUtc, "gastar com a energia cheia recomeça a contagem agora");
+            Assert.AreEqual(216, res.Player.SecondsPerEnergy, "as respostas das ações também trazem o intervalo");
             Assert.AreEqual(1, await InventoryOf(OreType.Quartz));
         }
 

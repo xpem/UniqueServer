@@ -43,6 +43,7 @@ namespace ShardsTests
             Assert.AreEqual(100, state.Player.Energy);
             Assert.AreEqual(100, state.Player.MaxEnergy);
             Assert.IsNull(state.Player.NextEnergyAtUtc);
+            Assert.AreEqual(216, state.Player.SecondsPerEnergy);
 
             Assert.AreEqual(0, state.Inventory.Count);
 
