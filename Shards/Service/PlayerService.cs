@@ -39,6 +39,15 @@ namespace Shards.Service
             var mines = await ctx.Mine.AsNoTracking().Where(m => m.PlayerId == player.Id).ToListAsync();
             var missions = await ctx.PlayerMission.AsNoTracking().Where(m => m.PlayerId == player.Id).ToListAsync();
 
+            // missões novas do catálogo chegam a quem já resgatou a anterior (só grava quando falta alguma)
+            List<PlayerMissionDTO> created = MissionTracker.CreateMissingNext(missions, player.Id, skills, mines, rules.UtcNow);
+            if (created.Count > 0)
+            {
+                ctx.PlayerMission.AddRange(created);
+                await ctx.SaveChangesAsync();
+                missions.AddRange(created);
+            }
+
             return mapper.ToStateRes(player, skills, inventory, mines, missions);
         });
 

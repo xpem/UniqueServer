@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Options;
 using Shards.Config;
+using Shards.Model.DTO;
 
 namespace Shards.Rules
 {
@@ -104,20 +105,25 @@ namespace Shards.Rules
         public MineOptions? GetNextMine(int highestOwnedMineNumber) =>
             _balance.Mines.Where(m => m.MineNumber > highestOwnedMineNumber).OrderBy(m => m.MineNumber).FirstOrDefault();
 
-        /// <summary>Sorteia um drop da tabela da mina (pesos normalizados pela soma).</summary>
-        public DropOptions RollDrop(MineOptions mine)
+        public ProductionOptions? FindProduction(OreType focus) => _balance.Productions.FirstOrDefault(p => p.Focus == focus);
+
+        public ProductionOptions GetProduction(OreType focus) =>
+            FindProduction(focus) ?? throw new KeyNotFoundException($"Produção {focus} não configurada.");
+
+        /// <summary>Sorteia um drop da tabela da produção da mina (pesos normalizados pela soma).</summary>
+        public DropOptions RollDrop(ProductionOptions production)
         {
-            double total = mine.Drops.Sum(d => d.Chance);
+            double total = production.Drops.Sum(d => d.Chance);
             double roll = random.NextDouble() * total;
 
             double accumulated = 0;
-            foreach (DropOptions drop in mine.Drops)
+            foreach (DropOptions drop in production.Drops)
             {
                 accumulated += drop.Chance;
                 if (roll < accumulated) return drop;
             }
 
-            return mine.Drops[^1];
+            return production.Drops[^1];
         }
 
         #endregion

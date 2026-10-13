@@ -218,7 +218,7 @@ namespace ShardsTests
         }
 
         [TestMethod]
-        public async Task ThirdMission_IsTheLastOfTheChain()
+        public async Task ThirdMission_ReleasesTheFourth()
         {
             await SeedPlayerAsync();
             await CompleteAndClaimFirstMissionAsync();
@@ -229,9 +229,10 @@ namespace ShardsTests
 
             var res = await Missions.ClaimAsync(7, "OperationalExpansion");
 
-            Assert.AreEqual(1, res.Missions.Count, "não há missão seguinte");
-            Assert.AreEqual(MissionStatus.Claimed, res.Missions.Single().Status);
-            Assert.AreEqual(0, (await Players.GetStateAsync(7)).Missions.Count);
+            Assert.AreEqual(2, res.Missions.Count, "a missão resgatada e a Primeira Gema");
+            Assert.AreEqual(MissionStatus.Claimed, res.Missions.Single(m => m.Type == MissionType.OperationalExpansion).Status);
+            Assert.AreEqual(MissionStatus.Active, res.Missions.Single(m => m.Type == MissionType.FirstGem).Status);
+            Assert.AreEqual(MissionType.FirstGem, (await Players.GetStateAsync(7)).Missions.Single().Type);
         }
 
         [TestMethod]
@@ -390,7 +391,7 @@ namespace ShardsTests
             state = await Players.GetStateAsync(7);
             Assert.AreEqual(2, state.Mines.Count);
             Assert.IsNull(state.NextMine);
-            Assert.AreEqual(0, state.Missions.Count);
+            Assert.AreEqual(MissionType.FirstGem, state.Missions.Single().Type, "depois da Mina 2, o próximo objetivo é a primeira gema");
         }
     }
 }

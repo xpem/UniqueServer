@@ -18,6 +18,9 @@ namespace Shards.Config
         public DoubleDropOptions DoubleDrop { get; set; } = new();
 
         public List<MineOptions> Mines { get; set; } = [];
+
+        /// <summary>Tipos de produção que uma mina pode ter (Quartz é o padrão de toda mina).</summary>
+        public List<ProductionOptions> Productions { get; set; } = [];
     }
 
     public class EnergyOptions
@@ -54,10 +57,23 @@ namespace Shards.Config
 
         public double OresPerMinute { get; set; } = 0.33;
 
-        public List<DropOptions> Drops { get; set; } = [];
-
         /// <summary>Custo para desbloquear esta mina. Vazio na mina inicial.</summary>
         public List<OreAmount> UnlockCost { get; set; } = [];
+    }
+
+    /// <summary>
+    /// Um tipo de produção de mina: o que ela sorteia a cada mineração e a cada minério do vagonete, e quanto custa
+    /// pôr uma mina nele. Voltar ao Quartz é de graça (SwitchCost vazio).
+    /// </summary>
+    public class ProductionOptions
+    {
+        /// <summary>Minério em que a mina se especializa.</summary>
+        public OreType Focus { get; set; }
+
+        /// <summary>Custo, por mina e a cada mudança, para passar a produzir este tipo.</summary>
+        public List<OreAmount> SwitchCost { get; set; } = [];
+
+        public List<DropOptions> Drops { get; set; } = [];
     }
 
     public class DropOptions

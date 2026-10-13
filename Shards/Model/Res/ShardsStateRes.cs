@@ -40,6 +40,9 @@ namespace Shards.Model.Res
     {
         public int MineNumber { get; set; }
 
+        /// <summary>Minério em que a mina se especializa (Quartz por padrão).</summary>
+        public OreType Production { get; set; }
+
         public int CartCapacity { get; set; }
 
         public int CartAmount { get; set; }
@@ -83,6 +86,30 @@ namespace Shards.Model.Res
         public bool CanAfford { get; set; }
     }
 
+    public record DropRes
+    {
+        public OreType OreType { get; set; }
+
+        /// <summary>Probabilidade de 0 a 1, já normalizada pela soma da tabela.</summary>
+        public double Chance { get; set; }
+
+        public int Xp { get; set; }
+    }
+
+    /// <summary>Um tipo de produção que o jogador pode escolher para uma mina.</summary>
+    public record ProductionOptionRes
+    {
+        public OreType Focus { get; set; }
+
+        /// <summary>Custo, por mina, para passar a produzir este tipo. Vazio quando é de graça (Quartz).</summary>
+        public List<OreAmountRes> SwitchCost { get; set; } = [];
+
+        public List<DropRes> Drops { get; set; } = [];
+
+        /// <summary>O inventário atual cobre o custo (sem contar o que o vagonete entregaria na troca).</summary>
+        public bool CanAfford { get; set; }
+    }
+
     /// <summary>Resposta de GET /shards/state: o estado completo do jogador.</summary>
     public record ShardsStateRes
     {
@@ -101,5 +128,8 @@ namespace Shards.Model.Res
 
         /// <summary>Próxima mina à venda; nulo se não houver.</summary>
         public NextMineRes? NextMine { get; set; }
+
+        /// <summary>Produções que podem ser escolhidas por mina, com custo e probabilidades.</summary>
+        public List<ProductionOptionRes> Productions { get; set; } = [];
     }
 }

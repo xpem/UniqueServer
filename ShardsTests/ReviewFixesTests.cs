@@ -76,17 +76,53 @@ namespace ShardsTests
         [TestMethod]
         public void DuplicatedMineNumber_IsInvalid()
         {
-            Balance.Mines.Add(new MineOptions { MineNumber = 2, Drops = [new DropOptions { Ore = OreType.Quartz, Chance = 1 }] });
+            Balance.Mines.Add(new MineOptions { MineNumber = 2 });
 
             Assert.IsTrue(_validator.Validate(null, Balance).Failures!.Any(f => f.Contains("repetido")));
         }
 
         [TestMethod]
-        public void MineWithoutDrops_IsInvalid()
+        public void ProductionWithoutDrops_IsInvalid()
         {
-            Balance.Mines[0].Drops.Clear();
+            Balance.Productions[0].Drops.Clear();
 
             Assert.IsTrue(_validator.Validate(null, Balance).Failures!.Any(f => f.Contains("Drops não pode ser vazio")));
+        }
+
+        [TestMethod]
+        public void MissingQuartzProduction_IsInvalid()
+        {
+            Balance.Productions.RemoveAll(p => p.Focus == OreType.Quartz);
+
+            Assert.IsTrue(_validator.Validate(null, Balance).Failures!.Any(f => f.Contains("Quartz")));
+        }
+
+        [TestMethod]
+        public void DuplicatedProduction_IsInvalid()
+        {
+            Balance.Productions.Add(new ProductionOptions
+            {
+                Focus = OreType.Sapphire,
+                Drops = [new DropOptions { Ore = OreType.Sapphire, Chance = 1 }],
+            });
+
+            Assert.IsTrue(_validator.Validate(null, Balance).Failures!.Any(f => f.Contains("repetida")));
+        }
+
+        [TestMethod]
+        public void ProductionThatNeverDropsItsOwnOre_IsInvalid()
+        {
+            Balance.Productions.Single(p => p.Focus == OreType.Ruby).Drops.RemoveAll(d => d.Ore == OreType.Ruby);
+
+            Assert.IsTrue(_validator.Validate(null, Balance).Failures!.Any(f => f.Contains("próprio minério")));
+        }
+
+        [TestMethod]
+        public void NonPositiveSwitchCost_IsInvalid()
+        {
+            Balance.Productions.Single(p => p.Focus == OreType.Sapphire).SwitchCost[0].Quantity = 0;
+
+            Assert.IsTrue(_validator.Validate(null, Balance).Failures!.Any(f => f.Contains("SwitchCost")));
         }
 
         [TestMethod]

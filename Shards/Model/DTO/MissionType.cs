@@ -8,5 +8,6 @@ namespace Shards.Model.DTO
         FirstPickaxe = 1,
         Specialization = 2,
         OperationalExpansion = 3,
+        FirstGem = 4,
     }
 }

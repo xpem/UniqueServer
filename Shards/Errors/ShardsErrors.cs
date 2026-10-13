@@ -25,6 +25,8 @@ namespace Shards.Errors
             ShardsErrorCode.MissionNotCompleted => "A missão ainda não foi concluída.",
             ShardsErrorCode.MissionNotFound => "Missão não encontrada.",
             ShardsErrorCode.MissionAlreadyClaimed => "A recompensa desta missão já foi resgatada.",
+            ShardsErrorCode.InvalidProduction => "Tipo de produção inválido.",
+            ShardsErrorCode.SameProduction => "A mina já está produzindo este minério.",
             ShardsErrorCode.InvalidTimes => "Quantidade de ações inválida.",
             ShardsErrorCode.ConcurrencyConflict => "A operação conflitou com outra em andamento. Tente novamente.",
             _ => "Erro de regra do jogo.",
@@ -40,6 +42,9 @@ namespace Shards.Errors
 
         public static MissionType ParseMissionType(string? value) =>
             TryParseName(value, out MissionType result) ? result : throw new ShardsException(ShardsErrorCode.MissionNotFound);
+
+        public static OreType ParseProduction(string? value) =>
+            TryParseName(value, out OreType result) ? result : throw new ShardsException(ShardsErrorCode.InvalidProduction);
 
         private static bool TryParseName<T>(string? value, out T result) where T : struct, Enum
         {

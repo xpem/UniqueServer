@@ -44,6 +44,7 @@ namespace Shards.Service
         public MineStateRes ToMineStateRes(MineDTO mine) => new()
         {
             MineNumber = mine.MineNumber,
+            Production = mine.ProductionType,
             CartCapacity = mine.CartCapacity,
             CartAmount = rules.CartAmount(mine.CartCapacity, mine.OresPerMinute, mine.LastCartCollectionUtc),
             CartFullAtUtc = rules.CartFullAtUtc(mine.CartCapacity, mine.OresPerMinute, mine.LastCartCollectionUtc),
@@ -96,6 +97,25 @@ namespace Shards.Service
             };
         }
 
+        /// <summary>As produções configuradas, com as probabilidades normalizadas e se o inventário cobre o custo.</summary>
+        public List<ProductionOptionRes> ToProductionsRes(IEnumerable<InventoryItemDTO> inventory)
+        {
+            Dictionary<OreType, int> owned = inventory.ToDictionary(i => i.OreType, i => i.Quantity);
+
+            return rules.Balance.Productions.Select(p =>
+            {
+                double total = p.Drops.Sum(d => d.Chance);
+
+                return new ProductionOptionRes
+                {
+                    Focus = p.Focus,
+                    SwitchCost = p.SwitchCost.Select(c => new OreAmountRes { OreType = c.Ore, Quantity = c.Quantity }).ToList(),
+                    Drops = p.Drops.Select(d => new DropRes { OreType = d.Ore, Chance = d.Chance / total, Xp = d.Xp }).ToList(),
+                    CanAfford = p.SwitchCost.All(c => owned.GetValueOrDefault(c.Ore) >= c.Quantity),
+                };
+            }).ToList();
+        }
+
         public ShardsStateRes ToStateRes(
             PlayerDTO player,
             IReadOnlyCollection<PlayerSkillDTO> skills,
@@ -110,6 +130,7 @@ namespace Shards.Service
             Mines = mines.OrderBy(m => m.MineNumber).Select(ToMineStateRes).ToList(),
             Missions = ToVisibleMissionsRes(missions),
             NextMine = ToNextMineRes(mines, inventory),
+            Productions = ToProductionsRes(inventory),
         };
     }
 }

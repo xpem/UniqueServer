@@ -60,8 +60,8 @@ Upgrade de vagonete e de auto-mineração (campos existem, mecanismo não), mina
 
 ### Configuração (`GameBalanceOptions`, seção `Shards:Balance` em `appsettings`)
 - Energia: máximo 100, custo 1 por mineração, 216 s por ponto (100 em 6 h).
-- Drop da Mina 1: Quartzo 100% (+1 XP). A regra de sorteio continua aceitando tabelas com vários drops (minas futuras).
-- Mina 2: custo 200 Quartzo. Vagonete 100, 0.33 min/min na Mina 1.
+- Produções (tipo de produção da mina): Quartz 100% (+1 XP); gemas Sapphire, Ruby e Emerald com 90% da gema (+3 XP) e 10% de quartzo (+1 XP). Toda mina nasce em Quartz.
+- Mina 2: custo 200 Quartzo. Trocar a produção de uma mina: Sapphire 500, Ruby 1200, Emerald 3000 de Quartzo (por mina, a cada mudança; voltar ao Quartz é de graça). Vagonete 100, 0.33 min/min na Mina 1.
 - Skill `DoubleDrop`: +15% de chance por nível, com nível máximo configurável. Vale só na mineração ativa.
 
 ### Curva de XP
@@ -229,3 +229,22 @@ Fase 7 original:
 3. Sem testes de concorrência no MVP: o `xmin` e o retry são implementados, mas a garantia não é validada automaticamente. Reavaliar antes de abrir o jogo ao público.
 4. A política de rate limit global (`MapControllers().RequireRateLimiting("fixed")`) precisa conviver com a política `shards`.
 5. Balanceamento (drops, XP, custos) em `appsettings`, ajustável sem recompilar.
+
+---
+
+## 7. Evolução 1 — Tipo de produção da mina  ✅ pronta (183 testes)
+
+Decisão de design: cada mina tem um **tipo de produção**. O jogador paga quartzo para mudá-lo e a mina passa a produzir a gema escolhida, com um pouco de quartzo.
+
+- **Modelo:** `MineDTO.ProductionType` (`OreType`, padrão `Quartz`). Migration `AddMineProduction` (`ALTER TABLE "Mine" ADD "ProductionType" integer NOT NULL DEFAULT 1`): as minas existentes continuam em Quartzo. **Aplicar com `update-database -Context ShardsDbctx`.**
+- **Configuração:** a tabela de drop saiu de `Mines[].Drops` e virou `Productions[]` (`Focus`, `SwitchCost`, `Drops`). `Mines[]` guarda só capacidade, taxa e custo de desbloqueio. O validador exige a produção Quartz, sem repetidas, e que os drops incluam o próprio minério.
+- **Regras:**
+  - O custo é **por mina e a cada mudança** (Safira → Rubi paga o Rubi). Não existe desbloqueio global.
+  - Mudar para **Quartz é de graça** (evita travar quem ficou sem quartzo).
+  - A troca **esvazia o vagonete antes, com a produção antiga**: o tempo acumulado foi trabalhado nela. O que sai do vagonete já conta para pagar a troca. Sem recursos suficientes, nada é gravado, nem a coleta.
+  - Mina 1 e Mina 2 podem mudar. Mesma produção: `SameProduction`; tipo inexistente: `InvalidProduction`.
+  - A mineração ativa e o vagonete passam a sortear a tabela da produção da mina. O `DoubleDrop` vale também para gemas.
+- **API:** `POST /Shards/mines/{n}/production` com `{ "focus": "Sapphire" }`. O `state` mostra `mines[].production` e `productions[]` (custo, probabilidades normalizadas e `canAfford`).
+- **Missão 4 "Primeira Gema":** conclui ao pôr uma mina em gema (voltar ao quartzo não conta); recompensa de 50 XP. Nasce quando a Missão 3 é resgatada, ou já concluída se o jogador já tiver uma mina em gema.
+- **Missões novas do catálogo chegam a quem já resgatou a anterior:** o `GET /state` cria as missões que faltam na cadeia (só grava quando falta alguma). Isso vale para jogadores que já tinham resgatado a Missão 3 antes da Missão 4 existir.
+- **Fora do escopo (próximas etapas):** venda/mercado de gemas por quartzo, Oficina de Lapidação (estágio por item), combate.

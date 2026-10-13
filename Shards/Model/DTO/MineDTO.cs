@@ -21,6 +21,9 @@ namespace Shards.Model.DTO
         /// <summary>Auto-mineração: 0.33 = ~1 minério a cada 3 minutos.</summary>
         public double OresPerMinute { get; set; } = 0.33;
 
+        /// <summary>Minério em que a mina se especializa. Quartzo por padrão; mudar custa minério (ver Productions).</summary>
+        public OreType ProductionType { get; set; } = OreType.Quartz;
+
         public uint Version { get; set; }
     }
 }

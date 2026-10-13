@@ -23,6 +23,9 @@ namespace Shards.Rules
 
             new(MissionType.OperationalExpansion, "Expansão Operacional", "Junte 200 Quartzo e desbloqueie a segunda mina.", 1,
                 new MissionReward(0, [])),
+
+            new(MissionType.FirstGem, "Primeira Gema", "Escolha uma gema para uma de suas minas produzir.", 1,
+                new MissionReward(50, [])),
         ];
 
         public static MissionDefinition First => All[0];

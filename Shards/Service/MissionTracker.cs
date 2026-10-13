@@ -32,6 +32,33 @@ namespace Shards.Service
             Advance(missions, type, amount, nowUtc) is { } changed ? [changed] : [];
 
         /// <summary>
+        /// Cria as missões que faltam na cadeia: para cada missão já resgatada cuja seguinte ainda não existe, cria a
+        /// seguinte como ativa (ou já concluída, se o jogador já fez o que ela pede). Devolve só as criadas.
+        /// Serve ao resgate e ao estado, para missões novas do catálogo chegarem a quem já resgatou a anterior.
+        /// </summary>
+        public static List<PlayerMissionDTO> CreateMissingNext(IReadOnlyCollection<PlayerMissionDTO> missions, int playerId,
+            IReadOnlyCollection<PlayerSkillDTO> skills, IReadOnlyCollection<MineDTO> mines, DateTime nowUtc)
+        {
+            List<PlayerMissionDTO> created = [];
+
+            for (int i = 0; i < MissionCatalog.All.Count - 1; i++)
+            {
+                MissionType current = MissionCatalog.All[i].Type;
+                MissionType next = MissionCatalog.All[i + 1].Type;
+
+                bool claimed = missions.Any(m => m.MissionType == current && m.Status == MissionStatus.Claimed);
+                bool exists = missions.Any(m => m.MissionType == next) || created.Any(m => m.MissionType == next);
+                if (!claimed || exists) continue;
+
+                var mission = new PlayerMissionDTO { PlayerId = playerId, MissionType = next, Status = MissionStatus.Active };
+                CompleteIfAlreadySatisfied(mission, skills, mines, nowUtc);
+                created.Add(mission);
+            }
+
+            return created;
+        }
+
+        /// <summary>
         /// Uma missão só é liberada quando a anterior é resgatada. Se o jogador já fez o que ela pede antes disso
         /// (ex.: distribuiu o ponto de habilidade ou comprou a mina 2 antes de resgatar a missão anterior),
         /// ela já nasce concluída, em vez de exigir repetir a ação.
@@ -42,6 +69,7 @@ namespace Shards.Service
             {
                 MissionType.Specialization => skills.Any(s => s.Level > 0),
                 MissionType.OperationalExpansion => mines.Any(m => m.MineNumber >= 2),
+                MissionType.FirstGem => mines.Any(m => m.ProductionType != OreType.Quartz),
                 _ => false,
             };
 

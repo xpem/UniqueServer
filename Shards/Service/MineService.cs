@@ -18,6 +18,12 @@ namespace Shards.Service
 
         /// <summary>Compra a próxima mina configurada, debitando o custo do inventário.</summary>
         Task<UnlockMineRes> UnlockNextAsync(int uid);
+
+        /// <summary>
+        /// Muda o tipo de produção da mina (ex.: "Sapphire"), pagando o custo da nova produção em minério.
+        /// Voltar para Quartz é de graça. O vagonete é esvaziado antes, com a produção antiga.
+        /// </summary>
+        Task<SetProductionRes> SetProductionAsync(int uid, int mineNumber, string? focus);
     }
 
     public class MineService(IDbContextFactory<ShardsDbctx> dbFactory, GameRules rules, ShardsMapper mapper) : IMineService
@@ -36,7 +42,7 @@ namespace Shards.Service
 
                 PlayerDTO player = await ShardsQueries.GetPlayerAsync(ctx, uid);
                 MineDTO mine = await ShardsQueries.GetMineAsync(ctx, player.Id, mineNumber);
-                MineOptions mineConfig = rules.GetMine(mineNumber);
+                ProductionOptions production = rules.GetProduction(mine.ProductionType);
 
                 // energia: regenera e debita; o resto parcial do relógio é preservado
                 EnergyState energy = rules.RegenerateEnergy(player.Energy, player.MaxEnergy, player.LastEnergyUpdateUtc);
@@ -53,7 +59,7 @@ namespace Shards.Service
 
                 for (int i = 0; i < times; i++)
                 {
-                    DropOptions drop = rules.RollDrop(mineConfig);
+                    DropOptions drop = rules.RollDrop(production);
                     int quantity = 1;
 
                     if (rules.RollDoubleDrop(doubleDropLevel))
@@ -117,6 +123,7 @@ namespace Shards.Service
                 CreatedAt = now,
                 CartCapacity = next.CartCapacity,
                 OresPerMinute = next.OresPerMinute,
+                ProductionType = OreType.Quartz,
                 LastCartCollectionUtc = now,
             };
             ctx.Mine.Add(mine);
@@ -142,24 +149,12 @@ namespace Shards.Service
 
             PlayerDTO player = await ShardsQueries.GetPlayerAsync(ctx, uid);
             MineDTO mine = await ShardsQueries.GetMineAsync(ctx, player.Id, mineNumber);
-            MineOptions mineConfig = rules.GetMine(mineNumber);
 
             int amount = rules.CartAmount(mine.CartCapacity, mine.OresPerMinute, mine.LastCartCollectionUtc);
             if (amount <= 0) throw new ShardsException(ShardsErrorCode.CartEmpty);
 
-            // cada minério do vagonete sorteia a tabela da mina; a coleta não dá XP nem drop duplo
-            SortedDictionary<OreType, int> collected = [];
-            for (int i = 0; i < amount; i++)
-            {
-                OreType ore = rules.RollDrop(mineConfig).Ore;
-                collected[ore] = collected.GetValueOrDefault(ore) + 1;
-            }
-
             List<InventoryItemDTO> inventory = await ShardsQueries.GetInventoryAsync(ctx, player.Id);
-            foreach ((OreType ore, int quantity) in collected)
-                InventoryItemService.Add(ctx, inventory, player.Id, ore, quantity);
-
-            mine.LastCartCollectionUtc = now;
+            SortedDictionary<OreType, int> collected = EmptyCart(ctx, mine, player.Id, inventory, now);
 
             await ctx.SaveChangesAsync();
 
@@ -171,5 +166,79 @@ namespace Shards.Service
                 Inventory = mapper.ToInventoryRes(inventory),
             };
         });
+
+        public Task<SetProductionRes> SetProductionAsync(int uid, int mineNumber, string? focus)
+        {
+            OreType target = ShardsErrors.ParseProduction(focus);
+            ProductionOptions targetProduction = rules.FindProduction(target) ?? throw new ShardsException(ShardsErrorCode.InvalidProduction);
+
+            return ConcurrencyRetry.RunAsync(async () =>
+            {
+                await using ShardsDbctx ctx = await dbFactory.CreateDbContextAsync();
+                DateTime now = rules.UtcNow;
+
+                PlayerDTO player = await ShardsQueries.GetPlayerAsync(ctx, uid);
+                MineDTO mine = await ShardsQueries.GetMineAsync(ctx, player.Id, mineNumber);
+
+                if (mine.ProductionType == target) throw new ShardsException(ShardsErrorCode.SameProduction);
+
+                List<InventoryItemDTO> inventory = await ShardsQueries.GetInventoryAsync(ctx, player.Id);
+
+                // 1) esvazia o vagonete com a produção ANTIGA: o tempo acumulado foi trabalhado nela
+                SortedDictionary<OreType, int> collected = EmptyCart(ctx, mine, player.Id, inventory, now);
+
+                // 2) paga a nova produção. O que acabou de sair do vagonete já conta para pagar; sem recursos
+                //    suficientes lançamos antes do SaveChanges e nada, nem a coleta, é gravado
+                List<(OreType Ore, int Quantity)> cost = targetProduction.SwitchCost.Select(c => (c.Ore, c.Quantity)).ToList();
+                InventoryItemService.Remove(inventory, cost);
+
+                mine.ProductionType = target;
+
+                // Missão 4: pôr uma mina para produzir uma gema (voltar ao quartzo não conta)
+                List<PlayerMissionDTO> changedMissions = [];
+                if (target != OreType.Quartz)
+                {
+                    List<PlayerMissionDTO> missions = await ShardsQueries.GetMissionsAsync(ctx, player.Id);
+                    changedMissions = MissionTracker.AdvanceChanged(missions, MissionType.FirstGem, 1, now);
+                }
+
+                await ctx.SaveChangesAsync();
+
+                return new SetProductionRes
+                {
+                    Mine = mapper.ToMineStateRes(mine),
+                    Collected = collected.Select(c => new OreAmountRes { OreType = c.Key, Quantity = c.Value }).ToList(),
+                    Spent = cost.Select(c => new OreAmountRes { OreType = c.Ore, Quantity = c.Quantity }).ToList(),
+                    Inventory = mapper.ToInventoryRes(inventory),
+                    Missions = changedMissions.Select(mapper.ToMissionRes).ToList(),
+                };
+            });
+        }
+
+        /// <summary>
+        /// Passa os minérios acumulados no vagonete para o inventário (sorteando a tabela da produção atual da mina,
+        /// sem XP nem drop duplo) e zera o relógio dele. Se não há nada acumulado, não altera nada.
+        /// </summary>
+        private SortedDictionary<OreType, int> EmptyCart(ShardsDbctx ctx, MineDTO mine, int playerId, List<InventoryItemDTO> inventory, DateTime now)
+        {
+            SortedDictionary<OreType, int> collected = [];
+
+            int amount = rules.CartAmount(mine.CartCapacity, mine.OresPerMinute, mine.LastCartCollectionUtc);
+            if (amount <= 0) return collected;
+
+            ProductionOptions production = rules.GetProduction(mine.ProductionType);
+            for (int i = 0; i < amount; i++)
+            {
+                OreType ore = rules.RollDrop(production).Ore;
+                collected[ore] = collected.GetValueOrDefault(ore) + 1;
+            }
+
+            foreach ((OreType ore, int quantity) in collected)
+                InventoryItemService.Add(ctx, inventory, playerId, ore, quantity);
+
+            mine.LastCartCollectionUtc = now;
+
+            return collected;
+        }
     }
 }

@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Options;
+using Shards.Model.DTO;
 
 namespace Shards.Config
 {
@@ -22,6 +23,14 @@ namespace Shards.Config
             if (options.DoubleDrop.MaxLevel < 0) errors.Add("DoubleDrop.MaxLevel não pode ser negativo.");
             if (options.DoubleDrop.ChancePerLevel is < 0 or > 1) errors.Add("DoubleDrop.ChancePerLevel deve ficar entre 0 e 1.");
 
+            ValidateMines(options, errors);
+            ValidateProductions(options, errors);
+
+            return errors.Count == 0 ? ValidateOptionsResult.Success : ValidateOptionsResult.Fail(errors);
+        }
+
+        private static void ValidateMines(GameBalanceOptions options, List<string> errors)
+        {
             if (options.Mines.Count == 0) errors.Add("Mines não pode ser vazio.");
             if (!options.Mines.Any(m => m.MineNumber == 1)) errors.Add("A mina inicial (MineNumber 1) precisa estar configurada.");
 
@@ -36,14 +45,31 @@ namespace Shards.Config
                 if (mine.CartCapacity <= 0) errors.Add($"{at}: CartCapacity deve ser maior que 0.");
                 if (mine.OresPerMinute < 0) errors.Add($"{at}: OresPerMinute não pode ser negativo.");
 
-                if (mine.Drops.Count == 0) errors.Add($"{at}: Drops não pode ser vazio.");
-                if (mine.Drops.Any(d => d.Chance <= 0)) errors.Add($"{at}: toda Chance de Drops deve ser maior que 0.");
-                if (mine.Drops.Any(d => d.Xp < 0)) errors.Add($"{at}: Xp de Drops não pode ser negativo.");
-
                 if (mine.UnlockCost.Any(c => c.Quantity <= 0)) errors.Add($"{at}: toda Quantity de UnlockCost deve ser maior que 0.");
             }
+        }
 
-            return errors.Count == 0 ? ValidateOptionsResult.Success : ValidateOptionsResult.Fail(errors);
+        /// <summary>Toda mina nasce produzindo Quartzo; as demais produções (gemas) são opções que o jogador compra por mina.</summary>
+        private static void ValidateProductions(GameBalanceOptions options, List<string> errors)
+        {
+            if (options.Productions.Count == 0) errors.Add("Productions não pode ser vazio.");
+            if (!options.Productions.Any(p => p.Focus == OreType.Quartz)) errors.Add("A produção Quartz (padrão de toda mina) precisa estar configurada.");
+
+            foreach (var duplicated in options.Productions.GroupBy(p => p.Focus).Where(g => g.Count() > 1))
+                errors.Add($"A produção {duplicated.Key} está repetida em Productions.");
+
+            foreach (ProductionOptions production in options.Productions)
+            {
+                string at = $"Productions[{production.Focus}]";
+
+                if (production.Drops.Count == 0) errors.Add($"{at}: Drops não pode ser vazio.");
+                if (production.Drops.Any(d => d.Chance <= 0)) errors.Add($"{at}: toda Chance de Drops deve ser maior que 0.");
+                if (production.Drops.Any(d => d.Xp < 0)) errors.Add($"{at}: Xp de Drops não pode ser negativo.");
+                if (production.Drops.Count > 0 && !production.Drops.Any(d => d.Ore == production.Focus))
+                    errors.Add($"{at}: os Drops precisam incluir o próprio minério da produção.");
+
+                if (production.SwitchCost.Any(c => c.Quantity <= 0)) errors.Add($"{at}: toda Quantity de SwitchCost deve ser maior que 0.");
+            }
         }
     }
 }

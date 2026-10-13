@@ -203,22 +203,22 @@ namespace ShardsTests
         [TestMethod]
         public void RollDrop_InitialMine_AlwaysDropsQuartz()
         {
-            var mine = Rules.GetMine(1);
+            var production = Rules.GetProduction(OreType.Quartz);
 
             foreach (double roll in new[] { 0.0, 0.5, 0.849, 0.85, 0.9999999 })
             {
                 Random.Value = roll;
-                Assert.AreEqual(OreType.Quartz, Rules.RollDrop(mine).Ore, $"sorteio {roll}");
+                Assert.AreEqual(OreType.Quartz, Rules.RollDrop(production).Ore, $"sorteio {roll}");
             }
         }
 
         [TestMethod]
         public void RollDrop_WeightedTable_PicksByAccumulatedChance()
         {
-            // a regra é genérica: tabelas com mais de um drop continuam funcionando (minas futuras)
-            var mine = new Shards.Config.MineOptions
+            // a regra é genérica: tabelas com mais de um drop continuam funcionando (produções futuras)
+            var production = new Shards.Config.ProductionOptions
             {
-                MineNumber = 9,
+                Focus = OreType.Quartz,
                 Drops =
                 [
                     new Shards.Config.DropOptions { Ore = OreType.Quartz, Chance = 0.85, Xp = 1 },
@@ -227,28 +227,28 @@ namespace ShardsTests
             };
 
             Random.Value = 0.0;
-            Assert.AreEqual(OreType.Quartz, Rules.RollDrop(mine).Ore);
+            Assert.AreEqual(OreType.Quartz, Rules.RollDrop(production).Ore);
 
             Random.Value = 0.849;
-            Assert.AreEqual(OreType.Quartz, Rules.RollDrop(mine).Ore);
+            Assert.AreEqual(OreType.Quartz, Rules.RollDrop(production).Ore);
 
             Random.Value = 0.85;
-            Assert.AreEqual(OreType.Ruby, Rules.RollDrop(mine).Ore);
+            Assert.AreEqual(OreType.Ruby, Rules.RollDrop(production).Ore);
 
             Random.Value = 0.9999999;
-            Assert.AreEqual(3, Rules.RollDrop(mine).Xp);
+            Assert.AreEqual(3, Rules.RollDrop(production).Xp);
         }
 
         [TestMethod]
         public void RollDrop_GivesConfiguredXp()
         {
-            var mine = Rules.GetMine(1);
+            var production = Rules.GetProduction(OreType.Quartz);
 
             Random.Value = 0.0;
-            Assert.AreEqual(1, Rules.RollDrop(mine).Xp);
+            Assert.AreEqual(1, Rules.RollDrop(production).Xp);
 
             Random.Value = 0.9;
-            Assert.AreEqual(1, Rules.RollDrop(mine).Xp);
+            Assert.AreEqual(1, Rules.RollDrop(production).Xp);
         }
 
         [TestMethod]
@@ -283,9 +283,12 @@ namespace ShardsTests
         public void AppSettings_BalanceBindsWithoutDuplicates()
         {
             Assert.AreEqual(2, Balance.Mines.Count);
-            Assert.AreEqual(1, Balance.Mines[0].Drops.Count);
             Assert.AreEqual(0, Balance.Mines[0].UnlockCost.Count);
             Assert.AreEqual(1, Balance.Mines[1].UnlockCost.Count);
+
+            Assert.AreEqual(4, Balance.Productions.Count);
+            Assert.AreEqual(1, Balance.Productions.Single(p => p.Focus == OreType.Quartz).Drops.Count);
+            Assert.AreEqual(2, Balance.Productions.Single(p => p.Focus == OreType.Sapphire).Drops.Count);
         }
 
         [TestMethod]
@@ -298,7 +301,22 @@ namespace ShardsTests
             var mine1 = Rules.GetMine(1);
             Assert.AreEqual(100, mine1.CartCapacity);
             Assert.AreEqual(0.33, mine1.OresPerMinute, 1e-9);
-            Assert.AreEqual(1.0, mine1.Drops.Sum(d => d.Chance), 1e-9);
+
+            foreach (var production in Balance.Productions)
+                Assert.AreEqual(1.0, production.Drops.Sum(d => d.Chance), 1e-9, $"produção {production.Focus}");
+
+            var gems = Balance.Productions.Where(p => p.Focus != OreType.Quartz).ToList();
+            Assert.AreEqual(3, gems.Count);
+            foreach (var gem in gems)
+            {
+                Assert.AreEqual(0.9, gem.Drops.Single(d => d.Ore == gem.Focus).Chance, 1e-9, $"{gem.Focus}: 90% da gema");
+                Assert.AreEqual(0.1, gem.Drops.Single(d => d.Ore == OreType.Quartz).Chance, 1e-9, $"{gem.Focus}: 10% de quartzo");
+            }
+
+            Assert.AreEqual(0, Rules.GetProduction(OreType.Quartz).SwitchCost.Count, "voltar ao quartzo é de graça");
+            Assert.AreEqual(500, Rules.GetProduction(OreType.Sapphire).SwitchCost.Single().Quantity);
+            Assert.AreEqual(1200, Rules.GetProduction(OreType.Ruby).SwitchCost.Single().Quantity);
+            Assert.AreEqual(3000, Rules.GetProduction(OreType.Emerald).SwitchCost.Single().Quantity);
 
             var cost = Rules.GetMine(2).UnlockCost;
             Assert.AreEqual(200, cost.Single(c => c.Ore == OreType.Quartz).Quantity);
@@ -327,7 +345,8 @@ namespace ShardsTests
             Assert.AreEqual(MissionType.FirstPickaxe, Shards.Rules.MissionCatalog.First.Type);
             Assert.AreEqual(MissionType.Specialization, Shards.Rules.MissionCatalog.Next(MissionType.FirstPickaxe)?.Type);
             Assert.AreEqual(MissionType.OperationalExpansion, Shards.Rules.MissionCatalog.Next(MissionType.Specialization)?.Type);
-            Assert.IsNull(Shards.Rules.MissionCatalog.Next(MissionType.OperationalExpansion));
+            Assert.AreEqual(MissionType.FirstGem, Shards.Rules.MissionCatalog.Next(MissionType.OperationalExpansion)?.Type);
+            Assert.IsNull(Shards.Rules.MissionCatalog.Next(MissionType.FirstGem));
         }
 
         [TestMethod]
@@ -346,6 +365,10 @@ namespace ShardsTests
 
             var m2 = Shards.Rules.MissionCatalog.Get(MissionType.Specialization);
             Assert.AreEqual(25, m2.Reward.Ores.Single(o => o.Ore == OreType.Quartz).Quantity);
+
+            var m4 = Shards.Rules.MissionCatalog.Get(MissionType.FirstGem);
+            Assert.AreEqual(1, m4.Goal);
+            Assert.AreEqual(50, m4.Reward.Xp);
         }
     }
 }

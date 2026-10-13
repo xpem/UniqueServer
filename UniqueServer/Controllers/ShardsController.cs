@@ -35,6 +35,17 @@ namespace UniqueServer.Controllers
         [ProducesResponseType<ShardsErrorRes>(StatusCodes.Status409Conflict)]
         public Task<IActionResult> CollectCart(int mineNumber) => RunAsync(() => mineService.CollectCartAsync(Uid, mineNumber));
 
+        /// <summary>
+        /// Muda o tipo de produção da mina (ex.: Sapphire), pagando o custo em minério. Voltar para Quartz é de graça.
+        /// O vagonete é esvaziado antes, com a produção antiga.
+        /// </summary>
+        [HttpPost("mines/{mineNumber:int}/production")]
+        [ProducesResponseType<SetProductionRes>(StatusCodes.Status200OK)]
+        [ProducesResponseType<ShardsErrorRes>(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType<ShardsErrorRes>(StatusCodes.Status409Conflict)]
+        public Task<IActionResult> SetProduction(int mineNumber, [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] SetProductionReq? req) =>
+            RunAsync(() => mineService.SetProductionAsync(Uid, mineNumber, req?.Focus));
+
         /// <summary>Compra a próxima mina, debitando o custo (150 Bronze + 30 Prata para a Mina 2).</summary>
         [HttpPost("mines/unlock")]
         [ProducesResponseType<UnlockMineRes>(StatusCodes.Status200OK)]

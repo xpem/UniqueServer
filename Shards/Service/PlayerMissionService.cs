@@ -52,17 +52,14 @@ namespace Shards.Service
                 List<PlayerMissionDTO> changedMissions = [mission];
 
                 // libera a próxima missão da cadeia (já concluída, se o jogador já tiver feito o que ela pede)
-                MissionDefinition? next = MissionCatalog.Next(type);
-                if (next is not null && !missions.Any(m => m.MissionType == next.Type))
+                if (MissionCatalog.Next(type) is not null)
                 {
-                    var nextMission = new PlayerMissionDTO { PlayerId = player.Id, MissionType = next.Type, Status = MissionStatus.Active };
-
                     List<PlayerSkillDTO> skills = await ctx.PlayerSkill.AsNoTracking().Where(s => s.PlayerId == player.Id).ToListAsync();
                     List<MineDTO> mines = await ctx.Mine.AsNoTracking().Where(m => m.PlayerId == player.Id).ToListAsync();
-                    MissionTracker.CompleteIfAlreadySatisfied(nextMission, skills, mines, now);
 
-                    ctx.PlayerMission.Add(nextMission);
-                    changedMissions.Add(nextMission);
+                    List<PlayerMissionDTO> created = MissionTracker.CreateMissingNext(missions, player.Id, skills, mines, now);
+                    ctx.PlayerMission.AddRange(created);
+                    changedMissions.AddRange(created);
                 }
 
                 await ctx.SaveChangesAsync();

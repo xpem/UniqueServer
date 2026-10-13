@@ -57,6 +57,9 @@ namespace Shards.Repo
                     .IsUnique()
                     .HasDatabaseName("IX_Mine_PlayerId_MineNumber");
 
+                // o padrão no banco faz as minas já existentes virarem Quartz ao aplicar a migration (CLR default seria 0)
+                entity.Property(e => e.ProductionType).HasDefaultValue(OreType.Quartz).HasSentinel(OreType.Quartz);
+
                 ConfigureVersion(entity);
             });
 

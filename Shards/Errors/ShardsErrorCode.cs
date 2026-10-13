@@ -17,5 +17,7 @@ namespace Shards.Errors
         InvalidTimes = 12,
         ConcurrencyConflict = 13,
         MissionAlreadyClaimed = 14,
+        InvalidProduction = 15,
+        SameProduction = 16,
     }
 }
