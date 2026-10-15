@@ -24,6 +24,12 @@ namespace Shards.Service
         /// Voltar para Quartz é de graça. O vagonete é esvaziado antes, com a produção antiga.
         /// </summary>
         Task<SetProductionRes> SetProductionAsync(int uid, int mineNumber, string? focus);
+
+        /// <summary>
+        /// Sobe o vagonete da mina para o próximo nível, pagando o custo em minério. Exige a skill CartCapacity no nível (teto).
+        /// O vagonete é esvaziado antes, para a capacidade nova não valer retroativamente sobre o tempo em que ele já estava cheio.
+        /// </summary>
+        Task<UpgradeCartRes> UpgradeCartAsync(int uid, int mineNumber);
     }
 
     public class MineService(IDbContextFactory<ShardsDbctx> dbFactory, GameRules rules, ShardsMapper mapper) : IMineService
@@ -111,6 +117,10 @@ namespace Shards.Service
 
             MineOptions next = rules.GetNextMine(mines.Select(m => m.MineNumber).DefaultIfEmpty(0).Max())
                 ?? throw new ShardsException(ShardsErrorCode.NoMoreMines);
+
+            // espaço (skill MineSlots) e quartzo são requisitos separados: sem espaço livre, nem chega a cobrar
+            int slotsLevel = await ShardsQueries.GetSkillLevelAsync(ctx, player.Id, SkillType.MineSlots);
+            if (mines.Count >= rules.MineSlotsFor(slotsLevel)) throw new ShardsException(ShardsErrorCode.MineSlotsFull);
 
             // custo: Remove falha com NotEnoughResources, sem alterar nada, se faltar qualquer minério
             List<InventoryItemDTO> inventory = await ShardsQueries.GetInventoryAsync(ctx, player.Id);
@@ -214,6 +224,43 @@ namespace Shards.Service
                 };
             });
         }
+
+        public Task<UpgradeCartRes> UpgradeCartAsync(int uid, int mineNumber) => ConcurrencyRetry.RunAsync(async () =>
+        {
+            await using ShardsDbctx ctx = await dbFactory.CreateDbContextAsync();
+            DateTime now = rules.UtcNow;
+
+            PlayerDTO player = await ShardsQueries.GetPlayerAsync(ctx, uid);
+            MineDTO mine = await ShardsQueries.GetMineAsync(ctx, player.Id, mineNumber);
+
+            CartUpgradeOptions next = rules.NextCartUpgrade(mine.CartLevel) ?? throw new ShardsException(ShardsErrorCode.CartMaxLevel);
+
+            // a skill é o teto do nível de qualquer mina; sem permissão, nem chega a cobrar
+            int skillLevel = await ShardsQueries.GetSkillLevelAsync(ctx, player.Id, SkillType.CartCapacity);
+            if (next.Level > skillLevel) throw new ShardsException(ShardsErrorCode.CartUpgradeLocked);
+
+            List<InventoryItemDTO> inventory = await ShardsQueries.GetInventoryAsync(ctx, player.Id);
+
+            // esvazia antes: sem isso, a capacidade nova contaria o tempo em que o vagonete já estava cheio (produção parada)
+            SortedDictionary<OreType, int> collected = EmptyCart(ctx, mine, player.Id, inventory, now);
+
+            // o que saiu do vagonete já conta para pagar; sem recursos, lançamos antes do SaveChanges e nada é gravado
+            List<(OreType Ore, int Quantity)> cost = next.Cost.Select(c => (c.Ore, c.Quantity)).ToList();
+            InventoryItemService.Remove(inventory, cost);
+
+            mine.CartLevel = next.Level;
+            mine.CartCapacity = next.Capacity;
+
+            await ctx.SaveChangesAsync();
+
+            return new UpgradeCartRes
+            {
+                Mine = mapper.ToMineStateRes(mine),
+                Collected = collected.Select(c => new OreAmountRes { OreType = c.Key, Quantity = c.Value }).ToList(),
+                Spent = cost.Select(c => new OreAmountRes { OreType = c.Ore, Quantity = c.Quantity }).ToList(),
+                Inventory = mapper.ToInventoryRes(inventory),
+            };
+        });
 
         /// <summary>
         /// Passa os minérios acumulados no vagonete para o inventário (sorteando a tabela da produção atual da mina,

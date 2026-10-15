@@ -282,7 +282,7 @@ namespace ShardsTests
         [TestMethod]
         public void AppSettings_BalanceBindsWithoutDuplicates()
         {
-            Assert.AreEqual(2, Balance.Mines.Count);
+            Assert.AreEqual(5, Balance.Mines.Count);
             Assert.AreEqual(0, Balance.Mines[0].UnlockCost.Count);
             Assert.AreEqual(1, Balance.Mines[1].UnlockCost.Count);
 
@@ -326,7 +326,8 @@ namespace ShardsTests
         public void GetNextMine_FollowsHighestOwned()
         {
             Assert.AreEqual(2, Rules.GetNextMine(1)?.MineNumber);
-            Assert.IsNull(Rules.GetNextMine(2));
+            Assert.AreEqual(3, Rules.GetNextMine(2)?.MineNumber);
+            Assert.IsNull(Rules.GetNextMine(5));
         }
 
         [TestMethod]

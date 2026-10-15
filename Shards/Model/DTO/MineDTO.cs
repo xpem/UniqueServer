@@ -16,6 +16,9 @@ namespace Shards.Model.DTO
 
         public int CartCapacity { get; set; } = 100;
 
+        /// <summary>Nível da melhoria do vagonete (0 = capacidade inicial). Sobe com POST upgrade-cart; limitado pela skill CartCapacity.</summary>
+        public int CartLevel { get; set; }
+
         public required DateTime LastCartCollectionUtc { get; set; }
 
         /// <summary>Auto-mineração: 0.33 = ~1 minério a cada 3 minutos.</summary>

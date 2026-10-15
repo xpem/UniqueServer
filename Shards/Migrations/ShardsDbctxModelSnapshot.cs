@@ -65,6 +65,9 @@ namespace Shards.Migrations
                     b.Property<int>("CartCapacity")
                         .HasColumnType("integer");
 
+                    b.Property<int>("CartLevel")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 

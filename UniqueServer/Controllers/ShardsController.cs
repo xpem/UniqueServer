@@ -46,6 +46,16 @@ namespace UniqueServer.Controllers
         public Task<IActionResult> SetProduction(int mineNumber, [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] SetProductionReq? req) =>
             RunAsync(() => mineService.SetProductionAsync(Uid, mineNumber, req?.Focus));
 
+        /// <summary>
+        /// Sobe o vagonete da mina para o próximo nível, pagando o custo em minério. Exige a skill CartCapacity no nível (teto).
+        /// O vagonete é esvaziado antes.
+        /// </summary>
+        [HttpPost("mines/{mineNumber:int}/upgrade-cart")]
+        [ProducesResponseType<UpgradeCartRes>(StatusCodes.Status200OK)]
+        [ProducesResponseType<ShardsErrorRes>(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType<ShardsErrorRes>(StatusCodes.Status409Conflict)]
+        public Task<IActionResult> UpgradeCart(int mineNumber) => RunAsync(() => mineService.UpgradeCartAsync(Uid, mineNumber));
+
         /// <summary>Compra a próxima mina, debitando o custo (150 Bronze + 30 Prata para a Mina 2).</summary>
         [HttpPost("mines/unlock")]
         [ProducesResponseType<UnlockMineRes>(StatusCodes.Status200OK)]

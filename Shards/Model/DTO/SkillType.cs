@@ -6,5 +6,7 @@ namespace Shards.Model.DTO
     public enum SkillType
     {
         DoubleDrop = 1,
+        MineSlots = 2,
+        CartCapacity = 3,
     }
 }

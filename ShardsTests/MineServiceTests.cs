@@ -59,6 +59,17 @@ namespace ShardsTests
             return player.Id;
         }
 
+        /// <summary>Atalho de teste: libera espaços de mina (sobe a skill MineSlots direto no banco, sem gastar pontos).</summary>
+        protected async Task GrantMineSlotAsync(int levels = 1, int uid = 7)
+        {
+            await using var ctx = Db.CreateDbContext();
+            var player = await ctx.Player.SingleAsync(p => p.UserId == uid);
+            var skill = await ctx.PlayerSkill.FirstOrDefaultAsync(s => s.PlayerId == player.Id && s.SkillType == SkillType.MineSlots);
+            if (skill is null) ctx.PlayerSkill.Add(new PlayerSkillDTO { PlayerId = player.Id, SkillType = SkillType.MineSlots, Level = levels });
+            else skill.Level += levels;
+            await ctx.SaveChangesAsync();
+        }
+
         protected async Task<int> InventoryOf(OreType ore, int uid = 7)
         {
             await using var ctx = Db.CreateDbContext();

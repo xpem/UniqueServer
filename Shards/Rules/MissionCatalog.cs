@@ -21,7 +21,7 @@ namespace Shards.Rules
             new(MissionType.Specialization, "Especialização", "Abra o perfil e distribua seu primeiro ponto de habilidade.", 1,
                 new MissionReward(0, [new OreAmount { Ore = OreType.Quartz, Quantity = 25 }])),
 
-            new(MissionType.OperationalExpansion, "Expansão Operacional", "Junte 200 Quartzo e desbloqueie a segunda mina.", 1,
+            new(MissionType.OperationalExpansion, "Expansão Operacional", "Junte 200 Quartzo, libere um espaço de mina com um ponto de habilidade em MineSlots e compre a segunda mina.", 1,
                 new MissionReward(0, [])),
 
             new(MissionType.FirstGem, "Primeira Gema", "Escolha uma gema para uma de suas minas produzir.", 1,

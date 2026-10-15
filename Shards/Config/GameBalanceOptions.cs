@@ -17,6 +17,11 @@ namespace Shards.Config
 
         public DoubleDropOptions DoubleDrop { get; set; } = new();
 
+        public MineSlotsOptions MineSlots { get; set; } = new();
+
+        /// <summary>Melhorias do vagonete (níveis 1..N). O nível máximo da skill CartCapacity é o maior nível daqui.</summary>
+        public List<CartUpgradeOptions> CartUpgrades { get; set; } = [];
+
         public List<MineOptions> Mines { get; set; } = [];
 
         /// <summary>Tipos de produção que uma mina pode ter (Quartz é o padrão de toda mina).</summary>
@@ -47,6 +52,30 @@ namespace Shards.Config
         public int MaxLevel { get; set; } = 5;
 
         public double ChancePerLevel { get; set; } = 0.15;
+    }
+
+    /// <summary>
+    /// Skill que libera espaços para ter mais minas: espaços = BaseSlots + nível. Com BaseSlots 1 e MaxLevel 4, o limite é de 5 minas.
+    /// Cada mina nova também custa o UnlockCost dela (espaço e quartzo juntos).
+    /// </summary>
+    public class MineSlotsOptions
+    {
+        public int BaseSlots { get; set; } = 1;
+
+        public int MaxLevel { get; set; } = 4;
+    }
+
+    /// <summary>
+    /// Uma melhoria do vagonete de uma mina: o nível, a capacidade que ele passa a ter e o custo (por mina).
+    /// A skill CartCapacity é o teto: com a skill no nível N, qualquer mina pode ser ampliada até o nível N.
+    /// </summary>
+    public class CartUpgradeOptions
+    {
+        public int Level { get; set; }
+
+        public int Capacity { get; set; }
+
+        public List<OreAmount> Cost { get; set; } = [];
     }
 
     public class MineOptions

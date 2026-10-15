@@ -50,6 +50,21 @@ namespace Shards.Model.Res
         public List<MissionRes> Missions { get; set; } = [];
     }
 
+    /// <summary>Resposta de POST /shards/mines/{mineNumber}/upgrade-cart.</summary>
+    public record UpgradeCartRes
+    {
+        /// <summary>A mina já com o novo nível e a nova capacidade do vagonete.</summary>
+        public required MineStateRes Mine { get; set; }
+
+        /// <summary>O que o vagonete entregou antes da melhoria (ele é esvaziado primeiro).</summary>
+        public List<OreAmountRes> Collected { get; set; } = [];
+
+        /// <summary>O custo debitado.</summary>
+        public List<OreAmountRes> Spent { get; set; } = [];
+
+        public List<OreAmountRes> Inventory { get; set; } = [];
+    }
+
     /// <summary>Resposta de POST /shards/mines/{mineNumber}/production.</summary>
     public record SetProductionRes
     {

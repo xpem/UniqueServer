@@ -34,6 +34,8 @@ namespace ShardsTests
             await SeedPlayerAsync();
             await GiveOresAsync(OreType.Quartz, 200);
 
+            await GrantMineSlotAsync();
+
             var res = await Mines.UnlockNextAsync(7);
 
             Assert.AreEqual(OreType.Quartz, res.Mine.Production);
@@ -201,6 +203,7 @@ namespace ShardsTests
         {
             await SeedPlayerAsync();
             await GiveOresAsync(OreType.Quartz, 200);
+            await GrantMineSlotAsync();
             await Mines.UnlockNextAsync(7);
             await GiveOresAsync(OreType.Quartz, 1200);
 
@@ -216,6 +219,7 @@ namespace ShardsTests
         {
             await SeedPlayerAsync();
             await GiveOresAsync(OreType.Quartz, 200 + 500);
+            await GrantMineSlotAsync();
             await Mines.UnlockNextAsync(7);
             await Mines.SetProductionAsync(7, 1, "Sapphire");
 
@@ -272,6 +276,7 @@ namespace ShardsTests
             await Skills.DistributeAsync(7, "DoubleDrop");
             await Missions.ClaimAsync(7, "Specialization");
             await GiveOresAsync(OreType.Quartz, 200);
+            await GrantMineSlotAsync();
             await Mines.UnlockNextAsync(7);
             await Missions.ClaimAsync(7, "OperationalExpansion");
         }
@@ -345,6 +350,7 @@ namespace ShardsTests
             await Skills.DistributeAsync(7, "DoubleDrop");
             await Missions.ClaimAsync(7, "Specialization");
             await GiveOresAsync(OreType.Quartz, 200 + 500);
+            await GrantMineSlotAsync();
             await Mines.UnlockNextAsync(7);
             await Mines.SetProductionAsync(7, 1, "Sapphire"); // antes de a Missão 4 existir
 

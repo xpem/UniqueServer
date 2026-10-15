@@ -19,5 +19,8 @@ namespace Shards.Errors
         MissionAlreadyClaimed = 14,
         InvalidProduction = 15,
         SameProduction = 16,
+        MineSlotsFull = 17,
+        CartUpgradeLocked = 18,
+        CartMaxLevel = 19,
     }
 }

@@ -133,8 +133,18 @@ namespace Shards.Rules
         public int MaxSkillLevel(Model.DTO.SkillType type) => type switch
         {
             Model.DTO.SkillType.DoubleDrop => _balance.DoubleDrop.MaxLevel,
+            Model.DTO.SkillType.MineSlots => _balance.MineSlots.MaxLevel,
+            Model.DTO.SkillType.CartCapacity => _balance.CartUpgrades.Select(u => u.Level).DefaultIfEmpty(0).Max(),
             _ => 0,
         };
+
+        /// <summary>A próxima melhoria do vagonete depois do nível informado; null se já está no máximo.</summary>
+        public CartUpgradeOptions? NextCartUpgrade(int currentLevel) =>
+            _balance.CartUpgrades.Where(u => u.Level > currentLevel).OrderBy(u => u.Level).FirstOrDefault();
+
+        /// <summary>Quantas minas o jogador pode ter: espaços base + nível da skill MineSlots.</summary>
+        public int MineSlotsFor(int skillLevel) =>
+            _balance.MineSlots.BaseSlots + Math.Clamp(skillLevel, 0, _balance.MineSlots.MaxLevel);
 
         public double DoubleDropChance(int skillLevel)
         {

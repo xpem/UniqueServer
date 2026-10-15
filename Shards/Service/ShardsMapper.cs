@@ -1,3 +1,4 @@
+using Shards.Config;
 using Shards.Model.DTO;
 using Shards.Model.Res;
 using Shards.Rules;
@@ -46,6 +47,7 @@ namespace Shards.Service
         {
             MineNumber = mine.MineNumber,
             Production = mine.ProductionType,
+            CartLevel = mine.CartLevel,
             CartCapacity = mine.CartCapacity,
             CartAmount = rules.CartAmount(mine.CartCapacity, mine.OresPerMinute, mine.LastCartCollectionUtc),
             CartFullAtUtc = rules.CartFullAtUtc(mine.CartCapacity, mine.OresPerMinute, mine.LastCartCollectionUtc),
@@ -81,7 +83,7 @@ namespace Shards.Service
                 .ToList();
 
         /// <summary>Próxima mina à venda (depois da maior que o jogador possui); nulo se não houver.</summary>
-        public NextMineRes? ToNextMineRes(IEnumerable<MineDTO> mines, IEnumerable<InventoryItemDTO> inventory)
+        public NextMineRes? ToNextMineRes(IReadOnlyCollection<MineDTO> mines, IEnumerable<InventoryItemDTO> inventory, IEnumerable<PlayerSkillDTO> skills)
         {
             int highestOwned = mines.Select(m => m.MineNumber).DefaultIfEmpty(0).Max();
 
@@ -95,7 +97,44 @@ namespace Shards.Service
                 MineNumber = next.MineNumber,
                 Cost = next.UnlockCost.Select(c => new OreAmountRes { OreType = c.Ore, Quantity = c.Quantity }).ToList(),
                 CanAfford = next.UnlockCost.All(c => owned.GetValueOrDefault(c.Ore) >= c.Quantity),
+                HasSlot = mines.Count < rules.MineSlotsFor(SkillLevel(skills, SkillType.MineSlots)),
             };
+        }
+
+        private static int SkillLevel(IEnumerable<PlayerSkillDTO> skills, SkillType type) =>
+            skills.Where(s => s.SkillType == type).Select(s => s.Level).FirstOrDefault();
+
+        /// <summary>Espaços de mina: o total é o maior entre o que a skill libera e as minas que o jogador já tem.</summary>
+        public MineSlotsRes ToMineSlotsRes(IReadOnlyCollection<MineDTO> mines, IEnumerable<PlayerSkillDTO> skills) => new()
+        {
+            Used = mines.Count,
+            Total = Math.Max(rules.MineSlotsFor(SkillLevel(skills, SkillType.MineSlots)), mines.Count),
+        };
+
+        /// <summary>Por mina: o nível do vagonete e a próxima melhoria (nula no nível máximo).</summary>
+        public List<MineCartUpgradeRes> ToCartUpgradesRes(IEnumerable<MineDTO> mines, IEnumerable<InventoryItemDTO> inventory, IEnumerable<PlayerSkillDTO> skills)
+        {
+            Dictionary<OreType, int> owned = inventory.ToDictionary(i => i.OreType, i => i.Quantity);
+            int skillLevel = SkillLevel(skills, SkillType.CartCapacity);
+
+            return mines.OrderBy(m => m.MineNumber).Select(mine =>
+            {
+                CartUpgradeOptions? next = rules.NextCartUpgrade(mine.CartLevel);
+
+                return new MineCartUpgradeRes
+                {
+                    MineNumber = mine.MineNumber,
+                    CartLevel = mine.CartLevel,
+                    Next = next is null ? null : new NextCartUpgradeRes
+                    {
+                        Level = next.Level,
+                        Capacity = next.Capacity,
+                        Cost = next.Cost.Select(c => new OreAmountRes { OreType = c.Ore, Quantity = c.Quantity }).ToList(),
+                        CanAfford = next.Cost.All(c => owned.GetValueOrDefault(c.Ore) >= c.Quantity),
+                        SkillAllows = next.Level <= skillLevel,
+                    },
+                };
+            }).ToList();
         }
 
         /// <summary>As produções configuradas, com as probabilidades normalizadas e se o inventário cobre o custo.</summary>
@@ -130,8 +169,10 @@ namespace Shards.Service
             Inventory = ToInventoryRes(inventory),
             Mines = mines.OrderBy(m => m.MineNumber).Select(ToMineStateRes).ToList(),
             Missions = ToVisibleMissionsRes(missions),
-            NextMine = ToNextMineRes(mines, inventory),
+            NextMine = ToNextMineRes(mines, inventory, skills),
+            MineSlots = ToMineSlotsRes(mines, skills),
             Productions = ToProductionsRes(inventory),
+            CartUpgrades = ToCartUpgradesRes(mines, inventory, skills),
         };
     }
 }

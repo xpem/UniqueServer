@@ -48,6 +48,9 @@ namespace Shards.Model.Res
 
         public int CartCapacity { get; set; }
 
+        /// <summary>Nível da melhoria do vagonete (0 = capacidade inicial).</summary>
+        public int CartLevel { get; set; }
+
         public int CartAmount { get; set; }
 
         /// <summary>Quando o vagonete enche; nulo se a mina não gera minérios.</summary>
@@ -86,7 +89,46 @@ namespace Shards.Model.Res
 
         public List<OreAmountRes> Cost { get; set; } = [];
 
+        /// <summary>O inventário atual cobre o custo.</summary>
         public bool CanAfford { get; set; }
+
+        /// <summary>Há espaço livre para mais uma mina (skill MineSlots). Sem espaço, comprar dá MineSlotsFull.</summary>
+        public bool HasSlot { get; set; }
+    }
+
+    /// <summary>Espaços de mina: quantas o jogador tem e quantas pode ter.</summary>
+    public record MineSlotsRes
+    {
+        public int Used { get; set; }
+
+        public int Total { get; set; }
+    }
+
+    /// <summary>A próxima melhoria do vagonete de uma mina.</summary>
+    public record NextCartUpgradeRes
+    {
+        public int Level { get; set; }
+
+        /// <summary>Capacidade do vagonete depois da melhoria.</summary>
+        public int Capacity { get; set; }
+
+        public List<OreAmountRes> Cost { get; set; } = [];
+
+        /// <summary>O inventário atual cobre o custo (sem contar o que o vagonete entregaria na melhoria).</summary>
+        public bool CanAfford { get; set; }
+
+        /// <summary>A skill CartCapacity já está num nível que permite esta melhoria. Se não, subir dá CartUpgradeLocked.</summary>
+        public bool SkillAllows { get; set; }
+    }
+
+    /// <summary>O estado da melhoria do vagonete de cada mina. Next é nulo quando a mina já está no nível máximo.</summary>
+    public record MineCartUpgradeRes
+    {
+        public int MineNumber { get; set; }
+
+        public int CartLevel { get; set; }
+
+        public NextCartUpgradeRes? Next { get; set; }
     }
 
     public record DropRes
@@ -132,7 +174,12 @@ namespace Shards.Model.Res
         /// <summary>Próxima mina à venda; nulo se não houver.</summary>
         public NextMineRes? NextMine { get; set; }
 
+        public required MineSlotsRes MineSlots { get; set; }
+
         /// <summary>Produções que podem ser escolhidas por mina, com custo e probabilidades.</summary>
         public List<ProductionOptionRes> Productions { get; set; } = [];
+
+        /// <summary>Melhoria do vagonete de cada mina: nível atual e próxima melhoria (custo, skill e saldo).</summary>
+        public List<MineCartUpgradeRes> CartUpgrades { get; set; } = [];
     }
 }

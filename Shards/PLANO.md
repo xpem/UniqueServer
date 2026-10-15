@@ -61,7 +61,8 @@ Upgrade de vagonete e de auto-mineração (campos existem, mecanismo não), mina
 ### Configuração (`GameBalanceOptions`, seção `Shards:Balance` em `appsettings`)
 - Energia: máximo 100, custo 1 por mineração, 216 s por ponto (100 em 6 h).
 - Produções (tipo de produção da mina): Quartz 100% (+1 XP); gemas Sapphire, Ruby e Emerald com 90% da gema (+3 XP) e 10% de quartzo (+1 XP). Toda mina nasce em Quartz.
-- Mina 2: custo 200 Quartzo. Trocar a produção de uma mina: Sapphire 500, Ruby 1200, Emerald 3000 de Quartzo (por mina, a cada mudança; voltar ao Quartz é de graça). Vagonete 100, 0.33 min/min na Mina 1.
+- Vagonete: a capacidade sobe por mina com a skill `CartCapacity` (teto, nível 0 a 5) e quartzo (nível 1 = 150 por 300; 2 = 220 por 800; 3 = 320 por 2.000; 4 = 450 por 5.000; 5 = 600 por 12.000).
+- Minas: o jogador começa com 1; a skill `MineSlots` libera espaços (1 + nível, até 5 minas, nível máximo 4). Cada mina nova também custa quartzo: Mina 2 = 200, 3 = 600, 4 = 1.800, 5 = 5.000. Trocar a produção de uma mina: Sapphire 500, Ruby 1200, Emerald 3000 de Quartzo (por mina, a cada mudança; voltar ao Quartz é de graça). Vagonete 100, 0.33 min/min na Mina 1.
 - Skill `DoubleDrop`: +15% de chance por nível, com nível máximo configurável. Vale só na mineração ativa.
 
 ### Curva de XP
@@ -248,3 +249,31 @@ Decisão de design: cada mina tem um **tipo de produção**. O jogador paga quar
 - **Missão 4 "Primeira Gema":** conclui ao pôr uma mina em gema (voltar ao quartzo não conta); recompensa de 50 XP. Nasce quando a Missão 3 é resgatada, ou já concluída se o jogador já tiver uma mina em gema.
 - **Missões novas do catálogo chegam a quem já resgatou a anterior:** o `GET /state` cria as missões que faltam na cadeia (só grava quando falta alguma). Isso vale para jogadores que já tinham resgatado a Missão 3 antes da Missão 4 existir.
 - **Fora do escopo (próximas etapas):** venda/mercado de gemas por quartzo, Oficina de Lapidação (estágio por item), combate.
+
+---
+
+## 8. Evolução 2 — Skill de espaços de mina (`MineSlots`)  ✅ pronta (196 testes)
+
+O número de minas que o jogador pode ter virou uma **skill**: começa com 1 mina e cada ponto de habilidade em `MineSlots` libera mais um espaço, até **5 minas** (nível máximo 4, base de 1 espaço).
+
+- **Dois requisitos para comprar uma mina:** espaço livre (skill) **e** quartzo (`UnlockCost` da mina). Sem espaço, `POST /mines/unlock` devolve `MineSlotsFull` **antes de cobrar**. A ordem das verificações é: próxima mina configurada (`NoMoreMines`), espaço (`MineSlotsFull`), recursos (`NotEnoughResources`).
+- **Configuração:** `Shards:Balance:MineSlots` (`BaseSlots` 1, `MaxLevel` 4) e as Minas 3, 4 e 5 em `Mines[]` (custos 600 / 1.800 / 5.000 de quartzo, mesma capacidade e taxa da Mina 1). O validador exige `BaseSlots >= 1` e `MaxLevel >= 0`.
+- **API:** `SkillType.MineSlots` (o `distribute` já era genérico); o `state` ganhou `mineSlots { used, total }` e `nextMine.hasSlot`; erro novo `MineSlotsFull`. Sem mudança de banco (as skills são linhas por jogador).
+- **Contas antigas:** quem já tem mais minas que espaços **mantém todas**; o total exibido é o maior entre os espaços da skill e as minas que o jogador já tem, e só novas compras ficam bloqueadas.
+- **Missões:** a Missão 2 continua concluindo com o primeiro ponto em **qualquer** skill; a descrição da Missão 3 avisa que a compra exige um ponto em `MineSlots`. Um jogador que gaste o primeiro ponto em `DoubleDrop` só compra a Mina 2 no próximo nível (45 XP de experiência acumulada).
+- **Disputa de pontos:** `DoubleDrop` (até 5 níveis) contra `MineSlots` (até 4 níveis): o jogador escolhe onde investir.
+
+---
+
+## 9. Evolução 3 — Ampliar o vagonete (skill `CartCapacity` + upgrade por mina)  ✅ pronta (215 testes)
+
+Mais capacidade no vagonete aumenta o tempo que a mina trabalha sozinha (hoje 100 minérios ≈ 5 h; no nível 5, 600 ≈ 30 h) e dá mais sentido aos níveis do jogador.
+
+- **Mesmo desenho do desbloqueio de minas:** a **skill dá a permissão** e o **quartzo paga**. `CartCapacity` (nível 0 a 5) é o **teto**: com a skill no nível N, **cada** mina pode ser ampliada até o nível N (não é um total a distribuir entre as minas). Cada melhoria custa quartzo, **por mina**.
+- **Tabela (configuração `Shards:Balance:CartUpgrades`):** nível 1 = 150 (300), 2 = 220 (800), 3 = 320 (2.000), 4 = 450 (5.000), 5 = 600 (12.000) [capacidade (custo)]. O nível máximo da skill é o maior nível configurado. O validador exige níveis de 1 a N sem buracos, capacidade crescente e custos positivos.
+- **Modelo:** `MineDTO.CartLevel` (padrão 0). Migration `AddMineCartLevel` (`ALTER TABLE "Mine" ADD "CartLevel" integer NOT NULL DEFAULT 0`): as minas atuais ficam no nível 0 com a capacidade que já têm. A melhoria grava a nova capacidade em `CartCapacity`.
+- **API:** `POST /Shards/mines/{n}/upgrade-cart`. O `state` ganhou `mines[].cartLevel` e `cartUpgrades[]` (por mina: nível e a próxima melhoria com capacidade, custo, `canAfford` e `skillAllows`; `next` é nulo no nível máximo). `SkillType.CartCapacity`. Erros novos: `CartUpgradeLocked` (a skill ainda não permite o nível) e `CartMaxLevel`.
+- **Ordem das verificações:** nível máximo → skill → recursos. Sem permissão, nem chega a cobrar.
+- **O vagonete é esvaziado antes de ampliar** (como na troca de produção): sem isso, a capacidade nova contaria retroativamente o tempo em que o vagonete já estava cheio e a produção estava parada. O que sai do vagonete já conta para pagar; se faltar recurso, nada é gravado, nem a coleta.
+- **Só capacidade.** Velocidade (`OresPerMinute`) fica para depois: a tabela de níveis foi pensada para aceitar uma segunda trilha.
+- **Observação de balanceamento:** com as três skills (DoubleDrop 5 + MineSlots 4 + CartCapacity 5) são ~14 pontos, o nível 14 (1.575 de XP): os pontos acabam em poucos dias e o quartzo (≈100 mil para ampliar 5 minas ao máximo) passa a ser o freio de longo prazo. Mercado e outras fontes de quartzo entram nos próximos passos.

@@ -23,8 +23,12 @@ namespace Shards.Config
             if (options.DoubleDrop.MaxLevel < 0) errors.Add("DoubleDrop.MaxLevel não pode ser negativo.");
             if (options.DoubleDrop.ChancePerLevel is < 0 or > 1) errors.Add("DoubleDrop.ChancePerLevel deve ficar entre 0 e 1.");
 
+            if (options.MineSlots.BaseSlots < 1) errors.Add("MineSlots.BaseSlots deve ser pelo menos 1.");
+            if (options.MineSlots.MaxLevel < 0) errors.Add("MineSlots.MaxLevel não pode ser negativo.");
+
             ValidateMines(options, errors);
             ValidateProductions(options, errors);
+            ValidateCartUpgrades(options, errors);
 
             return errors.Count == 0 ? ValidateOptionsResult.Success : ValidateOptionsResult.Fail(errors);
         }
@@ -46,6 +50,22 @@ namespace Shards.Config
                 if (mine.OresPerMinute < 0) errors.Add($"{at}: OresPerMinute não pode ser negativo.");
 
                 if (mine.UnlockCost.Any(c => c.Quantity <= 0)) errors.Add($"{at}: toda Quantity de UnlockCost deve ser maior que 0.");
+            }
+        }
+
+        /// <summary>Os níveis vão de 1 a N sem buracos e a capacidade sempre cresce de um nível para o outro.</summary>
+        private static void ValidateCartUpgrades(GameBalanceOptions options, List<string> errors)
+        {
+            List<CartUpgradeOptions> upgrades = options.CartUpgrades.OrderBy(u => u.Level).ToList();
+
+            for (int i = 0; i < upgrades.Count; i++)
+            {
+                CartUpgradeOptions upgrade = upgrades[i];
+
+                if (upgrade.Level != i + 1) errors.Add($"CartUpgrades: os níveis devem ir de 1 a {upgrades.Count} sem repetir nem pular (encontrado {upgrade.Level}).");
+                if (upgrade.Capacity <= 0) errors.Add($"CartUpgrades[{upgrade.Level}]: Capacity deve ser maior que 0.");
+                if (i > 0 && upgrade.Capacity <= upgrades[i - 1].Capacity) errors.Add($"CartUpgrades[{upgrade.Level}]: Capacity deve ser maior que a do nível anterior.");
+                if (upgrade.Cost.Any(c => c.Quantity <= 0)) errors.Add($"CartUpgrades[{upgrade.Level}]: toda Quantity de Cost deve ser maior que 0.");
             }
         }
 

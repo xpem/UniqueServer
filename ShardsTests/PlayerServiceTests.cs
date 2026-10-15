@@ -67,10 +67,11 @@ namespace ShardsTests
         {
             var state = await _service.GetStateAsync(7);
 
-            var skill = state.Skills.Single();
-            Assert.AreEqual(SkillType.DoubleDrop, skill.Type);
-            Assert.AreEqual(0, skill.Level);
-            Assert.AreEqual(5, skill.MaxLevel);
+            Assert.AreEqual(3, state.Skills.Count);
+            Assert.IsTrue(state.Skills.All(s => s.Level == 0));
+            Assert.AreEqual(5, state.Skills.Single(s => s.Type == SkillType.DoubleDrop).MaxLevel);
+            Assert.AreEqual(4, state.Skills.Single(s => s.Type == SkillType.MineSlots).MaxLevel);
+            Assert.AreEqual(5, state.Skills.Single(s => s.Type == SkillType.CartCapacity).MaxLevel);
         }
 
         [TestMethod]
@@ -189,15 +190,16 @@ namespace ShardsTests
             int playerId = await SeedPlayerAsync(uid: 7, energy: 100, lastEnergyUpdate: Start);
             await using (var ctx = _db.CreateDbContext())
             {
-                ctx.Mine.Add(new MineDTO { PlayerId = playerId, MineNumber = 2, CreatedAt = Start, LastCartCollectionUtc = Start });
+                for (int number = 2; number <= 5; number++)
+                    ctx.Mine.Add(new MineDTO { PlayerId = playerId, MineNumber = number, CreatedAt = Start, LastCartCollectionUtc = Start });
                 await ctx.SaveChangesAsync();
             }
 
             var state = await _service.GetStateAsync(7);
 
             Assert.IsNull(state.NextMine);
-            Assert.AreEqual(2, state.Mines.Count);
-            CollectionAssert.AreEqual(new[] { 1, 2 }, state.Mines.Select(m => m.MineNumber).ToArray());
+            Assert.AreEqual(5, state.Mines.Count);
+            CollectionAssert.AreEqual(new[] { 1, 2, 3, 4, 5 }, state.Mines.Select(m => m.MineNumber).ToArray());
         }
 
         [TestMethod]

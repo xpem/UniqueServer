@@ -46,8 +46,8 @@ namespace ShardsTests
             var res = await Skills.DistributeAsync(7, "doubledrop");
 
             Assert.AreEqual(1, res.SkillPoints);
-            Assert.AreEqual(1, res.Skills.Single().Level);
-            Assert.AreEqual(5, res.Skills.Single().MaxLevel);
+            Assert.AreEqual(1, res.Skills.Single(s => s.Type == SkillType.DoubleDrop).Level);
+            Assert.AreEqual(5, res.Skills.Single(s => s.Type == SkillType.DoubleDrop).MaxLevel);
             Assert.AreEqual(1, (await PlayerRow()).SkillPoints);
         }
 
@@ -60,7 +60,7 @@ namespace ShardsTests
             await Skills.DistributeAsync(7, "DoubleDrop");
             var res = await Skills.DistributeAsync(7, "DoubleDrop");
 
-            Assert.AreEqual(2, res.Skills.Single().Level);
+            Assert.AreEqual(2, res.Skills.Single(s => s.Type == SkillType.DoubleDrop).Level);
             Assert.AreEqual(0, res.SkillPoints);
             await using var ctx = Db.CreateDbContext();
             Assert.AreEqual(1, await ctx.PlayerSkill.CountAsync());
@@ -225,6 +225,7 @@ namespace ShardsTests
             await Skills.DistributeAsync(7, "DoubleDrop");
             await Missions.ClaimAsync(7, "Specialization");
             await GiveOresAsync(OreType.Quartz, 200);
+            await GrantMineSlotAsync();
             await Mines.UnlockNextAsync(7);
 
             var res = await Missions.ClaimAsync(7, "OperationalExpansion");
@@ -242,6 +243,7 @@ namespace ShardsTests
             await CompleteAndClaimFirstMissionAsync();
             await Skills.DistributeAsync(7, "DoubleDrop");
             await GiveOresAsync(OreType.Quartz, 200);
+            await GrantMineSlotAsync();
             await Mines.UnlockNextAsync(7); // compra antes de a Missão 3 ser liberada
 
             var res = await Missions.ClaimAsync(7, "Specialization");
@@ -257,9 +259,10 @@ namespace ShardsTests
         public async Task WithoutResources_IsNotEnoughResources_AndChangesNothing()
         {
             await SeedPlayerAsync();
+            await GrantMineSlotAsync();
             await GiveOresAsync(OreType.Quartz, 199);
 
-            var ex = await Assert.ThrowsExactlyAsync<ShardsException>(() => Mines.UnlockNextAsync(7));
+            var ex = await Assert.ThrowsExactlyAsync<ShardsException>(() => Mines.UnlockNextAsync(uid: 7));
 
             Assert.AreEqual(ShardsErrorCode.NotEnoughResources, ex.Code);
             Assert.AreEqual(199, await InventoryOf(OreType.Quartz));
@@ -274,6 +277,8 @@ namespace ShardsTests
             await GiveOresAsync(OreType.Quartz, 210);
             Time.Advance(TimeSpan.FromMinutes(5));
 
+            await GrantMineSlotAsync();
+
             var res = await Mines.UnlockNextAsync(7);
 
             Assert.AreEqual(2, res.Mine.MineNumber);
@@ -285,16 +290,17 @@ namespace ShardsTests
         }
 
         [TestMethod]
-        public async Task SecondUnlock_IsNoMoreMines()
+        public async Task SecondUnlock_WithoutAnotherSlot_IsMineSlotsFull()
         {
             await SeedPlayerAsync();
-            await GiveOresAsync(OreType.Quartz, 400);
-            await Mines.UnlockNextAsync(7);
+            await GrantMineSlotAsync();
+            await GiveOresAsync(OreType.Quartz, 1000);
+            await Mines.UnlockNextAsync(uid: 7);
 
-            var ex = await Assert.ThrowsExactlyAsync<ShardsException>(() => Mines.UnlockNextAsync(7));
+            var ex = await Assert.ThrowsExactlyAsync<ShardsException>(() => Mines.UnlockNextAsync(uid: 7));
 
-            Assert.AreEqual(ShardsErrorCode.NoMoreMines, ex.Code);
-            Assert.AreEqual(200, await InventoryOf(OreType.Quartz), "só a primeira compra (200) foi debitada dos 400");
+            Assert.AreEqual(ShardsErrorCode.MineSlotsFull, ex.Code);
+            Assert.AreEqual(800, await InventoryOf(OreType.Quartz), "só a primeira compra (200) foi debitada");
         }
 
         [TestMethod]
@@ -314,6 +320,8 @@ namespace ShardsTests
             await Missions.ClaimAsync(7, "Specialization");
             await GiveOresAsync(OreType.Quartz, 200);
 
+            await GrantMineSlotAsync();
+
             var res = await Mines.UnlockNextAsync(7);
 
             var mission = res.Missions.Single();
@@ -326,6 +334,7 @@ namespace ShardsTests
         {
             await SeedPlayerAsync();
             await GiveOresAsync(OreType.Quartz, 200);
+            await GrantMineSlotAsync();
             await Mines.UnlockNextAsync(7);
             Time.Advance(TimeSpan.FromMinutes(10));
             Random.Value = 0.0;
@@ -340,15 +349,19 @@ namespace ShardsTests
         }
 
         [TestMethod]
-        public async Task StateAfterUnlock_HasNoNextMine()
+        public async Task StateAfterUnlock_OffersMineThree_WithoutSlot()
         {
             await SeedPlayerAsync();
             await GiveOresAsync(OreType.Quartz, 200);
 
+            await GrantMineSlotAsync();
+
             await Mines.UnlockNextAsync(7);
 
             var state = await Players.GetStateAsync(7);
-            Assert.IsNull(state.NextMine);
+            Assert.AreEqual(3, state.NextMine!.MineNumber);
+            Assert.AreEqual(600, state.NextMine.Cost.Single().Quantity);
+            Assert.IsFalse(state.NextMine.HasSlot, "o único espaço já foi usado pela Mina 2");
             Assert.AreEqual(2, state.Mines.Count);
         }
     }
@@ -385,12 +398,14 @@ namespace ShardsTests
             state = await Players.GetStateAsync(7);
             Assert.IsTrue(state.NextMine!.CanAfford);
 
+            await GrantMineSlotAsync();
+
             await Mines.UnlockNextAsync(7);
             await Missions.ClaimAsync(7, "OperationalExpansion");
 
             state = await Players.GetStateAsync(7);
             Assert.AreEqual(2, state.Mines.Count);
-            Assert.IsNull(state.NextMine);
+            Assert.AreEqual(3, state.NextMine!.MineNumber, "a Mina 3 é a próxima, mas sem espaço livre");
             Assert.AreEqual(MissionType.FirstGem, state.Missions.Single().Type, "depois da Mina 2, o próximo objetivo é a primeira gema");
         }
     }
