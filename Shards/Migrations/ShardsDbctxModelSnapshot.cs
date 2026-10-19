@@ -39,6 +39,9 @@ namespace Shards.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
+                    b.Property<int>("Stage")
+                        .HasColumnType("integer");
+
                     b.Property<uint>("Version")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
@@ -47,9 +50,9 @@ namespace Shards.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PlayerId", "OreType")
+                    b.HasIndex("PlayerId", "OreType", "Stage")
                         .IsUnique()
-                        .HasDatabaseName("IX_InventoryItem_PlayerId_OreType");
+                        .HasDatabaseName("IX_InventoryItem_PlayerId_OreType_Stage");
 
                     b.ToTable("InventoryItem");
                 });

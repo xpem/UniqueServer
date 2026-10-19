@@ -35,13 +35,28 @@ namespace Shards.Service
                 .ToList();
         }
 
-        /// <summary>Só os minérios que o jogador possui (quantidade maior que zero), em ordem de tipo.</summary>
+        /// <summary>Só os minérios brutos que o jogador possui (quantidade maior que zero), em ordem de tipo. Os demais estágios saem em GET /inventory.</summary>
         public List<OreAmountRes> ToInventoryRes(IEnumerable<InventoryItemDTO> inventory) =>
             inventory
-                .Where(i => i.Quantity > 0)
+                .Where(i => i.Stage == ItemStage.Raw && i.Quantity > 0)
                 .OrderBy(i => i.OreType)
                 .Select(i => new OreAmountRes { OreType = i.OreType, Quantity = i.Quantity })
                 .ToList();
+
+        /// <summary>Inventário completo (todos os estágios), só com quantidade maior que zero, ordenado por minério e depois por estágio.</summary>
+        public InventoryRes ToInventoryDetailRes(IEnumerable<InventoryItemDTO> inventory) => new()
+        {
+            Items = inventory
+                .Where(i => i.Quantity > 0)
+                .OrderBy(i => i.OreType)
+                .ThenBy(i => i.Stage)
+                .Select(i => new InventoryItemRes { OreType = i.OreType, Stage = i.Stage, Quantity = i.Quantity })
+                .ToList(),
+        };
+
+        /// <summary>Saldo em minério bruto por tipo: é o que paga os custos do jogo.</summary>
+        private static Dictionary<OreType, int> RawBalance(IEnumerable<InventoryItemDTO> inventory) =>
+            inventory.Where(i => i.Stage == ItemStage.Raw).ToDictionary(i => i.OreType, i => i.Quantity);
 
         public MineStateRes ToMineStateRes(MineDTO mine) => new()
         {
@@ -90,7 +105,7 @@ namespace Shards.Service
             var next = rules.GetNextMine(highestOwned);
             if (next is null) return null;
 
-            Dictionary<OreType, int> owned = inventory.ToDictionary(i => i.OreType, i => i.Quantity);
+            Dictionary<OreType, int> owned = RawBalance(inventory);
 
             return new NextMineRes
             {
@@ -114,7 +129,7 @@ namespace Shards.Service
         /// <summary>Por mina: o nível do vagonete e a próxima melhoria (nula no nível máximo).</summary>
         public List<MineCartUpgradeRes> ToCartUpgradesRes(IEnumerable<MineDTO> mines, IEnumerable<InventoryItemDTO> inventory, IEnumerable<PlayerSkillDTO> skills)
         {
-            Dictionary<OreType, int> owned = inventory.ToDictionary(i => i.OreType, i => i.Quantity);
+            Dictionary<OreType, int> owned = RawBalance(inventory);
             int skillLevel = SkillLevel(skills, SkillType.CartCapacity);
 
             return mines.OrderBy(m => m.MineNumber).Select(mine =>
@@ -140,7 +155,7 @@ namespace Shards.Service
         /// <summary>As produções configuradas, com as probabilidades normalizadas e se o inventário cobre o custo.</summary>
         public List<ProductionOptionRes> ToProductionsRes(IEnumerable<InventoryItemDTO> inventory)
         {
-            Dictionary<OreType, int> owned = inventory.ToDictionary(i => i.OreType, i => i.Quantity);
+            Dictionary<OreType, int> owned = RawBalance(inventory);
 
             return rules.Balance.Productions.Select(p =>
             {

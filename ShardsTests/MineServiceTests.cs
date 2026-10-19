@@ -31,7 +31,7 @@ namespace ShardsTests
         {
             await using var ctx = Db.CreateDbContext();
             var player = await ctx.Player.SingleAsync(p => p.UserId == uid);
-            var item = await ctx.InventoryItem.FirstOrDefaultAsync(i => i.PlayerId == player.Id && i.OreType == ore);
+            var item = await ctx.InventoryItem.FirstOrDefaultAsync(i => i.PlayerId == player.Id && i.OreType == ore && i.Stage == ItemStage.Raw);
             if (item is null) ctx.InventoryItem.Add(new InventoryItemDTO { PlayerId = player.Id, OreType = ore, Quantity = quantity });
             else item.Quantity += quantity;
             await ctx.SaveChangesAsync();
@@ -74,7 +74,7 @@ namespace ShardsTests
         {
             await using var ctx = Db.CreateDbContext();
             var player = await ctx.Player.SingleAsync(p => p.UserId == uid);
-            return await ctx.InventoryItem.Where(i => i.PlayerId == player.Id && i.OreType == ore).Select(i => i.Quantity).FirstOrDefaultAsync();
+            return await ctx.InventoryItem.Where(i => i.PlayerId == player.Id && i.OreType == ore && i.Stage == ItemStage.Raw).Select(i => i.Quantity).FirstOrDefaultAsync();
         }
 
         protected async Task<PlayerDTO> PlayerRow(int uid = 7)

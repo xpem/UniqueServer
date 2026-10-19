@@ -67,9 +67,9 @@ namespace Shards.Repo
             {
                 entity.HasOne<PlayerDTO>().WithMany().HasForeignKey(e => e.PlayerId).OnDelete(DeleteBehavior.Cascade);
 
-                entity.HasIndex(e => new { e.PlayerId, e.OreType })
+                entity.HasIndex(e => new { e.PlayerId, e.OreType, e.Stage })
                     .IsUnique()
-                    .HasDatabaseName("IX_InventoryItem_PlayerId_OreType");
+                    .HasDatabaseName("IX_InventoryItem_PlayerId_OreType_Stage");
 
                 ConfigureVersion(entity);
             });

@@ -13,8 +13,13 @@ namespace UniqueServer.Controllers
     [ApiController]
     [Authorize]
     [EnableRateLimiting(ShardsRateLimit.PolicyName)]
-    public class ShardsController(IPlayerService playerService, IMineService mineService, IPlayerSkillService playerSkillService, IPlayerMissionService playerMissionService) : BaseController
+    public class ShardsController(IPlayerService playerService, IMineService mineService, IPlayerSkillService playerSkillService, IPlayerMissionService playerMissionService, IInventoryService inventoryService) : BaseController
     {
+        /// <summary>Inventário completo por minério e estágio (bruto, polido, facetado); só itens com quantidade maior que zero.</summary>
+        [HttpGet("inventory")]
+        [ProducesResponseType<InventoryRes>(StatusCodes.Status200OK)]
+        public Task<IActionResult> GetInventory() => RunAsync(() => inventoryService.GetAsync(Uid));
+
         /// <summary>Estado completo do jogador. Cria o jogador (Mina 1 e Missão 1) no primeiro acesso.</summary>
         [HttpGet("state")]
         [ProducesResponseType<ShardsStateRes>(StatusCodes.Status200OK)]

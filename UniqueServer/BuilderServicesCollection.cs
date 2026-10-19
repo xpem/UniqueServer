@@ -174,6 +174,7 @@ namespace UniqueServer
             services.AddSingleton<ShardsMapper>();
             services.AddScoped<IPlayerService, PlayerService>();
             services.AddScoped<IMineService, MineService>();
+            services.AddScoped<IInventoryService, InventoryService>();
             services.AddScoped<IPlayerSkillService, PlayerSkillService>();
             services.AddScoped<IPlayerMissionService, PlayerMissionService>();
 

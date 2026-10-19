@@ -277,3 +277,22 @@ Mais capacidade no vagonete aumenta o tempo que a mina trabalha sozinha (hoje 10
 - **O vagonete é esvaziado antes de ampliar** (como na troca de produção): sem isso, a capacidade nova contaria retroativamente o tempo em que o vagonete já estava cheio e a produção estava parada. O que sai do vagonete já conta para pagar; se faltar recurso, nada é gravado, nem a coleta.
 - **Só capacidade.** Velocidade (`OresPerMinute`) fica para depois: a tabela de níveis foi pensada para aceitar uma segunda trilha.
 - **Observação de balanceamento:** com as três skills (DoubleDrop 5 + MineSlots 4 + CartCapacity 5) são ~14 pontos, o nível 14 (1.575 de XP): os pontos acabam em poucos dias e o quartzo (≈100 mil para ampliar 5 minas ao máximo) passa a ser o freio de longo prazo. Mercado e outras fontes de quartzo entram nos próximos passos.
+
+---
+
+## 10. Evolução 4 — Estágio no inventário (`AddItemStage`)  ✅ pronta (223 testes)
+
+Fundação da futura Oficina de Lapidação: o inventário passa a distinguir o **estágio** do item (bruto → polido → facetado). Nada da oficina, combate ou mercado foi implementado.
+
+- **Decisões:**
+  - O **quartzo continua um `OreType` no inventário** (moeda e minério ao mesmo tempo); separar a moeda numa coluna do jogador ficou de fora por ser um refactor grande (custos, migrations e testes) sem ganho imediato. Pode virar uma feat à parte.
+  - Concorrência no padrão do módulo: `xmin` + `ConcurrencyRetry` (nada de SQL cru com `ON CONFLICT`). O índice único cobre a corrida de duas linhas novas.
+  - `CartEmpty` já existia (código 4); nenhum código de erro novo, pois nenhum fluxo recebe estágio de entrada. `InvalidStage`/`ItemNotFound` entram só quando a oficina precisar.
+- **Modelo:** enum `ItemStage` (`Raw = 0`, `Polished = 1`, `Faceted = 2`) e `InventoryItemDTO.Stage` (padrão `Raw`). O índice único passou de (`PlayerId`, `OreType`) para (`PlayerId`, `OreType`, `Stage`).
+- **Migration `AddItemStage`:** `ADD "Stage" integer NOT NULL DEFAULT 0` + troca do índice único. As linhas existentes viram Raw sem migrar dados. **Aplicar com `update-database -Context ShardsDbctx`.**
+  - **Rollback:** o `Down` recria o índice antigo; ele falha se já existirem linhas em estágios diferentes do mesmo minério. Antes de reverter depois que a oficina existir, é preciso consolidar ou apagar essas linhas.
+  - A migration vazia `20261017201500_17102026` (criada antes, sem mudanças) continua na cadeia, é inofensiva.
+- **Regra central:** todo custo e saldo do jogo olha **só o estágio Raw** (`InventoryItemService.Remove/CanAfford`, mapper). Sem isso, uma linha polida de quartzo pagaria uma mina.
+- **API:** `GET /Shards/inventory` → `{ items: [{ oreType, stage, quantity }] }`, só quantidade > 0, ordenado por minério e estágio; jogador ainda inexistente recebe lista vazia (o jogador continua sendo criado só em `GET /state`). O `state.inventory` e as respostas de `mine`/`collect-cart` seguem inalterados (só o bruto): o front não quebra.
+- **Mineração e vagonete** continuam gravando em Raw (`InventoryItemService.Add` com estágio padrão).
+- **Pendente:** teste de concorrência contra Postgres real (já era pendência das fases anteriores).
