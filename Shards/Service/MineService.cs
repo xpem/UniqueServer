@@ -93,6 +93,9 @@ namespace Shards.Service
                 List<PlayerMissionDTO> missions = await ShardsQueries.GetMissionsAsync(ctx, player.Id);
                 List<PlayerMissionDTO> changedMissions = MissionTracker.AdvanceChanged(missions, MissionType.FirstPickaxe, cost, now);
 
+                // Colecionador: a mineração de uma gema nova cria a linha dela no inventário
+                changedMissions.AddRange(MissionTracker.CompleteSatisfiedChanged(missions, [MissionType.Collector], new MissionFacts(Inventory: inventory), now));
+
                 await ctx.SaveChangesAsync();
 
                 return new MineRes
@@ -142,6 +145,9 @@ namespace Shards.Service
             List<PlayerMissionDTO> missions = await ShardsQueries.GetMissionsAsync(ctx, player.Id);
             List<PlayerMissionDTO> changedMissions = MissionTracker.AdvanceChanged(missions, MissionType.OperationalExpansion, 1, now);
 
+            // Terceira Mina: conta com a mina recém-comprada
+            changedMissions.AddRange(MissionTracker.CompleteSatisfiedChanged(missions, [MissionType.ThirdMine], new MissionFacts(Mines: [.. mines, mine]), now));
+
             await ctx.SaveChangesAsync();
 
             return new UnlockMineRes
@@ -164,7 +170,13 @@ namespace Shards.Service
             if (amount <= 0) throw new ShardsException(ShardsErrorCode.CartEmpty);
 
             List<InventoryItemDTO> inventory = await ShardsQueries.GetInventoryAsync(ctx, player.Id);
+            bool wasFull = amount >= mine.CartCapacity;
             SortedDictionary<OreType, int> collected = EmptyCart(ctx, mine, player.Id, inventory, now);
+
+            // Vagonete Cheio (coletou na capacidade máxima) e Colecionador (a coleta pode trazer uma gema nova)
+            List<PlayerMissionDTO> missions = await ShardsQueries.GetMissionsAsync(ctx, player.Id);
+            List<PlayerMissionDTO> changedMissions = wasFull ? MissionTracker.AdvanceChanged(missions, MissionType.FullCart, 1, now) : [];
+            changedMissions.AddRange(MissionTracker.CompleteSatisfiedChanged(missions, [MissionType.Collector], new MissionFacts(Inventory: inventory), now));
 
             await ctx.SaveChangesAsync();
 
@@ -174,6 +186,7 @@ namespace Shards.Service
                 Total = amount,
                 Cart = mapper.ToMineStateRes(mine),
                 Inventory = mapper.ToInventoryRes(inventory),
+                Missions = changedMissions.Select(mapper.ToMissionRes).ToList(),
             };
         });
 
@@ -210,6 +223,11 @@ namespace Shards.Service
                 {
                     List<PlayerMissionDTO> missions = await ShardsQueries.GetMissionsAsync(ctx, player.Id);
                     changedMissions = MissionTracker.AdvanceChanged(missions, MissionType.FirstGem, 1, now);
+
+                    // Diversificação (duas minas em gemas diferentes) e Colecionador (a coleta antes da troca pode trazer uma gema nova)
+                    List<MineDTO> mines = await ctx.Mine.Where(m => m.PlayerId == player.Id).ToListAsync();
+                    changedMissions.AddRange(MissionTracker.CompleteSatisfiedChanged(
+                        missions, [MissionType.Diversification, MissionType.Collector], new MissionFacts(Mines: mines, Inventory: inventory), now));
                 }
 
                 await ctx.SaveChangesAsync();
@@ -251,6 +269,10 @@ namespace Shards.Service
             mine.CartLevel = next.Level;
             mine.CartCapacity = next.Capacity;
 
+            // Vagonete Ampliado
+            List<PlayerMissionDTO> missions = await ShardsQueries.GetMissionsAsync(ctx, player.Id);
+            List<PlayerMissionDTO> changedMissions = MissionTracker.CompleteSatisfiedChanged(missions, [MissionType.CartUpgrade], new MissionFacts(Mines: [mine]), now);
+
             await ctx.SaveChangesAsync();
 
             return new UpgradeCartRes
@@ -259,6 +281,7 @@ namespace Shards.Service
                 Collected = collected.Select(c => new OreAmountRes { OreType = c.Key, Quantity = c.Value }).ToList(),
                 Spent = cost.Select(c => new OreAmountRes { OreType = c.Ore, Quantity = c.Quantity }).ToList(),
                 Inventory = mapper.ToInventoryRes(inventory),
+                Missions = changedMissions.Select(mapper.ToMissionRes).ToList(),
             };
         });
 

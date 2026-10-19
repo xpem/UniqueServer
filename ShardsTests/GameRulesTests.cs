@@ -347,7 +347,24 @@ namespace ShardsTests
             Assert.AreEqual(MissionType.Specialization, Shards.Rules.MissionCatalog.Next(MissionType.FirstPickaxe)?.Type);
             Assert.AreEqual(MissionType.OperationalExpansion, Shards.Rules.MissionCatalog.Next(MissionType.Specialization)?.Type);
             Assert.AreEqual(MissionType.FirstGem, Shards.Rules.MissionCatalog.Next(MissionType.OperationalExpansion)?.Type);
-            Assert.IsNull(Shards.Rules.MissionCatalog.Next(MissionType.FirstGem));
+            Assert.AreEqual(MissionType.CartTraining, Shards.Rules.MissionCatalog.Next(MissionType.FirstGem)?.Type);
+            Assert.IsNull(Shards.Rules.MissionCatalog.Next(MissionType.DoubleLuck), "DoubleLuck fecha a cadeia");
+        }
+
+        [TestMethod]
+        public void Chain_ListsEveryMissionOnce_InTheExpectedOrder()
+        {
+            MissionType[] expected =
+            [
+                MissionType.FirstPickaxe, MissionType.Specialization, MissionType.OperationalExpansion, MissionType.FirstGem,
+                MissionType.CartTraining, MissionType.CartUpgrade, MissionType.OpenWorkshop, MissionType.FirstPolish, MissionType.FirstFacet,
+                MissionType.Diversification, MissionType.Collector, MissionType.PolishBatch, MissionType.FullSet, MissionType.FacetBatch,
+                MissionType.ThirdMine, MissionType.FullCart, MissionType.DoubleLuck,
+            ];
+
+            CollectionAssert.AreEqual(expected, Shards.Rules.MissionCatalog.All.Select(m => m.Type).ToArray());
+            Assert.AreEqual(Enum.GetValues<MissionType>().Length, expected.Length);
+            Assert.IsTrue(Shards.Rules.MissionCatalog.All.All(m => m.Goal > 0 && m.Reward.Xp >= 0));
         }
 
         [TestMethod]

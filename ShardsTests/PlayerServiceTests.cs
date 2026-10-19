@@ -67,7 +67,7 @@ namespace ShardsTests
         {
             var state = await _service.GetStateAsync(7);
 
-            Assert.AreEqual(3, state.Skills.Count);
+            Assert.AreEqual(4, state.Skills.Count);
             Assert.IsTrue(state.Skills.All(s => s.Level == 0));
             Assert.AreEqual(5, state.Skills.Single(s => s.Type == SkillType.DoubleDrop).MaxLevel);
             Assert.AreEqual(4, state.Skills.Single(s => s.Type == SkillType.MineSlots).MaxLevel);

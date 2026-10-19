@@ -33,6 +33,14 @@ namespace Shards.Service
         public static bool CanAfford(IEnumerable<InventoryItemDTO> inventory, IEnumerable<(OreType Ore, int Quantity)> cost) =>
             cost.All(c => QuantityOf(inventory, c.Ore) >= c.Quantity);
 
+        /// <summary>Debita de um (minério, estágio); NotEnoughResources se faltar (nada é alterado nesse caso).</summary>
+        public static void RemoveStage(List<InventoryItemDTO> inventory, OreType ore, ItemStage stage, int quantity)
+        {
+            if (QuantityOf(inventory, ore, stage) < quantity) throw new ShardsException(ShardsErrorCode.NotEnoughResources);
+
+            inventory.First(i => i.OreType == ore && i.Stage == stage).Quantity -= quantity;
+        }
+
         /// <summary>Debita minérios brutos; NotEnoughResources se faltar qualquer um (nada é alterado nesse caso).</summary>
         public static void Remove(List<InventoryItemDTO> inventory, IReadOnlyCollection<(OreType Ore, int Quantity)> cost)
         {

@@ -40,7 +40,7 @@ namespace Shards.Service
             var missions = await ctx.PlayerMission.AsNoTracking().Where(m => m.PlayerId == player.Id).ToListAsync();
 
             // missões novas do catálogo chegam a quem já resgatou a anterior (só grava quando falta alguma)
-            List<PlayerMissionDTO> created = MissionTracker.CreateMissingNext(missions, player.Id, skills, mines, rules.UtcNow);
+            List<PlayerMissionDTO> created = MissionTracker.CreateMissingNext(missions, player.Id, new MissionFacts(skills, mines, inventory), rules.UtcNow);
             if (created.Count > 0)
             {
                 ctx.PlayerMission.AddRange(created);

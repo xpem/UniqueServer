@@ -13,8 +13,19 @@ namespace UniqueServer.Controllers
     [ApiController]
     [Authorize]
     [EnableRateLimiting(ShardsRateLimit.PolicyName)]
-    public class ShardsController(IPlayerService playerService, IMineService mineService, IPlayerSkillService playerSkillService, IPlayerMissionService playerMissionService, IInventoryService inventoryService) : BaseController
+    public class ShardsController(IPlayerService playerService, IMineService mineService, IPlayerSkillService playerSkillService, IPlayerMissionService playerMissionService, IInventoryService inventoryService, IWorkshopService workshopService) : BaseController
     {
+        /// <summary>
+        /// Oficina de Lapidação: gasta gemas do estágio anterior e minério bruto e produz gemas Polished ou Faceted
+        /// (instantâneo, sem risco). Exige a skill Workshop (nível 1 = Polished, nível 2 = Faceted).
+        /// </summary>
+        [HttpPost("workshop/craft")]
+        [ProducesResponseType<CraftRes>(StatusCodes.Status200OK)]
+        [ProducesResponseType<ShardsErrorRes>(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType<ShardsErrorRes>(StatusCodes.Status409Conflict)]
+        public Task<IActionResult> Craft([FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] CraftReq? req) =>
+            RunAsync(() => workshopService.CraftAsync(Uid, req?.Gem, req?.Stage, req?.Times ?? 1));
+
         /// <summary>Inventário completo por minério e estágio (bruto, polido, facetado); só itens com quantidade maior que zero.</summary>
         [HttpGet("inventory")]
         [ProducesResponseType<InventoryRes>(StatusCodes.Status200OK)]

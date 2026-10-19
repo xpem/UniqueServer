@@ -30,6 +30,9 @@ namespace Shards.Errors
             ShardsErrorCode.MineSlotsFull => "Sem espaço para uma nova mina. Distribua um ponto de habilidade em MineSlots.",
             ShardsErrorCode.CartUpgradeLocked => "A habilidade CartCapacity ainda não permite este nível do vagonete.",
             ShardsErrorCode.CartMaxLevel => "O vagonete desta mina já está no nível máximo.",
+            ShardsErrorCode.InvalidGem => "Gema inválida. A oficina lapida Ruby, Sapphire ou Emerald.",
+            ShardsErrorCode.InvalidStage => "Estágio inválido. A oficina produz Polished ou Faceted.",
+            ShardsErrorCode.WorkshopLocked => "A habilidade Workshop ainda não permite este estágio.",
             ShardsErrorCode.InvalidTimes => "Quantidade de ações inválida.",
             ShardsErrorCode.ConcurrencyConflict => "A operação conflitou com outra em andamento. Tente novamente.",
             _ => "Erro de regra do jogo.",
@@ -48,6 +51,14 @@ namespace Shards.Errors
 
         public static OreType ParseProduction(string? value) =>
             TryParseName(value, out OreType result) ? result : throw new ShardsException(ShardsErrorCode.InvalidProduction);
+
+        /// <summary>Gema da oficina: qualquer minério menos o quartzo (moeda, sem estágios).</summary>
+        public static OreType ParseGem(string? value) =>
+            TryParseName(value, out OreType result) && result != OreType.Quartz ? result : throw new ShardsException(ShardsErrorCode.InvalidGem);
+
+        /// <summary>Estágio que a oficina produz: Polished ou Faceted (Raw não se fabrica).</summary>
+        public static ItemStage ParseCraftStage(string? value) =>
+            TryParseName(value, out ItemStage result) && result != ItemStage.Raw ? result : throw new ShardsException(ShardsErrorCode.InvalidStage);
 
         private static bool TryParseName<T>(string? value, out T result) where T : struct, Enum
         {

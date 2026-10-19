@@ -155,6 +155,39 @@ namespace Shards.Model.Res
         public bool CanAfford { get; set; }
     }
 
+    /// <summary>Por gema, o que o jogador tem do estágio consumido e se consegue fazer ao menos 1 lapidação agora.</summary>
+    public record WorkshopGemRes
+    {
+        public OreType OreType { get; set; }
+
+        /// <summary>Quantas gemas do estágio consumido o jogador tem (por exemplo, brutas para a receita Polished).</summary>
+        public int Available { get; set; }
+
+        /// <summary>O inventário cobre as gemas e o quartzo de 1 lapidação. Não considera a skill (ver SkillAllows).</summary>
+        public bool CanAfford { get; set; }
+    }
+
+    /// <summary>Uma receita da oficina: produz 1 gema do estágio Stage a partir de InputQuantity gemas do estágio anterior.</summary>
+    public record WorkshopRecipeRes
+    {
+        /// <summary>Estágio produzido (Polished ou Faceted).</summary>
+        public ItemStage Stage { get; set; }
+
+        /// <summary>Nível da skill Workshop que libera a receita.</summary>
+        public int Level { get; set; }
+
+        /// <summary>Gemas do estágio anterior consumidas por gema produzida.</summary>
+        public int InputQuantity { get; set; }
+
+        /// <summary>Minério bruto consumido por gema produzida.</summary>
+        public List<OreAmountRes> Cost { get; set; } = [];
+
+        /// <summary>A skill Workshop já permite a receita. Se não, craft dá WorkshopLocked.</summary>
+        public bool SkillAllows { get; set; }
+
+        public List<WorkshopGemRes> Gems { get; set; } = [];
+    }
+
     /// <summary>Resposta de GET /shards/state: o estado completo do jogador.</summary>
     public record ShardsStateRes
     {
@@ -181,5 +214,8 @@ namespace Shards.Model.Res
 
         /// <summary>Melhoria do vagonete de cada mina: nível atual e próxima melhoria (custo, skill e saldo).</summary>
         public List<MineCartUpgradeRes> CartUpgrades { get; set; } = [];
+
+        /// <summary>Receitas da oficina, com custo, skill e saldo por gema.</summary>
+        public List<WorkshopRecipeRes> Workshop { get; set; } = [];
     }
 }

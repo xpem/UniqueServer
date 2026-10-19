@@ -22,5 +22,8 @@ namespace Shards.Errors
         MineSlotsFull = 17,
         CartUpgradeLocked = 18,
         CartMaxLevel = 19,
+        InvalidGem = 20,
+        InvalidStage = 21,
+        WorkshopLocked = 22,
     }
 }

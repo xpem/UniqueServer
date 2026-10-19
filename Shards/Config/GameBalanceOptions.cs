@@ -22,6 +22,9 @@ namespace Shards.Config
         /// <summary>Melhorias do vagonete (níveis 1..N). O nível máximo da skill CartCapacity é o maior nível daqui.</summary>
         public List<CartUpgradeOptions> CartUpgrades { get; set; } = [];
 
+        /// <summary>Receitas da oficina (uma por estágio de destino). O nível máximo da skill Workshop é o maior nível daqui.</summary>
+        public List<WorkshopStepOptions> Workshop { get; set; } = [];
+
         public List<MineOptions> Mines { get; set; } = [];
 
         /// <summary>Tipos de produção que uma mina pode ter (Quartz é o padrão de toda mina).</summary>
@@ -74,6 +77,22 @@ namespace Shards.Config
         public int Level { get; set; }
 
         public int Capacity { get; set; }
+
+        public List<OreAmount> Cost { get; set; } = [];
+    }
+
+    /// <summary>
+    /// Uma receita da oficina: gasta InputQuantity gemas do estágio anterior (a mesma gema) mais Cost em minério bruto
+    /// e produz 1 gema do estágio Stage. Level é o nível da skill Workshop que libera a receita (Polished = 1, Faceted = 2).
+    /// </summary>
+    public class WorkshopStepOptions
+    {
+        public int Level { get; set; }
+
+        /// <summary>Estágio produzido (Polished ou Faceted). O estágio consumido é o anterior.</summary>
+        public ItemStage Stage { get; set; }
+
+        public int InputQuantity { get; set; }
 
         public List<OreAmount> Cost { get; set; } = [];
     }

@@ -46,6 +46,10 @@ namespace Shards.Service
                 List<PlayerMissionDTO> missions = await ShardsQueries.GetMissionsAsync(ctx, player.Id);
                 List<PlayerMissionDTO> changedMissions = MissionTracker.AdvanceChanged(missions, MissionType.Specialization, 1, now);
 
+                // missões de skill: CartTraining, OpenWorkshop e DoubleLuck concluem quando a skill chega ao nível pedido
+                changedMissions.AddRange(MissionTracker.CompleteSatisfiedChanged(
+                    missions, [MissionType.CartTraining, MissionType.OpenWorkshop, MissionType.DoubleLuck], new MissionFacts(Skills: skills), now));
+
                 await ctx.SaveChangesAsync();
 
                 return new DistributeSkillRes

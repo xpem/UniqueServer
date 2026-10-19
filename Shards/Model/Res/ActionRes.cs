@@ -28,6 +28,9 @@ namespace Shards.Model.Res
         public required MineStateRes Cart { get; set; }
 
         public List<OreAmountRes> Inventory { get; set; } = [];
+
+        /// <summary>Missões que mudaram nesta ação.</summary>
+        public List<MissionRes> Missions { get; set; } = [];
     }
 
     /// <summary>Resposta de POST /shards/skills/distribute.</summary>
@@ -63,6 +66,8 @@ namespace Shards.Model.Res
         public List<OreAmountRes> Spent { get; set; } = [];
 
         public List<OreAmountRes> Inventory { get; set; } = [];
+
+        public List<MissionRes> Missions { get; set; } = [];
     }
 
     /// <summary>Resposta de POST /shards/mines/{mineNumber}/production.</summary>

@@ -296,3 +296,51 @@ Fundação da futura Oficina de Lapidação: o inventário passa a distinguir o 
 - **API:** `GET /Shards/inventory` → `{ items: [{ oreType, stage, quantity }] }`, só quantidade > 0, ordenado por minério e estágio; jogador ainda inexistente recebe lista vazia (o jogador continua sendo criado só em `GET /state`). O `state.inventory` e as respostas de `mine`/`collect-cart` seguem inalterados (só o bruto): o front não quebra.
 - **Mineração e vagonete** continuam gravando em Raw (`InventoryItemService.Add` com estágio padrão).
 - **Pendente:** teste de concorrência contra Postgres real (já era pendência das fases anteriores).
+
+---
+
+## 11. Evolução 5 — Oficina de Lapidação (skill `Workshop`)  ✅ pronta (237 testes)
+
+Transforma gema bruta em polida e polida em facetada, usando o estágio do inventário (Evolução 4). Só a lapidação: combate, mercado e venda continuam fora.
+
+- **Decisões:** instantânea (sem fila de tempo), **determinística** (sem chance de falha), custo em **gemas do estágio anterior + quartzo bruto**, liberada pela skill nova `Workshop`.
+- **Skill `Workshop`** (`SkillType` = 4, nível máximo = número de receitas, hoje 2): nível 1 libera Polished, nível 2 libera Faceted. Sem permissão, `WorkshopLocked` **antes de cobrar**. Compete por pontos com DoubleDrop (5), MineSlots (4) e CartCapacity (5): ~16 pontos no total.
+- **Receitas (`Shards:Balance:Workshop`, ajustáveis sem recompilar):** `Polished` = 5 gemas brutas + 100 Quartz → 1 polida; `Faceted` = 3 polidas + 400 Quartz → 1 facetada (1 facetada = 15 brutas + 700 quartzo). O validador exige níveis de 1 a N sem buracos, `Stage` de mesmo número do nível, `InputQuantity > 0` e custos positivos.
+- **API:** `POST /Shards/workshop/craft` com `{ "gem": "Ruby", "stage": "Polished", "times": 1 }` (`times` 1 a 100, padrão 1). Resposta: `crafted`, `spent` (gemas + quartzo) e `inventory` completo (por estágio). Tudo numa transação, com `ConcurrencyRetry`.
+- **Erros novos:** `InvalidGem` (20; inclui Quartz, que não tem estágios), `InvalidStage` (21; inclui Raw, que não se fabrica) e `WorkshopLocked` (22). Total: 22 códigos. Ordem: entradas inválidas → `InvalidTimes` → jogador → skill → recursos.
+- **Regras mantidas:** o custo em quartzo sai só do estágio **Raw** (quartzo polido não paga nada); faltando gema **ou** quartzo, nada é gravado.
+- **Sem migration:** a skill é uma linha por jogador e as receitas são configuração.
+- **`GET /state`:** ganhou `workshop[]`, uma entrada por receita (`stage`, `level`, `inputQuantity`, `cost`, `skillAllows`) com `gems[]` (Ruby, Sapphire, Emerald): `available` (quantas do estágio consumido) e `canAfford` (gemas + quartzo de 1 lapidação; a skill é um campo à parte).
+- **Fora do escopo:** elemento/ataque nas gemas polidas (combate), mercado e venda.
+
+---
+
+## 12. Evolução 6 — Missões das novas mecânicas (vagonete, oficina, gemas)  ✅ pronta (265 testes)
+
+A cadeia de missões passou de 4 para **17**, cobrindo as skills `CartCapacity`, `Workshop`, `DoubleDrop`, `MineSlots`, a produção de gemas e a lapidação. O catálogo continua no código (`MissionCatalog`) e o progresso no banco: **sem migration**; quem já resgatou a `FirstGem` recebe a `CartTraining` no próximo `GET /state` (`CreateMissingNext`).
+
+| # | Tipo | Objetivo | Conclui quando | Recompensa |
+|---|---|---|---|---|
+| 5 | `CartTraining` | Ponto de habilidade em Vagonete | skill `CartCapacity` > 0 (`distribute`) | 20 XP |
+| 6 | `CartUpgrade` | Ampliar o vagonete de uma mina | mina com `CartLevel` > 0 (`upgrade-cart`) | 30 XP + 50 Quartz |
+| 7 | `OpenWorkshop` | Ponto de habilidade em Oficina | skill `Workshop` > 0 (`distribute`) | 30 XP + 100 Quartz |
+| 8 | `FirstPolish` | Polir uma gema | existe linha `Polished` ou `Faceted` (`craft`) | 50 XP + 600 Quartz |
+| 9 | `FirstFacet` | Facetar uma gema | existe linha `Faceted` (`craft`) | 100 XP |
+| 10 | `Diversification` | Duas minas em gemas **diferentes** | 2 produções de gema distintas (`production`) | 30 XP + 300 Quartz |
+| 11 | `Collector` | Obter Rubi, Safira e Esmeralda (qualquer estágio) | linhas das 3 gemas (`mine`, `collect-cart`, `production`) | 20 XP + 200 Quartz |
+| 12 | `PolishBatch` | Polir 10 gemas | contagem (meta 10), soma o `times` de crafts `Polished` | 40 XP + 500 Quartz |
+| 13 | `FullSet` | Uma gema facetada de cada tipo | linhas `Faceted` das 3 gemas (`craft`) | 60 XP + 500 Quartz |
+| 14 | `FacetBatch` | Facetar 5 gemas | contagem (meta 5), soma o `times` de crafts `Faceted` | 80 XP + 1000 Quartz |
+| 15 | `ThirdMine` | Ter 3 minas | `mines.Count >= 3` (`unlock`) | 30 XP + 300 Quartz |
+| 16 | `FullCart` | Esvaziar um vagonete cheio | `collect-cart` com total = capacidade | 15 XP |
+| 17 | `DoubleLuck` | `DoubleDrop` no nível 3 | skill `DoubleDrop` >= 3 (`distribute`) | 30 XP |
+
+**Decisões:**
+- **Condição x contagem.** As de condição leem o estado (`MissionTracker.IsSatisfied`) e valem também retroativamente (`CompleteIfAlreadySatisfied`): a missão nasce concluída se o jogador já fez a ação antes de ela ser liberada. As de contagem (`PolishBatch`, `FacetBatch`, `FullCart`) só avançam por ação e começam do zero quando liberadas.
+- **Estágios pela existência da linha, não pela quantidade.** A linha do inventário nasce no primeiro item e não some; assim gastar (ou, no futuro, vender) o item não desfaz a missão. `Collector` e `FullSet` seguem a mesma regra.
+- **Avaliação só do que a ação pode ter cumprido.** Cada serviço chama `MissionTracker.CompleteSatisfiedChanged` só com os tipos afetados e os fatos (`MissionFacts`: skills, minas, inventário) que eles leem; sem consultas extras desnecessárias. `collect-cart`, `upgrade-cart` e `craft` passaram a carregar as missões.
+- **Respostas.** `CollectCartRes`, `UpgradeCartRes` e `CraftRes` ganharam `missions` (as que mudaram), como as demais.
+- **Recompensas.** Só XP e **quartzo bruto** (nunca gema lapidada, para não pular a oficina). `FirstPolish` paga 600 de quartzo, o que fecha a conta até a primeira facetada (200 das 2 polidas restantes + 400). Total de XP das 13 novas: 440, ou cerca de 5 níveis (= 5 pontos de habilidade), o que cobre os 2 pontos que `CartTraining` e `OpenWorkshop` exigem.
+- **Custo x recompensa.** `CartUpgrade` gasta 300 e paga 50: é um tutorial que gasta, de propósito.
+- **Jogador sem pontos de habilidade** fica parado em `CartTraining`/`OpenWorkshop`/`DoubleLuck` até subir de nível (mesmo comportamento da `Specialization`).
+- **Fora do escopo:** missões repetíveis (ex.: "lapide 10 gemas" a cada ciclo), para depois de observar o uso.

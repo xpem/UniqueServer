@@ -57,7 +57,7 @@ namespace Shards.Service
                     List<PlayerSkillDTO> skills = await ctx.PlayerSkill.AsNoTracking().Where(s => s.PlayerId == player.Id).ToListAsync();
                     List<MineDTO> mines = await ctx.Mine.AsNoTracking().Where(m => m.PlayerId == player.Id).ToListAsync();
 
-                    List<PlayerMissionDTO> created = MissionTracker.CreateMissingNext(missions, player.Id, skills, mines, now);
+                    List<PlayerMissionDTO> created = MissionTracker.CreateMissingNext(missions, player.Id, new MissionFacts(skills, mines, inventory), now);
                     ctx.PlayerMission.AddRange(created);
                     changedMissions.AddRange(created);
                 }

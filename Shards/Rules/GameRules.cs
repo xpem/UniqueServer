@@ -135,8 +135,12 @@ namespace Shards.Rules
             Model.DTO.SkillType.DoubleDrop => _balance.DoubleDrop.MaxLevel,
             Model.DTO.SkillType.MineSlots => _balance.MineSlots.MaxLevel,
             Model.DTO.SkillType.CartCapacity => _balance.CartUpgrades.Select(u => u.Level).DefaultIfEmpty(0).Max(),
+            Model.DTO.SkillType.Workshop => _balance.Workshop.Select(s => s.Level).DefaultIfEmpty(0).Max(),
             _ => 0,
         };
+
+        /// <summary>A receita da oficina que produz o estágio informado; null se não houver.</summary>
+        public WorkshopStepOptions? FindWorkshopStep(ItemStage target) => _balance.Workshop.FirstOrDefault(s => s.Stage == target);
 
         /// <summary>A próxima melhoria do vagonete depois do nível informado; null se já está no máximo.</summary>
         public CartUpgradeOptions? NextCartUpgrade(int currentLevel) =>

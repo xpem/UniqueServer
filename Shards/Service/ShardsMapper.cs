@@ -171,6 +171,33 @@ namespace Shards.Service
             }).ToList();
         }
 
+        /// <summary>As receitas da oficina na ordem de nível; o saldo por gema considera cada estágio e o quartzo bruto.</summary>
+        public List<WorkshopRecipeRes> ToWorkshopRes(IReadOnlyCollection<InventoryItemDTO> inventory, IEnumerable<PlayerSkillDTO> skills)
+        {
+            int skillLevel = SkillLevel(skills, SkillType.Workshop);
+            OreType[] gems = Enum.GetValues<OreType>().Where(o => o != OreType.Quartz).ToArray();
+
+            return rules.Balance.Workshop.OrderBy(s => s.Level).Select(step =>
+            {
+                ItemStage source = step.Stage - 1;
+                bool canPayCost = InventoryItemService.CanAfford(inventory, step.Cost.Select(c => (c.Ore, c.Quantity)));
+
+                return new WorkshopRecipeRes
+                {
+                    Stage = step.Stage,
+                    Level = step.Level,
+                    InputQuantity = step.InputQuantity,
+                    Cost = step.Cost.Select(c => new OreAmountRes { OreType = c.Ore, Quantity = c.Quantity }).ToList(),
+                    SkillAllows = step.Level <= skillLevel,
+                    Gems = gems.Select(gem =>
+                    {
+                        int available = InventoryItemService.QuantityOf(inventory, gem, source);
+                        return new WorkshopGemRes { OreType = gem, Available = available, CanAfford = canPayCost && available >= step.InputQuantity };
+                    }).ToList(),
+                };
+            }).ToList();
+        }
+
         public ShardsStateRes ToStateRes(
             PlayerDTO player,
             IReadOnlyCollection<PlayerSkillDTO> skills,
@@ -188,6 +215,7 @@ namespace Shards.Service
             MineSlots = ToMineSlotsRes(mines, skills),
             Productions = ToProductionsRes(inventory),
             CartUpgrades = ToCartUpgradesRes(mines, inventory, skills),
+            Workshop = ToWorkshopRes(inventory, skills),
         };
     }
 }

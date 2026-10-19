@@ -29,6 +29,7 @@ namespace Shards.Config
             ValidateMines(options, errors);
             ValidateProductions(options, errors);
             ValidateCartUpgrades(options, errors);
+            ValidateWorkshop(options, errors);
 
             return errors.Count == 0 ? ValidateOptionsResult.Success : ValidateOptionsResult.Fail(errors);
         }
@@ -66,6 +67,23 @@ namespace Shards.Config
                 if (upgrade.Capacity <= 0) errors.Add($"CartUpgrades[{upgrade.Level}]: Capacity deve ser maior que 0.");
                 if (i > 0 && upgrade.Capacity <= upgrades[i - 1].Capacity) errors.Add($"CartUpgrades[{upgrade.Level}]: Capacity deve ser maior que a do nível anterior.");
                 if (upgrade.Cost.Any(c => c.Quantity <= 0)) errors.Add($"CartUpgrades[{upgrade.Level}]: toda Quantity de Cost deve ser maior que 0.");
+            }
+        }
+
+        /// <summary>Os níveis vão de 1 a N sem buracos e cada nível produz o estágio de mesmo número (1 = Polished, 2 = Faceted).</summary>
+        private static void ValidateWorkshop(GameBalanceOptions options, List<string> errors)
+        {
+            List<WorkshopStepOptions> steps = options.Workshop.OrderBy(s => s.Level).ToList();
+
+            for (int i = 0; i < steps.Count; i++)
+            {
+                WorkshopStepOptions step = steps[i];
+                string at = $"Workshop[{step.Level}]";
+
+                if (step.Level != i + 1) errors.Add($"Workshop: os níveis devem ir de 1 a {steps.Count} sem repetir nem pular (encontrado {step.Level}).");
+                if (step.Stage == ItemStage.Raw || (int)step.Stage != step.Level) errors.Add($"{at}: Stage deve ser o estágio de mesmo número do nível (1 = Polished, 2 = Faceted).");
+                if (step.InputQuantity <= 0) errors.Add($"{at}: InputQuantity deve ser maior que 0.");
+                if (step.Cost.Any(c => c.Quantity <= 0)) errors.Add($"{at}: toda Quantity de Cost deve ser maior que 0.");
             }
         }
 

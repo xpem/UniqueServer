@@ -327,7 +327,7 @@ namespace ShardsTests
         }
 
         [TestMethod]
-        public async Task Claiming_GivesFiftyXp_AndEndsTheChain()
+        public async Task Claiming_GivesFiftyXp_AndUnlocksTheNextMission()
         {
             await ReachFourthMissionAsync();
             await GiveOresAsync(OreType.Quartz, 500);
@@ -338,8 +338,8 @@ namespace ShardsTests
 
             Assert.AreEqual(50, res.Rewards.Xp);
             Assert.AreEqual(xpBefore + 50, res.Player.Experience);
-            Assert.AreEqual(1, res.Missions.Count, "não há missão depois da Primeira Gema");
-            Assert.AreEqual(0, (await Players.GetStateAsync(7)).Missions.Count);
+            Assert.AreEqual(2, res.Missions.Count, "a Primeira Gema resgatada e a próxima da cadeia (Treinamento de Vagonete)");
+            Assert.AreEqual(MissionType.CartTraining, (await Players.GetStateAsync(7)).Missions.Single().Type);
         }
 
         [TestMethod]
