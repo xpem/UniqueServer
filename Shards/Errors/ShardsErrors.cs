@@ -33,6 +33,11 @@ namespace Shards.Errors
             ShardsErrorCode.InvalidGem => "Gema inválida. A oficina lapida Ruby, Sapphire ou Emerald.",
             ShardsErrorCode.InvalidStage => "Estágio inválido. A oficina produz Polished ou Faceted.",
             ShardsErrorCode.WorkshopLocked => "A habilidade Workshop ainda não permite este estágio.",
+            ShardsErrorCode.DailyNotFound => "Missão diária não encontrada para hoje.",
+            ShardsErrorCode.DailyNotCompleted => "A missão diária ainda não foi concluída.",
+            ShardsErrorCode.DailyAlreadyClaimed => "A recompensa desta missão diária já foi resgatada.",
+            ShardsErrorCode.ChestNotReady => "Resgate todas as missões diárias de hoje para abrir o baú.",
+            ShardsErrorCode.ChestAlreadyClaimed => "O baú de hoje já foi resgatado.",
             ShardsErrorCode.InvalidTimes => "Quantidade de ações inválida.",
             ShardsErrorCode.ConcurrencyConflict => "A operação conflitou com outra em andamento. Tente novamente.",
             _ => "Erro de regra do jogo.",
@@ -51,6 +56,9 @@ namespace Shards.Errors
 
         public static OreType ParseProduction(string? value) =>
             TryParseName(value, out OreType result) ? result : throw new ShardsException(ShardsErrorCode.InvalidProduction);
+
+        public static DailyMissionType ParseDailyType(string? value) =>
+            TryParseName(value, out DailyMissionType result) ? result : throw new ShardsException(ShardsErrorCode.DailyNotFound);
 
         /// <summary>Gema da oficina: qualquer minério menos o quartzo (moeda, sem estágios).</summary>
         public static OreType ParseGem(string? value) =>

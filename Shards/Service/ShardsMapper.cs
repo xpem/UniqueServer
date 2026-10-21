@@ -198,12 +198,62 @@ namespace Shards.Service
             }).ToList();
         }
 
+        public DailyMissionRes ToDailyMissionRes(DailyMissionDTO mission)
+        {
+            DailyMissionDefinition definition = DailyMissionCatalog.Get(mission.DailyType);
+
+            return new DailyMissionRes
+            {
+                Type = mission.DailyType,
+                Name = definition.Name,
+                Description = definition.Description,
+                Status = mission.Status,
+                Progress = mission.Progress,
+                Goal = definition.Goal,
+                Reward = new MissionRewardRes
+                {
+                    Xp = definition.Reward.Xp,
+                    Ores = definition.Reward.Ores.Select(o => new OreAmountRes { OreType = o.Ore, Quantity = o.Quantity }).ToList(),
+                },
+            };
+        }
+
+        /// <summary>Sequência efetiva: vale se o último baú foi hoje ou ontem; senão quebrou.</summary>
+        public static int EffectiveStreak(PlayerDTO player, DateOnly day) =>
+            player.LastChestDay is { } last && (last == day || last == day.AddDays(-1)) ? player.DailyStreak : 0;
+
+        /// <summary>Dia da sequência que o próximo baú pagaria (hoje, ou amanhã se o de hoje já foi resgatado).</summary>
+        public static int NextChestStreakDay(PlayerDTO player, DateOnly day) =>
+            player.LastChestDay == day ? player.DailyStreak + 1 : EffectiveStreak(player, day) + 1;
+
+        public DailyStateRes ToDailyStateRes(PlayerDTO player, IEnumerable<DailyMissionDTO> today, DateOnly day)
+        {
+            List<DailyMissionDTO> rows = today.OrderBy(d => d.DailyType).ToList();
+            bool claimed = player.LastChestDay == day;
+            (int xp, int quartz) = rules.ChestReward(NextChestStreakDay(player, day));
+
+            return new DailyStateRes
+            {
+                Day = day.ToString("yyyy-MM-dd"),
+                ResetsAtUtc = rules.NextDailyResetUtc,
+                Missions = rows.Select(ToDailyMissionRes).ToList(),
+                Chest = new DailyChestRes
+                {
+                    Claimed = claimed,
+                    CanClaim = !claimed && rows.Count > 0 && rows.All(r => r.Status == MissionStatus.Claimed),
+                    Reward = new MissionRewardRes { Xp = xp, Ores = [new OreAmountRes { OreType = OreType.Quartz, Quantity = quartz }] },
+                },
+                Streak = new DailyStreakRes { Days = EffectiveStreak(player, day), CycleDays = rules.Balance.Daily.Streak.CycleDays },
+            };
+        }
+
         public ShardsStateRes ToStateRes(
             PlayerDTO player,
             IReadOnlyCollection<PlayerSkillDTO> skills,
             IReadOnlyCollection<InventoryItemDTO> inventory,
             IReadOnlyCollection<MineDTO> mines,
-            IReadOnlyCollection<PlayerMissionDTO> missions) => new()
+            IReadOnlyCollection<PlayerMissionDTO> missions,
+            DailyStateRes? daily = null) => new()
         {
             ServerTimeUtc = rules.UtcNow,
             Player = ToPlayerRes(player),
@@ -216,6 +266,7 @@ namespace Shards.Service
             Productions = ToProductionsRes(inventory),
             CartUpgrades = ToCartUpgradesRes(mines, inventory, skills),
             Workshop = ToWorkshopRes(inventory, skills),
+            Daily = daily,
         };
     }
 }

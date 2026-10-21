@@ -25,6 +25,8 @@ namespace Shards.Config
         /// <summary>Receitas da oficina (uma por estágio de destino). O nível máximo da skill Workshop é o maior nível daqui.</summary>
         public List<WorkshopStepOptions> Workshop { get; set; } = [];
 
+        public DailyOptions Daily { get; set; } = new();
+
         public List<MineOptions> Mines { get; set; } = [];
 
         /// <summary>Tipos de produção que uma mina pode ter (Quartz é o padrão de toda mina).</summary>
@@ -95,6 +97,41 @@ namespace Shards.Config
         public int InputQuantity { get; set; }
 
         public List<OreAmount> Cost { get; set; } = [];
+    }
+
+    /// <summary>
+    /// Missões diárias. O dia vira em ResetHourUtc (3 = meia-noite em Brasília). Cada dia o jogador recebe MissionsPerDay tarefas
+    /// (Login mais sorteadas) e, ao resgatar todas, pode resgatar o baú; dias seguidos de baú formam a sequência (streak).
+    /// </summary>
+    public class DailyOptions
+    {
+        public int ResetHourUtc { get; set; } = 3;
+
+        public int MissionsPerDay { get; set; } = 3;
+
+        public DailyChestOptions Chest { get; set; } = new();
+
+        public DailyStreakOptions Streak { get; set; } = new();
+    }
+
+    public class DailyChestOptions
+    {
+        public int Xp { get; set; } = 10;
+
+        public int Quartz { get; set; } = 100;
+    }
+
+    /// <summary>
+    /// Bônus da sequência: o baú do dia N do ciclo paga Quartz + (N - 1) * QuartzPerDay; no último dia do ciclo o total é multiplicado por
+    /// CycleBonusMultiplier. Depois do ciclo recomeça. Faltar um dia zera a sequência.
+    /// </summary>
+    public class DailyStreakOptions
+    {
+        public int CycleDays { get; set; } = 7;
+
+        public int QuartzPerDay { get; set; } = 20;
+
+        public int CycleBonusMultiplier { get; set; } = 2;
     }
 
     public class MineOptions

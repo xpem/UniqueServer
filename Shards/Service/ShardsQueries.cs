@@ -22,6 +22,9 @@ namespace Shards.Service
         public static Task<List<PlayerMissionDTO>> GetMissionsAsync(ShardsDbctx ctx, int playerId) =>
             ctx.PlayerMission.Where(m => m.PlayerId == playerId).ToListAsync();
 
+        public static Task<List<DailyMissionDTO>> GetDailyAsync(ShardsDbctx ctx, int playerId, DateOnly day) =>
+            ctx.DailyMission.Where(d => d.PlayerId == playerId && d.Day == day).ToListAsync();
+
         public static async Task<int> GetSkillLevelAsync(ShardsDbctx ctx, int playerId, SkillType type) =>
             await ctx.PlayerSkill
                 .Where(s => s.PlayerId == playerId && s.SkillType == type)

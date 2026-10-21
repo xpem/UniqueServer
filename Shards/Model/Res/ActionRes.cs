@@ -16,6 +16,9 @@ namespace Shards.Model.Res
 
         /// <summary>Missões que mudaram nesta ação.</summary>
         public List<MissionRes> Missions { get; set; } = [];
+
+        /// <summary>Missões diárias que mudaram nesta ação.</summary>
+        public List<DailyMissionRes> DailyMissions { get; set; } = [];
     }
 
     /// <summary>Resposta de POST /shards/mines/{mineNumber}/collect-cart.</summary>
@@ -31,6 +34,9 @@ namespace Shards.Model.Res
 
         /// <summary>Missões que mudaram nesta ação.</summary>
         public List<MissionRes> Missions { get; set; } = [];
+
+        /// <summary>Missões diárias que mudaram nesta ação.</summary>
+        public List<DailyMissionRes> DailyMissions { get; set; } = [];
     }
 
     /// <summary>Resposta de POST /shards/skills/distribute.</summary>

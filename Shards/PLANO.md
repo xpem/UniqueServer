@@ -344,3 +344,39 @@ A cadeia de missões passou de 4 para **17**, cobrindo as skills `CartCapacity`,
 - **Custo x recompensa.** `CartUpgrade` gasta 300 e paga 50: é um tutorial que gasta, de propósito.
 - **Jogador sem pontos de habilidade** fica parado em `CartTraining`/`OpenWorkshop`/`DoubleLuck` até subir de nível (mesmo comportamento da `Specialization`).
 - **Fora do escopo:** missões repetíveis (ex.: "lapide 10 gemas" a cada ciclo), para depois de observar o uso.
+
+---
+
+## 13. Evolução 7 — Missões diárias  ✅ pronta (296 testes)
+
+Sistema à parte da cadeia do tutorial, para dar motivo de voltar todo dia: 3 tarefas básicas, um baú por completar todas e uma sequência (streak) de dias seguidos.
+
+- **Liberação:** só depois de resgatar a Missão 1 (`FirstPickaxe`), para não competir com o início do tutorial. Antes disso `state.daily` é nulo.
+- **Dia do jogo:** vira em `Shards:Balance:Daily:ResetHourUtc` (3 = meia-noite em Brasília), não à meia-noite UTC. Tudo usa o relógio do servidor (`TimeProvider`).
+- **Criação preguiçosa, sem job:** o primeiro `GET /state` do dia cria as diárias (como o `CreateMissingNext`). Quem não entra, não gera linhas. A corrida de duas leituras simultâneas cai no índice único e o `ConcurrencyRetry` resolve.
+- **Quais são sorteadas:** `Login` (sempre, já concluída ao criar) mais `MissionsPerDay - 1` do pool elegível. O sorteio é determinístico por (jogador, dia): o mesmo jogador vê as mesmas tarefas a cada leitura.
+- **Pool (`DailyMissionCatalog`):**
+
+| Tipo | Tarefa | Meta | Elegível se | Avança em | Recompensa |
+|---|---|---|---|---|---|
+| `Login` | Entrar no jogo | 1 | sempre | criação do dia | 5 XP + 20 Quartz |
+| `Energy` | Gastar energia minerando | 50 | sempre | `mine` | 10 XP + 40 Quartz |
+| `Cart` | Esvaziar um vagonete | 1 | sempre | `collect-cart` | 5 XP + 40 Quartz |
+| `Quartz` | Obter quartzo | 100 | sempre | `mine`, `collect-cart` | 10 XP + 40 Quartz |
+| `Gems` | Obter gemas brutas | 20 | tem mina em gema | `mine`, `collect-cart` | 10 XP + 60 Quartz |
+| `Polish` | Polir gemas | 2 | Workshop >= 1 | `craft` (por `times`) | 15 XP + 100 Quartz |
+| `Facet` | Facetar uma gema | 1 | Workshop >= 2 | `craft` (por `times`) | 20 XP + 150 Quartz |
+
+- **Baú do dia:** exige as diárias de hoje **todas resgatadas**. Paga `Chest` (10 XP + 100 Quartz) e atualiza a sequência.
+- **Streak:** o baú do dia N do ciclo paga `100 + (N - 1) * 20` de quartzo; no 7o dia (fim do ciclo) o total é dobrado (440); depois recomeça. Resgatar o baú no dia seguinte ao último continua a sequência; faltar um dia zera (a sequência já aparece quebrada no `state`). Config em `Daily.Chest` e `Daily.Streak`, validada na subida da API.
+- **Recompensas:** só XP e quartzo bruto, sem gema e sem ponto de habilidade direto (o XP pode subir de nível como em qualquer ação).
+- **API:**
+  - `GET /state` ganhou `daily` (`day`, `resetsAtUtc`, `missions[]`, `chest { claimed, canClaim, reward }`, `streak { days, cycleDays }`).
+  - `POST /Shards/daily/{type}/claim` (ex.: `Energy`) e `POST /Shards/daily/chest/claim`; ambos devolvem `DailyClaimRes` (`rewards`, `levelUp`, `player`, `inventory`, `daily`).
+  - `mine`, `collect-cart` e `craft` ganharam `dailyMissions` (as que mudaram), separado de `missions` (tutorial).
+- **Erros novos (23 a 27):** `DailyNotFound` (não é uma das de hoje, tipo inválido, ou de ontem), `DailyNotCompleted`, `DailyAlreadyClaimed`, `ChestNotReady`, `ChestAlreadyClaimed`.
+- **Banco:** migration `AddDailyMissions` (tabela `DailyMission`, única por `PlayerId + Day + DailyType`, e `Player.DailyStreak` / `LastChestDay`). **Aplicar com `update-database -Context ShardsDbctx`.** Rollback: o `Down` apaga a tabela e as colunas (a sequência e o histórico de diárias se perdem).
+- **Limitações assumidas:**
+  - Ação feita depois da virada do dia, **sem refazer o `GET /state`**, não avança nada (as diárias do novo dia ainda não existem): o front deve refazer o `state` ao passar de `resetsAtUtc`.
+  - O que o vagonete entrega dentro de `production` e `upgrade-cart` não conta para as diárias.
+  - Diárias de ontem não resgatadas se perdem na virada.

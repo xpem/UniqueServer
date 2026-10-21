@@ -48,7 +48,29 @@ namespace Shards.Service
                 missions.AddRange(created);
             }
 
-            return mapper.ToStateRes(player, skills, inventory, mines, missions);
+            // missões diárias: criadas de forma preguiçosa na primeira leitura do dia (depois da Missão 1 resgatada)
+            DailyStateRes? daily = null;
+            if (DailyTracker.IsUnlocked(missions))
+            {
+                DateOnly day = rules.DailyDay;
+                List<DailyMissionDTO> today = await ShardsQueries.GetDailyAsync(ctx, player.Id, day);
+
+                var facts = new DailyFacts(
+                    HasGemMine: mines.Any(m => m.ProductionType != OreType.Quartz),
+                    WorkshopLevel: skills.Where(s => s.SkillType == SkillType.Workshop).Select(s => s.Level).FirstOrDefault());
+
+                List<DailyMissionDTO> createdDaily = DailyTracker.CreateMissingToday(today, player.Id, day, rules.Balance.Daily.MissionsPerDay, facts, rules.UtcNow);
+                if (createdDaily.Count > 0)
+                {
+                    ctx.DailyMission.AddRange(createdDaily);
+                    await ctx.SaveChangesAsync();
+                    today.AddRange(createdDaily);
+                }
+
+                daily = mapper.ToDailyStateRes(player, today, day);
+            }
+
+            return mapper.ToStateRes(player, skills, inventory, mines, missions, daily);
         });
 
         private async Task<PlayerDTO> FindOrCreatePlayerAsync(ShardsDbctx ctx, int uid)

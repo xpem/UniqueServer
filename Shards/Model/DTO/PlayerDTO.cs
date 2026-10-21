@@ -25,6 +25,12 @@ namespace Shards.Model.DTO
 
         public required DateTime LastEnergyUpdateUtc { get; set; }
 
+        /// <summary>Dias seguidos com o baú diário resgatado (vale enquanto LastChestDay for hoje ou ontem).</summary>
+        public int DailyStreak { get; set; }
+
+        /// <summary>Último dia em que o baú diário foi resgatado.</summary>
+        public DateOnly? LastChestDay { get; set; }
+
         public uint Version { get; set; }
     }
 }

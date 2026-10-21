@@ -60,6 +60,11 @@ namespace Shards.Service
                 changedMissions.AddRange(MissionTracker.AdvanceChanged(
                     missions, target == ItemStage.Polished ? MissionType.PolishBatch : MissionType.FacetBatch, times, now));
 
+                // diárias: lapidações do dia
+                List<DailyMissionDTO> today = await ShardsQueries.GetDailyAsync(ctx, player.Id, rules.DailyDay);
+                List<DailyMissionDTO> changedDaily = DailyTracker.AdvanceChanged(
+                    today, target == ItemStage.Polished ? DailyMissionType.Polish : DailyMissionType.Facet, times, now);
+
                 await ctx.SaveChangesAsync();
 
                 List<InventoryItemRes> spent = [new() { OreType = ore, Stage = source, Quantity = inputTotal }];
@@ -71,6 +76,7 @@ namespace Shards.Service
                     Spent = spent,
                     Inventory = mapper.ToInventoryDetailRes(inventory),
                     Missions = changedMissions.Select(mapper.ToMissionRes).ToList(),
+                    DailyMissions = changedDaily.Select(mapper.ToDailyMissionRes).ToList(),
                 };
             });
         }

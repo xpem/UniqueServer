@@ -25,5 +25,10 @@ namespace Shards.Errors
         InvalidGem = 20,
         InvalidStage = 21,
         WorkshopLocked = 22,
+        DailyNotFound = 23,
+        DailyNotCompleted = 24,
+        DailyAlreadyClaimed = 25,
+        ChestNotReady = 26,
+        ChestAlreadyClaimed = 27,
     }
 }

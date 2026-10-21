@@ -22,6 +22,50 @@ namespace Shards.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Shards.Model.DTO.DailyMissionDTO", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("ClaimedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DailyType")
+                        .HasColumnType("integer");
+
+                    b.Property<DateOnly>("Day")
+                        .HasColumnType("date");
+
+                    b.Property<int>("PlayerId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Progress")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlayerId", "Day", "DailyType")
+                        .IsUnique()
+                        .HasDatabaseName("IX_DailyMission_PlayerId_Day_DailyType");
+
+                    b.ToTable("DailyMission");
+                });
+
             modelBuilder.Entity("Shards.Model.DTO.InventoryItemDTO", b =>
                 {
                     b.Property<int>("Id")
@@ -117,11 +161,17 @@ namespace Shards.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int>("DailyStreak")
+                        .HasColumnType("integer");
+
                     b.Property<int>("Energy")
                         .HasColumnType("integer");
 
                     b.Property<int>("Experience")
                         .HasColumnType("integer");
+
+                    b.Property<DateOnly?>("LastChestDay")
+                        .HasColumnType("date");
 
                     b.Property<DateTime>("LastEnergyUpdateUtc")
                         .HasColumnType("timestamp with time zone");
@@ -227,6 +277,15 @@ namespace Shards.Migrations
                         .HasDatabaseName("IX_PlayerSkill_PlayerId_SkillType");
 
                     b.ToTable("PlayerSkill");
+                });
+
+            modelBuilder.Entity("Shards.Model.DTO.DailyMissionDTO", b =>
+                {
+                    b.HasOne("Shards.Model.DTO.PlayerDTO", null)
+                        .WithMany()
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Shards.Model.DTO.InventoryItemDTO", b =>

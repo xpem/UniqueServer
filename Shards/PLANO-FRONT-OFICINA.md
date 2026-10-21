@@ -138,3 +138,49 @@ Nenhum endpoint novo. O que muda para o front:
 - **Missão nascida concluída**: se o jogador já fez a ação antes, a missão aparece direto como `Completed` (pronta para resgatar). Tratar o estado `Completed` ao receber missão nova.
 - **Cadeia longa**: `state.missions` continua trazendo só as visíveis (ativas ou concluídas não resgatadas), normalmente 1 por vez. Quem já resgatou a `FirstGem` ganha a `CartTraining` no próximo `GET /state`.
 - **Dependência de pontos de habilidade**: `CartTraining`, `OpenWorkshop` e `DoubleLuck` pedem pontos; sem pontos o jogador precisa subir de nível. Vale um aviso/atalho nessas missões.
+
+---
+
+## 13. Atualização — missões diárias
+
+Contrato novo, separado das missões do tutorial (`missions`). Tudo vem do servidor; nenhum texto, meta ou recompensa fica no front.
+
+### `state.daily` (nulo até o jogador resgatar a Missão 1; esconder a seção nesse caso)
+```json
+"daily": {
+  "day": "2026-10-21",
+  "resetsAtUtc": "2026-10-22T03:00:00Z",
+  "missions": [
+    { "type": "Login",  "name": "Presença", "description": "Entre no jogo hoje.", "status": "Completed", "progress": 1, "goal": 1,
+      "reward": { "xp": 5, "ores": [ { "oreType": "Quartz", "quantity": 20 } ] } },
+    { "type": "Energy", "name": "Mão na Massa", "status": "Active", "progress": 12, "goal": 50, "...": "..." }
+  ],
+  "chest":  { "claimed": false, "canClaim": false, "reward": { "xp": 10, "ores": [ { "oreType": "Quartz", "quantity": 120 } ] } },
+  "streak": { "days": 1, "cycleDays": 7 }
+}
+```
+- `type`: `Login | Energy | Cart | Quartz | Gems | Polish | Facet`. Estados: `Active` (em andamento), `Completed` (pronta para resgatar), `Claimed` (resgatada). Sempre 3 por dia (Login mais 2 sorteadas, dependem do progresso do jogador).
+- `chest.canClaim` só fica `true` quando as 3 diárias estão `Claimed`. `chest.reward` mostra o que o **próximo** baú paga (o de hoje, ou o de amanhã se `claimed`).
+- `streak.days`: dias seguidos com baú resgatado; vale 0 se a sequência quebrou. O 7o dia do ciclo paga o dobro: vale destacar na UI.
+- **Contagem regressiva:** usar `resetsAtUtc`. Ao passar desse instante, **refazer `GET /state`** (as diárias do novo dia só existem depois dele; ações antes disso não contam para elas).
+
+### Rotas
+- `POST /Shards/daily/{type}/claim` (ex.: `/Shards/daily/Energy/claim`) e `POST /Shards/daily/chest/claim`. Resposta (as duas): `{ rewards, levelUp, player, inventory, daily }`, com o `daily` já atualizado (substituir o do state). `inventory` é a lista bruta de sempre.
+- `mine`, `collect-cart` e `craft` agora trazem `dailyMissions`: as diárias que mudaram, no mesmo formato de `daily.missions[]`. Mesclar por `type` em `state.daily.missions`.
+
+### Erros (HTTP 400, nada é gravado)
+`DailyNotFound` (tipo que não é de hoje; também ocorre ao tentar resgatar uma de ontem depois da virada), `DailyNotCompleted`, `DailyAlreadyClaimed`, `ChestNotReady` (falta resgatar alguma diária), `ChestAlreadyClaimed`.
+
+### Telas e tarefas
+1. Painel "Missões do dia" (ou aba): barra `progress/goal` por missão, botão **Resgatar** quando `Completed`, selo quando `Claimed`.
+2. Baú do dia: botão habilitado só com `canClaim`; mostrar a recompensa prevista e o `streak` (ex.: "3/7 dias").
+3. Contagem até `resetsAtUtc` e refetch do `state` ao zerar.
+4. Mesclar `dailyMissions` das respostas de `mine`/`collect-cart`/`craft`; destacar quando uma virar `Completed` (toast/ponto de notificação no painel).
+5. Esconder tudo se `daily` for nulo.
+
+### Critérios de aceite
+- [ ] Sem `daily`, nada de diária aparece; após resgatar a Missão 1, o painel surge.
+- [ ] Progresso muda ao minerar, coletar e lapidar, sem recarregar a página.
+- [ ] Resgate individual e baú funcionam; erros têm mensagem amigável.
+- [ ] Ao passar do `resetsAtUtc` o front refaz o `state` e mostra as novas diárias.
+- [ ] A sequência e o bônus do 7o dia aparecem corretamente; sequência quebrada mostra 0.

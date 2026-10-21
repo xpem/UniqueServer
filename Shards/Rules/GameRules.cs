@@ -128,6 +128,28 @@ namespace Shards.Rules
 
         #endregion
 
+        #region Missões diárias
+
+        /// <summary>Dia do jogo atual: o dia vira em Daily.ResetHourUtc (não à meia-noite UTC).</summary>
+        public DateOnly DailyDay => DateOnly.FromDateTime(UtcNow.AddHours(-_balance.Daily.ResetHourUtc));
+
+        /// <summary>Instante da próxima virada do dia.</summary>
+        public DateTime NextDailyResetUtc => DateTime.SpecifyKind(DailyDay.AddDays(1).ToDateTime(TimeOnly.MinValue).AddHours(_balance.Daily.ResetHourUtc), DateTimeKind.Utc);
+
+        /// <summary>Recompensa do baú para o dia N da sequência (1 = primeiro): Quartz + (N do ciclo - 1) * QuartzPerDay, multiplicado no último dia do ciclo.</summary>
+        public (int Xp, int Quartz) ChestReward(int streakDay)
+        {
+            DailyStreakOptions streak = _balance.Daily.Streak;
+            int position = (Math.Max(1, streakDay) - 1) % streak.CycleDays + 1;
+
+            int quartz = _balance.Daily.Chest.Quartz + (position - 1) * streak.QuartzPerDay;
+            if (position == streak.CycleDays) quartz *= streak.CycleBonusMultiplier;
+
+            return (_balance.Daily.Chest.Xp, quartz);
+        }
+
+        #endregion
+
         #region Skills
 
         public int MaxSkillLevel(Model.DTO.SkillType type) => type switch

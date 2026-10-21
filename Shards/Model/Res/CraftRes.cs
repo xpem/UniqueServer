@@ -14,5 +14,8 @@ namespace Shards.Model.Res
 
         /// <summary>Missões que mudaram nesta ação.</summary>
         public List<MissionRes> Missions { get; set; } = [];
+
+        /// <summary>Missões diárias que mudaram nesta ação.</summary>
+        public List<DailyMissionRes> DailyMissions { get; set; } = [];
     }
 }

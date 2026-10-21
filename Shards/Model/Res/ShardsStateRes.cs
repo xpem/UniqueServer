@@ -217,5 +217,8 @@ namespace Shards.Model.Res
 
         /// <summary>Receitas da oficina, com custo, skill e saldo por gema.</summary>
         public List<WorkshopRecipeRes> Workshop { get; set; } = [];
+
+        /// <summary>Missões diárias; nulo até o jogador resgatar a Missão 1.</summary>
+        public DailyStateRes? Daily { get; set; }
     }
 }

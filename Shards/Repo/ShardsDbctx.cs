@@ -15,9 +15,11 @@ namespace Shards.Repo
 
         public virtual DbSet<PlayerMissionDTO> PlayerMission => Set<PlayerMissionDTO>();
 
+        public virtual DbSet<DailyMissionDTO> DailyMission => Set<DailyMissionDTO>();
+
         //migrations
         //no console do gerenciador de pacotes selecione o projeto Shards:
-        //EntityFrameworkCore\Add-Migration "Init" -Context ShardsDbctx
+        //EntityFrameworkCore\Add-Migration "21102026" -Context ShardsDbctx
         //EntityFrameworkCore\update-database -Context ShardsDbctx
 
         //to remove last migration snapshot
@@ -81,6 +83,17 @@ namespace Shards.Repo
                 entity.HasIndex(e => new { e.PlayerId, e.MissionType })
                     .IsUnique()
                     .HasDatabaseName("IX_PlayerMission_PlayerId_MissionType");
+
+                ConfigureVersion(entity);
+            });
+
+            modelBuilder.Entity<DailyMissionDTO>(entity =>
+            {
+                entity.HasOne<PlayerDTO>().WithMany().HasForeignKey(e => e.PlayerId).OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(e => new { e.PlayerId, e.Day, e.DailyType })
+                    .IsUnique()
+                    .HasDatabaseName("IX_DailyMission_PlayerId_Day_DailyType");
 
                 ConfigureVersion(entity);
             });

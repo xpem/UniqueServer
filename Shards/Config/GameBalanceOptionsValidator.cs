@@ -31,6 +31,13 @@ namespace Shards.Config
             ValidateCartUpgrades(options, errors);
             ValidateWorkshop(options, errors);
 
+            if (options.Daily.ResetHourUtc is < 0 or > 23) errors.Add("Daily.ResetHourUtc deve ficar entre 0 e 23.");
+            if (options.Daily.MissionsPerDay is < 1 or > 7) errors.Add("Daily.MissionsPerDay deve ficar entre 1 e 7.");
+            if (options.Daily.Chest.Xp < 0 || options.Daily.Chest.Quartz < 0) errors.Add("Daily.Chest não pode ter valores negativos.");
+            if (options.Daily.Streak.CycleDays < 1) errors.Add("Daily.Streak.CycleDays deve ser pelo menos 1.");
+            if (options.Daily.Streak.QuartzPerDay < 0) errors.Add("Daily.Streak.QuartzPerDay não pode ser negativo.");
+            if (options.Daily.Streak.CycleBonusMultiplier < 1) errors.Add("Daily.Streak.CycleBonusMultiplier deve ser pelo menos 1.");
+
             return errors.Count == 0 ? ValidateOptionsResult.Success : ValidateOptionsResult.Fail(errors);
         }
 

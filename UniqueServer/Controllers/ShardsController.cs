@@ -13,8 +13,22 @@ namespace UniqueServer.Controllers
     [ApiController]
     [Authorize]
     [EnableRateLimiting(ShardsRateLimit.PolicyName)]
-    public class ShardsController(IPlayerService playerService, IMineService mineService, IPlayerSkillService playerSkillService, IPlayerMissionService playerMissionService, IInventoryService inventoryService, IWorkshopService workshopService) : BaseController
+    public class ShardsController(IPlayerService playerService, IMineService mineService, IPlayerSkillService playerSkillService, IPlayerMissionService playerMissionService, IInventoryService inventoryService, IWorkshopService workshopService, IDailyService dailyService) : BaseController
     {
+        /// <summary>Resgata o baú de hoje (exige todas as missões diárias resgatadas) e atualiza a sequência de dias.</summary>
+        [HttpPost("daily/chest/claim")]
+        [ProducesResponseType<DailyClaimRes>(StatusCodes.Status200OK)]
+        [ProducesResponseType<ShardsErrorRes>(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType<ShardsErrorRes>(StatusCodes.Status409Conflict)]
+        public Task<IActionResult> ClaimDailyChest() => RunAsync(() => dailyService.ClaimChestAsync(Uid));
+
+        /// <summary>Resgata a recompensa de uma missão diária concluída hoje (ex.: Energy).</summary>
+        [HttpPost("daily/{type}/claim")]
+        [ProducesResponseType<DailyClaimRes>(StatusCodes.Status200OK)]
+        [ProducesResponseType<ShardsErrorRes>(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType<ShardsErrorRes>(StatusCodes.Status409Conflict)]
+        public Task<IActionResult> ClaimDaily(string type) => RunAsync(() => dailyService.ClaimAsync(Uid, type));
+
         /// <summary>
         /// Oficina de Lapidação: gasta gemas do estágio anterior e minério bruto e produz gemas Polished ou Faceted
         /// (instantâneo, sem risco). Exige a skill Workshop (nível 1 = Polished, nível 2 = Faceted).

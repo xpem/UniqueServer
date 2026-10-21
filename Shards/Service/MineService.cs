@@ -96,6 +96,11 @@ namespace Shards.Service
                 // Colecionador: a mineração de uma gema nova cria a linha dela no inventário
                 changedMissions.AddRange(MissionTracker.CompleteSatisfiedChanged(missions, [MissionType.Collector], new MissionFacts(Inventory: inventory), now));
 
+                // diárias: energia gasta e minérios obtidos (a skill DoubleDrop conta, já está em drops)
+                List<DailyMissionDTO> today = await ShardsQueries.GetDailyAsync(ctx, player.Id, rules.DailyDay);
+                List<DailyMissionDTO> changedDaily = DailyTracker.AdvanceChanged(
+                    today, DailyTracker.OreProgress(drops).Append((DailyMissionType.Energy, cost)), now);
+
                 await ctx.SaveChangesAsync();
 
                 return new MineRes
@@ -106,6 +111,7 @@ namespace Shards.Service
                     LevelUp = xp.LevelsGained > 0,
                     Player = mapper.ToPlayerRes(player),
                     Missions = changedMissions.Select(mapper.ToMissionRes).ToList(),
+                    DailyMissions = changedDaily.Select(mapper.ToDailyMissionRes).ToList(),
                 };
             });
         }
@@ -178,6 +184,10 @@ namespace Shards.Service
             List<PlayerMissionDTO> changedMissions = wasFull ? MissionTracker.AdvanceChanged(missions, MissionType.FullCart, 1, now) : [];
             changedMissions.AddRange(MissionTracker.CompleteSatisfiedChanged(missions, [MissionType.Collector], new MissionFacts(Inventory: inventory), now));
 
+            // diárias: vagonete esvaziado e minérios obtidos
+            List<DailyMissionDTO> today = await ShardsQueries.GetDailyAsync(ctx, player.Id, rules.DailyDay);
+            List<DailyMissionDTO> changedDaily = DailyTracker.AdvanceChanged(today, DailyTracker.OreProgress(collected).Append((DailyMissionType.Cart, 1)), now);
+
             await ctx.SaveChangesAsync();
 
             return new CollectCartRes
@@ -187,6 +197,7 @@ namespace Shards.Service
                 Cart = mapper.ToMineStateRes(mine),
                 Inventory = mapper.ToInventoryRes(inventory),
                 Missions = changedMissions.Select(mapper.ToMissionRes).ToList(),
+                DailyMissions = changedDaily.Select(mapper.ToDailyMissionRes).ToList(),
             };
         });
 
