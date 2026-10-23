@@ -63,6 +63,7 @@
     <ProjectReference Include="..\FinancialService\FinancialService.csproj" />
     <ProjectReference Include="..\InventoryService\InventoryServices.csproj" />
     <ProjectReference Include="..\UserService\UserManagementService.csproj" />
+    <ProjectReference Include="..\Shards\Shards.csproj" />
   </ItemGroup>
 
   <ItemGroup>

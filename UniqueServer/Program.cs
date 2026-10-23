@@ -123,15 +123,22 @@ app.Use(async (context, next) =>
     }
 });
 
-app.UseRateLimiter();
-
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
 
+// depois da autenticação, para a política "shards" poder particionar por usuário (claim uid), e antes da
+// autorização, para as respostas 401/403 continuarem contando no limite (como quando o limiter vinha primeiro)
+app.UseRateLimiter();
+
 app.UseAuthorization();
 
-app.MapControllers().RequireRateLimiting("fixed");
+// "fixed" vale para todos os controllers, exceto os que declaram a própria política (ex.: Shards)
+app.MapControllers().Add(endpoint =>
+{
+    if (!endpoint.Metadata.OfType<Microsoft.AspNetCore.RateLimiting.EnableRateLimitingAttribute>().Any())
+        endpoint.Metadata.Add(new Microsoft.AspNetCore.RateLimiting.EnableRateLimitingAttribute("fixed"));
+});
 
 try
 {
