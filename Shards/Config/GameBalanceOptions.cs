@@ -31,6 +31,12 @@ namespace Shards.Config
 
         /// <summary>Tipos de produção que uma mina pode ter (Quartz é o padrão de toda mina).</summary>
         public List<ProductionOptions> Productions { get; set; } = [];
+
+        /// <summary>Catálogo de minérios: tipo, elemento, se pode ser lapidado e o ataque por estágio. Todo OreType precisa ter uma entrada.</summary>
+        public List<OreOptions> Ores { get; set; } = [];
+
+        /// <summary>Regras de combate: o ciclo de elementos e os multiplicadores de vantagem e desvantagem.</summary>
+        public CombatOptions Combat { get; set; } = new();
     }
 
     public class EnergyOptions
@@ -159,6 +165,46 @@ namespace Shards.Config
         public List<OreAmount> SwitchCost { get; set; } = [];
 
         public List<DropOptions> Drops { get; set; } = [];
+    }
+
+    /// <summary>
+    /// Uma entrada do catálogo de minérios. Um minério novo é uma linha aqui mais o valor no enum OreType (sem lista fixa no código).
+    /// </summary>
+    public class OreOptions
+    {
+        public OreType Ore { get; set; }
+
+        public OreKind Kind { get; set; }
+
+        /// <summary>Elemento do minério (Neutral para a moeda e para exclusivos neutros).</summary>
+        public Element Element { get; set; } = Element.Neutral;
+
+        /// <summary>A oficina aceita lapidar este minério. A ametista só será craftable quando for possível obtê-la.</summary>
+        public bool Craftable { get; set; }
+
+        /// <summary>Ataque por estágio (Polished e Faceted). Gema bruta (Raw) não ataca.</summary>
+        public Dictionary<ItemStage, int> Attack { get; set; } = new();
+
+        /// <summary>Defesa por estágio (Polished e Faceted): quanto a gema absorve do contra-ataque. Gema bruta (Raw) não defende.</summary>
+        public Dictionary<ItemStage, int> Defense { get; set; } = new();
+    }
+
+    /// <summary>
+    /// Combate. Effectiveness é a matriz de efetividade (atacante x defensor): o multiplicador que o ataque de um elemento recebe contra
+    /// a defesa de outro (1,5 = vantagem; 0,75 = desvantagem; 0 = imune). Par que não aparece na matriz vale 1.
+    /// </summary>
+    public class CombatOptions
+    {
+        public List<EffectivenessOptions> Effectiveness { get; set; } = [];
+    }
+
+    public class EffectivenessOptions
+    {
+        public Element Attacker { get; set; }
+
+        public Element Defender { get; set; }
+
+        public double Multiplier { get; set; } = 1;
     }
 
     public class DropOptions

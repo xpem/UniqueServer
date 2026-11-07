@@ -175,7 +175,7 @@ namespace Shards.Service
         public List<WorkshopRecipeRes> ToWorkshopRes(IReadOnlyCollection<InventoryItemDTO> inventory, IEnumerable<PlayerSkillDTO> skills)
         {
             int skillLevel = SkillLevel(skills, SkillType.Workshop);
-            OreType[] gems = Enum.GetValues<OreType>().Where(o => o != OreType.Quartz).ToArray();
+            IReadOnlyCollection<OreType> gems = rules.CraftableOres;
 
             return rules.Balance.Workshop.OrderBy(s => s.Level).Select(step =>
             {
@@ -197,6 +197,23 @@ namespace Shards.Service
                 };
             }).ToList();
         }
+
+        /// <summary>O catálogo de minérios na ordem da configuração.</summary>
+        public List<OreInfoRes> ToOresRes() => rules.Balance.Ores.Select(o => new OreInfoRes
+        {
+            OreType = o.Ore,
+            Kind = o.Kind,
+            Element = o.Element,
+            Craftable = o.Craftable,
+            Attack = o.Attack.OrderBy(a => a.Key).Select(a => new OreAttackRes { Stage = a.Key, Attack = a.Value }).ToList(),
+            Defense = o.Defense.OrderBy(d => d.Key).Select(d => new OreDefenseRes { Stage = d.Key, Defense = d.Value }).ToList(),
+        }).ToList();
+
+        public CombatRes ToCombatRes() => new()
+        {
+            Effectiveness = rules.Balance.Combat.Effectiveness
+                .Select(e => new EffectivenessRes { Attacker = e.Attacker, Defender = e.Defender, Multiplier = e.Multiplier }).ToList(),
+        };
 
         public DailyMissionRes ToDailyMissionRes(DailyMissionDTO mission)
         {
@@ -266,6 +283,8 @@ namespace Shards.Service
             Productions = ToProductionsRes(inventory),
             CartUpgrades = ToCartUpgradesRes(mines, inventory, skills),
             Workshop = ToWorkshopRes(inventory, skills),
+            Ores = ToOresRes(),
+            Combat = ToCombatRes(),
             Daily = daily,
         };
     }

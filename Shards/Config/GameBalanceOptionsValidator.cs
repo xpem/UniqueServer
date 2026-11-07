@@ -30,6 +30,8 @@ namespace Shards.Config
             ValidateProductions(options, errors);
             ValidateCartUpgrades(options, errors);
             ValidateWorkshop(options, errors);
+            ValidateCombat(options, errors);
+            ValidateOres(options, errors);
 
             if (options.Daily.ResetHourUtc is < 0 or > 23) errors.Add("Daily.ResetHourUtc deve ficar entre 0 e 23.");
             if (options.Daily.MissionsPerDay is < 1 or > 7) errors.Add("Daily.MissionsPerDay deve ficar entre 1 e 7.");
@@ -94,6 +96,70 @@ namespace Shards.Config
             }
         }
 
+        /// <summary>A matriz não repete pares, não usa Neutral e não tem multiplicador negativo (0 = imune).</summary>
+        private static void ValidateCombat(GameBalanceOptions options, List<string> errors)
+        {
+            foreach (EffectivenessOptions e in options.Combat.Effectiveness)
+            {
+                string at = $"Combat.Effectiveness[{e.Attacker} x {e.Defender}]";
+
+                if (e.Attacker == Element.Neutral || e.Defender == Element.Neutral) errors.Add($"{at}: Neutral não entra na matriz (só o quartzo é neutro e ele não luta).");
+                if (e.Multiplier < 0) errors.Add($"{at}: Multiplier não pode ser negativo (use 0 para imune).");
+            }
+
+            foreach (var duplicated in options.Combat.Effectiveness.GroupBy(e => (e.Attacker, e.Defender)).Where(g => g.Count() > 1))
+                errors.Add($"Combat.Effectiveness: o par {duplicated.Key.Attacker} x {duplicated.Key.Defender} está repetido.");
+        }
+
+        /// <summary>
+        /// Todo OreType tem exatamente uma entrada (esquecer uma ao criar um minério novo falha na subida). Só o Quartz é a moeda.
+        /// Quem não é moeda precisa de ataque para Polished e Faceted; gema precisa de elemento; o elemento precisa estar no ciclo.
+        /// </summary>
+        private static void ValidateOres(GameBalanceOptions options, List<string> errors)
+        {
+            foreach (var duplicated in options.Ores.GroupBy(o => o.Ore).Where(g => g.Count() > 1))
+                errors.Add($"Ores: {duplicated.Key} está repetido.");
+
+            foreach (OreType ore in Enum.GetValues<OreType>())
+                if (!options.Ores.Any(o => o.Ore == ore))
+                    errors.Add($"Ores: falta a entrada de {ore} (todo minério do jogo precisa estar no catálogo).");
+
+            OreOptions? quartz = options.Ores.FirstOrDefault(o => o.Ore == OreType.Quartz);
+            if (quartz is not null && quartz.Kind != OreKind.Currency) errors.Add("Ores: Quartz deve ser do tipo Currency (a moeda).");
+            if (options.Ores.Count(o => o.Kind == OreKind.Currency) > 1) errors.Add("Ores: só pode haver uma moeda (Currency).");
+
+            foreach (OreOptions ore in options.Ores)
+            {
+                string at = $"Ores[{ore.Ore}]";
+
+                if (ore.Kind == OreKind.Currency)
+                {
+                    if (ore.Element != Element.Neutral) errors.Add($"{at}: a moeda não tem elemento.");
+                    if (ore.Craftable) errors.Add($"{at}: a moeda não pode ser lapidada (Craftable).");
+                    if (ore.Attack.Count > 0) errors.Add($"{at}: a moeda não ataca.");
+                    if (ore.Defense.Count > 0) errors.Add($"{at}: a moeda não defende.");
+                    continue;
+                }
+
+                if (ore.Attack.ContainsKey(ItemStage.Raw)) errors.Add($"{at}: o estágio Raw não ataca (só Polished e Faceted).");
+                if (ore.Defense.ContainsKey(ItemStage.Raw)) errors.Add($"{at}: o estágio Raw não defende (só Polished e Faceted).");
+
+                foreach (ItemStage stage in new[] { ItemStage.Polished, ItemStage.Faceted })
+                {
+                    if (!ore.Attack.TryGetValue(stage, out int attack) || attack <= 0)
+                        errors.Add($"{at}: Attack precisa de um valor maior que 0 para {stage}.");
+                    if (!ore.Defense.TryGetValue(stage, out int defense) || defense <= 0)
+                        errors.Add($"{at}: Defense precisa de um valor maior que 0 para {stage}.");
+                }
+
+                // só o quartzo é neutro; todo outro minério tem elemento, e o elemento precisa existir na matriz (como atacante ou defensor)
+                if (ore.Element == Element.Neutral)
+                    errors.Add($"{at}: só o quartzo (moeda) pode ser Neutral; todo outro minério precisa de um elemento.");
+                else if (!options.Combat.Effectiveness.Any(e => e.Attacker == ore.Element || e.Defender == ore.Element))
+                    errors.Add($"{at}: o elemento {ore.Element} precisa aparecer em Combat.Effectiveness.");
+            }
+        }
+
         /// <summary>Toda mina nasce produzindo Quartzo; as demais produções (gemas) são opções que o jogador compra por mina.</summary>
         private static void ValidateProductions(GameBalanceOptions options, List<string> errors)
         {
@@ -114,6 +180,8 @@ namespace Shards.Config
                     errors.Add($"{at}: os Drops precisam incluir o próprio minério da produção.");
 
                 if (production.SwitchCost.Any(c => c.Quantity <= 0)) errors.Add($"{at}: toda Quantity de SwitchCost deve ser maior que 0.");
+                if (options.Ores.FirstOrDefault(o => o.Ore == production.Focus)?.Kind == OreKind.Exclusive)
+                    errors.Add($"{at}: um minério exclusivo (de depósito) não pode ser o tipo de produção de uma mina.");
             }
         }
     }

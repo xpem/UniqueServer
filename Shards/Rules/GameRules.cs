@@ -150,6 +150,35 @@ namespace Shards.Rules
 
         #endregion
 
+        #region Catálogo de minérios e combate
+
+        public OreOptions? FindOre(OreType ore) => _balance.Ores.FirstOrDefault(o => o.Ore == ore);
+
+        /// <summary>Gemas de mina comum (Kind Gem): as missões de coleção (Collector, FullSet) olham este conjunto.</summary>
+        public IReadOnlyCollection<OreType> GemOres => _balance.Ores.Where(o => o.Kind == OreKind.Gem).Select(o => o.Ore).ToList();
+
+        /// <summary>Minérios que a oficina aceita lapidar, na ordem do catálogo.</summary>
+        public IReadOnlyCollection<OreType> CraftableOres => _balance.Ores.Where(o => o.Craftable).Select(o => o.Ore).ToList();
+
+        public bool IsCraftable(OreType ore) => FindOre(ore)?.Craftable == true;
+
+        public Element ElementOf(OreType ore) => FindOre(ore)?.Element ?? Element.Neutral;
+
+        /// <summary>Ataque do minério no estágio informado (0 se não ataca: bruto, quartzo ou sem entrada).</summary>
+        public int AttackOf(OreType ore, ItemStage stage) => FindOre(ore)?.Attack.GetValueOrDefault(stage) ?? 0;
+
+        /// <summary>Defesa do minério no estágio informado (0 se não defende: bruto, quartzo ou sem entrada).</summary>
+        public int DefenseOf(OreType ore, ItemStage stage) => FindOre(ore)?.Defense.GetValueOrDefault(stage) ?? 0;
+
+        /// <summary>
+        /// Multiplicador do ataque de um elemento contra a defesa de outro, pela matriz de efetividade
+        /// (1,5 = vantagem, 0,75 = desvantagem, 0 = imune). Par ausente na matriz, ou Neutral, vale 1.
+        /// </summary>
+        public double ElementMultiplier(Element attacker, Element defender) =>
+            _balance.Combat.Effectiveness.FirstOrDefault(e => e.Attacker == attacker && e.Defender == defender)?.Multiplier ?? 1.0;
+
+        #endregion
+
         #region Skills
 
         public int MaxSkillLevel(Model.DTO.SkillType type) => type switch

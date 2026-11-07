@@ -12,5 +12,8 @@ namespace Shards.Model.DTO
         Ruby = 4,
         Sapphire = 5,
         Emerald = 6,
+
+        /// <summary>Ametista: minério exclusivo dos depósitos (minas finitas). Não é produzida por minas comuns.</summary>
+        Amethyst = 7,
     }
 }

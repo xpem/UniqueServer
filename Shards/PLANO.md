@@ -380,3 +380,36 @@ Sistema à parte da cadeia do tutorial, para dar motivo de voltar todo dia: 3 ta
   - Ação feita depois da virada do dia, **sem refazer o `GET /state`**, não avança nada (as diárias do novo dia ainda não existem): o front deve refazer o `state` ao passar de `resetsAtUtc`.
   - O que o vagonete entrega dentro de `production` e `upgrade-cart` não conta para as diárias.
   - Diárias de ontem não resgatadas se perdem na virada.
+
+---
+
+## 14. Evolução 8 — Catálogo de minérios, ametista e regras de combate  ✅ pronta (329 testes)
+
+Fatia 1 das minas finitas com defesa (`PLANO-MINAS-FINITAS.md`): **só dados**, sem mudar nenhum comportamento do jogo.
+
+- **Catálogo de minérios na configuração (`Shards:Balance:Ores`):** uma entrada por `OreType` com `Kind` (`Currency`, `Gem` ou `Exclusive`), `Element`, `Craftable` e `Attack` por estágio (`Polished`, `Faceted`). **Um minério novo é uma linha de configuração mais o valor no enum**, sem lista fixa no código.
+  - A única lista fixa que existia (as 3 gemas de `Collector` e `FullSet` em `MissionTracker`) passou a vir do catálogo (`rules.GemOres`, minérios `Kind = Gem`), via `MissionFacts.Gems`. Com a lista ausente ou vazia, a missão nunca fica satisfeita.
+  - A oficina deixou de listar `Enum.GetValues<OreType>()` sem o Quartz: lista `rules.CraftableOres` (os `Craftable`), na ordem do catálogo.
+- **`OreType.Amethyst = 7`** (minério exclusivo dos depósitos). `Craftable: false` por enquanto: só passa a `true` quando for possível obtê-la (fatia 4), e é **uma linha de configuração**. A oficina recusa a ametista com `InvalidGem`.
+- **Enums novos:** `OreKind` (`Currency`, `Gem`, `Exclusive`) e `Element` (`Neutral`, `Fire`, `Water`, `Wind`).
+- **Combate (`Shards:Balance:Combat`):** `ElementCycle` = `[Fire, Wind, Water]` (cada elemento vence o seguinte; o último vence o primeiro), `Advantage` 1,5 e `Disadvantage` 0,75. `GameRules.ElementMultiplier(atacante, defensor)`; `AttackOf(minério, estágio)`; `ElementOf`.
+- **Valores iniciais:** *(atualizado na Evolução 9)* Rubi = Fogo, Safira = Água, Esmeralda = Vento, Ametista = Vento (provisório); só o quartzo é neutro.
+- **Validação na subida (`GameBalanceOptionsValidator`):** todo `OreType` precisa de entrada (esquecer uma ao criar um minério falha na subida), sem repetidas; só o Quartz é a moeda; a moeda não tem elemento, não ataca e não se lapida; quem não é moeda precisa de ataque `> 0` em `Polished` e `Faceted`, e `Raw` não ataca; gema precisa de elemento e todo elemento precisa estar no ciclo; o ciclo não repete, não tem `Neutral` e tem 3 ou mais elementos; `Advantage > 1` e `0 < Disadvantage < 1`; minério `Exclusive` não pode ser o tipo de produção de uma mina.
+- **API:** `GET /state` ganhou `ores[]` e `combat`. Nada mais mudou (sem rotas nem erros novos, sem migration). Contrato do front em `PLANO-FRONT-CATALOGO.md`.
+- **Fora do escopo desta fatia:** depósitos, ataque, energia de exploração, extração de ametista, defesa das gemas (ver `PLANO-MINAS-FINITAS.md`).
+- **Pendências:** a mensagem de `InvalidGem` cita `Ruby, Sapphire ou Emerald` em texto fixo; ao tornar a ametista lapidável, ajustar a mensagem (ou gerá-la a partir do catálogo). O `DailyTracker` ainda conta como "gema" todo minério que não é quartzo; ajustar quando a ametista puder ser obtida por mineração.
+
+---
+
+## 15. Evolução 9 — Defesa por estágio, perfis das gemas, ametista em Vento e matriz de efetividade  ✅ pronta (338 testes)
+
+Complemento da Evolução 8, ainda só **dados** (nenhuma regra de jogo mudou). Decisões do dono do projeto:
+
+- **Matriz de efetividade no lugar do ciclo:** `Shards:Balance:Combat:Effectiveness` = lista de pares (`Attacker`, `Defender`, `Multiplier`); par ausente vale 1, 0 = imune. Hoje os mesmos 6 pares do ciclo (Fogo > Vento > Água > Fogo, ×1,5 e ×0,75), mas agora cabem imunidades, efeito dobrado e quantos elementos forem preciso. **Um elemento novo entra junto do minério que o introduz** (só configuração).
+  - `GameRules.ElementMultiplier` consulta a matriz; `CombatOptions.ElementCycle`, `Advantage` e `Disadvantage` saíram.
+- **Só o quartzo é neutro.** O validador agora exige que todo minério que não é moeda tenha elemento e que o elemento apareça na matriz. A **ametista passa a Vento** (provisório).
+- **Defesa por estágio** (`Ores[].Defense`, `Polished` e `Faceted`; bruto não defende; a moeda não tem). `GameRules.DefenseOf`.
+- **Perfis das gemas** (polida; facetada ×8): Rubi 4 de ataque / 2 de defesa, Safira 2 / 4, Esmeralda 3 / 3, Ametista 1 / 5 (minério defensivo). Todas somam 6.
+- **API:** `state.ores[]` ganhou `defense[]`; `state.combat` trocou `elementCycle`/`advantage`/`disadvantage` por `effectiveness[]`. **Mudança de formato em `combat`**: ver `PLANO-FRONT-CATALOGO.md`. Sem rotas, erros nem migration novos.
+- **Simulação atualizada** (`SIMULACAO-ECONOMIA.md`): ~100 pontos de ataque por dia para o jogador "misto"; faixas de depósito 200 / 400 / 800 de defesa; conversão sugerida do contra-ataque em energia ~3 por ponto.
+- **Próximo:** fatia 2 (depósitos com oferta semanal e rotação), com o contra-ataque e o dano na energia de exploração conforme `PLANO-MINAS-FINITAS.md`.

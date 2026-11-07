@@ -94,7 +94,7 @@ namespace Shards.Service
                 List<PlayerMissionDTO> changedMissions = MissionTracker.AdvanceChanged(missions, MissionType.FirstPickaxe, cost, now);
 
                 // Colecionador: a mineração de uma gema nova cria a linha dela no inventário
-                changedMissions.AddRange(MissionTracker.CompleteSatisfiedChanged(missions, [MissionType.Collector], new MissionFacts(Inventory: inventory), now));
+                changedMissions.AddRange(MissionTracker.CompleteSatisfiedChanged(missions, [MissionType.Collector], new MissionFacts(Inventory: inventory, Gems: rules.GemOres), now));
 
                 // diárias: energia gasta e minérios obtidos (a skill DoubleDrop conta, já está em drops)
                 List<DailyMissionDTO> today = await ShardsQueries.GetDailyAsync(ctx, player.Id, rules.DailyDay);
@@ -182,7 +182,7 @@ namespace Shards.Service
             // Vagonete Cheio (coletou na capacidade máxima) e Colecionador (a coleta pode trazer uma gema nova)
             List<PlayerMissionDTO> missions = await ShardsQueries.GetMissionsAsync(ctx, player.Id);
             List<PlayerMissionDTO> changedMissions = wasFull ? MissionTracker.AdvanceChanged(missions, MissionType.FullCart, 1, now) : [];
-            changedMissions.AddRange(MissionTracker.CompleteSatisfiedChanged(missions, [MissionType.Collector], new MissionFacts(Inventory: inventory), now));
+            changedMissions.AddRange(MissionTracker.CompleteSatisfiedChanged(missions, [MissionType.Collector], new MissionFacts(Inventory: inventory, Gems: rules.GemOres), now));
 
             // diárias: vagonete esvaziado e minérios obtidos
             List<DailyMissionDTO> today = await ShardsQueries.GetDailyAsync(ctx, player.Id, rules.DailyDay);
@@ -238,7 +238,7 @@ namespace Shards.Service
                     // Diversificação (duas minas em gemas diferentes) e Colecionador (a coleta antes da troca pode trazer uma gema nova)
                     List<MineDTO> mines = await ctx.Mine.Where(m => m.PlayerId == player.Id).ToListAsync();
                     changedMissions.AddRange(MissionTracker.CompleteSatisfiedChanged(
-                        missions, [MissionType.Diversification, MissionType.Collector], new MissionFacts(Mines: mines, Inventory: inventory), now));
+                        missions, [MissionType.Diversification, MissionType.Collector], new MissionFacts(Mines: mines, Inventory: inventory, Gems: rules.GemOres), now));
                 }
 
                 await ctx.SaveChangesAsync();

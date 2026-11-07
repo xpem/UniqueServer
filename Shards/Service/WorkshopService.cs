@@ -22,6 +22,7 @@ namespace Shards.Service
         public Task<CraftRes> CraftAsync(int uid, string? gem, string? stage, int times)
         {
             OreType ore = ShardsErrors.ParseGem(gem);
+            if (!rules.IsCraftable(ore)) throw new ShardsException(ShardsErrorCode.InvalidGem); // o catálogo diz o que se lapida (a ametista ainda não)
             ItemStage target = ShardsErrors.ParseCraftStage(stage);
             WorkshopStepOptions step = rules.FindWorkshopStep(target) ?? throw new ShardsException(ShardsErrorCode.InvalidStage);
 
@@ -56,7 +57,7 @@ namespace Shards.Service
                 DateTime now = rules.UtcNow;
                 List<PlayerMissionDTO> missions = await ShardsQueries.GetMissionsAsync(ctx, player.Id);
                 List<PlayerMissionDTO> changedMissions = MissionTracker.CompleteSatisfiedChanged(
-                    missions, [MissionType.FirstPolish, MissionType.FirstFacet, MissionType.FullSet], new MissionFacts(Inventory: inventory), now);
+                    missions, [MissionType.FirstPolish, MissionType.FirstFacet, MissionType.FullSet], new MissionFacts(Inventory: inventory, Gems: rules.GemOres), now);
                 changedMissions.AddRange(MissionTracker.AdvanceChanged(
                     missions, target == ItemStage.Polished ? MissionType.PolishBatch : MissionType.FacetBatch, times, now));
 

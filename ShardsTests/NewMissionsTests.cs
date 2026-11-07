@@ -9,6 +9,9 @@ namespace ShardsTests
     [TestClass]
     public class MissionConditionTests
     {
+        /// <summary>As gemas de mina comum do catálogo (Kind Gem); as missões de coleção recebem essa lista nos fatos.</summary>
+        private static readonly OreType[] Gems3 = [OreType.Ruby, OreType.Sapphire, OreType.Emerald];
+
         private static InventoryItemDTO Row(OreType ore, ItemStage stage, int quantity = 1) =>
             new() { PlayerId = 1, OreType = ore, Stage = stage, Quantity = quantity };
 
@@ -34,8 +37,8 @@ namespace ShardsTests
         [TestMethod]
         public void Collector_NeedsAllThreeGems_InAnyStage_AndIgnoresQuartz()
         {
-            var two = new MissionFacts(Inventory: [Row(OreType.Ruby, ItemStage.Raw), Row(OreType.Sapphire, ItemStage.Polished), Row(OreType.Quartz, ItemStage.Raw)]);
-            var three = new MissionFacts(Inventory: [Row(OreType.Ruby, ItemStage.Raw), Row(OreType.Sapphire, ItemStage.Polished), Row(OreType.Emerald, ItemStage.Faceted)]);
+            var two = new MissionFacts(Inventory: [Row(OreType.Ruby, ItemStage.Raw), Row(OreType.Sapphire, ItemStage.Polished), Row(OreType.Quartz, ItemStage.Raw)], Gems: Gems3);
+            var three = new MissionFacts(Inventory: [Row(OreType.Ruby, ItemStage.Raw), Row(OreType.Sapphire, ItemStage.Polished), Row(OreType.Emerald, ItemStage.Faceted)], Gems: Gems3);
 
             Assert.IsFalse(MissionTracker.IsSatisfied(MissionType.Collector, two));
             Assert.IsTrue(MissionTracker.IsSatisfied(MissionType.Collector, three));
@@ -44,8 +47,8 @@ namespace ShardsTests
         [TestMethod]
         public void FullSet_NeedsAFacetedGemOfEachType()
         {
-            var raw = new MissionFacts(Inventory: [Row(OreType.Ruby, ItemStage.Faceted), Row(OreType.Sapphire, ItemStage.Faceted), Row(OreType.Emerald, ItemStage.Polished)]);
-            var full = new MissionFacts(Inventory: [Row(OreType.Ruby, ItemStage.Faceted), Row(OreType.Sapphire, ItemStage.Faceted), Row(OreType.Emerald, ItemStage.Faceted)]);
+            var raw = new MissionFacts(Inventory: [Row(OreType.Ruby, ItemStage.Faceted), Row(OreType.Sapphire, ItemStage.Faceted), Row(OreType.Emerald, ItemStage.Polished)], Gems: Gems3);
+            var full = new MissionFacts(Inventory: [Row(OreType.Ruby, ItemStage.Faceted), Row(OreType.Sapphire, ItemStage.Faceted), Row(OreType.Emerald, ItemStage.Faceted)], Gems: Gems3);
 
             Assert.IsFalse(MissionTracker.IsSatisfied(MissionType.FullSet, raw));
             Assert.IsTrue(MissionTracker.IsSatisfied(MissionType.FullSet, full));
