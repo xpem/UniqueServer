@@ -1,7 +1,7 @@
 # Ancestral Shards — Plano das Minas Finitas com Defesa (PLANEJADO, NÃO IMPLEMENTADO)
 
-> Status: **em planejamento**. Nada deste documento está no código. As decisões marcadas **(a confirmar)** são recomendações minhas
-> que o dono do projeto ainda não aprovou. O mercado (`PLANO-MERCADO.md`) continua em espera.
+> Status: **as 4 fatias implementadas** (Evolução 8 a 12 em `PLANO.md`, seções 14 a 18). Balanceamento do prêmio ajustado (estoque 2,5 por ponto de defesa, simulação 3.5). As decisões marcadas **(a confirmar)** são recomendações
+> ainda não aprovadas; as da tabela da seção 2 estão decididas. O mercado (`PLANO-MERCADO.md`) continua em espera.
 
 ## 1. Ideia
 
@@ -28,12 +28,24 @@ do combate do jogo, sem multiplayer: cada depósito pertence a um jogador, entã
 | 9 | **3 ofertas por semana**, de dificuldades diferentes (leve, média e difícil) |
 | 10 | A semana começa na **segunda-feira, na hora de virada das diárias** (00:00 de Brasília) |
 | 11 | A **extração** do depósito usa uma **energia de exploração própria** (segunda barra); o **ataque** só gasta gemas |
-| 12 | Tamanho inicial da barra de exploração: **máximo 30, 1 ponto a cada 20 minutos** (~10 h para encher), a ajustar na simulação |
+| 12 | Barra de exploração: **1 ponto a cada 20 minutos**; teto inicial 30, **ajustado para 72** (um dia cheio) na revisão por perfil de visita, porque o jogador diário só aproveitava 30 por dia (`PLANO.md`, seção 19) |
 | 13 | **Contra-ataque leve já na faixa fácil**, para manter a mecânica; cresce nas faixas seguintes |
 | 14 | A **mesma gema** serve para **atacar ou defender**; o jogador divide o que leva. **Perfis** (polida; a facetada multiplica por 8): Rubi 4 de ataque e 2 de defesa, Safira 2 e 4, Esmeralda 3 e 3, Ametista 1 e 5 |
 | 15 | A **ametista** é Vento (**provisório**) e o minério **defensivo** (1 de ataque, 5 de defesa) |
 | 16 | **Dano na energia (aprovado):** o contra-ataque não absorvido pelas gemas de defesa tira **energia de exploração** (conversão sugerida ~3 pontos de energia por ponto de contra-ataque); o ataque é **recusado** se faltar energia, com **prévia** antes de confirmar; as gemas de defesa só são gastas na medida do que absorvem, as de ataque sempre |
 | 17 | A primeira mina de ametista é segura pelo contra-ataque leve da faixa fácil e pelas gemas de defesa que o jogador já tem; a ametista ajuda nas minas seguintes |
+| 18 | **Valor da ametista: 12 quartzos-equivalentes** (meio da faixa de 11 a 13 pedida pela simulação). É parâmetro de calibração (simulação e configuração), não vira código |
+| 19 | **Recompensa dos depósitos:** tabela de drop por faixa em configuração; padrão **100% ametista** nas 3 faixas (as gemas brutas já sobram, então não são prêmio). Depósitos só sorteiam **Fogo, Água e Vento** (sem Neutral). **Quartzo e moeda proibidos** na tabela (laço de quartzo). Gema bruta de depósito conta em `Collector`, não nas diárias (efeito só na fatia 4) |
+| 20 | **Troca:** 1 grátis por semana **no total** (soma dos 3 slots); extras em quartzo, 500 e dobrando (500, 1.000, 2.000...). A troca **sempre muda o elemento** |
+| 21 | **Expiração:** depósito intocado expira no fim da semana (calculado na leitura); atacado persiste até se esgotar. **Limite de 3 abertos** (`MaxOpen`): o contador já está no `state`, quem recusa é o ataque (fatia 3) |
+| 22 | **Faixas:** defesa 200, 400 e 800 com variação de ±20% sorteada por jogador; estoque = defesa × 2,5 (era 1,44; subido na fatia 4 porque o prêmio não pagava a munição, ver simulação 3.5); sem escala pelo nível do jogador por enquanto |
+| 23 | **Contra-ataque proporcional ao dano causado:** `dano efetivo × CounterRatio` da faixa (**leve 5%, média 10%, difícil 20%**, em configuração). Cada ponto não absorvido custa 3 de energia de exploração (`Combat.EnergyPerCounterPoint`). Calibrado na simulação (tabela 3.4) |
+| 24 | **Absorção pela matriz:** cada unidade de gema defensora absorve `defesa do estágio ÷ multiplicador(elemento do depósito → elemento da gema)`; fraqueza absorve menos, resistência mais, imunidade tudo. As gemas atacantes e defensoras são aplicadas na ordem listada e só se gasta o necessário |
+| 25 | **Prévia por flag:** `preview: true` na mesma rota do ataque, mesmo código, sem gravar; devolve `canConfirm` e `blocker` em vez de erro |
+| 26 | **Abertura limitada:** atacar um depósito intocado o torna `Open`; com `MaxOpen` (3) já abertos a abertura é recusada (`TooManyOpenDeposits`), mas atacar um já aberto é sempre permitido |
+| 27 | **Extração:** 1 ponto de energia de exploração por unidade, `times` de 1 a 100; cada unidade sorteia a tabela de drop da faixa (hoje 100% ametista) e rende 1 XP. Exige defesa zero; extrai no máximo o estoque restante; ao zerar, `Depleted` e a vaga de `MaxOpen` é liberada |
+| 28 | **Missões dos depósitos** (fim da cadeia): `FirstAttack` (+50 XP), `VaultOpened` (+80 XP, 500 quartzo) e `Extractor` (100 unidades, +100 XP, 1.000 quartzo). Gema de depósito não conta nas diárias |
+| 29 | **Ametista lapidável** (`Craftable: true`): vira munição e defesa dos depósitos seguintes. Continua fora de `Collector` e `FullSet` (minério `Exclusive`) |
 
 ## 3. Recomendações a confirmar
 
@@ -100,7 +112,7 @@ Erros novos previstos: depósito inexistente, defesa ainda ativa, depósito esgo
 
 ## 7. Fatias de implementação
 
-> **Andamento:** a **fatia 1** (item 1 abaixo) está **pronta** (Evolução 8 em `PLANO.md`, seção 14; contrato do front em `PLANO-FRONT-CATALOGO.md`). As demais seguem em planejamento.
+> **Andamento:** a **fatia 1** (item 1 abaixo) está **pronta** (Evolução 8 e 9 em `PLANO.md`, seções 14 e 15; contrato do front em `PLANO-FRONT-CATALOGO.md`). A **fatia 2** (item 2) está **pronta** (Evolução 10, seção 16; contrato do front em `PLANO-FRONT-DEPOSITOS.md`): entidade do depósito, oferta semanal, `rotate` e energia de exploração. A **fatia 3** (item 3) está **pronta** (Evolução 11, seção 17; contrato do front em `PLANO-FRONT-ATAQUE.md`): ataque, contra-ataque e dano na energia de exploração. A **fatia 4** (item 4) está **pronta** (Evolução 12, seção 18; contrato do front em `PLANO-FRONT-EXTRACAO.md`): extração, esgotamento, missões e ametista lapidável. Resta o item 5 (ideias para depois).
 
 1. **Atributos e ametista:** `Amethyst`, elementos, ataque e defesa por estágio e a matriz de efetividade na configuração, expostos no `state`. Só dados e validação; **sem risco**.
 2. **Depósitos e oferta semanal:** entidade, geração sob demanda, `deposits[]` no `state` e a troca (`rotate`).

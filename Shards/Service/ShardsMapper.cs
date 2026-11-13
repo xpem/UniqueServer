@@ -8,17 +8,27 @@ namespace Shards.Service
     /// <summary>Converte as entidades do jogo nas respostas da API. Reutilizado por todos os endpoints.</summary>
     public class ShardsMapper(GameRules rules)
     {
-        public PlayerRes ToPlayerRes(PlayerDTO player) => new()
+        public PlayerRes ToPlayerRes(PlayerDTO player)
         {
-            Level = player.Level,
-            Experience = player.Experience,
-            ExperienceToNextLevel = rules.XpToNextLevel(player.Level, player.Experience),
-            SkillPoints = player.SkillPoints,
-            Energy = player.Energy,
-            MaxEnergy = player.MaxEnergy,
-            SecondsPerEnergy = rules.Balance.Energy.SecondsPerPoint,
-            NextEnergyAtUtc = rules.NextEnergyAtUtc(player.Energy, player.MaxEnergy, player.LastEnergyUpdateUtc),
-        };
+            // a barra de exploração sai regenerada até agora (função pura, sem gravar): as respostas de ação nunca trazem valor velho
+            EnergyState explore = rules.RegenerateExploreEnergy(player);
+
+            return new()
+            {
+                Level = player.Level,
+                Experience = player.Experience,
+                ExperienceToNextLevel = rules.XpToNextLevel(player.Level, player.Experience),
+                SkillPoints = player.SkillPoints,
+                Energy = player.Energy,
+                MaxEnergy = player.MaxEnergy,
+                SecondsPerEnergy = rules.Balance.Energy.SecondsPerPoint,
+                NextEnergyAtUtc = rules.NextEnergyAtUtc(player.Energy, player.MaxEnergy, player.LastEnergyUpdateUtc, rules.Balance.Energy.SecondsPerPoint),
+                ExploreEnergy = explore.Energy,
+                ExploreMaxEnergy = player.ExploreMaxEnergy,
+                ExploreSecondsPerEnergy = rules.Balance.Explore.SecondsPerPoint,
+                NextExploreEnergyAtUtc = rules.NextEnergyAtUtc(explore.Energy, player.ExploreMaxEnergy, explore.LastUpdateUtc, rules.Balance.Explore.SecondsPerPoint),
+            };
+        }
 
         /// <summary>Todas as skills do jogo, com nível 0 para as que o jogador ainda não tem.</summary>
         public List<SkillRes> ToSkillsRes(IEnumerable<PlayerSkillDTO> skills)
@@ -211,6 +221,7 @@ namespace Shards.Service
 
         public CombatRes ToCombatRes() => new()
         {
+            EnergyPerCounterPoint = rules.Balance.Combat.EnergyPerCounterPoint,
             Effectiveness = rules.Balance.Combat.Effectiveness
                 .Select(e => new EffectivenessRes { Attacker = e.Attacker, Defender = e.Defender, Multiplier = e.Multiplier }).ToList(),
         };
@@ -264,13 +275,80 @@ namespace Shards.Service
             };
         }
 
+        /// <summary>canOpenMore: ainda cabe mais um depósito aberto (MaxOpen). Só importa para o intocado, que precisaria se abrir para ser atacado.</summary>
+        public DepositRes ToDepositRes(DepositDTO deposit, bool canOpenMore = true)
+        {
+            DepositTierOptions? tier = rules.FindTier(deposit.Slot);
+            DepositStatus status = rules.EffectiveStatus(deposit);
+            double total = tier?.Drops.Sum(d => d.Chance) ?? 0;
+
+            return new DepositRes
+            {
+                Id = deposit.Id,
+                Slot = deposit.Slot,
+                Tier = tier?.Name ?? "",
+                Element = deposit.Element,
+                DefenseCurrent = deposit.DefenseCurrent,
+                DefenseMax = deposit.DefenseMax,
+                StockRemaining = deposit.StockRemaining,
+                StockMax = deposit.StockMax,
+                Status = status,
+                CanRotate = status == DepositStatus.Sealed,
+                CanMine = status == DepositStatus.Open && deposit.DefenseCurrent == 0 && deposit.StockRemaining > 0,
+                CanAttack = deposit.DefenseCurrent > 0 && (status == DepositStatus.Open || (status == DepositStatus.Sealed && canOpenMore)),
+                CounterRatio = tier?.CounterRatio ?? 0,
+                ExpiresAtUtc = status == DepositStatus.Sealed ? rules.NextWeekResetUtc : null,
+                Drops = tier is null ? [] : tier.Drops.Select(d => new DropRes { OreType = d.Ore, Chance = d.Chance / total, Xp = d.Xp }).ToList(),
+            };
+        }
+
+        /// <summary>
+        /// Bloco de depósitos: as ofertas da semana (por slot) e os já atacados de semanas anteriores. Intocado de semana passada some.
+        /// As trocas somam as linhas da semana corrente.
+        /// </summary>
+        public DepositsStateRes ToDepositsStateRes(IEnumerable<DepositDTO> deposits, IEnumerable<InventoryItemDTO> inventory)
+        {
+            DateOnly week = rules.GameWeek;
+            List<DepositDTO> rows = deposits.ToList();
+
+            int used = rows.Where(d => d.WeekStart == week).Sum(d => d.RerollCount);
+            int freeLeft = Math.Max(0, rules.Balance.Deposits.Reroll.FreePerWeek - used);
+            OreAmount? cost = rules.RerollCost(used);
+            Dictionary<OreType, int> owned = RawBalance(inventory);
+            int openCount = rows.Count(d => d.Status == DepositStatus.Open);
+            bool canOpenMore = openCount < rules.Balance.Deposits.MaxOpen;
+
+            return new DepositsStateRes
+            {
+                WeekStart = week.ToString("yyyy-MM-dd"),
+                ResetsAtUtc = rules.NextWeekResetUtc,
+                OpenCount = openCount,
+                MaxOpen = rules.Balance.Deposits.MaxOpen,
+                EnergyPerExtraction = rules.Balance.Deposits.EnergyPerExtraction,
+                Rerolls = new DepositRerollsRes
+                {
+                    Used = used,
+                    FreeLeft = freeLeft,
+                    NextCost = cost is null ? null : new OreAmountRes { OreType = cost.Ore, Quantity = cost.Quantity },
+                    CanAfford = cost is null || owned.GetValueOrDefault(cost.Ore) >= cost.Quantity,
+                },
+                Items = rows
+                    .Where(d => rules.EffectiveStatus(d) != DepositStatus.Expired)
+                    .OrderByDescending(d => d.WeekStart)
+                    .ThenBy(d => d.Slot)
+                    .Select(d => ToDepositRes(d, canOpenMore))
+                    .ToList(),
+            };
+        }
+
         public ShardsStateRes ToStateRes(
             PlayerDTO player,
             IReadOnlyCollection<PlayerSkillDTO> skills,
             IReadOnlyCollection<InventoryItemDTO> inventory,
             IReadOnlyCollection<MineDTO> mines,
             IReadOnlyCollection<PlayerMissionDTO> missions,
-            DailyStateRes? daily = null) => new()
+            DailyStateRes? daily = null,
+            DepositsStateRes? deposits = null) => new()
         {
             ServerTimeUtc = rules.UtcNow,
             Player = ToPlayerRes(player),
@@ -286,6 +364,7 @@ namespace Shards.Service
             Ores = ToOresRes(),
             Combat = ToCombatRes(),
             Daily = daily,
+            Deposits = deposits,
         };
     }
 }

@@ -216,7 +216,7 @@ namespace ShardsTests
             Assert.AreEqual(5, polished.InputQuantity);
             Assert.AreEqual(100, polished.Cost.Single().Quantity);
             Assert.IsFalse(polished.SkillAllows, "sem a skill");
-            Assert.AreEqual(3, polished.Gems.Count, "Ruby, Sapphire, Emerald (sem Quartz)");
+            Assert.AreEqual(4, polished.Gems.Count, "Ruby, Sapphire, Emerald e Amethyst (sem Quartz)");
             Assert.IsTrue(polished.Gems.Single(g => g.OreType == OreType.Ruby).CanAfford);
             Assert.AreEqual(5, polished.Gems.Single(g => g.OreType == OreType.Ruby).Available);
             Assert.IsFalse(polished.Gems.Single(g => g.OreType == OreType.Sapphire).CanAfford);

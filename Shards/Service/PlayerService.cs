@@ -25,7 +25,7 @@ namespace Shards.Service
             PlayerDTO player = await FindOrCreatePlayerAsync(ctx, uid);
 
             // persiste a energia regenerada; com a energia já cheia não há o que gravar
-            EnergyState energy = rules.RegenerateEnergy(player.Energy, player.MaxEnergy, player.LastEnergyUpdateUtc);
+            EnergyState energy = rules.RegenerateMainEnergy(player);
             if (energy.Energy != player.Energy)
             {
                 player.Energy = energy.Energy;
@@ -40,7 +40,8 @@ namespace Shards.Service
             var missions = await ctx.PlayerMission.AsNoTracking().Where(m => m.PlayerId == player.Id).ToListAsync();
 
             // missões novas do catálogo chegam a quem já resgatou a anterior (só grava quando falta alguma)
-            List<PlayerMissionDTO> created = MissionTracker.CreateMissingNext(missions, player.Id, new MissionFacts(skills, mines, inventory, rules.GemOres), rules.UtcNow);
+            var attacked = await ShardsQueries.GetAttackedDepositsAsync(ctx, player.Id);
+            List<PlayerMissionDTO> created = MissionTracker.CreateMissingNext(missions, player.Id, new MissionFacts(skills, mines, inventory, rules.GemOres, attacked), rules.UtcNow);
             if (created.Count > 0)
             {
                 ctx.PlayerMission.AddRange(created);
@@ -70,7 +71,26 @@ namespace Shards.Service
                 daily = mapper.ToDailyStateRes(player, today, day);
             }
 
-            return mapper.ToStateRes(player, skills, inventory, mines, missions, daily);
+            // depósitos: ofertas da semana criadas de forma preguiçosa na primeira leitura da semana (oficina liberada)
+            DepositsStateRes? deposits = null;
+            int workshopLevel = skills.Where(s => s.SkillType == SkillType.Workshop).Select(s => s.Level).FirstOrDefault();
+            if (DepositTracker.IsUnlocked(rules, workshopLevel))
+            {
+                DateOnly week = rules.GameWeek;
+                List<DepositDTO> rows = await ShardsQueries.GetDepositsAsync(ctx, player.Id, week);
+
+                List<DepositDTO> createdDeposits = DepositTracker.CreateMissing(rows.Where(d => d.WeekStart == week).ToList(), player.Id, week, rules, rules.UtcNow);
+                if (createdDeposits.Count > 0)
+                {
+                    ctx.Deposit.AddRange(createdDeposits);
+                    await ctx.SaveChangesAsync();
+                    rows.AddRange(createdDeposits);
+                }
+
+                deposits = mapper.ToDepositsStateRes(rows, inventory);
+            }
+
+            return mapper.ToStateRes(player, skills, inventory, mines, missions, daily, deposits);
         });
 
         private async Task<PlayerDTO> FindOrCreatePlayerAsync(ShardsDbctx ctx, int uid)
@@ -113,6 +133,9 @@ namespace Shards.Service
                     Energy = rules.Balance.Energy.MaxEnergy,
                     MaxEnergy = rules.Balance.Energy.MaxEnergy,
                     LastEnergyUpdateUtc = now,
+                    ExploreEnergy = rules.Balance.Explore.MaxEnergy,
+                    ExploreMaxEnergy = rules.Balance.Explore.MaxEnergy,
+                    LastExploreEnergyUpdateUtc = now,
                 };
                 ctx.Player.Add(player);
                 await ctx.SaveChangesAsync();

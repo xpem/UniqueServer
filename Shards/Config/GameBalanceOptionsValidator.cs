@@ -33,6 +33,11 @@ namespace Shards.Config
             ValidateCombat(options, errors);
             ValidateOres(options, errors);
 
+            if (options.Explore.MaxEnergy <= 0) errors.Add("Explore.MaxEnergy deve ser maior que 0.");
+            if (options.Explore.SecondsPerPoint <= 0) errors.Add("Explore.SecondsPerPoint deve ser maior que 0.");
+
+            ValidateDeposits(options, errors);
+
             if (options.Daily.ResetHourUtc is < 0 or > 23) errors.Add("Daily.ResetHourUtc deve ficar entre 0 e 23.");
             if (options.Daily.MissionsPerDay is < 1 or > 7) errors.Add("Daily.MissionsPerDay deve ficar entre 1 e 7.");
             if (options.Daily.Chest.Xp < 0 || options.Daily.Chest.Quartz < 0) errors.Add("Daily.Chest não pode ter valores negativos.");
@@ -107,6 +112,8 @@ namespace Shards.Config
                 if (e.Multiplier < 0) errors.Add($"{at}: Multiplier não pode ser negativo (use 0 para imune).");
             }
 
+            if (options.Combat.EnergyPerCounterPoint <= 0) errors.Add("Combat.EnergyPerCounterPoint deve ser maior que 0.");
+
             foreach (var duplicated in options.Combat.Effectiveness.GroupBy(e => (e.Attacker, e.Defender)).Where(g => g.Count() > 1))
                 errors.Add($"Combat.Effectiveness: o par {duplicated.Key.Attacker} x {duplicated.Key.Defender} está repetido.");
         }
@@ -158,6 +165,59 @@ namespace Shards.Config
                 else if (!options.Combat.Effectiveness.Any(e => e.Attacker == ore.Element || e.Defender == ore.Element))
                     errors.Add($"{at}: o elemento {ore.Element} precisa aparecer em Combat.Effectiveness.");
             }
+        }
+
+        /// <summary>
+        /// Depósitos: faixas de 1 a N sem buracos, defesa e variância válidas, troca coerente e tabela de drop só com minérios do catálogo
+        /// que não sejam a moeda (um depósito que paga quartzo cria um laço, já que a munição custa quartzo).
+        /// </summary>
+        private static void ValidateDeposits(GameBalanceOptions options, List<string> errors)
+        {
+            DepositsOptions deposits = options.Deposits;
+
+            int maxWorkshopLevel = options.Workshop.Select(s => s.Level).DefaultIfEmpty(0).Max();
+            if (deposits.UnlockWorkshopLevel < 1 || deposits.UnlockWorkshopLevel > maxWorkshopLevel)
+                errors.Add($"Deposits.UnlockWorkshopLevel deve ficar entre 1 e {maxWorkshopLevel} (nível máximo da oficina).");
+
+            if (deposits.MaxOpen < 1) errors.Add("Deposits.MaxOpen deve ser pelo menos 1.");
+            if (deposits.StockPerDefense <= 0) errors.Add("Deposits.StockPerDefense deve ser maior que 0.");
+            if (deposits.MaxAttackStacks < 1) errors.Add("Deposits.MaxAttackStacks deve ser pelo menos 1.");
+            if (deposits.EnergyPerExtraction < 1) errors.Add("Deposits.EnergyPerExtraction deve ser pelo menos 1.");
+
+            if (deposits.Reroll.FreePerWeek < 0) errors.Add("Deposits.Reroll.FreePerWeek não pode ser negativo.");
+            if (deposits.Reroll.Cost.Quantity <= 0) errors.Add("Deposits.Reroll.Cost.Quantity deve ser maior que 0.");
+            if (deposits.Reroll.CostMultiplier < 1) errors.Add("Deposits.Reroll.CostMultiplier deve ser pelo menos 1.");
+            if (options.Ores.FirstOrDefault(o => o.Ore == deposits.Reroll.Cost.Ore)?.Kind != OreKind.Currency)
+                errors.Add("Deposits.Reroll.Cost deve ser cobrado na moeda (Quartz).");
+
+            if (deposits.Tiers.Count == 0) errors.Add("Deposits.Tiers não pode ser vazio.");
+
+            List<DepositTierOptions> tiers = deposits.Tiers.OrderBy(t => t.Slot).ToList();
+            for (int i = 0; i < tiers.Count; i++)
+            {
+                DepositTierOptions tier = tiers[i];
+                string at = $"Deposits.Tiers[{tier.Slot}]";
+
+                if (tier.Slot != i + 1) errors.Add($"Deposits.Tiers: os slots devem ir de 1 a {tiers.Count} sem repetir nem pular (encontrado {tier.Slot}).");
+                if (string.IsNullOrWhiteSpace(tier.Name)) errors.Add($"{at}: Name é obrigatório.");
+                if (tier.Defense <= 0) errors.Add($"{at}: Defense deve ser maior que 0.");
+                if (tier.DefenseVariance is < 0 or >= 1) errors.Add($"{at}: DefenseVariance deve ficar entre 0 (inclusive) e 1 (exclusive).");
+                if (tier.CounterRatio is <= 0 or > 5) errors.Add($"{at}: CounterRatio deve ficar entre 0 (exclusive) e 5 (o contra-ataque já existe na faixa leve).");
+
+                if (tier.Drops.Count == 0) errors.Add($"{at}: Drops não pode ser vazio.");
+                if (tier.Drops.Any(d => d.Chance <= 0)) errors.Add($"{at}: toda Chance de Drops deve ser maior que 0.");
+                if (tier.Drops.Any(d => d.Xp < 0)) errors.Add($"{at}: Xp de Drops não pode ser negativo.");
+
+                foreach (DropOptions drop in tier.Drops)
+                {
+                    OreOptions? ore = options.Ores.FirstOrDefault(o => o.Ore == drop.Ore);
+                    if (ore is null) errors.Add($"{at}: o minério {drop.Ore} dos Drops não está no catálogo.");
+                    else if (ore.Kind == OreKind.Currency) errors.Add($"{at}: a moeda ({drop.Ore}) não pode ser recompensa de depósito (criaria um laço de quartzo).");
+                }
+            }
+
+            // o elemento de uma oferta sai das gemas do catálogo; sem nenhuma, o sorteio não teria o que escolher
+            if (!options.Ores.Any(o => o.Kind == OreKind.Gem)) errors.Add("Deposits: o catálogo precisa de ao menos uma gema (Kind Gem) para sortear o elemento das ofertas.");
         }
 
         /// <summary>Toda mina nasce produzindo Quartzo; as demais produções (gemas) são opções que o jogador compra por mina.</summary>

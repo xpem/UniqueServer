@@ -17,7 +17,7 @@ namespace Shards.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.10")
+                .HasAnnotation("ProductVersion", "10.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -64,6 +64,62 @@ namespace Shards.Migrations
                         .HasDatabaseName("IX_DailyMission_PlayerId_Day_DailyType");
 
                     b.ToTable("DailyMission");
+                });
+
+            modelBuilder.Entity("Shards.Model.DTO.DepositDTO", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DefenseCurrent")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("DefenseMax")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Element")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PlayerId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RerollCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Slot")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("StockMax")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("StockRemaining")
+                        .HasColumnType("integer");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<DateOnly>("WeekStart")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlayerId", "WeekStart", "Slot")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Deposit_PlayerId_WeekStart_Slot");
+
+                    b.ToTable("Deposit");
                 });
 
             modelBuilder.Entity("Shards.Model.DTO.InventoryItemDTO", b =>
@@ -170,10 +226,19 @@ namespace Shards.Migrations
                     b.Property<int>("Experience")
                         .HasColumnType("integer");
 
+                    b.Property<int>("ExploreEnergy")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ExploreMaxEnergy")
+                        .HasColumnType("integer");
+
                     b.Property<DateOnly?>("LastChestDay")
                         .HasColumnType("date");
 
                     b.Property<DateTime>("LastEnergyUpdateUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("LastExploreEnergyUpdateUtc")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Level")
@@ -280,6 +345,15 @@ namespace Shards.Migrations
                 });
 
             modelBuilder.Entity("Shards.Model.DTO.DailyMissionDTO", b =>
+                {
+                    b.HasOne("Shards.Model.DTO.PlayerDTO", null)
+                        .WithMany()
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Shards.Model.DTO.DepositDTO", b =>
                 {
                     b.HasOne("Shards.Model.DTO.PlayerDTO", null)
                         .WithMany()

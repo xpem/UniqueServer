@@ -270,7 +270,7 @@ O número de minas que o jogador pode ter virou uma **skill**: começa com 1 min
 Mais capacidade no vagonete aumenta o tempo que a mina trabalha sozinha (hoje 100 minérios ≈ 5 h; no nível 5, 600 ≈ 30 h) e dá mais sentido aos níveis do jogador.
 
 - **Mesmo desenho do desbloqueio de minas:** a **skill dá a permissão** e o **quartzo paga**. `CartCapacity` (nível 0 a 5) é o **teto**: com a skill no nível N, **cada** mina pode ser ampliada até o nível N (não é um total a distribuir entre as minas). Cada melhoria custa quartzo, **por mina**.
-- **Tabela (configuração `Shards:Balance:CartUpgrades`):** nível 1 = 150 (300), 2 = 220 (800), 3 = 320 (2.000), 4 = 450 (5.000), 5 = 600 (12.000) [capacidade (custo)]. O nível máximo da skill é o maior nível configurado. O validador exige níveis de 1 a N sem buracos, capacidade crescente e custos positivos.
+- **Tabela (configuração `Shards:Balance:CartUpgrades`):** nível 1 = 150 (300), 2 = 220 (800), 3 = 320 (2.000), 4 = 450 (5.000), 5 = 600 (6.000) [capacidade (custo)]. O nível máximo da skill é o maior nível configurado. O validador exige níveis de 1 a N sem buracos, capacidade crescente e custos positivos.
 - **Modelo:** `MineDTO.CartLevel` (padrão 0). Migration `AddMineCartLevel` (`ALTER TABLE "Mine" ADD "CartLevel" integer NOT NULL DEFAULT 0`): as minas atuais ficam no nível 0 com a capacidade que já têm. A melhoria grava a nova capacidade em `CartCapacity`.
 - **API:** `POST /Shards/mines/{n}/upgrade-cart`. O `state` ganhou `mines[].cartLevel` e `cartUpgrades[]` (por mina: nível e a próxima melhoria com capacidade, custo, `canAfford` e `skillAllows`; `next` é nulo no nível máximo). `SkillType.CartCapacity`. Erros novos: `CartUpgradeLocked` (a skill ainda não permite o nível) e `CartMaxLevel`.
 - **Ordem das verificações:** nível máximo → skill → recursos. Sem permissão, nem chega a cobrar.
@@ -413,3 +413,72 @@ Complemento da Evolução 8, ainda só **dados** (nenhuma regra de jogo mudou). 
 - **API:** `state.ores[]` ganhou `defense[]`; `state.combat` trocou `elementCycle`/`advantage`/`disadvantage` por `effectiveness[]`. **Mudança de formato em `combat`**: ver `PLANO-FRONT-CATALOGO.md`. Sem rotas, erros nem migration novos.
 - **Simulação atualizada** (`SIMULACAO-ECONOMIA.md`): ~100 pontos de ataque por dia para o jogador "misto"; faixas de depósito 200 / 400 / 800 de defesa; conversão sugerida do contra-ataque em energia ~3 por ponto.
 - **Próximo:** fatia 2 (depósitos com oferta semanal e rotação), com o contra-ataque e o dano na energia de exploração conforme `PLANO-MINAS-FINITAS.md`.
+
+---
+
+## 16. Evolução 10 — Depósitos: oferta semanal, troca e energia de exploração  ✅ pronta (379 testes)
+
+Fatia 2 das minas finitas (`PLANO-MINAS-FINITAS.md`). **Ainda não há ataque nem extração** (fatias 3 e 4): o jogador vê as ofertas da semana e pode trocá-las. Contrato do front em `PLANO-FRONT-DEPOSITOS.md`.
+
+- **Energia de exploração** (segunda barra, só para extrair): `PlayerDTO.ExploreEnergy`, `ExploreMaxEnergy` e `LastExploreEnergyUpdateUtc`; configuração `Shards:Balance:Explore` (máximo 30, 1.200 s por ponto). `PlayerRes` ganhou `exploreEnergy`, `exploreMaxEnergy`, `exploreSecondsPerEnergy` e `nextExploreEnergyAtUtc`; a barra sai **regenerada na hora** (função pura, sem gravar), então toda resposta que traz `player` vem atualizada. Quem já joga começa com a barra cheia (default da migration).
+  - **Refactor:** `GameRules.RegenerateEnergy` e `NextEnergyAtUtc` agora recebem os **segundos por ponto** como parâmetro (as duas barras compartilham o código). Atalhos: `RegenerateMainEnergy(player)` e `RegenerateExploreEnergy(player)`.
+- **Depósitos** (`DepositDTO`, tabela `Deposit`): único por (jogador, semana, slot); o slot é a faixa de dificuldade. Campos: elemento, defesa (atual e máxima), estoque (restante e inicial), `Status` (`Sealed`, `Open`, `Depleted`, `Expired`), `RerollCount`, `xmin`.
+  - **Semana do jogo:** `GameRules.GameWeek` (segunda-feira de `DailyDay`, então a virada é segunda 00:00 de Brasília) e `NextWeekResetUtc`.
+  - **Oferta sob demanda:** a primeira leitura da semana cria as 3 ofertas (leve, média, difícil) se a skill `Workshop` estiver no nível `Deposits.UnlockWorkshopLevel` (1) ou mais; antes disso `state.deposits` é `null`. Sorteio determinístico por (jogador, semana, slot, nº de trocas) com `new Random(seed)` e semente inteira fixa (`DepositTracker`). Elemento sai das gemas do catálogo (Fogo, Água, Vento); defesa = faixa ±20%; estoque = defesa × `StockPerDefense` (1,44 na fatia 2; **2,5** desde a fatia 4).
+  - **Expiração calculada na leitura:** `GameRules.EffectiveStatus` trata `Sealed` de semana passada como `Expired` e a oferta nem é enviada. `Open` (já atacado) persiste e é devolvido junto das ofertas da semana.
+  - **Troca (`POST /Shards/deposits/{id}/rotate`, `DepositService`):** só `Sealed` da semana corrente, por Id do dono. 1 grátis por semana **somando os 3 slots** (soma dos `RerollCount` da semana); a k-ésima paga custa 500 × 2^(k−1) quartzos (`GameRules.RerollCost`). A linha é reescrita no lugar e o **elemento sempre muda**. Resposta traz a oferta nova, o custo, o inventário e o bloco `deposits` inteiro.
+  - **Recompensa:** cada faixa tem tabela de drop em configuração (`Deposits.Tiers[].Drops`), hoje **100% ametista**; o validador proíbe a moeda (laço de quartzo). Só será usada na fatia 4.
+- **Configuração nova:** `Shards:Balance:Explore` e `Shards:Balance:Deposits` (`UnlockWorkshopLevel`, `MaxOpen`, `StockPerDefense`, `Reroll`, `Tiers`), todas validadas na subida (`GameBalanceOptionsValidator`).
+- **Erros novos:** `DepositNotFound` (28), `DepositNotRotatable` (29), `DepositExpired` (30).
+- **Migration:** `AddDepositsAndExploreEnergy` (colunas de exploração com default 30/30/`now()` e a tabela `Deposit` com o índice único). **O dono aplica no banco.** (Uma só migration em vez de duas: separar exigiria compilar o projeto sem o `DbSet`.)
+- **`MaxOpen`** (3) já vem no `state` (`openCount` e `maxOpen`), mas **quem recusa é o ataque** (fatia 3).
+- **Fora do escopo:** `attack`, `mine`, contra-ataque, missões novas dos depósitos, XP da extração (o `Xp: 1` das tabelas de drop é provisório).
+- **Limite conhecido:** os testes usam EF InMemory (sem índice único nem `xmin`); a corrida de duas leituras que criam a mesma oferta só se confirma no Postgres (cai no índice único e o `ConcurrencyRetry` repete).
+
+---
+
+## 17. Evolução 11 — Ataque ao depósito, contra-ataque e dano na energia de exploração  ✅ pronta (420 testes)
+
+Fatia 3 das minas finitas (`PLANO-MINAS-FINITAS.md`). **Sem migration** (usa colunas que já existiam). **Ainda não há extração** (`mine`, fatia 4): um depósito com a defesa derrubada fica `Open` à espera. Contrato do front em `PLANO-FRONT-ATAQUE.md`.
+
+- **Rota:** `POST /Shards/deposits/{id}/attack`, corpo `{ attackers: [{ore, stage, quantity}], defenders: [...], preview }` (`AttackDepositReq`). Resposta `AttackDepositRes` (dano, defesa antes e depois, gemas usadas, contra-ataque, absorvido, energia perdida e o estado atualizado).
+- **Regras puras (`Shards/Rules/DepositCombat.cs`), sem sorteio (então a prévia é exata):**
+  - **Dano:** por unidade, `ataque do estágio × ElementMultiplier(elemento da gema, elemento do depósito)`. As pilhas são aplicadas **na ordem listada**; o ataque **para quando a defesa chega a zero** e gasta só as unidades necessárias (`ceil(restante ÷ dano por unidade)`). O dano total sobe para o inteiro seguinte (no máximo 1 ponto a favor do jogador) e nunca passa da defesa restante.
+  - **Contra-ataque:** `dano efetivo × CounterRatio da faixa` (leve 5%, média 10%, difícil 20%).
+  - **Absorção:** os defensores, na ordem, **só até cobrir o contra-ataque**; cada unidade absorve `defesa do estágio ÷ ElementMultiplier(elemento do depósito, elemento da gema)` (fraqueza absorve menos; imune absorve tudo).
+  - **Energia:** o que não foi absorvido custa `ceil(pontos × Combat.EnergyPerCounterPoint)` (3) de energia de exploração.
+- **Serviço (`DepositService.AttackAsync`):** gemas atacantes e defensoras gastas só na medida do uso; `DefenseCurrent` baixa e fica assim; `Sealed` vira `Open`; a energia de exploração é debitada preservando o resto parcial do relógio. As quantidades **listadas** precisam existir no inventário (a mesma gema nas duas listas é somada).
+  - **Limite de abertos:** abrir um depósito intocado com `Deposits.MaxOpen` (3) já abertos dá `TooManyOpenDeposits`; atacar um já aberto é sempre permitido.
+  - **Prévia (`preview: true`):** mesmo código, não grava nada, e em vez de lançar erro por falta de gema, de energia ou de espaço devolve `canConfirm: false` com o `blocker`.
+- **Estado:** `DepositRes` ganhou `canAttack` e `counterRatio`; `state.combat` ganhou `energyPerCounterPoint`; `openCount` passou a ser real.
+- **Configuração nova:** `Combat.EnergyPerCounterPoint`, `Deposits.MaxAttackStacks` (10) e `Deposits.Tiers[].CounterRatio`, todas validadas na subida.
+- **Erros novos:** `DepositDefenseBroken` (31), `DepositDepleted` (32), `TooManyOpenDeposits` (33), `NotEnoughExploreEnergy` (34), `InvalidAttack` (35). Reaproveita `InvalidGem`, `InvalidStage`, `NotEnoughResources`, `DepositNotFound` e `DepositExpired`.
+- **Simulação:** `simulate_economy.py` ganhou a seção 3.4 (contra-ataque por faixa) e o resultado entrou em `SIMULACAO-ECONOMIA.md`.
+- **Limite conhecido:** os testes usam EF InMemory (sem `xmin`); dois ataques simultâneos ao mesmo depósito só se confirmam no Postgres (o token `xmin` do depósito, do jogador e do inventário faz um deles repetir pelo `ConcurrencyRetry`).
+
+---
+
+## 18. Evolução 12 — Extração da ametista, esgotamento, missões e ametista lapidável  ✅ pronta (443 testes)
+
+Fatia 4, a última das minas finitas (`PLANO-MINAS-FINITAS.md`). **Sem migration** (`MissionType` é inteiro; nenhuma coluna nova). Contrato do front em `PLANO-FRONT-EXTRACAO.md`.
+
+- **Rota:** `POST /Shards/deposits/{id}/mine`, corpo opcional `MineReq` (`times`, 1 a `Energy.MaxMinesPerRequest`). Resposta `MineDepositRes` (unidades, drops, XP, nível, energia gasta, `depleted`, depósito, inventário, jogador, bloco `deposits` e missões).
+- **Regras (`DepositService.MineAsync`):** exige defesa zero (`DepositDefenseActive`); extrai no máximo o estoque restante (a energia cobrada é só das unidades extraídas); `Deposits.EnergyPerExtraction` (1) ponto de energia de exploração por unidade, debitado preservando o resto parcial do relógio; cada unidade sorteia a tabela de drop da faixa (`GameRules.RollDrop(IReadOnlyList<DropOptions>)`, hoje 100% ametista) e rende o XP da entrada (1); sem energia suficiente recusa tudo (`NotEnoughExploreEnergy`). `DoubleDrop` não vale aqui. O estoque que zera marca `Depleted`, o que **libera uma vaga** de `MaxOpen`.
+- **Missões novas** (fim da cadeia, depois de `DoubleLuck`): `FirstAttack` "Primeiro Ataque" (+50 XP), `VaultOpened` "Cofre Aberto" (+80 XP, 500 quartzo) e `Extractor` "Extrator" (extrair 100 unidades, +100 XP, 1.000 quartzo). O ataque real avança as duas primeiras (a prévia não); a extração avança a terceira. `MissionFacts.Deposits` e `ShardsQueries.GetAttackedDepositsAsync` fazem as de condição nascerem concluídas se o jogador já atacou antes. Diárias não são tocadas pela extração.
+- **Ametista lapidável:** `Craftable: true`. A oficina a lista em `state.workshop[].gems` (agora 4 gemas); `Collector` e `FullSet` seguem com as 3 gemas (a ametista é `Exclusive`, fora de `GemOres`).
+- **Pendências antigas resolvidas:** a mensagem de `InvalidGem` deixou de citar gemas fixas; `DailyTracker.OreProgress` conta como gema só o que o catálogo marca `Kind Gem`.
+- **Estado:** `DepositRes` ganhou `canMine`; o bloco `deposits` ganhou `energyPerExtraction`; `AttackDepositRes` ganhou `missions[]`.
+- **Erro novo:** `DepositDefenseActive` (36).
+- **Simulação:** seção 3.5 (fechamento do ciclo). **Achado:** com a ametista a 12 e estoque de 1,44 por ponto de defesa, o prêmio paga só 0,59x a 0,94x do custo de atacar e defender. **Corrigido:** `Deposits.StockPerDefense` subiu para 2,5 (neutro empata; com vantagem elemental rende ~1,4x).
+- **Limite conhecido:** EF InMemory não tem `xmin`; duas extrações simultâneas só se confirmam no Postgres.
+
+---
+
+## 19. Revisão de balanceamento por perfil de visita  ✅ feita (443 testes)
+
+A maioria dos jogadores visita 1 vez por dia ou a cada 2 dias (só alguns, várias vezes por dia), e em cada visita gasta toda a energia. A simulação ganhou os perfis **assíduo (4x por dia), diário (1x) e a cada 2 dias** (seções 2b e 3.6 de `SIMULACAO-ECONOMIA.md`); o **diário é a referência**. Só configuração, sem código novo de jogo:
+- **`Shards:Balance:Explore:MaxEnergy`: 30 para 72** (um dia cheio de regeneração a 1 ponto a cada 20 min). Com 30 o diário extraía só 30 unidades por dia (faixa leve em ~17 dias); com 72 extrai 72 e a leve leva ~7 dias (o alvo), a média ~14 e a difícil ~28; quem visita a cada 2 dias extrai 36 por dia (leve em ~14 dias). A faixa leve sem defesa passa a custar ~0,4 barra.
+- **Vagonete nível 5: custo de 12.000 para 6.000.** O nível 5 só serve a quem passa mais de 1 dia fora (o diário já tem o vagonete cheio no nível 4); para quem visita a cada 2 dias o retorno cai de ~160 para ~80 dias. O nível 4 ficou como estava (bom para o diário).
+- **Mantidos:** estoque de 2,5 por ponto de defesa, razões de contra-ataque (5/10/20%), conversão de 3 de energia, energia normal (100).
+- **Migration de dados `RaiseExploreMaxEnergy`** (a `AddDepositsAndExploreEnergy` já estava aplicada no banco): `UPDATE` do `ExploreMaxEnergy` de 30 para 72 em quem já joga e o default das colunas passa a 72. **O dono aplica no banco.**
+- **Testes:** os que fixavam o teto 30 passam a derivar o valor da configuração (`Balance.Explore.MaxEnergy`).

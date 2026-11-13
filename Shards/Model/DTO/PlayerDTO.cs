@@ -25,6 +25,13 @@ namespace Shards.Model.DTO
 
         public required DateTime LastEnergyUpdateUtc { get; set; }
 
+        /// <summary>Energia de exploração: a segunda barra, só para extrair dos depósitos (regra igual à da energia normal, ritmo próprio).</summary>
+        public int ExploreEnergy { get; set; } = 72;
+
+        public int ExploreMaxEnergy { get; set; } = 72;
+
+        public DateTime LastExploreEnergyUpdateUtc { get; set; }
+
         /// <summary>Dias seguidos com o baú diário resgatado (vale enquanto LastChestDay for hoje ou ontem).</summary>
         public int DailyStreak { get; set; }
 

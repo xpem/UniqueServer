@@ -22,7 +22,7 @@ namespace Shards.Service
         public Task<CraftRes> CraftAsync(int uid, string? gem, string? stage, int times)
         {
             OreType ore = ShardsErrors.ParseGem(gem);
-            if (!rules.IsCraftable(ore)) throw new ShardsException(ShardsErrorCode.InvalidGem); // o catálogo diz o que se lapida (a ametista ainda não)
+            if (!rules.IsCraftable(ore)) throw new ShardsException(ShardsErrorCode.InvalidGem); // o catálogo diz o que se lapida
             ItemStage target = ShardsErrors.ParseCraftStage(stage);
             WorkshopStepOptions step = rules.FindWorkshopStep(target) ?? throw new ShardsException(ShardsErrorCode.InvalidStage);
 

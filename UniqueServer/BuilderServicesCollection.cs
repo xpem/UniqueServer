@@ -177,6 +177,7 @@ namespace UniqueServer
             services.AddScoped<IInventoryService, InventoryService>();
             services.AddScoped<IWorkshopService, WorkshopService>();
             services.AddScoped<IDailyService, DailyService>();
+            services.AddScoped<IDepositService, DepositService>();
             services.AddScoped<IPlayerSkillService, PlayerSkillService>();
             services.AddScoped<IPlayerMissionService, PlayerMissionService>();
 

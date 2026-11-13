@@ -99,6 +99,7 @@ namespace Shards.Service
             IReadOnlyCollection<MineDTO> mines = facts.Mines ?? [];
             IReadOnlyCollection<InventoryItemDTO> inventory = facts.Inventory ?? [];
             IReadOnlyCollection<OreType> gems = facts.Gems ?? [];
+            IReadOnlyCollection<DepositDTO> deposits = facts.Deposits ?? [];
 
             bool Has(OreType ore, ItemStage stage) => inventory.Any(i => i.OreType == ore && i.Stage == stage);
             int SkillLevel(SkillType skill) => skills.Where(s => s.SkillType == skill).Select(s => s.Level).FirstOrDefault();
@@ -118,6 +119,8 @@ namespace Shards.Service
                 MissionType.FullSet => gems.Count > 0 && gems.All(gem => Has(gem, ItemStage.Faceted)),
                 MissionType.ThirdMine => mines.Count >= 3,
                 MissionType.DoubleLuck => SkillLevel(SkillType.DoubleDrop) >= 3,
+                MissionType.FirstAttack => deposits.Any(d => d.Status != DepositStatus.Sealed || d.DefenseCurrent < d.DefenseMax),
+                MissionType.VaultOpened => deposits.Any(d => d.DefenseCurrent == 0),
                 _ => false,
             };
         }
@@ -128,5 +131,6 @@ namespace Shards.Service
         IReadOnlyCollection<PlayerSkillDTO>? Skills = null,
         IReadOnlyCollection<MineDTO>? Mines = null,
         IReadOnlyCollection<InventoryItemDTO>? Inventory = null,
-        IReadOnlyCollection<OreType>? Gems = null);
+        IReadOnlyCollection<OreType>? Gems = null,
+        IReadOnlyCollection<DepositDTO>? Deposits = null);
 }

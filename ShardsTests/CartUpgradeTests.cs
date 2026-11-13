@@ -12,7 +12,7 @@ namespace ShardsTests
         public void AppSettings_Table_MatchesThePlan()
         {
             int[] capacities = [150, 220, 320, 450, 600];
-            int[] costs = [300, 800, 2000, 5000, 12000];
+            int[] costs = [300, 800, 2000, 5000, 6000];
 
             Assert.AreEqual(5, Balance.CartUpgrades.Count);
             for (int i = 0; i < capacities.Length; i++)
@@ -239,7 +239,7 @@ namespace ShardsTests
         {
             await SeedPlayerAsync();
             await SetSkillAsync(SkillType.CartCapacity, 5);
-            await GiveOresAsync(OreType.Quartz, 300 + 800 + 2000 + 5000 + 12000 + 9);
+            await GiveOresAsync(OreType.Quartz, 300 + 800 + 2000 + 5000 + 6000 + 9);
 
             for (int i = 0; i < 5; i++) await Mines.UpgradeCartAsync(7, 1);
 

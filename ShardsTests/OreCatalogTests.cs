@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using Shards.Config;
 using Shards.Errors;
@@ -47,10 +48,11 @@ namespace ShardsTests
         }
 
         [TestMethod]
-        public void Craftable_IsTheThreeGems_NotAmethystYet()
+        public void Craftable_IsTheThreeGemsAndTheAmethyst()
         {
-            CollectionAssert.AreEqual(new[] { OreType.Ruby, OreType.Sapphire, OreType.Emerald }, Rules.CraftableOres.ToArray());
-            Assert.IsFalse(Rules.IsCraftable(OreType.Amethyst));
+            CollectionAssert.AreEqual(new[] { OreType.Ruby, OreType.Sapphire, OreType.Emerald, OreType.Amethyst }, Rules.CraftableOres.ToArray());
+            CollectionAssert.AreEqual(new[] { OreType.Ruby, OreType.Sapphire, OreType.Emerald }, Rules.GemOres.ToArray(), "a ametista é Exclusive: não entra em Collector nem FullSet");
+            Assert.IsTrue(Rules.IsCraftable(OreType.Amethyst));
             Assert.IsFalse(Rules.IsCraftable(OreType.Quartz));
         }
 
@@ -289,7 +291,7 @@ namespace ShardsTests
             var amethyst = state.Ores.Single(o => o.OreType == OreType.Amethyst);
             Assert.AreEqual(OreKind.Exclusive, amethyst.Kind);
             Assert.AreEqual(Element.Wind, amethyst.Element);
-            Assert.IsFalse(amethyst.Craftable);
+            Assert.IsTrue(amethyst.Craftable);
             Assert.AreEqual(5, amethyst.Defense.Single(d => d.Stage == ItemStage.Polished).Defense);
 
             var quartz = state.Ores.Single(o => o.OreType == OreType.Quartz);
@@ -304,23 +306,33 @@ namespace ShardsTests
         }
 
         [TestMethod]
-        public async Task Workshop_StillListsOnlyTheThreeGems_NotAmethyst()
+        public async Task Workshop_ListsTheThreeGemsAndTheAmethyst()
         {
             var workshop = (await Players.GetStateAsync(7)).Workshop;
 
             foreach (var recipe in workshop)
-                CollectionAssert.AreEqual(new[] { OreType.Ruby, OreType.Sapphire, OreType.Emerald }, recipe.Gems.Select(g => g.OreType).ToArray());
+                CollectionAssert.AreEqual(new[] { OreType.Ruby, OreType.Sapphire, OreType.Emerald, OreType.Amethyst }, recipe.Gems.Select(g => g.OreType).ToArray());
         }
 
         [TestMethod]
-        public async Task Crafting_Amethyst_IsInvalidGem_ForNow()
+        public async Task Crafting_Amethyst_IsAllowedNow_AndPolishesIt()
         {
             await SeedPlayerAsync();
+            await using (var ctx = Db.CreateDbContext())
+            {
+                var player = await ctx.Player.SingleAsync(p => p.UserId == 7);
+                ctx.PlayerSkill.Add(new PlayerSkillDTO { PlayerId = player.Id, SkillType = SkillType.Workshop, Level = 1 });
+                await ctx.SaveChangesAsync();
+            }
+            await GiveOresAsync(OreType.Amethyst, 5);
+            await GiveOresAsync(OreType.Quartz, 100);
             var workshop = new WorkshopService(Db, Rules, new ShardsMapper(Rules));
 
-            var ex = await Assert.ThrowsExactlyAsync<ShardsException>(() => workshop.CraftAsync(7, "Amethyst", "Polished", 1));
+            var res = await workshop.CraftAsync(7, "Amethyst", "Polished", 1);
 
-            Assert.AreEqual(ShardsErrorCode.InvalidGem, ex.Code);
+            Assert.AreEqual(OreType.Amethyst, res.Crafted.OreType);
+            Assert.AreEqual(ItemStage.Polished, res.Crafted.Stage);
+            Assert.AreEqual(1, res.Crafted.Quantity);
         }
 
         [TestMethod]

@@ -28,6 +28,17 @@ namespace Shards.Model.Res
 
         /// <summary>Quando o próximo ponto de energia chega; nulo com a energia cheia.</summary>
         public DateTime? NextEnergyAtUtc { get; set; }
+
+        /// <summary>Energia de exploração (segunda barra, só para extrair dos depósitos). Já vem regenerada até agora.</summary>
+        public int ExploreEnergy { get; set; }
+
+        public int ExploreMaxEnergy { get; set; }
+
+        /// <summary>Segundos para regenerar 1 ponto de energia de exploração (vem da configuração).</summary>
+        public int ExploreSecondsPerEnergy { get; set; }
+
+        /// <summary>Quando o próximo ponto de energia de exploração chega; nulo com a barra cheia.</summary>
+        public DateTime? NextExploreEnergyAtUtc { get; set; }
     }
 
     public record SkillRes
@@ -234,6 +245,9 @@ namespace Shards.Model.Res
     public record CombatRes
     {
         public List<EffectivenessRes> Effectiveness { get; set; } = [];
+
+        /// <summary>Energia de exploração perdida por ponto de contra-ataque que as gemas de defesa não absorvem.</summary>
+        public double EnergyPerCounterPoint { get; set; }
     }
 
     /// <summary>Resposta de GET /shards/state: o estado completo do jogador.</summary>
@@ -274,5 +288,8 @@ namespace Shards.Model.Res
 
         /// <summary>Missões diárias; nulo até o jogador resgatar a Missão 1.</summary>
         public DailyStateRes? Daily { get; set; }
+
+        /// <summary>Depósitos (minas finitas): ofertas da semana e trocas; nulo até liberar a oficina (skill Workshop).</summary>
+        public DepositsStateRes? Deposits { get; set; }
     }
 }

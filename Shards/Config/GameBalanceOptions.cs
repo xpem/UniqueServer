@@ -37,6 +37,83 @@ namespace Shards.Config
 
         /// <summary>Regras de combate: o ciclo de elementos e os multiplicadores de vantagem e desvantagem.</summary>
         public CombatOptions Combat { get; set; } = new();
+
+        /// <summary>Energia de exploração: a segunda barra do jogador, só para extrair dos depósitos.</summary>
+        public ExploreOptions Explore { get; set; } = new();
+
+        /// <summary>Depósitos (minas finitas): oferta semanal, faixas de dificuldade e rotação.</summary>
+        public DepositsOptions Deposits { get; set; } = new();
+    }
+
+    /// <summary>Energia de exploração. Mesma regra da energia normal (regenera sem perder o resto parcial), com máximo e ritmo próprios.</summary>
+    public class ExploreOptions
+    {
+        public int MaxEnergy { get; set; } = 72;
+
+        /// <summary>Segundos para regenerar 1 ponto (1.200 s = 20 minutos, cerca de 10 h para encher 30).</summary>
+        public int SecondsPerPoint { get; set; } = 1200;
+    }
+
+    /// <summary>
+    /// Depósitos. A semana começa na segunda-feira, na hora de virada das diárias (Daily.ResetHourUtc). Cada semana o jogador recebe
+    /// uma oferta por faixa (Tiers). Um depósito intocado expira no fim da semana; um já atacado persiste até se esgotar.
+    /// </summary>
+    public class DepositsOptions
+    {
+        /// <summary>Nível mínimo da skill Workshop para receber depósitos.</summary>
+        public int UnlockWorkshopLevel { get; set; } = 1;
+
+        /// <summary>Máximo de depósitos já atacados (abertos) ao mesmo tempo. Quem recusa é o ataque; aqui só o limite.</summary>
+        public int MaxOpen { get; set; } = 3;
+
+        /// <summary>Estoque inicial = defesa sorteada x este valor (mina mais difícil, mais rica).</summary>
+        public double StockPerDefense { get; set; } = 2.5;
+
+        /// <summary>Máximo de pilhas distintas (minério + estágio) por lista (atacantes e defensores) numa chamada de ataque.</summary>
+        public int MaxAttackStacks { get; set; } = 10;
+
+        /// <summary>Energia de exploração gasta por unidade extraída (cada unidade sorteia a tabela de drop da faixa).</summary>
+        public int EnergyPerExtraction { get; set; } = 1;
+
+        public DepositRerollOptions Reroll { get; set; } = new();
+
+        /// <summary>Uma faixa por slot, de 1 a N (leve, média, difícil).</summary>
+        public List<DepositTierOptions> Tiers { get; set; } = [];
+    }
+
+    /// <summary>
+    /// Troca de uma oferta intocada. As primeiras FreePerWeek trocas da semana (somando todos os slots) são grátis;
+    /// a k-ésima paga custa Cost x CostMultiplier^(k-1).
+    /// </summary>
+    public class DepositRerollOptions
+    {
+        public int FreePerWeek { get; set; } = 1;
+
+        public OreAmount Cost { get; set; } = new() { Ore = OreType.Quartz, Quantity = 500 };
+
+        public int CostMultiplier { get; set; } = 2;
+    }
+
+    /// <summary>Uma faixa de dificuldade: defesa (sorteada em Defense +- DefenseVariance) e a tabela do que o depósito rende.</summary>
+    public class DepositTierOptions
+    {
+        public int Slot { get; set; }
+
+        public string Name { get; set; } = "";
+
+        public int Defense { get; set; }
+
+        /// <summary>Fração da defesa para mais e para menos (0,2 = de 80% a 120%).</summary>
+        public double DefenseVariance { get; set; }
+
+        /// <summary>
+        /// Contra-ataque do depósito por ponto de dano causado (0,05 = 5%). O que as gemas de defesa não absorvem
+        /// tira energia de exploração (Combat.EnergyPerCounterPoint). Cresce nas faixas mais difíceis.
+        /// </summary>
+        public double CounterRatio { get; set; }
+
+        /// <summary>Tabela de drop da extração (pesos normalizados pela soma). Quartzo e moeda não entram.</summary>
+        public List<DropOptions> Drops { get; set; } = [];
     }
 
     public class EnergyOptions
@@ -196,6 +273,12 @@ namespace Shards.Config
     public class CombatOptions
     {
         public List<EffectivenessOptions> Effectiveness { get; set; } = [];
+
+        /// <summary>
+        /// Pontos de energia de exploração perdidos por ponto de contra-ataque que as gemas de defesa não absorveram
+        /// (a conta fecha com o custo de defender: ver SIMULACAO-ECONOMIA.md).
+        /// </summary>
+        public double EnergyPerCounterPoint { get; set; } = 3;
     }
 
     public class EffectivenessOptions

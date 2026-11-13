@@ -55,6 +55,10 @@ class Cfg:
         matrix = [e['Multiplier'] for e in raw.get('Combat', {}).get('Effectiveness', [])]
         self.advantage = max([m for m in matrix if m > 1] or [1.0])     # maior vantagem da matriz de efetividade
         self.disadvantage = min([m for m in matrix if 0 < m < 1] or [1.0])  # maior desvantagem (ignora imunidade)
+        self.epc = raw.get('Combat', {}).get('EnergyPerCounterPoint', 3)  # energia de exploração por ponto de contra-ataque não absorvido
+        self.tiers = sorted(raw.get('Deposits', {}).get('Tiers', []), key=lambda t: t['Slot'])
+        self.stock_per_defense = raw.get('Deposits', {}).get('StockPerDefense', 2.5)
+        self.energy_per_extraction = raw.get('Deposits', {}).get('EnergyPerExtraction', 1)
         self.cart_max_level = len(self.cart_upgrades)
         self.workshop_max_level = len(self.workshop)
 
@@ -114,7 +118,7 @@ def slots(cfg, p):
 @dataclass
 class Strategy:
     name: str
-    visits_per_day: int
+    visits_per_day: float      # 4 = a cada 6 h, 1 = diário, 0,5 = a cada 2 dias
     gems: bool                 # troca minas para gemas?
     craft: bool = False        # lapida com o excedente?
     craft_reserve: float = 1500  # quartzo mínimo mantido antes de lapidar (e nunca abaixo da próxima compra estrutural)
@@ -286,14 +290,14 @@ def visit(cfg, p, strategy, hour):
 def simulate(cfg, strategy, days):
     p = Player()
     p.mines.append(Mine(1, capacity=cfg.mines[1]['CartCapacity']))
-    visit_hours = sorted({round(24 * k / strategy.visits_per_day + 8) % 24 for k in range(strategy.visits_per_day)})
+    gap = round(24 / strategy.visits_per_day)  # intervalo entre visitas, em horas
     timeline = []
     last = {'gq': 0.0, 'gg': 0.0, 'sq': 0.0}
     for day in range(1, days + 1):
         for h in range(24):
             hour = (day - 1) * 24 + h
             p.energy = min(cfg.max_energy, p.energy + cfg.energy_per_hour)
-            if h in visit_hours:
+            if (hour - 8) % gap == 0:  # primeira visita às 08:00 do dia 1 (e as anteriores no mesmo ritmo)
                 visit(cfg, p, strategy, hour)
         timeline.append({
             'day': day, 'mines': len(p.mines), 'quartz': p.quartz,
@@ -325,11 +329,11 @@ def fmt(x):
 def report_static(cfg, md):
     print('\n## 1. Renda por mina e por dia (valores esperados)\n' if md else '\n=== 1. Renda por mina e por dia ===')
     rows = []
-    for visits in (2, 4, 6):
+    for visits in (2, 4, 6, 1, 0.5):
         gap = 24 / visits
         for level in range(0, cfg.cart_max_level + 1):
             cap = 100 if level == 0 else cfg.cart_upgrades[level - 1]['Capacity']
-            if level in (0, cfg.cart_max_level) or visits == 4:
+            if level in (0, cfg.cart_max_level) or visits in (4, 1, 0.5):
                 per_collect = min(cap, cfg.mines[1]['OresPerMinute'] * 60 * gap)
                 rows.append([visits, level, cap, f'{gap:.0f} h', f'{per_collect:.0f}', fmt(per_collect * visits)])
     print(table(rows, ['visitas/dia', 'nível do vagonete', 'capacidade', 'entre visitas', 'minérios por coleta', 'minérios por dia (1 mina)'], md))
@@ -348,6 +352,10 @@ def report_timeline(cfg, days, md):
         Strategy('gemas em todas as minas 2+ (ativa na gema), lapida, 4 visitas/dia', 4, gems=True, craft=True),
         Strategy('mista: gemas só nas minas 2 e 3 (ativa no quartzo), lapida, 4 visitas/dia', 4, gems=True, craft=True, gem_mines=(2, 3), active_on_gem=False),
         Strategy('mista: gemas só nas minas 2 e 3 (ativa no quartzo), lapida, 2 visitas/dia', 2, gems=True, craft=True, gem_mines=(2, 3), active_on_gem=False),
+        Strategy('só quartzo, 1 visita/dia', 1, gems=False),
+        Strategy('só quartzo, 1 visita a cada 2 dias', 0.5, gems=False),
+        Strategy('mista: gemas só nas minas 2 e 3 (ativa no quartzo), lapida, 1 visita/dia', 1, gems=True, craft=True, gem_mines=(2, 3), active_on_gem=False),
+        Strategy('mista: gemas só nas minas 2 e 3 (ativa no quartzo), lapida, 1 visita a cada 2 dias', 0.5, gems=True, craft=True, gem_mines=(2, 3), active_on_gem=False),
     ]
     marks = [1, 3, 7, 14, 30, 60, days]
     results = []
@@ -418,7 +426,7 @@ def ammo_cost(cfg, defense, mult, raw_value, ore='Ruby'):
 
 
 def report_deposits(cfg, md, raw_value, explore_max, explore_hours_per_point, amethyst_value):
-    print('\n## 3. Depósitos (análise paramétrica; ainda não implementados)\n' if md else '\n=== 3. Depósitos (parametrico) ===')
+    print('\n## 3. Depósitos (análise paramétrica sobre o balanceamento real)\n' if md else '\n=== 3. Depósitos (parametrico) ===')
     print(f'Valor de referência de 1 gema bruta: {raw_value} quartzos (hipótese; o mercado não existe). Munição de ataque: Rubi (polida {cfg.attack["Ruby"]["Polished"]}, '
           f'facetada {cfg.attack["Ruby"]["Faceted"]}); vantagem x{cfg.advantage}, desvantagem x{cfg.disadvantage} (da matriz de efetividade).')
     print('\n### 3.1 Custo para quebrar a defesa (quartzo-equivalente), com facetadas\n' if md else '\n-- 3.1 Custo para quebrar a defesa (so facetadas) --')
@@ -447,6 +455,79 @@ def report_deposits(cfg, md, raw_value, explore_max, explore_hours_per_point, am
     print('\nLeitura: o "valor mínimo" é quanto cada ametista precisa valer para o depósito empatar com o custo da munição (com vantagem elemental). '
           'Se a ametista valer menos que isso, ninguém compensa abrir o depósito.')
     report_counterattack(cfg, md, raw_value, amethyst_value)
+    report_tier_counterattack(cfg, md, raw_value, amethyst_value, explore_max)
+    report_loop_closure(cfg, md, raw_value, amethyst_value, 24 / explore_hours_per_point)
+
+
+def report_loop_closure(cfg, md, raw_value, amethyst_value, explore_per_day):
+    if not cfg.tiers:
+        return
+    print('\n### 3.5 Fechamento do ciclo: o prêmio da extração paga a munição? (implementado)\n' if md else '\n-- 3.5 Fechamento do ciclo --')
+    print(f'Cada ponto de energia de exploração ({cfg.energy_per_extraction} por unidade) rende 1 ametista, que vale ~{amethyst_value:g} quartzos-equivalentes. '
+          f'Estoque = defesa x {cfg.stock_per_defense:g}. Custo = atacar com facetadas de Rubi (elemento neutro, x1; com vantagem x{cfg.advantage:g} sai mais barato) '
+          f'mais a defesa que cobre o contra-ataque (ametista facetada, a melhor defensora). Dias = estoque / ({explore_per_day:.0f} pontos por dia).')
+    pol, fac = cfg.workshop['Polished'], cfg.workshop['Faceted']
+    pol_q = sum(c['Quantity'] for c in pol['Cost'])
+    fac_cost = fac['InputQuantity'] * pol['InputQuantity'] * raw_value + fac['InputQuantity'] * pol_q + sum(c['Quantity'] for c in fac['Cost'])
+    rows = []
+    ratios = []
+    needed = []
+    for t in cfg.tiers:
+        defense = t['Defense']
+        stock = defense * cfg.stock_per_defense
+        reward = stock / cfg.energy_per_extraction * amethyst_value
+        days = stock * cfg.energy_per_extraction / explore_per_day
+        counter = defense * t['CounterRatio']
+        def_cost = math.ceil(counter / cfg.defense['Amethyst']['Faceted']) * fac_cost
+        for mult, label in ((1.0, 'neutro'), (cfg.advantage, 'vantagem')):
+            _, _, _, attack = ammo_cost(cfg, defense, mult, raw_value)['facetadas']
+            cost = attack + def_cost
+            ratios.append(reward / cost)
+            break_even = cost / (defense * amethyst_value / cfg.energy_per_extraction)
+            needed.append((label, break_even))
+            rows.append([f"{t['Slot']} {t['Name']}", label, fmt(stock), f'{days:.1f}', fmt(reward), fmt(cost), fmt(reward - cost),
+                         f'{reward / cost:.2f}x', f'{break_even:.2f}'])
+    print(table(rows, ['faixa', 'elemento', 'estoque (ametistas)', 'dias de energia', 'valor do prêmio (q-eq.)', 'custo (atacar + defender)', 'saldo',
+                       'prêmio / custo', 'estoque por ponto de defesa para empatar'], md))
+    even_adv = max(b for label, b in needed if label == 'vantagem')
+    even_neu = max(b for label, b in needed if label == 'neutro')
+    if max(ratios) < 1:
+        verdict = (f'**o prêmio NÃO paga o custo em nenhuma combinação** (de {min(ratios):.2f}x a {max(ratios):.2f}x). Para empatar seria preciso estoque de ~{even_adv:.1f} por ponto de defesa '
+                   f'(com vantagem elemental) ou ~{even_neu:.1f} (neutro), contra {cfg.stock_per_defense:g} hoje; ou a ametista valer proporcionalmente mais. É decisão de balanceamento (só configuração).')
+    elif min(ratios) < 1:
+        verdict = f'o prêmio paga o custo só em parte das combinações (de {min(ratios):.2f}x a {max(ratios):.2f}x); sem vantagem elemental o depósito dá prejuízo.'
+    else:
+        verdict = f'o prêmio paga o custo em todas as combinações (de {min(ratios):.2f}x a {max(ratios):.2f}x).'
+    print(f'\nLeitura: {verdict} A energia de exploração limita o ritmo da extração e o laço "ametista vira munição" só fecha se o prêmio superar a munição.')
+
+
+def report_tier_counterattack(cfg, md, raw_value, amethyst_value, explore_max):
+    if not cfg.tiers:
+        return
+    print('\n### 3.4 Contra-ataque por faixa (implementado): quebrar a defesa inteira de uma vez\n' if md else '\n-- 3.4 Contra-ataque por faixa --')
+    print(f'O depósito contra-ataca com (dano efetivo x razão da faixa) pontos; o que as gemas defensoras não absorvem tira {cfg.epc:g} de energia de exploração '
+          f'por ponto (barra de {explore_max}). A gema defensora absorve defesa / multiplicador (depósito contra gema; aqui, elemento neutro, x1). '
+          f'Um ponto de energia vale ~{amethyst_value:g} quartzos-equivalentes (hipótese).')
+    pol, fac = cfg.workshop['Polished'], cfg.workshop['Faceted']
+    pol_q = sum(c['Quantity'] for c in pol['Cost'])
+    fac_cost = fac['InputQuantity'] * pol['InputQuantity'] * raw_value + fac['InputQuantity'] * pol_q + sum(c['Quantity'] for c in fac['Cost'])
+    rows = []
+    for t in cfg.tiers:
+        defense = t['Defense']
+        counter = defense * t['CounterRatio']
+        energy = math.ceil(counter * cfg.epc)
+        _, _, _, attack_cost = ammo_cost(cfg, defense, 1.0, raw_value)['facetadas']
+        for ore in ('Sapphire', 'Amethyst'):
+            per_unit = cfg.defense[ore]['Faceted']
+            units = math.ceil(counter / per_unit)
+            def_cost = units * fac_cost
+            rows.append([f"{t['Slot']} {t['Name']}", defense, f"{t['CounterRatio'] * 100:g}%", f'{counter:.0f}',
+                         f'{energy} ({energy / explore_max:.1f} barras)', f'{ore} facetada x{units}', fmt(def_cost),
+                         fmt(energy * amethyst_value), f'{def_cost / attack_cost * 100:.0f}%'])
+    print(table(rows, ['faixa', 'defesa', 'razão', 'contra-ataque total', 'energia se ninguém defender', 'defesa necessária',
+                       'custo da defesa (q-eq.)', 'a energia equivale a (q-eq.)', 'custo da defesa / custo de atacar'], md))
+    print('\nLeitura: a faixa leve cabe na barra de exploração (nem precisa de defesa); a média e a difícil custam mais energia do que a barra comporta de uma vez, '
+          'então o jogador defende com gemas (barato perto do custo de atacar) ou divide o ataque em vários dias.')
 
 
 def report_counterattack(cfg, md, raw_value, amethyst_value):
@@ -473,6 +554,63 @@ def report_counterattack(cfg, md, raw_value, amethyst_value):
           f'deixa as duas opções equivalentes na média.')
 
 
+PROFILES = [('assíduo (4x por dia)', 6), ('diário (1x por dia)', 24), ('a cada 2 dias', 48)]
+
+
+def report_visit_profiles(cfg, md, explore_options, explore_minutes_per_point, raw_value, amethyst_value):
+    """Seção 3.6: o que muda por perfil de visita (a maioria dos jogadores é diária ou de 2 em 2 dias)."""
+    print('\n### 3.6 Perfis de visita: vagonete, energia normal e energia de exploração\n' if md else '\n-- 3.6 Perfis de visita --')
+    print('O jogador gasta **toda** a energia (normal e de exploração) em cada visita. O assíduo visita a cada 6 h; o diário, a cada 24 h; o casual, a cada 48 h. '
+          'A barra enche até o teto e o que passa dele se perde.')
+
+    rate = cfg.mines[1]['OresPerMinute'] * 60  # minérios por hora de uma mina
+    print('\n**Retorno de cada upgrade do vagonete, por perfil** (mina de quartzo; ganho marginal em minérios por dia sobre o nível anterior; retorno = custo ÷ ganho, em dias):\n' if md else '\nRetorno do vagonete:')
+    rows = []
+    caps = [100] + [u['Capacity'] for u in cfg.cart_upgrades]
+    for level in range(1, cfg.cart_max_level + 1):
+        cost = sum(c['Quantity'] for c in cfg.cart_upgrades[level - 1]['Cost'])
+        row = [level, caps[level], fmt(cost)]
+        for _, gap in PROFILES:
+            def per_day(cap, g=gap):
+                return min(cap, rate * g) * 24 / g
+            gain = per_day(caps[level]) - per_day(caps[level - 1])
+            row.append(f'+{gain:.0f}/dia' + (f' ({cost / gain:.0f} d)' if gain > 0 else ' (nenhum)'))
+        rows.append(row)
+    print(table(rows, ['nível', 'capacidade', 'custo (quartzo)'] + [n for n, _ in PROFILES], md))
+    print('\nLeitura: para o diário o nível 4 é o último que rende (o vagonete já enche em ~24 h); o nível 5 só ajuda quem passa mais de 1 dia fora (o casual). '
+          'Para o casual todos os níveis rendem, mas o retorno é lento.')
+
+    print('\n**Energia normal (mineração ativa) por perfil** (teto e ritmo da configuração):\n' if md else '\nEnergia normal:')
+    rows = []
+    for name, gap in PROFILES:
+        per_visit = min(cfg.max_energy, gap * cfg.energy_per_hour)
+        rows.append([name, f'{per_visit:.0f}', f'{per_visit * 24 / gap:.0f}'])
+    print(table(rows, ['perfil', 'minerações ativas por visita', 'por dia'], md))
+    print('\nLeitura: a mineração ativa rende 1 minério por ponto. Para o diário são ~100 por dia, contra ~475 do vagonete de UMA mina: o vagonete pesa muito mais que a energia normal para quem visita pouco.')
+
+    per_hour = 60 / explore_minutes_per_point
+    print('\n**Energia de exploração: dias para extrair um depósito inteiro** (estoque = defesa x ' + f'{cfg.stock_per_defense:g}' + f', {cfg.energy_per_extraction} ponto por unidade, 1 ponto a cada {explore_minutes_per_point:g} min):\n' if md else '\nExtracao por perfil:')
+    rows = []
+    for mx in explore_options:
+        for name, gap in PROFILES:
+            per_visit = min(mx, gap * per_hour)
+            per_day = per_visit * 24 / gap / cfg.energy_per_extraction
+            row = [mx, name, f'{per_visit:.0f}', f'{per_day:.0f}']
+            for t in cfg.tiers:
+                row.append(f'{t["Defense"] * cfg.stock_per_defense / per_day:.1f}')
+            rows.append(row)
+    print(table(rows, ['teto da barra', 'perfil', 'unidades por visita', 'por dia'] + [f'dias p/ faixa {t["Name"]} ({fmt(t["Defense"] * cfg.stock_per_defense)})' for t in cfg.tiers], md))
+
+    print('\n**Contra-ataque sem defesa, em barras de exploração** (quebrar a defesa inteira de uma vez, sem gemas defensoras):\n' if md else '\nContra-ataque em barras:')
+    rows = []
+    for t in cfg.tiers:
+        energy = math.ceil(t['Defense'] * t['CounterRatio'] * cfg.epc)
+        rows.append([f"{t['Slot']} {t['Name']}", energy] + [f'{energy / mx:.2f}' for mx in explore_options])
+    print(table(rows, ['faixa', 'energia perdida'] + [f'barras com teto {mx}' for mx in explore_options], md))
+    print('\nLeitura: o teto da barra decide quanto o jogador extrai por visita. Com 30, o diário extrai 30 por dia; com 72 (um dia cheio de regeneração) aproveita tudo o que acumulou. '
+          'O contra-ataque da faixa leve passa a caber folgado na barra maior.')
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--days', type=int, default=90)
@@ -481,6 +619,7 @@ def main():
     ap.add_argument('--amethyst-value', type=float, default=12, help='valor hipotético de 1 ametista (= 1 ponto de energia de exploração), em quartzos')
     ap.add_argument('--explore-max', type=int, default=30)
     ap.add_argument('--explore-minutes-per-point', type=float, default=20)
+    ap.add_argument('--explore-max-options', default='30,72,144', help='tetos da barra de exploração a comparar na seção 3.6')
     ap.add_argument('--config', default=CONFIG)
     a = ap.parse_args()
     sys.stdout.reconfigure(encoding='utf-8')
@@ -493,6 +632,7 @@ def main():
     results = report_timeline(cfg, a.days, a.markdown)
     report_capacity(cfg, results, a.markdown)
     report_deposits(cfg, a.markdown, a.raw_gem_value, a.explore_max, a.explore_minutes_per_point / 60, a.amethyst_value)
+    report_visit_profiles(cfg, a.markdown, [int(x) for x in a.explore_max_options.split(',')], a.explore_minutes_per_point, a.raw_gem_value, a.amethyst_value)
 
 
 if __name__ == '__main__':

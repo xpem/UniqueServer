@@ -96,12 +96,12 @@ namespace Shards.Service
         public static List<DailyMissionDTO> AdvanceChanged(IEnumerable<DailyMissionDTO> today, DailyMissionType type, int amount, DateTime nowUtc) =>
             AdvanceChanged(today, [(type, amount)], nowUtc);
 
-        /// <summary>Progresso de minério de uma ação: quartzo e gemas brutas obtidas (para Quartz e Gems).</summary>
-        public static IEnumerable<(DailyMissionType, int)> OreProgress(IEnumerable<KeyValuePair<OreType, int>> ores)
+        /// <summary>Progresso de minério de uma ação: quartzo e gemas brutas obtidas (para Quartz e Gems). Gema é só o que o catálogo marca como Kind Gem.</summary>
+        public static IEnumerable<(DailyMissionType, int)> OreProgress(IEnumerable<KeyValuePair<OreType, int>> ores, IReadOnlyCollection<OreType> gems)
         {
             KeyValuePair<OreType, int>[] list = ores.ToArray();
             yield return (DailyMissionType.Quartz, list.Where(o => o.Key == OreType.Quartz).Sum(o => o.Value));
-            yield return (DailyMissionType.Gems, list.Where(o => o.Key != OreType.Quartz).Sum(o => o.Value));
+            yield return (DailyMissionType.Gems, list.Where(o => gems.Contains(o.Key)).Sum(o => o.Value));
         }
     }
 }

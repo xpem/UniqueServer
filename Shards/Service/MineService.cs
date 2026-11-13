@@ -51,7 +51,7 @@ namespace Shards.Service
                 ProductionOptions production = rules.GetProduction(mine.ProductionType);
 
                 // energia: regenera e debita; o resto parcial do relógio é preservado
-                EnergyState energy = rules.RegenerateEnergy(player.Energy, player.MaxEnergy, player.LastEnergyUpdateUtc);
+                EnergyState energy = rules.RegenerateMainEnergy(player);
                 int cost = times * energyConfig.CostPerMine;
                 if (energy.Energy < cost) throw new ShardsException(ShardsErrorCode.NotEnoughEnergy);
 
@@ -99,7 +99,7 @@ namespace Shards.Service
                 // diárias: energia gasta e minérios obtidos (a skill DoubleDrop conta, já está em drops)
                 List<DailyMissionDTO> today = await ShardsQueries.GetDailyAsync(ctx, player.Id, rules.DailyDay);
                 List<DailyMissionDTO> changedDaily = DailyTracker.AdvanceChanged(
-                    today, DailyTracker.OreProgress(drops).Append((DailyMissionType.Energy, cost)), now);
+                    today, DailyTracker.OreProgress(drops, rules.GemOres).Append((DailyMissionType.Energy, cost)), now);
 
                 await ctx.SaveChangesAsync();
 
@@ -186,7 +186,7 @@ namespace Shards.Service
 
             // diárias: vagonete esvaziado e minérios obtidos
             List<DailyMissionDTO> today = await ShardsQueries.GetDailyAsync(ctx, player.Id, rules.DailyDay);
-            List<DailyMissionDTO> changedDaily = DailyTracker.AdvanceChanged(today, DailyTracker.OreProgress(collected).Append((DailyMissionType.Cart, 1)), now);
+            List<DailyMissionDTO> changedDaily = DailyTracker.AdvanceChanged(today, DailyTracker.OreProgress(collected, rules.GemOres).Append((DailyMissionType.Cart, 1)), now);
 
             await ctx.SaveChangesAsync();
 
