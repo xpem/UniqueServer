@@ -88,8 +88,6 @@ namespace Shards.Service
             return changed;
         }
 
-        private static readonly OreType[] Gems = [OreType.Ruby, OreType.Sapphire, OreType.Emerald];
-
         /// <summary>
         /// Missões que dependem de uma condição do estado do jogador (as de contagem, como PolishBatch, só avançam por ação).
         /// Estágios usam a EXISTÊNCIA da linha do inventário, não a quantidade: a linha nasce no primeiro item e não some,
@@ -100,6 +98,8 @@ namespace Shards.Service
             IReadOnlyCollection<PlayerSkillDTO> skills = facts.Skills ?? [];
             IReadOnlyCollection<MineDTO> mines = facts.Mines ?? [];
             IReadOnlyCollection<InventoryItemDTO> inventory = facts.Inventory ?? [];
+            IReadOnlyCollection<OreType> gems = facts.Gems ?? [];
+            IReadOnlyCollection<DepositDTO> deposits = facts.Deposits ?? [];
 
             bool Has(OreType ore, ItemStage stage) => inventory.Any(i => i.OreType == ore && i.Stage == stage);
             int SkillLevel(SkillType skill) => skills.Where(s => s.SkillType == skill).Select(s => s.Level).FirstOrDefault();
@@ -115,10 +115,12 @@ namespace Shards.Service
                 MissionType.FirstPolish => inventory.Any(i => i.Stage is ItemStage.Polished or ItemStage.Faceted),
                 MissionType.FirstFacet => inventory.Any(i => i.Stage == ItemStage.Faceted),
                 MissionType.Diversification => mines.Select(m => m.ProductionType).Where(p => p != OreType.Quartz).Distinct().Count() >= 2,
-                MissionType.Collector => Gems.All(gem => inventory.Any(i => i.OreType == gem)),
-                MissionType.FullSet => Gems.All(gem => Has(gem, ItemStage.Faceted)),
+                MissionType.Collector => gems.Count > 0 && gems.All(gem => inventory.Any(i => i.OreType == gem)),
+                MissionType.FullSet => gems.Count > 0 && gems.All(gem => Has(gem, ItemStage.Faceted)),
                 MissionType.ThirdMine => mines.Count >= 3,
                 MissionType.DoubleLuck => SkillLevel(SkillType.DoubleDrop) >= 3,
+                MissionType.FirstAttack => deposits.Any(d => d.Status != DepositStatus.Sealed || d.DefenseCurrent < d.DefenseMax),
+                MissionType.VaultOpened => deposits.Any(d => d.DefenseCurrent == 0),
                 _ => false,
             };
         }
@@ -128,5 +130,7 @@ namespace Shards.Service
     public record MissionFacts(
         IReadOnlyCollection<PlayerSkillDTO>? Skills = null,
         IReadOnlyCollection<MineDTO>? Mines = null,
-        IReadOnlyCollection<InventoryItemDTO>? Inventory = null);
+        IReadOnlyCollection<InventoryItemDTO>? Inventory = null,
+        IReadOnlyCollection<OreType>? Gems = null,
+        IReadOnlyCollection<DepositDTO>? Deposits = null);
 }

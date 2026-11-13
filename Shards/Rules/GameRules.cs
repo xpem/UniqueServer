@@ -23,17 +23,17 @@ namespace Shards.Rules
         #region Energia
 
         /// <summary>
-        /// Regenera a energia desde lastUpdateUtc. Ao regenerar N pontos o timestamp avança só N * SecondsPerPoint,
+        /// Regenera a energia desde lastUpdateUtc. Ao regenerar N pontos o timestamp avança só N * secondsPerPoint,
         /// preservando o resto parcial. Com a energia cheia o timestamp passa a ser agora (a contagem recomeça ao gastar).
+        /// Serve às duas barras (normal e de exploração): só mudam o máximo e os segundos por ponto.
         /// </summary>
-        public EnergyState RegenerateEnergy(int energy, int maxEnergy, DateTime lastUpdateUtc)
+        public EnergyState RegenerateEnergy(int energy, int maxEnergy, DateTime lastUpdateUtc, int secondsPerPoint)
         {
             DateTime now = UtcNow;
 
             if (energy >= maxEnergy) return new EnergyState(maxEnergy, now);
 
             double seconds = (now - lastUpdateUtc).TotalSeconds;
-            int secondsPerPoint = _balance.Energy.SecondsPerPoint;
 
             long points = seconds <= 0 ? 0 : (long)(seconds / secondsPerPoint);
             if (points == 0) return new EnergyState(energy, lastUpdateUtc);
@@ -44,8 +44,16 @@ namespace Shards.Rules
         }
 
         /// <summary>Instante em que o próximo ponto de energia chega; null se a energia está cheia.</summary>
-        public DateTime? NextEnergyAtUtc(int energy, int maxEnergy, DateTime lastUpdateUtc) =>
-            energy >= maxEnergy ? null : lastUpdateUtc.AddSeconds(_balance.Energy.SecondsPerPoint);
+        public DateTime? NextEnergyAtUtc(int energy, int maxEnergy, DateTime lastUpdateUtc, int secondsPerPoint) =>
+            energy >= maxEnergy ? null : lastUpdateUtc.AddSeconds(secondsPerPoint);
+
+        /// <summary>Energia normal regenerada até agora.</summary>
+        public EnergyState RegenerateMainEnergy(PlayerDTO player) =>
+            RegenerateEnergy(player.Energy, player.MaxEnergy, player.LastEnergyUpdateUtc, _balance.Energy.SecondsPerPoint);
+
+        /// <summary>Energia de exploração regenerada até agora (barra própria, ritmo de Explore.SecondsPerPoint).</summary>
+        public EnergyState RegenerateExploreEnergy(PlayerDTO player) =>
+            RegenerateEnergy(player.ExploreEnergy, player.ExploreMaxEnergy, player.LastExploreEnergyUpdateUtc, _balance.Explore.SecondsPerPoint);
 
         #endregion
 
@@ -111,19 +119,22 @@ namespace Shards.Rules
             FindProduction(focus) ?? throw new KeyNotFoundException($"Produção {focus} não configurada.");
 
         /// <summary>Sorteia um drop da tabela da produção da mina (pesos normalizados pela soma).</summary>
-        public DropOptions RollDrop(ProductionOptions production)
+        public DropOptions RollDrop(ProductionOptions production) => RollDrop(production.Drops);
+
+        /// <summary>Sorteia um drop de qualquer tabela (produção da mina ou faixa de depósito); pesos normalizados pela soma.</summary>
+        public DropOptions RollDrop(IReadOnlyList<DropOptions> drops)
         {
-            double total = production.Drops.Sum(d => d.Chance);
+            double total = drops.Sum(d => d.Chance);
             double roll = random.NextDouble() * total;
 
             double accumulated = 0;
-            foreach (DropOptions drop in production.Drops)
+            foreach (DropOptions drop in drops)
             {
                 accumulated += drop.Chance;
                 if (roll < accumulated) return drop;
             }
 
-            return production.Drops[^1];
+            return drops[^1];
         }
 
         #endregion
@@ -147,6 +158,77 @@ namespace Shards.Rules
 
             return (_balance.Daily.Chest.Xp, quartz);
         }
+
+        #endregion
+
+        #region Depósitos
+
+        /// <summary>
+        /// Semana do jogo atual: a segunda-feira da semana a que o DailyDay pertence. Vira na segunda, na mesma hora das diárias
+        /// (domingo 02:59 UTC ainda é a semana anterior com reset às 03:00 UTC).
+        /// </summary>
+        public DateOnly GameWeek => WeekOf(DailyDay);
+
+        /// <summary>Segunda-feira da semana de um dia do jogo.</summary>
+        public static DateOnly WeekOf(DateOnly day) => day.AddDays(-(((int)day.DayOfWeek + 6) % 7));
+
+        /// <summary>Instante da próxima virada de semana (a próxima segunda-feira, na hora de reset das diárias).</summary>
+        public DateTime NextWeekResetUtc =>
+            DateTime.SpecifyKind(GameWeek.AddDays(7).ToDateTime(TimeOnly.MinValue).AddHours(_balance.Daily.ResetHourUtc), DateTimeKind.Utc);
+
+        public DepositTierOptions? FindTier(int slot) => _balance.Deposits.Tiers.FirstOrDefault(t => t.Slot == slot);
+
+        /// <summary>
+        /// Custo da próxima troca, dado quantas já foram feitas na semana (somando todos os slots).
+        /// As primeiras FreePerWeek são grátis (null); depois a k-ésima paga custa Cost x CostMultiplier^(k-1).
+        /// </summary>
+        public OreAmount? RerollCost(int rerollsUsedThisWeek)
+        {
+            DepositRerollOptions reroll = _balance.Deposits.Reroll;
+            int paid = rerollsUsedThisWeek - reroll.FreePerWeek;
+            if (paid < 0) return null;
+
+            long quantity = reroll.Cost.Quantity;
+            for (int i = 0; i < paid && quantity < int.MaxValue; i++) quantity *= reroll.CostMultiplier;
+
+            return new OreAmount { Ore = reroll.Cost.Ore, Quantity = (int)Math.Min(quantity, int.MaxValue) };
+        }
+
+        /// <summary>
+        /// Situação para o jogador: um depósito intocado (Sealed) de semana passada conta como Expired, sem gravar nada.
+        /// Um depósito já atacado (Open) persiste, e Depleted e Expired gravados valem como estão.
+        /// </summary>
+        public DepositStatus EffectiveStatus(DepositDTO deposit) =>
+            deposit.Status == DepositStatus.Sealed && deposit.WeekStart < GameWeek ? DepositStatus.Expired : deposit.Status;
+
+        #endregion
+
+        #region Catálogo de minérios e combate
+
+        public OreOptions? FindOre(OreType ore) => _balance.Ores.FirstOrDefault(o => o.Ore == ore);
+
+        /// <summary>Gemas de mina comum (Kind Gem): as missões de coleção (Collector, FullSet) olham este conjunto.</summary>
+        public IReadOnlyCollection<OreType> GemOres => _balance.Ores.Where(o => o.Kind == OreKind.Gem).Select(o => o.Ore).ToList();
+
+        /// <summary>Minérios que a oficina aceita lapidar, na ordem do catálogo.</summary>
+        public IReadOnlyCollection<OreType> CraftableOres => _balance.Ores.Where(o => o.Craftable).Select(o => o.Ore).ToList();
+
+        public bool IsCraftable(OreType ore) => FindOre(ore)?.Craftable == true;
+
+        public Element ElementOf(OreType ore) => FindOre(ore)?.Element ?? Element.Neutral;
+
+        /// <summary>Ataque do minério no estágio informado (0 se não ataca: bruto, quartzo ou sem entrada).</summary>
+        public int AttackOf(OreType ore, ItemStage stage) => FindOre(ore)?.Attack.GetValueOrDefault(stage) ?? 0;
+
+        /// <summary>Defesa do minério no estágio informado (0 se não defende: bruto, quartzo ou sem entrada).</summary>
+        public int DefenseOf(OreType ore, ItemStage stage) => FindOre(ore)?.Defense.GetValueOrDefault(stage) ?? 0;
+
+        /// <summary>
+        /// Multiplicador do ataque de um elemento contra a defesa de outro, pela matriz de efetividade
+        /// (1,5 = vantagem, 0,75 = desvantagem, 0 = imune). Par ausente na matriz, ou Neutral, vale 1.
+        /// </summary>
+        public double ElementMultiplier(Element attacker, Element defender) =>
+            _balance.Combat.Effectiveness.FirstOrDefault(e => e.Attacker == attacker && e.Defender == defender)?.Multiplier ?? 1.0;
 
         #endregion
 

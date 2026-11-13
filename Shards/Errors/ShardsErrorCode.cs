@@ -30,5 +30,14 @@ namespace Shards.Errors
         DailyAlreadyClaimed = 25,
         ChestNotReady = 26,
         ChestAlreadyClaimed = 27,
+        DepositNotFound = 28,
+        DepositNotRotatable = 29,
+        DepositExpired = 30,
+        DepositDefenseBroken = 31,
+        DepositDepleted = 32,
+        TooManyOpenDeposits = 33,
+        NotEnoughExploreEnergy = 34,
+        InvalidAttack = 35,
+        DepositDefenseActive = 36,
     }
 }

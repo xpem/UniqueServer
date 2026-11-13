@@ -25,6 +25,14 @@ namespace Shards.Service
         public static Task<List<DailyMissionDTO>> GetDailyAsync(ShardsDbctx ctx, int playerId, DateOnly day) =>
             ctx.DailyMission.Where(d => d.PlayerId == playerId && d.Day == day).ToListAsync();
 
+        /// <summary>Os depósitos que o jogador enxerga: as ofertas da semana corrente e os já atacados (abertos) de semanas anteriores.</summary>
+        public static Task<List<DepositDTO>> GetDepositsAsync(ShardsDbctx ctx, int playerId, DateOnly week) =>
+            ctx.Deposit.Where(d => d.PlayerId == playerId && (d.WeekStart == week || d.Status == DepositStatus.Open)).ToListAsync();
+
+        /// <summary>Os depósitos que já foram atacados (de qualquer semana), sem rastrear: é só o que as condições das missões leem.</summary>
+        public static Task<List<DepositDTO>> GetAttackedDepositsAsync(ShardsDbctx ctx, int playerId) =>
+            ctx.Deposit.AsNoTracking().Where(d => d.PlayerId == playerId && (d.Status != DepositStatus.Sealed || d.DefenseCurrent < d.DefenseMax)).ToListAsync();
+
         public static async Task<int> GetSkillLevelAsync(ShardsDbctx ctx, int playerId, SkillType type) =>
             await ctx.PlayerSkill
                 .Where(s => s.PlayerId == playerId && s.SkillType == type)

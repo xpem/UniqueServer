@@ -10,7 +10,7 @@ namespace ShardsTests
         {
             Time.Advance(TimeSpan.FromHours(10));
 
-            var state = Rules.RegenerateEnergy(100, 100, Start);
+            var state = Rules.RegenerateEnergy(100, 100, Start, Balance.Energy.SecondsPerPoint);
 
             Assert.AreEqual(100, state.Energy);
             Assert.AreEqual(Time.Now.UtcDateTime, state.LastUpdateUtc);
@@ -21,7 +21,7 @@ namespace ShardsTests
         {
             Time.Advance(TimeSpan.FromSeconds(215));
 
-            var state = Rules.RegenerateEnergy(50, 100, Start);
+            var state = Rules.RegenerateEnergy(50, 100, Start, Balance.Energy.SecondsPerPoint);
 
             Assert.AreEqual(50, state.Energy);
             Assert.AreEqual(Start, state.LastUpdateUtc);
@@ -33,7 +33,7 @@ namespace ShardsTests
             // 500 s = 2 pontos (432 s) + 68 s de resto
             Time.Advance(TimeSpan.FromSeconds(500));
 
-            var state = Rules.RegenerateEnergy(10, 100, Start);
+            var state = Rules.RegenerateEnergy(10, 100, Start, Balance.Energy.SecondsPerPoint);
 
             Assert.AreEqual(12, state.Energy);
             Assert.AreEqual(Start.AddSeconds(432), state.LastUpdateUtc);
@@ -49,10 +49,10 @@ namespace ShardsTests
             for (int i = 0; i < 4; i++)
             {
                 Time.Advance(TimeSpan.FromSeconds(100));
-                (energy, last) = Rules.RegenerateEnergy(energy, 100, last);
+                (energy, last) = Rules.RegenerateEnergy(energy, 100, last, Balance.Energy.SecondsPerPoint);
             }
             Time.Advance(TimeSpan.FromSeconds(32));
-            (energy, last) = Rules.RegenerateEnergy(energy, 100, last);
+            (energy, last) = Rules.RegenerateEnergy(energy, 100, last, Balance.Energy.SecondsPerPoint);
 
             Assert.AreEqual(12, energy);
         }
@@ -62,7 +62,7 @@ namespace ShardsTests
         {
             Time.Advance(TimeSpan.FromHours(6));
 
-            var state = Rules.RegenerateEnergy(0, 100, Start);
+            var state = Rules.RegenerateEnergy(0, 100, Start, Balance.Energy.SecondsPerPoint);
 
             Assert.AreEqual(100, state.Energy);
             Assert.AreEqual(Time.Now.UtcDateTime, state.LastUpdateUtc);
@@ -71,7 +71,7 @@ namespace ShardsTests
         [TestMethod]
         public void ClockSkew_FutureTimestamp_DoesNotRegenerate()
         {
-            var state = Rules.RegenerateEnergy(20, 100, Start.AddMinutes(5));
+            var state = Rules.RegenerateEnergy(20, 100, Start.AddMinutes(5), Balance.Energy.SecondsPerPoint);
 
             Assert.AreEqual(20, state.Energy);
             Assert.AreEqual(Start.AddMinutes(5), state.LastUpdateUtc);
@@ -80,8 +80,8 @@ namespace ShardsTests
         [TestMethod]
         public void NextEnergyAt_IsNullWhenFull_OtherwiseOnePointAhead()
         {
-            Assert.IsNull(Rules.NextEnergyAtUtc(100, 100, Start));
-            Assert.AreEqual(Start.AddSeconds(216), Rules.NextEnergyAtUtc(99, 100, Start));
+            Assert.IsNull(Rules.NextEnergyAtUtc(100, 100, Start, Balance.Energy.SecondsPerPoint));
+            Assert.AreEqual(Start.AddSeconds(216), Rules.NextEnergyAtUtc(99, 100, Start, Balance.Energy.SecondsPerPoint));
         }
     }
 
@@ -348,7 +348,9 @@ namespace ShardsTests
             Assert.AreEqual(MissionType.OperationalExpansion, Shards.Rules.MissionCatalog.Next(MissionType.Specialization)?.Type);
             Assert.AreEqual(MissionType.FirstGem, Shards.Rules.MissionCatalog.Next(MissionType.OperationalExpansion)?.Type);
             Assert.AreEqual(MissionType.CartTraining, Shards.Rules.MissionCatalog.Next(MissionType.FirstGem)?.Type);
-            Assert.IsNull(Shards.Rules.MissionCatalog.Next(MissionType.DoubleLuck), "DoubleLuck fecha a cadeia");
+            Assert.AreEqual(MissionType.FirstAttack, Shards.Rules.MissionCatalog.Next(MissionType.DoubleLuck)?.Type);
+            Assert.AreEqual(MissionType.Extractor, Shards.Rules.MissionCatalog.Next(MissionType.VaultOpened)?.Type);
+            Assert.IsNull(Shards.Rules.MissionCatalog.Next(MissionType.Extractor), "Extrator fecha a cadeia");
         }
 
         [TestMethod]
@@ -360,6 +362,7 @@ namespace ShardsTests
                 MissionType.CartTraining, MissionType.CartUpgrade, MissionType.OpenWorkshop, MissionType.FirstPolish, MissionType.FirstFacet,
                 MissionType.Diversification, MissionType.Collector, MissionType.PolishBatch, MissionType.FullSet, MissionType.FacetBatch,
                 MissionType.ThirdMine, MissionType.FullCart, MissionType.DoubleLuck,
+                MissionType.FirstAttack, MissionType.VaultOpened, MissionType.Extractor,
             ];
 
             CollectionAssert.AreEqual(expected, Shards.Rules.MissionCatalog.All.Select(m => m.Type).ToArray());

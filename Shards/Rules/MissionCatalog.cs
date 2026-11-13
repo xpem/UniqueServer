@@ -65,6 +65,15 @@ namespace Shards.Rules
 
             new(MissionType.DoubleLuck, "Dupla Sorte", "Leve a habilidade DoubleDrop ao nível 3.", 1,
                 new MissionReward(30, [])),
+
+            new(MissionType.FirstAttack, "Primeiro Ataque", "Ataque um depósito com gemas lapidadas.", 1,
+                new MissionReward(50, [])),
+
+            new(MissionType.VaultOpened, "Cofre Aberto", "Derrube a defesa de um depósito.", 1,
+                new MissionReward(80, [new OreAmount { Ore = OreType.Quartz, Quantity = 500 }])),
+
+            new(MissionType.Extractor, "Extrator", "Extraia 100 unidades de minério de depósitos.", 100,
+                new MissionReward(100, [new OreAmount { Ore = OreType.Quartz, Quantity = 1000 }])),
         ];
 
         public static MissionDefinition First => All[0];

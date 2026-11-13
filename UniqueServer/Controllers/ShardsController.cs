@@ -13,8 +13,40 @@ namespace UniqueServer.Controllers
     [ApiController]
     [Authorize]
     [EnableRateLimiting(ShardsRateLimit.PolicyName)]
-    public class ShardsController(IPlayerService playerService, IMineService mineService, IPlayerSkillService playerSkillService, IPlayerMissionService playerMissionService, IInventoryService inventoryService, IWorkshopService workshopService, IDailyService dailyService) : BaseController
+    public class ShardsController(IPlayerService playerService, IMineService mineService, IPlayerSkillService playerSkillService, IPlayerMissionService playerMissionService, IInventoryService inventoryService, IWorkshopService workshopService, IDailyService dailyService, IDepositService depositService) : BaseController
     {
+        /// <summary>
+        /// Troca uma oferta de depósito intocada da semana por outra no mesmo slot. A primeira troca da semana é grátis;
+        /// as seguintes custam quartzo (500, 1.000, 2.000...). Depósito já atacado ou expirado não pode ser trocado.
+        /// </summary>
+        [HttpPost("deposits/{id:int}/rotate")]
+        [ProducesResponseType<RotateDepositRes>(StatusCodes.Status200OK)]
+        [ProducesResponseType<ShardsErrorRes>(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType<ShardsErrorRes>(StatusCodes.Status409Conflict)]
+        public Task<IActionResult> RotateDeposit(int id) => RunAsync(() => depositService.RotateAsync(Uid, id));
+
+        /// <summary>
+        /// Ataca um depósito com gemas lapidadas (Polished ou Faceted), que são consumidas. O depósito contra-ataca: o que as gemas de
+        /// defesa não absorvem tira energia de exploração. Com "preview": true só calcula (dano, gemas, contra-ataque, energia) e não grava.
+        /// </summary>
+        [HttpPost("deposits/{id:int}/attack")]
+        [ProducesResponseType<AttackDepositRes>(StatusCodes.Status200OK)]
+        [ProducesResponseType<ShardsErrorRes>(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType<ShardsErrorRes>(StatusCodes.Status409Conflict)]
+        public Task<IActionResult> AttackDeposit(int id, [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] AttackDepositReq? req) =>
+            RunAsync(() => depositService.AttackAsync(Uid, id, req));
+
+        /// <summary>
+        /// Extrai ametista de um depósito de defesa já derrubada: 1 ponto de energia de exploração por unidade. O body é opcional
+        /// (sem ele, 1 unidade); extrai no máximo o estoque restante e, ao zerar, o depósito se esgota.
+        /// </summary>
+        [HttpPost("deposits/{id:int}/mine")]
+        [ProducesResponseType<MineDepositRes>(StatusCodes.Status200OK)]
+        [ProducesResponseType<ShardsErrorRes>(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType<ShardsErrorRes>(StatusCodes.Status409Conflict)]
+        public Task<IActionResult> MineDeposit(int id, [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] MineReq? req) =>
+            RunAsync(() => depositService.MineAsync(Uid, id, req?.Times ?? 1));
+
         /// <summary>Resgata o baú de hoje (exige todas as missões diárias resgatadas) e atualiza a sequência de dias.</summary>
         [HttpPost("daily/chest/claim")]
         [ProducesResponseType<DailyClaimRes>(StatusCodes.Status200OK)]

@@ -28,6 +28,17 @@ namespace Shards.Model.Res
 
         /// <summary>Quando o próximo ponto de energia chega; nulo com a energia cheia.</summary>
         public DateTime? NextEnergyAtUtc { get; set; }
+
+        /// <summary>Energia de exploração (segunda barra, só para extrair dos depósitos). Já vem regenerada até agora.</summary>
+        public int ExploreEnergy { get; set; }
+
+        public int ExploreMaxEnergy { get; set; }
+
+        /// <summary>Segundos para regenerar 1 ponto de energia de exploração (vem da configuração).</summary>
+        public int ExploreSecondsPerEnergy { get; set; }
+
+        /// <summary>Quando o próximo ponto de energia de exploração chega; nulo com a barra cheia.</summary>
+        public DateTime? NextExploreEnergyAtUtc { get; set; }
     }
 
     public record SkillRes
@@ -188,6 +199,57 @@ namespace Shards.Model.Res
         public List<WorkshopGemRes> Gems { get; set; } = [];
     }
 
+    /// <summary>Ataque de um minério num estágio (só Polished e Faceted atacam).</summary>
+    public record OreAttackRes
+    {
+        public ItemStage Stage { get; set; }
+
+        public int Attack { get; set; }
+    }
+
+    /// <summary>Defesa de um minério num estágio (só Polished e Faceted defendem).</summary>
+    public record OreDefenseRes
+    {
+        public ItemStage Stage { get; set; }
+
+        public int Defense { get; set; }
+    }
+
+    /// <summary>Uma entrada do catálogo de minérios: tipo, elemento, se a oficina lapida e o ataque por estágio.</summary>
+    public record OreInfoRes
+    {
+        public OreType OreType { get; set; }
+
+        public OreKind Kind { get; set; }
+
+        public Element Element { get; set; }
+
+        public bool Craftable { get; set; }
+
+        public List<OreAttackRes> Attack { get; set; } = [];
+
+        public List<OreDefenseRes> Defense { get; set; } = [];
+    }
+
+    /// <summary>Um par da matriz de efetividade: o ataque do atacante contra a defesa do defensor é multiplicado por Multiplier.</summary>
+    public record EffectivenessRes
+    {
+        public Element Attacker { get; set; }
+
+        public Element Defender { get; set; }
+
+        public double Multiplier { get; set; }
+    }
+
+    /// <summary>Regras de combate: a matriz de efetividade entre elementos. Par ausente vale 1.</summary>
+    public record CombatRes
+    {
+        public List<EffectivenessRes> Effectiveness { get; set; } = [];
+
+        /// <summary>Energia de exploração perdida por ponto de contra-ataque que as gemas de defesa não absorvem.</summary>
+        public double EnergyPerCounterPoint { get; set; }
+    }
+
     /// <summary>Resposta de GET /shards/state: o estado completo do jogador.</summary>
     public record ShardsStateRes
     {
@@ -218,7 +280,16 @@ namespace Shards.Model.Res
         /// <summary>Receitas da oficina, com custo, skill e saldo por gema.</summary>
         public List<WorkshopRecipeRes> Workshop { get; set; } = [];
 
+        /// <summary>Catálogo de minérios (tipo, elemento, ataque por estágio). Vem da configuração.</summary>
+        public List<OreInfoRes> Ores { get; set; } = [];
+
+        /// <summary>Ciclo de elementos e multiplicadores de combate.</summary>
+        public required CombatRes Combat { get; set; }
+
         /// <summary>Missões diárias; nulo até o jogador resgatar a Missão 1.</summary>
         public DailyStateRes? Daily { get; set; }
+
+        /// <summary>Depósitos (minas finitas): ofertas da semana e trocas; nulo até liberar a oficina (skill Workshop).</summary>
+        public DepositsStateRes? Deposits { get; set; }
     }
 }

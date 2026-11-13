@@ -22,5 +22,8 @@ namespace Shards.Model.DTO
         ThirdMine = 15,
         FullCart = 16,
         DoubleLuck = 17,
+        FirstAttack = 18,
+        VaultOpened = 19,
+        Extractor = 20,
     }
 }
